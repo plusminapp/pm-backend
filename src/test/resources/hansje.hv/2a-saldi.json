@@ -1,0 +1,22 @@
+{
+  "periodeStartDatum": "2024-12-20",
+  "periodeStatus": "OPEN",
+  "saldoLijst": [
+    {
+      "rekeningNaam": "Betaalrekening",
+      "bedrag": "512.25"
+    },
+    {
+      "rekeningNaam": "Spaarrekening",
+      "bedrag": "3516.32"
+    },
+    {
+      "rekeningNaam": "Credit Card",
+      "bedrag": "-143.5"
+    },
+    {
+      "rekeningNaam": "Contant",
+      "bedrag": "25"
+    }
+  ]
+}

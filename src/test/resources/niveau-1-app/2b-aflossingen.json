@@ -1,0 +1,47 @@
+[
+  {
+    "rekening": {
+      "rekeningSoort": "AFLOSSING",
+      "nummer": "",
+      "naam": "Smaal",
+      "sortOrder": 16
+    },
+    "startDatum": "2024-05-01",
+    "eindDatum": "2025-05-01",
+    "eindBedrag": 851.4,
+    "aflossingsBedrag": 75,
+    "betaalDag": 26,
+    "dossierNummer": "Smaal dossiernummer",
+    "notities": "Lorem ipsum odor amet, consectetuer adipiscing elit. Cursus ipsum natoque sodales vivamus est interdum. At facilisi tincidunt eget in suscipit suspendisse urna dui."
+  },
+  {
+    "rekening": {
+      "rekeningSoort": "AFLOSSING",
+      "nummer": "",
+      "naam": "Infomedics",
+      "sortOrder": 17
+    },
+    "startDatum": "2024-05-01",
+    "eindDatum": "2025-09-01",
+    "eindBedrag": 386.4,
+    "aflossingsBedrag": 25,
+    "betaalDag": 26,
+    "dossierNummer": "Infomedics dossiernummer",
+    "notities": "Lorem ipsum odor amet, consectetuer adipiscing elit. Cursus ipsum natoque sodales vivamus est interdum. At facilisi tincidunt eget in suscipit suspendisse urna dui."
+  },
+  {
+    "rekening": {
+      "rekeningSoort": "AFLOSSING",
+      "nummer": "",
+      "naam": "Flanderijn",
+      "sortOrder": 11
+    },
+    "startDatum": "2024-05-01",
+    "eindDatum": "2025-11-01",
+    "eindBedrag": 1304,
+    "aflossingsBedrag": 75,
+    "betaalDag": 26,
+    "dossierNummer": "Flanderijn dossiernummer",
+    "notities": "Lorem ipsum odor amet, consectetuer adipiscing elit. Cursus ipsum natoque sodales vivamus est interdum. At facilisi tincidunt eget in suscipit suspendisse urna dui."
+   }
+]

@@ -1,0 +1,39 @@
+[
+  {
+    "rekeningNaam": "Inkomsten",
+    "budgetNaam": "AOW",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 1214,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Inkomsten",
+    "budgetNaam": "Pensioen",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 2554,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Vaste lasten",
+    "budgetType": "continu",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 1675,
+  },
+  {
+    "rekeningNaam":  "Boodschappen",
+    "budgetNaam": "Boodschappen",
+    "budgetType": "continu",
+    "budgetPeriodiciteit": "week",
+    "bedrag": 55
+  },
+  {
+    "rekeningNaam":  "Andere uitgave",
+    "budgetNaam": "Andere uitgave",
+    "budgetType": "continu",
+    "budgetPeriodiciteit": "week",
+    "bedrag": 125
+  }
+]

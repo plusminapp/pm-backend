@@ -1,0 +1,66 @@
+[
+  {
+    "rekeningSoort": "BETAALREKENING",
+    "nummer": "betaalrekeningnummer",
+    "naam": "ASN betaalrekening",
+    "afkorting": "btr",
+    "sortOrder": 1,
+    "saldo": 75
+  },
+  {
+    "rekeningSoort": "SPAARREKENING",
+    "nummer": "spaarrekeningnummer",
+    "naam": "ASN spaarrekening",
+    "afkorting": "spr",
+    "sortOrder": 2,
+    "saldo": 25
+  },
+  {
+    "rekeningSoort": "RENTE",
+    "naam": "Rente",
+    "afkorting": "btr",
+    "sortOrder": 1
+  },
+  {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "Contant",
+    "afkorting": "cnt",
+    "sortOrder": 3
+  },
+  {
+    "rekeningSoort": "CREDITCARD",
+    "nummer": "",
+    "naam": "Creditcard",
+    "afkorting": "CC",
+    "sortOrder": 4
+  },
+  {
+    "rekeningSoort": "INKOMSTEN",
+    "nummer": "",
+    "naam": "Inkomsten",
+    "afkorting": "ink",
+    "sortOrder": 110
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Boodschappen",
+    "afkorting": "boo",
+    "sortOrder": 111
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Vaste lasten",
+    "afkorting": "vl",
+    "sortOrder": 112
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Andere uitgave",
+    "afkorting": "au",
+    "sortOrder": 113
+  }
+]

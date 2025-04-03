@@ -1,0 +1,17 @@
+{
+  "datum": "2024-12-24",
+  "saldoLijst": [
+    {
+      "rekeningNaam": "Betaalrekening",
+      "bedrag": "512.25"
+    },
+    {
+      "rekeningNaam": "Spaarrekening",
+      "bedrag": "3516.32"
+    },
+    {
+      "rekeningNaam": "Credit Card",
+      "bedrag": "-143.5"
+    }
+  ]
+}

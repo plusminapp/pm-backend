@@ -1,0 +1,47 @@
+[
+  {
+    "rekening": {
+      "rekeningSoort": "AFLOSSING",
+      "nummer": "",
+      "naam": "BD Toeslagen",
+      "sortOrder": 10
+    },
+    "startDatum": "2024-05-01",
+    "eindDatum": "2026-10-01",
+    "eindBedrag": 7425,
+    "aflossingsBedrag": 259,
+    "betaalDag": 26,
+    "dossierNummer": "BD Toeslagen dossiernummer",
+    "notities": "Lorem ipsum odor amet, consectetuer adipiscing elit. Cursus ipsum natoque sodales vivamus est interdum. At facilisi tincidunt eget in suscipit suspendisse urna dui."
+  },
+  {
+    "rekening": {
+      "rekeningSoort": "AFLOSSING",
+      "nummer": "",
+      "naam": "Infomedics",
+      "sortOrder": 17
+    },
+    "startDatum": "2024-05-01",
+    "eindDatum": "2025-09-01",
+    "eindBedrag": 386.4,
+    "aflossingsBedrag": 25,
+    "betaalDag": 26,
+    "dossierNummer": "Belastingdienst dossiernummer",
+    "notities": "Lorem ipsum odor amet, consectetuer adipiscing elit. Cursus ipsum natoque sodales vivamus est interdum. At facilisi tincidunt eget in suscipit suspendisse urna dui."
+  },
+  {
+    "rekening": {
+      "rekeningSoort": "AFLOSSING",
+      "nummer": "",
+      "naam": "Tribuut",
+      "sortOrder": 15
+    },
+    "startDatum": "2024-05-01",
+    "eindDatum": "2025-09-01",
+    "eindBedrag": 632.74,
+    "aflossingsBedrag": 40,
+    "betaalDag": 26,
+    "dossierNummer": "Tribuut dossiernummer",
+    "notities": "Lorem ipsum odor amet, consectetuer adipiscing elit. Cursus ipsum natoque sodales vivamus est interdum. At facilisi tincidunt eget in suscipit suspendisse urna dui."
+  }
+]
