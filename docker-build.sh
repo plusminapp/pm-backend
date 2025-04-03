@@ -10,7 +10,7 @@ if mvn package; then
   docker build \
     --platform=$PLATFORM \
     --build-arg JAR_FILE=./target/pm-backend-${VERSION}.jar \
-    -t rimvanvliet/pm-backend:${VERSION} .
+    -t plusmin/pm-backend:${VERSION} .
 else
   echo mvn clean package FAILED!!!
 fi
