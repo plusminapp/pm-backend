@@ -4,8 +4,8 @@ De pm-backend is de backend repo voor de PlusMin app, gebouwd met Kotlin.
 Op dit moment wordt voor de backend nog geen gebruik gemaakt van devcontainers want Intellij
 is op dit moment nog minder volwassen op devcontainer gebied dan Vscode.
 Waarschijnlijk is ook een betaalde Ultimate Edition nodig voor ondersteuning.
-Daarnaast is devcontainers op Intellij nog EAP (Early Access Program) en is SSH nodig om
-git te benaderen.
+Daarnaast lijkt het er op dat devcontainers op Intellij SSH nodig heeft om
+git te kunnen benaderen.
 
 ## Info over pm-backend
 Lorum ipsum shizzle
