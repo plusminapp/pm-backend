@@ -80,7 +80,7 @@ Lokaal moet ingeregeld zijn:
   IdentityFile ~/.ssh/id_ed25519_devcont
 ```
 
-De IdentityFile naam id_ed25519_devcont in dit voorbeeld is de pubieke key die voor de user in github.com is opgenomen.
+De IdentityFile naam id_ed25519_devcont in dit voorbeeld is de key waarvoor in github.com de xxxx.pub versie als SSH entry is opgenomen.
 
 - Niet zeker maar bij niet werkende omgeving zou je ook in de /etc/sshd_config file "AllowAgentForwarding yes" kunnen enablen.
 
