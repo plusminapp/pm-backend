@@ -83,6 +83,7 @@ class BudgetService {
             .sortedBy { it.rekening.sortOrder }
             .map { budget ->
                 budget.toDTO(
+                    berekenMaandBudget(budget, gekozenPeriode),
                     peilDatum.toString(),
                     berekenBudgetOpPeildatum(budget, gekozenPeriode, peilDatum),
                     getBetalingVoorBudgetInPeriode(budget, gekozenPeriode)
@@ -100,6 +101,15 @@ class BudgetService {
         val bedrag =
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == budget.rekening.id) acc + betaling.bedrag else acc - betaling.bedrag }
         return bedrag
+    }
+
+    fun berekenMaandBudget(budget: Budget, gekozenPeriode: Periode): BigDecimal {
+        val dagenInPeriode: Long =
+            gekozenPeriode.periodeEindDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
+        return when (budget.budgetPeriodiciteit) {
+            Budget.BudgetPeriodiciteit.WEEK -> budget.bedrag * BigDecimal(dagenInPeriode) / BigDecimal(7)
+            Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
+        }.setScale(2, RoundingMode.HALF_UP)
     }
 
     fun berekenBudgetOpPeildatum(budget: Budget, gekozenPeriode: Periode, peilDatum: LocalDate): BigDecimal {

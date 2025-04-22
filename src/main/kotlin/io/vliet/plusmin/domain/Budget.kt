@@ -43,11 +43,18 @@ class Budget(
         val budgetPeriodiciteit: String,
         val bedrag: BigDecimal,
         val betaalDag: Int?,
+        val budgetMaandBedrag: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null,
-        val budgetBetaling: BigDecimal? = null)
+        val budgetBetaling: BigDecimal? = null
+    )
 
-    fun toDTO(budgetPeilDatum: String? = null, budgetOpPeilDatum: BigDecimal? = null, budgetBetaling: BigDecimal? = null): BudgetDTO {
+    fun toDTO(
+        budgetMaandBedrag: BigDecimal? = null,
+        budgetPeilDatum: String? = null,
+        budgetOpPeilDatum: BigDecimal? = null,
+        budgetBetaling: BigDecimal? = null
+    ): BudgetDTO {
         return BudgetDTO(
             this.id,
             this.rekening.naam,
@@ -56,6 +63,7 @@ class Budget(
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
             this.betaalDag,
+            budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,
             budgetBetaling

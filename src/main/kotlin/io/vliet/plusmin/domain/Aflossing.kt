@@ -52,6 +52,7 @@ class Aflossing(
         val dossierNummer: String,
         val notities: String,
         val aflossingPeilDatum: String? = null,
+        val aflossingOpPeilDatum: BigDecimal? = null,
         val aflossingBetaling: BigDecimal? = null,
         val deltaStartPeriode: BigDecimal? = null,
         val saldoStartPeriode: BigDecimal? = null,
@@ -59,6 +60,7 @@ class Aflossing(
 
     fun toDTO(
         aflossingPeilDatum: String? = null,
+        aflossingOpPeilDatum: BigDecimal? = null,
         aflossingBetaling: BigDecimal? = null,
         deltaStartPeriode: BigDecimal? = null,
         saldoStartPeriode: BigDecimal? = null,
@@ -74,6 +76,7 @@ class Aflossing(
             this.dossierNummer,
             this.notities,
             aflossingPeilDatum = aflossingPeilDatum,
+            aflossingOpPeilDatum = aflossingOpPeilDatum,
             aflossingBetaling = aflossingBetaling,
             deltaStartPeriode = deltaStartPeriode,
             saldoStartPeriode = saldoStartPeriode,
