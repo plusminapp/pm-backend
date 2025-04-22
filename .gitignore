@@ -3,6 +3,7 @@
 .vscode/
 .mvn/
 out/
+*.iml
 
 target/
 
