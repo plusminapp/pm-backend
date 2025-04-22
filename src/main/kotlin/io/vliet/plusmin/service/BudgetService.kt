@@ -12,8 +12,9 @@ import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.webjars.NotFoundException
+import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -43,7 +44,7 @@ class BudgetService {
 
     fun upsert(gebruiker: Gebruiker, budgetDTO: BudgetDTO): BudgetDTO {
         val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, budgetDTO.rekeningNaam)
-            ?: throw NotFoundException("${budgetDTO.rekeningNaam} niet gevonden.")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "${budgetDTO.rekeningNaam} niet gevonden.")
         val budget = budgetRepository.findByRekeningEnBudgetNaam(rekening, budgetDTO.budgetNaam)
         val newBudget = if (budget == null) {
             logger.info("Nieuw budget ${budgetDTO.budgetNaam} voor gebruiker ${gebruiker.email}")
