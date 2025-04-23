@@ -1,24 +1,26 @@
 [
   {
-    "boekingsdatum": "2024-12-21",
+    "boekingsdatum": "2025-04-21",
     "bedrag": 2135,
     "saldo_achteraf": null,
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
+    "sortOrder": "20250421.900",
     "bron": "Inkomsten",
     "bestemming": "ASN betaalrekening"
   },
   {
-    "boekingsdatum": "2024-12-23",
+    "boekingsdatum": "2025-04-23",
     "bedrag": 74.88,
     "saldo_achteraf": null,
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
+    "sortOrder": "20250421.890",
     "bron": "ASN betaalrekening",
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-02",
+    "boekingsdatum": "2025-05-02",
     "bedrag": 25.23,
     "saldo_achteraf": null,
     "omschrijving": "Aldi",
@@ -27,7 +29,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-09",
+    "boekingsdatum": "2025-05-09",
     "bedrag": 54.01,
     "saldo_achteraf": null,
     "omschrijving": "Aldi",
@@ -36,7 +38,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-16",
+    "boekingsdatum": "2025-05-16",
     "bedrag": 49.91,
     "saldo_achteraf": null,
     "omschrijving": "Aldi",
@@ -45,7 +47,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-02",
+    "boekingsdatum": "2025-05-02",
     "bedrag": 169,
     "saldo_achteraf": null,
     "omschrijving": "Greenchoice",
@@ -54,7 +56,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-02",
+    "boekingsdatum": "2025-05-02",
     "bedrag": 14,
     "saldo_achteraf": null,
     "omschrijving": "Vitens",
@@ -63,7 +65,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-02",
+    "boekingsdatum": "2025-05-02",
     "bedrag": 14,
     "saldo_achteraf": null,
     "omschrijving": "Tribuut",
@@ -72,7 +74,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-05",
+    "boekingsdatum": "2025-05-05",
     "bedrag": 62.5,
     "saldo_achteraf": null,
     "omschrijving": "GBLT",
@@ -81,7 +83,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2024-12-28",
+    "boekingsdatum": "2025-04-28",
     "bedrag": 724.36,
     "saldo_achteraf": null,
     "omschrijving": "Huur",
@@ -90,7 +92,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-10",
+    "boekingsdatum": "2025-05-10",
     "bedrag": 123.69,
     "saldo_achteraf": null,
     "omschrijving": "KPN telefoon mobiel & vast",
@@ -99,7 +101,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-10",
+    "boekingsdatum": "2025-05-10",
     "bedrag": 135,
     "saldo_achteraf": null,
     "omschrijving": "ONVZ Zorgverzekering",
@@ -108,7 +110,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2024-12-22",
+    "boekingsdatum": "2025-04-22",
     "bedrag": 16.45,
     "saldo_achteraf": null,
     "omschrijving": "Het Onderdelenhuis",
@@ -117,7 +119,7 @@
     "bestemming": "Andere uitgave"
   },
   {
-    "boekingsdatum": "2025-01-10",
+    "boekingsdatum": "2025-05-10",
     "bedrag": 4.95,
     "saldo_achteraf": null,
     "omschrijving": "Kruidvat",
@@ -126,7 +128,7 @@
     "bestemming": "Andere uitgave"
   },
   {
-    "boekingsdatum": "2024-12-26",
+    "boekingsdatum": "2025-04-26",
     "bedrag": 259,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Belastingdienst",
@@ -136,7 +138,7 @@
     "budgetNaam": "Schulden/aflossingen"
   },
   {
-    "boekingsdatum": "2024-12-26",
+    "boekingsdatum": "2025-04-26",
     "bedrag": 25,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Infomedics",
@@ -146,7 +148,7 @@
     "budgetNaam": "Schulden/aflossingen"
   },
   {
-    "boekingsdatum": "2024-12-26",
+    "boekingsdatum": "2025-04-26",
     "bedrag": 75,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Smaal",
@@ -156,7 +158,7 @@
     "budgetNaam": "Schulden/aflossingen"
   },
   {
-    "boekingsdatum": "2024-12-26",
+    "boekingsdatum": "2025-04-26",
     "bedrag": 40,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Waterschap",
@@ -166,7 +168,7 @@
     "budgetNaam": "Schulden/aflossingen"
   },
   {
-    "boekingsdatum": "2024-12-21",
+    "boekingsdatum": "2025-04-21",
     "bedrag": 40,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Tribuut",

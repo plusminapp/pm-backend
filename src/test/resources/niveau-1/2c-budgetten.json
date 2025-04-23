@@ -1,6 +1,7 @@
 [
   {
     "rekeningNaam": "Inkomsten",
+    "rekeningSoort": "INKOMSTEN",
     "budgetNaam": "Inkomsten",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -9,6 +10,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "Huur",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -17,6 +19,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "Greenchoice",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -25,6 +28,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "Vitens",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -33,6 +37,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "Tribuut",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -41,6 +46,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "GBLT",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -49,6 +55,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "KPN",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -57,6 +64,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "ONVZ",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
@@ -65,23 +73,18 @@
   },
   {
     "rekeningNaam":  "Boodschappen",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "Boodschappen",
     "budgetType": "continu",
     "budgetPeriodiciteit": "week",
     "bedrag": 100
   },
   {
-    "rekeningNaam":  "Schulden/aflossingen",
-    "budgetNaam": "Schulden/aflossingen",
-    "budgetType": "continu",
-    "budgetPeriodiciteit": "maand",
-    "bedrag": 100
-  },
-  {
     "rekeningNaam":  "Andere uitgave",
+    "rekeningSoort": "UITGAVEN",
     "budgetNaam": "Andere uitgave",
     "budgetType": "continu",
     "budgetPeriodiciteit": "week",
-    "bedrag": 25
+    "bedrag": 85
   }
 ]

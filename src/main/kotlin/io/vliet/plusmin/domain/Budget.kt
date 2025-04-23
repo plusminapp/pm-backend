@@ -23,7 +23,6 @@ class Budget(
     @JoinColumn(name = "rekening_id", nullable = false)
     val rekening: Rekening,
     val budgetNaam: String,
-    val budgetType: BudgetType = BudgetType.VAST,
     val budgetPeriodiciteit: BudgetPeriodiciteit = BudgetPeriodiciteit.MAAND,
     val bedrag: BigDecimal,
     val betaalDag: Int?,
@@ -32,34 +31,41 @@ class Budget(
         rekening: Rekening = this.rekening,
         budgetNaam: String = this.budgetNaam,
         bedrag: BigDecimal = this.bedrag,
-        budgetType: BudgetType = this.budgetType,
         budgetPeriodiciteit: BudgetPeriodiciteit = this.budgetPeriodiciteit,
         betaalDag: Int? = this.betaalDag,
-    ) = Budget(this.id, rekening, budgetNaam, budgetType, budgetPeriodiciteit, bedrag, betaalDag)
+    ) = Budget(this.id, rekening, budgetNaam, budgetPeriodiciteit, bedrag, betaalDag)
 
     data class BudgetDTO(
         val id: Long = 0,
         val rekeningNaam: String,
         val rekeningSoort: String,
         val budgetNaam: String,
-        val budgetType: String,
         val budgetPeriodiciteit: String,
         val bedrag: BigDecimal,
         val betaalDag: Int?,
+        val budgetMaandBedrag: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
-        val budgetBetaling: BigDecimal? = null)
+        val budgetOpPeilDatum: BigDecimal? = null,
+        val budgetBetaling: BigDecimal? = null
+    )
 
-    fun toDTO(budgetPeilDatum: String? = null, budgetBetaling: BigDecimal? = null): BudgetDTO {
+    fun toDTO(
+        budgetMaandBedrag: BigDecimal? = null,
+        budgetPeilDatum: String? = null,
+        budgetOpPeilDatum: BigDecimal? = null,
+        budgetBetaling: BigDecimal? = null
+    ): BudgetDTO {
         return BudgetDTO(
             this.id,
             this.rekening.naam,
             this.rekening.rekeningSoort.toString(),
             this.budgetNaam,
-            this.budgetType.toString(),
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
             this.betaalDag,
+            budgetMaandBedrag,
             budgetPeilDatum,
+            budgetOpPeilDatum,
             budgetBetaling
         )
     }

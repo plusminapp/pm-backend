@@ -115,11 +115,11 @@ class AflossingService {
             logger.error("Geen periode voor ${gebruiker.bijnaam} op ${peilDatum}, gebruik ${saldoPeriode.periodeStartDatum}")
             saldoPeriode
         }
-
-
         return aflossingenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { aflossing ->
+                val aflossingOpPeilDatum = if (ishetAlAfgeschreven(aflossing, gekozenPeriode, peilDatum))
+                    aflossing.aflossingsBedrag else BigDecimal(0)
                 val saldoStartPeriode = getBalansVanStand(balansOpDatum, aflossing.rekening)
                 val deltaStartPeriode =
                     berekenAflossingBedragOpDatum(
@@ -129,6 +129,7 @@ class AflossingService {
 
                 aflossing.toDTO(
                     aflossingPeilDatum = peilDatumAsString,
+                    aflossingOpPeilDatum = aflossingOpPeilDatum,
                     saldoStartPeriode = saldoStartPeriode,
                     deltaStartPeriode = deltaStartPeriode,
                     aflossingBetaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
@@ -139,6 +140,15 @@ class AflossingService {
     fun getBalansVanStand(balansOpDatum: List<Saldo.SaldoDTO>, rekening: Rekening): BigDecimal {
         val saldo = balansOpDatum.find { it.rekeningNaam == rekening.naam }
         return if (saldo == null) BigDecimal(0) else -saldo.bedrag
+    }
+
+    fun ishetAlAfgeschreven(aflossing: Aflossing, periode: Periode, peilDatum: LocalDate): Boolean {
+        val datumDatHetWordtAfgeschreven = if (periode.periodeStartDatum.dayOfMonth <= aflossing.betaalDag) {
+            periode.periodeStartDatum.withDayOfMonth(aflossing.betaalDag)
+        } else {
+            periode.periodeStartDatum.withDayOfMonth(aflossing.betaalDag).plusMonths(1)
+        }
+        return peilDatum > datumDatHetWordtAfgeschreven
     }
 
     fun berekenAflossingBedragOpDatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {

@@ -4,6 +4,7 @@ import io.vliet.plusmin.domain.Budget
 import io.vliet.plusmin.domain.Budget.BudgetDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.BudgetRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 @Service
@@ -51,7 +53,6 @@ class BudgetService {
                     id = 0,
                     rekening = rekening,
                     budgetNaam = budgetDTO.budgetNaam,
-                    budgetType = Budget.BudgetType.valueOf(budgetDTO.budgetType.uppercase()),
                     budgetPeriodiciteit = Budget.BudgetPeriodiciteit.valueOf(budgetDTO.budgetPeriodiciteit.uppercase()),
                     bedrag = budgetDTO.bedrag,
                     betaalDag = budgetDTO.betaalDag
@@ -63,7 +64,6 @@ class BudgetService {
                 budget.fullCopy(
                     rekening = rekening,
                     budgetNaam = budgetDTO.budgetNaam,
-                    budgetType = Budget.BudgetType.valueOf(budgetDTO.budgetType.uppercase()),
                     budgetPeriodiciteit = Budget.BudgetPeriodiciteit.valueOf(budgetDTO.budgetPeriodiciteit.uppercase()),
                     bedrag = budgetDTO.bedrag,
                     betaalDag = budgetDTO.betaalDag
@@ -72,19 +72,6 @@ class BudgetService {
         }
         return newBudget.toDTO()
     }
-
-//    fun berekenBudgetRestVoorPeriode(budget: Budget, periode: Periode, peilDatum: LocalDate): BigDecimal {
-//        val betalingenInPeriode = betalingRepository
-//            .findAllByGebruikerTussenDatums(budget.rekening.gebruiker, periode.periodeStartDatum, peilDatum)
-//            .filter { it.budget?.id == budget.id }
-//            .fold(BigDecimal(0)) { acc, betaling -> acc + betaling.bedrag }
-//        val dagenInPeriode = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-//        val budgetMaandBedrag = when (budget.budgetPeriodiciteit) {
-//            Budget.BudgetPeriodiciteit.WEEK -> BigDecimal(budget.bedrag.longValueExact() * dagenInPeriode / 7)
-//            Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
-//        }
-//        return budgetMaandBedrag - betalingenInPeriode
-//    }
 
     fun berekenBudgettenOpDatum(gebruiker: Gebruiker, peilDatum: LocalDate): List<BudgetDTO> {
         val budgettenLijst = budgetRepository.findBudgettenByGebruiker(gebruiker)
@@ -96,7 +83,12 @@ class BudgetService {
         return budgettenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { budget ->
-                budget.toDTO(peilDatum.toString(), getBetalingVoorBudgetInPeriode(budget, gekozenPeriode))
+                budget.toDTO(
+                    berekenMaandBudget(budget, gekozenPeriode),
+                    peilDatum.toString(),
+                    berekenBudgetOpPeildatum(budget, gekozenPeriode, peilDatum),
+                    getBetalingVoorBudgetInPeriode(budget, gekozenPeriode)
+                )
             }
     }
 
@@ -111,4 +103,49 @@ class BudgetService {
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == budget.rekening.id) acc + betaling.bedrag else acc - betaling.bedrag }
         return bedrag
     }
+
+    fun berekenMaandBudget(budget: Budget, gekozenPeriode: Periode): BigDecimal {
+        val dagenInPeriode: Long =
+            gekozenPeriode.periodeEindDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
+        return when (budget.budgetPeriodiciteit) {
+            Budget.BudgetPeriodiciteit.WEEK -> budget.bedrag * BigDecimal(dagenInPeriode) / BigDecimal(7)
+            Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
+        }.setScale(2, RoundingMode.HALF_UP)
+    }
+
+    fun berekenBudgetOpPeildatum(budget: Budget, gekozenPeriode: Periode, peilDatum: LocalDate): BigDecimal {
+        if (budget.rekening.budgetType == Rekening.BudgetType.VAST) {
+            if (budget.betaalDag == null) {
+                throw IllegalStateException("Geen betaaldag voor ${budget.budgetNaam} met budgetType 'VAST' van ${budget.rekening.gebruiker.email}")
+            }
+            val betaaldagInPeriode =
+                if (budget.betaalDag < gekozenPeriode.periodeStartDatum.dayOfMonth) {
+                    gekozenPeriode.periodeStartDatum.plusMonths(1).withDayOfMonth(budget.betaalDag)
+                } else {
+                    gekozenPeriode.periodeStartDatum.withDayOfMonth(budget.betaalDag)
+                }
+            return if (betaaldagInPeriode.isAfter(peilDatum)) BigDecimal(0) else budget.bedrag
+        } else if (budget.rekening.budgetType == Rekening.BudgetType.CONTINU) {
+            if (peilDatum < gekozenPeriode.periodeStartDatum) {
+                return BigDecimal(0)
+            }
+            val dagenInPeriode: Long =
+                gekozenPeriode.periodeEindDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
+            val maandBudget = when (budget.budgetPeriodiciteit) {
+                Budget.BudgetPeriodiciteit.WEEK -> budget.bedrag * BigDecimal(dagenInPeriode) / BigDecimal(7)
+                Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
+            }
+            if (peilDatum >= gekozenPeriode.periodeEindDatum) {
+                return maandBudget
+            }
+            val dagenTotPeilDatum: Long = peilDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
+            logger.info("budget ${budget.budgetNaam} van ${gekozenPeriode.periodeStartDatum} tot " +
+                    "$peilDatum met maandBudget $maandBudget: $dagenTotPeilDatum/$dagenInPeriode = " +
+                    "${(maandBudget * BigDecimal(dagenTotPeilDatum) / BigDecimal(dagenInPeriode))}")
+            return (maandBudget * BigDecimal(dagenTotPeilDatum) / BigDecimal(dagenInPeriode))
+        } else {
+            throw IllegalStateException("Budget ${budget.budgetNaam} heeft geen budgetType")
+        }
+    }
 }
+
