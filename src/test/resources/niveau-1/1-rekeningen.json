@@ -33,12 +33,5 @@
     "naam": "Andere uitgave",
     "afkorting": "au",
     "sortOrder": 113
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Schulden/aflossingen",
-    "afkorting": "au",
-    "sortOrder": 114
   }
 ]

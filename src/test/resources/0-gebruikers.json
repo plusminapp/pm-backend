@@ -44,5 +44,12 @@
     "periodeDag": 22,
     "vrijwilligerEmail": "hans@lsta.nl",
     "roles": ["ROLE_HULPVRAGER"]
+  },
+  {
+    "email": "vincent@plusminapp.nl",
+    "bijnaam": "Vincent",
+    "periodeDag": 20,
+    "vrijwilligerEmail": "skortlang@ilionx.com",
+    "roles": ["ROLE_HULPVRAGER"]
   }
 ]
