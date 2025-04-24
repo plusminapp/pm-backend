@@ -94,11 +94,12 @@ class BetalingService {
             ?: oldBetaling.bron
         val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
             ?: oldBetaling.bestemming
-        val budgetRekening = if (newBetalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
-            newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.INKOMSTEN.toString()
+        val budgetRekening = if (
+            newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
+            newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.RENTE.toString()
         ) bron else bestemming
         val budget = if (!newBetalingDTO.budgetNaam.isNullOrBlank()) {
-            budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, newBetalingDTO.budgetNaam!!)
+            budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, newBetalingDTO.budgetNaam)
                 ?: run {
                     logger.warn("Budget ${newBetalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
                     null
