@@ -45,7 +45,7 @@ class PeriodeRepositoryUnitTest {
     }
 
     @Test
-    fun should_find_1_perioden_after_beforeeach_setup() {
+    fun `should find 1 initial periode after @BeforeEach setup`(){
         val perioden: Iterable<*> = periodeRepository.findAll()
         assertThat(perioden.count()).isEqualTo(1)
     }
