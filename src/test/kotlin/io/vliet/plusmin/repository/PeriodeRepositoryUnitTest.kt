@@ -24,12 +24,7 @@ class PeriodeRepositoryUnitTest {
 
     final var testGebruiker = Gebruiker(bijnaam = "testUser2", email = "testUser2@example.com")
 
-    var testPeriode = Periode(
-        gebruiker = this.testGebruiker,
-        periodeStartDatum = LocalDate.MAX,
-        periodeEindDatum = LocalDate.MAX,
-        periodeStatus = Periode.PeriodeStatus.OPEN
-    )
+    lateinit var testPeriode: Periode;
 
     @BeforeEach
     fun setUp() {
@@ -37,8 +32,7 @@ class PeriodeRepositoryUnitTest {
         val testGebruikerDB = entityManager.persist(this.testGebruiker)
         entityManager.flush()
 
-        val testPeriode = this.testPeriode;
-        testPeriode.gebruiker = testGebruikerDB;
+        this.testPeriode = createTestPeriode(testGebruikerDB)
 
         entityManager.persist(testPeriode)
         entityManager.flush()
@@ -58,16 +52,25 @@ class PeriodeRepositoryUnitTest {
 
     @Test
     fun WhenFindByIdOrNull_thenReturnPeriode() {
-
         val periodeFound = periodeRepository.findByIdOrNull(id = this.testPeriode.id)
         assertThat(periodeFound == testPeriode)
     }
 
     @Test
     fun WhenGetPeriodeGebruikerEnDatum_thenReturnPeriode() {
-        val periodeFound = periodeRepository.getPeriodeGebruikerEnDatum(gebruikerId = this.testGebruiker.id,
+        val periodeFound = periodeRepository.getPeriodeGebruikerEnDatum(
+            gebruikerId = this.testGebruiker.id,
             datum = LocalDate.now()
         )
         assertThat(periodeFound == testPeriode)
+    }
+
+    fun createTestPeriode(gebruiker: Gebruiker): Periode {
+        return Periode(
+            periodeStartDatum = LocalDate.MAX,
+            periodeEindDatum = LocalDate.MAX,
+            periodeStatus = Periode.PeriodeStatus.OPEN,
+            gebruiker = gebruiker
+        )
     }
 }
