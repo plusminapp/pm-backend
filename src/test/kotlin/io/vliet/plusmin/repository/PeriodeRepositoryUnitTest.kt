@@ -51,13 +51,13 @@ class PeriodeRepositoryUnitTest {
     }
 
     @Test
-    fun WhenFindByIdOrNull_thenReturnPeriode() {
+    fun whenFindByIdOrNull_thenReturnPeriode() {
         val periodeFound = periodeRepository.findByIdOrNull(id = this.testPeriode.id)
         assertThat(periodeFound == testPeriode)
     }
 
     @Test
-    fun WhenGetPeriodeGebruikerEnDatum_thenReturnPeriode() {
+    fun whenGetPeriodeGebruikerEnDatum_thenReturnPeriode() {
         val periodeFound = periodeRepository.getPeriodeGebruikerEnDatum(
             gebruikerId = this.testGebruiker.id,
             datum = LocalDate.now()
