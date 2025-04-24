@@ -24,7 +24,7 @@ class PeriodeRepositoryUnitTest {
 
     final var testGebruiker = Gebruiker(bijnaam = "testUser2", email = "testUser2@example.com")
 
-    lateinit var testPeriode: Periode;
+    lateinit var testPeriode: Periode
 
     @BeforeEach
     fun setUp() {
