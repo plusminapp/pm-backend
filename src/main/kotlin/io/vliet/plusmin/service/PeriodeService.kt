@@ -25,17 +25,28 @@ class PeriodeService {
             ?: throw IllegalStateException("Geen initiële periode voor gebruiker ${gebruiker.email}")
     }
 
-    fun berekenPeriodeDatums(dag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
+    fun berekenPeriodeDatums(periodeWisselDag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
         val jaar = datum.year
         val maand = datum.monthValue
         val dagInMaand = datum.dayOfMonth
 
-        val startDatum: LocalDate = if (dagInMaand >= dag) {
-            LocalDate.of(jaar, maand, dag)
+        val startDatum: LocalDate = if (dagInMaand >= periodeWisselDag) {
+            LocalDate.of(jaar, maand, periodeWisselDag)
         } else {
-            LocalDate.of(jaar, maand, dag).minusMonths(1)
+            LocalDate.of(jaar, maand, periodeWisselDag).minusMonths(1)
         }
         return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
+    }
+
+    fun berekenDagInPeriode(dagInMaand: Int, periode: Periode): LocalDate {
+        val jaar = periode.periodeStartDatum.year
+        val maand = periode.periodeStartDatum.monthValue
+        val periodeStartDag = periode.periodeStartDatum.dayOfMonth
+        return if (dagInMaand < periodeStartDag) {
+            LocalDate.of(jaar, maand, dagInMaand).plusMonths(1)
+        } else {
+            LocalDate.of(jaar, maand, dagInMaand)
+        }
     }
 
     /*

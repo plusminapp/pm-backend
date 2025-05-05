@@ -1,10 +1,8 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Budget
+import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Budget.BudgetDTO
-import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Periode
-import io.vliet.plusmin.domain.Rekening
+import io.vliet.plusmin.domain.Budget.BudgetSamenvattingDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.BudgetRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -73,6 +71,20 @@ class BudgetService {
         return newBudget.toDTO()
     }
 
+    fun add(budget1: BudgetDTO, budget2: BudgetDTO): BudgetDTO {
+        return budget1.fullCopy(
+            budgetNaam = budget1.rekeningNaam,
+            budgetMaandBedrag = budget1.budgetMaandBedrag?.plus(budget2.budgetMaandBedrag ?: BigDecimal(0)),
+            budgetOpPeilDatum = budget1.budgetOpPeilDatum?.plus(budget2.budgetOpPeilDatum ?: BigDecimal(0)),
+            budgetBetaling = budget1.budgetBetaling?.plus(budget2.budgetBetaling ?: BigDecimal(0)),
+            betaaldBinnenBudget = budget1.betaaldBinnenBudget?.plus(budget2.betaaldBinnenBudget ?: BigDecimal(0)),
+            minderDanBudget = budget1.minderDanBudget?.plus(budget2.minderDanBudget ?: BigDecimal(0)),
+            meerDanBudget = budget1.meerDanBudget?.plus(budget2.meerDanBudget ?: BigDecimal(0)),
+            meerDanMaandBudget = budget1.meerDanMaandBudget?.plus(budget2.meerDanMaandBudget ?: BigDecimal(0)),
+            restMaandBudget = budget1.restMaandBudget?.plus(budget2.restMaandBudget ?: BigDecimal(0))
+        )
+    }
+
     fun berekenBudgettenOpDatum(gebruiker: Gebruiker, peilDatum: LocalDate): List<BudgetDTO> {
         val budgettenLijst = budgetRepository.findBudgettenByGebruiker(gebruiker)
         val saldoPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
@@ -83,11 +95,22 @@ class BudgetService {
         return budgettenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { budget ->
+                val budgetMaandBedrag = berekenMaandBudget(budget, gekozenPeriode)
+                val budgetBetaling = getBetalingVoorBudgetInPeriode(budget, gekozenPeriode)
+                val budgetOpPeilDatum = berekenBudgetOpPeildatum(budget, gekozenPeriode, peilDatum)
+                val meerDanMaandBudget = BigDecimal(0).max(budgetBetaling - budgetMaandBedrag)
+                val minderDanBudget = BigDecimal(0).max(budgetOpPeilDatum - budgetBetaling)
+                val meerDanBudget = BigDecimal(0).max(budgetBetaling - budgetOpPeilDatum - meerDanMaandBudget)
                 budget.toDTO(
-                    berekenMaandBudget(budget, gekozenPeriode),
-                    peilDatum.toString(),
-                    berekenBudgetOpPeildatum(budget, gekozenPeriode, peilDatum),
-                    getBetalingVoorBudgetInPeriode(budget, gekozenPeriode)
+                    budgetMaandBedrag = budgetMaandBedrag,
+                    budgetPeilDatum = peilDatum.toString(),
+                    budgetBetaling = budgetBetaling,
+                    budgetOpPeilDatum = budgetOpPeilDatum,
+                    betaaldBinnenBudget = budgetOpPeilDatum.min(budgetBetaling),
+                    minderDanBudget = minderDanBudget,
+                    meerDanBudget = meerDanBudget,
+                    meerDanMaandBudget = meerDanMaandBudget,
+                    restMaandBudget = BigDecimal(0).max(budgetMaandBedrag - budgetBetaling - minderDanBudget),
                 )
             }
     }
@@ -101,7 +124,7 @@ class BudgetService {
         val filteredBetalingen = betalingen.filter { it.budget?.id == budget.id }
         val bedrag =
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == budget.rekening.id) acc + betaling.bedrag else acc - betaling.bedrag }
-        return bedrag
+        return if (budget.rekening.rekeningSoort == Rekening.RekeningSoort.UITGAVEN) -bedrag else bedrag
     }
 
     fun berekenMaandBudget(budget: Budget, gekozenPeriode: Periode): BigDecimal {
@@ -139,13 +162,77 @@ class BudgetService {
                 return maandBudget
             }
             val dagenTotPeilDatum: Long = peilDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
-            logger.info("budget ${budget.budgetNaam} van ${gekozenPeriode.periodeStartDatum} tot " +
-                    "$peilDatum met maandBudget $maandBudget: $dagenTotPeilDatum/$dagenInPeriode = " +
-                    "${(maandBudget * BigDecimal(dagenTotPeilDatum) / BigDecimal(dagenInPeriode))}")
+            logger.info(
+                "budget ${budget.budgetNaam} van ${gekozenPeriode.periodeStartDatum} tot " +
+                        "$peilDatum met maandBudget $maandBudget: $dagenTotPeilDatum/$dagenInPeriode = " +
+                        "${(maandBudget * BigDecimal(dagenTotPeilDatum) / BigDecimal(dagenInPeriode))}"
+            )
             return (maandBudget * BigDecimal(dagenTotPeilDatum) / BigDecimal(dagenInPeriode))
         } else {
             throw IllegalStateException("Budget ${budget.budgetNaam} heeft geen budgetType")
         }
+    }
+
+    fun berekenBudgetSamenvatting(
+        periode: Periode,
+        peilDatum: LocalDate,
+        budgetten: List<BudgetDTO>,
+        aflossing: Aflossing.AflossingDTO?
+    ): BudgetSamenvattingDTO {
+        logger.info("berekenBudgetSamenvatting ${budgetten.joinToString { it.budgetNaam }}")
+        val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+        val periodeVoorbij = peilDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+        val percentagePeriodeVoorbij = 100 * periodeVoorbij / periodeLengte
+        val isPeriodeVoorbij = peilDatum >= periode.periodeEindDatum
+        logger.info("periodeLengte: $periodeLengte, periodeVoorbij: $periodeVoorbij, percentagePeriodeVoorbij: $percentagePeriodeVoorbij")
+        val budgetMaandInkomsten = budgetten
+            .filter {
+                it.rekeningSoort?.uppercase() == Rekening.RekeningSoort.INKOMSTEN.toString() ||
+                        it.rekeningSoort?.uppercase() == Rekening.RekeningSoort.RENTE.toString()
+            }
+            .fold(BigDecimal(0)) { acc, budget -> acc + (budget.budgetMaandBedrag ?: BigDecimal(0)) }
+        val werkelijkeMaandInkomsten = budgetten
+            .filter {
+                it.rekeningSoort?.uppercase() == Rekening.RekeningSoort.INKOMSTEN.toString() ||
+                        it.rekeningSoort?.uppercase() == Rekening.RekeningSoort.RENTE.toString()
+            }
+            .fold(BigDecimal(0)) { acc, budget -> acc + (budget.budgetBetaling ?: BigDecimal(0)) }
+        val budgetMaandInkomstenBedrag = budgetMaandInkomsten.max(werkelijkeMaandInkomsten)
+
+        val budgetBesteedTotPeilDatum = budgetten
+            .filter { it.rekeningSoort?.uppercase() == Rekening.RekeningSoort.UITGAVEN.toString() }
+            .fold(BigDecimal(0)) { acc, budget -> acc + (budget.budgetBetaling ?: BigDecimal(0)) }
+        val aflossingBesteedTotPeildatum = (aflossing?.aflossingBetaling ?: BigDecimal(0))
+        val besteedTotPeilDatum = budgetBesteedTotPeilDatum + aflossingBesteedTotPeildatum
+
+        val budgetNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal(0) else {
+            budgetten
+                .filter { it.rekeningSoort?.uppercase() == Rekening.RekeningSoort.UITGAVEN.toString() }
+                .fold(BigDecimal(0)) { acc, budget ->
+                    val restMaandBudget = if (budget.budgetType == "CONTINU")
+                        (budget.budgetMaandBedrag ?: BigDecimal(0)) - (budget.betaaldBinnenBudget ?: BigDecimal(0))
+                    else (budget.restMaandBudget ?: BigDecimal(0)) + (budget.minderDanBudget ?: BigDecimal(0))
+                    logger.info(">>> budgetNodigNaPeilDatum: ${budget.budgetNaam} $restMaandBudget")
+                    acc + restMaandBudget
+                }
+        }
+        val aflossingNodigNaPeildatum = if (isPeriodeVoorbij) BigDecimal(0) else
+            (BigDecimal(aflossing?.aflossingsBedrag ?: "0") - (aflossing?.betaaldBinnenAflossing ?: BigDecimal(0)))
+        val nogNodigNaPeilDatum = budgetNodigNaPeilDatum + aflossingNodigNaPeildatum
+        logger.info(
+            "aflossingNodigNaPeildatum: $aflossingNodigNaPeildatum, budgetNodigNaPeilDatum: $budgetNodigNaPeilDatum"
+        )
+
+        val actueleBuffer = budgetMaandInkomstenBedrag - besteedTotPeilDatum - nogNodigNaPeilDatum
+        return BudgetSamenvattingDTO(
+            percentagePeriodeVoorbij = percentagePeriodeVoorbij,
+            budgetMaandInkomstenBedrag = if (isPeriodeVoorbij) werkelijkeMaandInkomsten else budgetMaandInkomsten.max(
+                werkelijkeMaandInkomsten
+            ),
+            besteedTotPeilDatum = besteedTotPeilDatum,
+            nogNodigNaPeilDatum = nogNodigNaPeilDatum,
+            actueleBuffer = actueleBuffer
+        )
     }
 }
 

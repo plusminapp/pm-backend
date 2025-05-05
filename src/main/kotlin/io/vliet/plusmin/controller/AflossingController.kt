@@ -78,15 +78,8 @@ class AflossingController {
         logger.info("GET AflossingController.getAflossingenSaldiVoorHulpvragerOpDatum voor ${hulpvrager.email} op ${datum} door ${vrijwilliger.email}")
         val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
         val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(hulpvrager)
-        val periodeStartDatum = maxOf(
-            openingPeriode.periodeEindDatum.plusDays(1),
-            periodeService.berekenPeriodeDatums(hulpvrager.periodeDag, peilDatum).first
-        )
-        val standDTO = saldoService.getStandOpDatum(
-            openingPeriode,
-            periodeStartDatum,
-            peilDatum
-        )
+        val periode = periodeService.getPeriode(hulpvrager, peilDatum)
+        val standDTO = saldoService.getStandOpDatum(openingPeriode, periode, peilDatum)
         return ResponseEntity.ok().body(standDTO.aflossingenOpDatum)
     }
 

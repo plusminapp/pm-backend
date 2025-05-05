@@ -2,6 +2,8 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Rekening.Companion.balansRekeningSoort
+import io.vliet.plusmin.domain.Rekening.Companion.resultaatRekeningSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -33,20 +35,20 @@ class SaldoService {
 
     fun getStandOpDatum(
         openingPeriode: Periode,
-        periodeStartDatum: LocalDate,
+        periode: Periode,
         peilDatum: LocalDate
     ): SaldoController.StandDTO {
-        logger.warn("openingPeriode: ${openingPeriode.periodeStartDatum}, periodeStartDatum: ${periodeStartDatum}, peilDatum: ${peilDatum}")
+        logger.warn("openingPeriode: ${openingPeriode.periodeStartDatum}, periodeStartDatum: ${periode}, peilDatum: ${peilDatum}")
         val openingsSaldi = getOpeningSaldi(openingPeriode)
         val mutatiePeriodeOpeningLijst =
             berekenMutatieLijstOpDatum(
                 openingPeriode.gebruiker,
                 openingPeriode.periodeStartDatum,
-                periodeStartDatum.minusDays(1)
+                periode.periodeStartDatum.minusDays(1)
             )
         val balansSaldiBijOpening = berekenSaldiOpDatum(openingsSaldi, mutatiePeriodeOpeningLijst)
         val mutatiePeilDatumLijst =
-            berekenMutatieLijstOpDatum(openingPeriode.gebruiker, periodeStartDatum, peilDatum)
+            berekenMutatieLijstOpDatum(openingPeriode.gebruiker, periode.periodeStartDatum, peilDatum)
         val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening, mutatiePeilDatumLijst)
 
         val openingsBalans =
@@ -70,17 +72,29 @@ class SaldoService {
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
         val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
+        val geaggregeerdeBudgettenOpDatum = budgettenOpDatum
+            .groupBy { it.rekeningNaam }
+            .mapValues { it.value.reduce { acc, budgetDTO -> budgetService.add(acc, budgetDTO) } }
+            .values.toList()
         val aflossingenOpDatum =
             aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
+        val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
+
+        val budgetSamenvatting: Budget.BudgetSamenvattingDTO =
+            budgetService.berekenBudgetSamenvatting(periode, peilDatum, geaggregeerdeBudgettenOpDatum, geaggregeerdeAflossingenOpDatum)
         return SaldoController.StandDTO(
-            periodeStartDatum = periodeStartDatum,
+            datumLaatsteBetaling = betalingRepository.findLaatsteBetalingDatumBijGebruiker(openingPeriode.gebruiker),
+            periodeStartDatum = periode.periodeStartDatum,
             peilDatum = peilDatum,
             openingsBalans = openingsBalans,
             mutatiesOpDatum = mutatiesOpDatum,
             balansOpDatum = balansOpDatum,
             resultaatOpDatum = resultaatOpDatum,
+            budgetSamenvatting = budgetSamenvatting,
+            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
             budgettenOpDatum = budgettenOpDatum,
-            aflossingenOpDatum = aflossingenOpDatum
+            aflossingenOpDatum = aflossingenOpDatum,
+            geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
         )
     }
 

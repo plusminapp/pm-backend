@@ -17,10 +17,91 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "Vaste lasten",
-    "budgetType": "continu",
+    "budgetNaam": "Greenchoice",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
-    "bedrag": 1675,
+    "bedrag": 75,
+    "betaalDag": 8
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "VvE",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 194.07,
+    "betaalDag": 8
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "ZIEKTEKOSTEN",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 187.50,
+    "betaalDag": 3
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "SCHADEVERZEKERING",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 26.22,
+    "betaalDag": 1
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "GroenLinks Contributies",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 25,
+    "betaalDag": 28
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Energiewacht",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 25,
+    "betaalDag": 28
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Hypotheek",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 894.95,
+    "betaalDag": 28
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "GBLT",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 31.49,
+    "betaalDag": 28
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "ODIDO",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 46.44,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Regionale belasting",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 74.70,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Vitens",
+    "budgetType": "vast",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 8,
+    "betaalDag": 26
   },
   {
     "rekeningNaam":  "Boodschappen",

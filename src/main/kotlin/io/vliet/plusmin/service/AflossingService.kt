@@ -2,6 +2,7 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Aflossing.AflossingDTO
+import io.vliet.plusmin.domain.Budget.BudgetDTO
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -102,7 +103,6 @@ class AflossingService {
         }
     }
 
-
     fun berekenAflossingenOpDatum(
         gebruiker: Gebruiker,
         balansOpDatum: List<Saldo.SaldoDTO>,
@@ -122,19 +122,47 @@ class AflossingService {
                     aflossing.aflossingsBedrag else BigDecimal(0)
                 val saldoStartPeriode = getBalansVanStand(balansOpDatum, aflossing.rekening)
                 val deltaStartPeriode =
-                    berekenAflossingBedragOpDatum(
+                    saldoStartPeriode - berekenAflossingBedragOpDatum(
                         aflossing,
                         gekozenPeriode.periodeStartDatum.minusDays(1)
-                    ) - saldoStartPeriode
-
+                    )
+                val aflossingMoetBetaaldZijn = periodeService.berekenDagInPeriode(
+                    aflossing.betaalDag,
+                    gekozenPeriode
+                ) < peilDatum
+                val aflossingBetaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
+                val actueleAchterstand =
+                    (if (aflossingMoetBetaaldZijn) aflossing.aflossingsBedrag else BigDecimal(0)) +
+                            deltaStartPeriode - aflossingBetaling
+                val betaaldBinnenAflossing = aflossingBetaling.min(
+                    (if (aflossingMoetBetaaldZijn) aflossing.aflossingsBedrag else BigDecimal(0)) + deltaStartPeriode
+                )
                 aflossing.toDTO(
                     aflossingPeilDatum = peilDatumAsString,
                     aflossingOpPeilDatum = aflossingOpPeilDatum,
                     saldoStartPeriode = saldoStartPeriode,
                     deltaStartPeriode = deltaStartPeriode,
-                    aflossingBetaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
+                    aflossingBetaling = aflossingBetaling,
+                    aflossingMoetBetaaldZijn = aflossingMoetBetaaldZijn,
+                    actueleStand = saldoStartPeriode - aflossingBetaling,
+                    actueleAchterstand = actueleAchterstand,
+                    betaaldBinnenAflossing = betaaldBinnenAflossing,
+                    meerDanVerwacht = if (!aflossingMoetBetaaldZijn && actueleAchterstand < BigDecimal(0))
+                        -actueleAchterstand else BigDecimal(0),
+                    minderDanVerwacht = actueleAchterstand,
+                    meerDanMaandAflossing = if (aflossingMoetBetaaldZijn && actueleAchterstand < BigDecimal(0))
+                        -actueleAchterstand else BigDecimal(0),
                 )
             }
+    }
+
+    fun aggregeerAflossingenOpDatum(
+        aflossingDtoLijst: List<AflossingDTO>,
+    ): AflossingDTO? {
+        if (aflossingDtoLijst.isEmpty()) return null
+        return aflossingDtoLijst
+            .reduce { acc, aflossingDTO -> add(acc, aflossingDTO) }
+
     }
 
     fun getBalansVanStand(balansOpDatum: List<Saldo.SaldoDTO>, rekening: Rekening): BigDecimal {
@@ -173,4 +201,26 @@ class AflossingService {
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == aflossing.rekening.id) acc - betaling.bedrag else acc + betaling.bedrag }
         return bedrag
     }
+
+    fun add(aflossing1: AflossingDTO, aflossing2: AflossingDTO): AflossingDTO {
+        return aflossing1.fullCopy(
+            eindBedrag = aflossing1.eindBedrag.toBigDecimal().plus(aflossing2.eindBedrag.toBigDecimal()).toString(),
+            aflossingsBedrag = aflossing1.aflossingsBedrag.toBigDecimal().plus(aflossing2.aflossingsBedrag.toBigDecimal()).toString(),
+            aflossingOpPeilDatum = aflossing1.aflossingOpPeilDatum?.plus(aflossing2.aflossingOpPeilDatum ?: BigDecimal(0)),
+            aflossingBetaling = aflossing1.aflossingBetaling?.plus(aflossing2.aflossingBetaling ?: BigDecimal(0)),
+            deltaStartPeriode = aflossing1.deltaStartPeriode?.plus(aflossing2.deltaStartPeriode ?: BigDecimal(0)),
+            saldoStartPeriode = aflossing1.saldoStartPeriode?.plus(aflossing2.saldoStartPeriode ?: BigDecimal(0)),
+            aflossingMoetBetaaldZijn = null,
+            actueleStand = aflossing1.actueleStand?.plus(aflossing2.actueleStand ?: BigDecimal(0)),
+            betaaldBinnenAflossing = aflossing1.betaaldBinnenAflossing?.plus(
+                aflossing2.betaaldBinnenAflossing ?: BigDecimal(0)
+            ),
+            meerDanVerwacht = aflossing1.meerDanVerwacht?.plus(aflossing2.meerDanVerwacht ?: BigDecimal(0)),
+            minderDanVerwacht = aflossing1.minderDanVerwacht?.plus(aflossing2.minderDanVerwacht ?: BigDecimal(0)),
+            meerDanMaandAflossing = aflossing1.meerDanMaandAflossing?.plus(
+                aflossing2.meerDanMaandAflossing ?: BigDecimal(0)
+            ),
+        )
+    }
+
 }

@@ -37,6 +37,19 @@ class Rekening(
 ) {
     companion object {
         val sortableFields = setOf("id", "naam", "afkorting")
+        val resultaatRekeningSoort = arrayOf(
+            Rekening.RekeningSoort.INKOMSTEN,
+            Rekening.RekeningSoort.RENTE,
+            Rekening.RekeningSoort.UITGAVEN,
+        )
+        val balansRekeningSoort = arrayOf(
+            Rekening.RekeningSoort.BETAALREKENING,
+            Rekening.RekeningSoort.SPAARREKENING,
+            Rekening.RekeningSoort.CONTANT,
+            Rekening.RekeningSoort.CREDITCARD,
+            Rekening.RekeningSoort.AFLOSSING,
+            Rekening.RekeningSoort.RESERVERING
+        )
     }
 
     fun fullCopy(
@@ -59,7 +72,17 @@ class Rekening(
         val saldo: BigDecimal = BigDecimal(0),
         val sortOrder: Int,
         val budgetten: List<Budget>? = emptyList()
-    )
+    ){
+        fun fullCopy(
+            naam: String = this.naam,
+            rekeningSoort: String = this.rekeningSoort,
+            nummer: String? = this.nummer,
+            bankNaam: String? = this.bankNaam,
+            saldo: BigDecimal = this.saldo,
+            sortOrder: Int = this.sortOrder,
+            budgetten: List<Budget>? = this.budgetten
+        ) = RekeningDTO(this.id, naam, rekeningSoort, nummer, bankNaam, saldo, sortOrder, budgetten)
+    }
 
     fun toDTO(): RekeningDTO {
         return RekeningDTO(
@@ -77,23 +100,9 @@ class Rekening(
         BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, RESERVERING,
         INKOMSTEN, RENTE, UITGAVEN
     }
+
     enum class BudgetType {
         VAST, CONTINU
     }
+
 }
-
-
-val resultaatRekeningSoort = arrayOf(
-    Rekening.RekeningSoort.INKOMSTEN,
-    Rekening.RekeningSoort.RENTE,
-    Rekening.RekeningSoort.UITGAVEN,
-)
-
-val balansRekeningSoort = arrayOf(
-    Rekening.RekeningSoort.BETAALREKENING,
-    Rekening.RekeningSoort.SPAARREKENING,
-    Rekening.RekeningSoort.CONTANT,
-    Rekening.RekeningSoort.CREDITCARD,
-    Rekening.RekeningSoort.AFLOSSING,
-    Rekening.RekeningSoort.RESERVERING
-)

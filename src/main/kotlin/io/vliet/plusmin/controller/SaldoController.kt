@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Aflossing
 import io.vliet.plusmin.domain.Budget
 import io.vliet.plusmin.domain.Saldo.SaldoDTO
+import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.service.PeriodeService
 import io.vliet.plusmin.service.SaldoService
 import org.slf4j.Logger
@@ -29,6 +30,9 @@ class SaldoController {
     @Autowired
     lateinit var gebruikerController: GebruikerController
 
+    @Autowired
+    lateinit var betalingRepository: BetalingRepository
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     @Operation(summary = "GET de stand voor hulpvrager op datum")
@@ -39,17 +43,18 @@ class SaldoController {
     ): StandDTO {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
+        val gevraagdePeilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
+
+        val laatsteBetaalDatum = betalingRepository.findLaatsteBetalingDatumBijGebruiker(hulpvrager)
+        val peilDatum = if (laatsteBetaalDatum != null && laatsteBetaalDatum.isBefore(gevraagdePeilDatum)) {
+            laatsteBetaalDatum
+        } else {
+            gevraagdePeilDatum
+        }
+
         val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(hulpvrager)
-        val periodeStartDatum = maxOf(
-            openingPeriode.periodeEindDatum.plusDays(1),
-            periodeService.berekenPeriodeDatums(hulpvrager.periodeDag, peilDatum).first
-        )
-        return saldoService.getStandOpDatum(
-            openingPeriode,
-            periodeStartDatum,
-            peilDatum
-        )
+        val periode = periodeService.getPeriode(hulpvrager, peilDatum)
+        return saldoService.getStandOpDatum(openingPeriode, periode, peilDatum)
     }
 
 //    @Operation(summary = "PUT de saldi voor hulpvrager")
@@ -67,11 +72,16 @@ class SaldoController {
     data class StandDTO(
         val periodeStartDatum: LocalDate,
         val peilDatum: LocalDate,
+        val datumLaatsteBetaling: LocalDate?,
         val openingsBalans: List<SaldoDTO>,
         val mutatiesOpDatum: List<SaldoDTO>,
         val balansOpDatum: List<SaldoDTO>,
         val resultaatOpDatum: List<SaldoDTO>,
+        val budgetSamenvatting: Budget.BudgetSamenvattingDTO,
         val budgettenOpDatum: List<Budget.BudgetDTO>,
-        val aflossingenOpDatum: List<Aflossing.AflossingDTO>)
+        val geaggregeerdeBudgettenOpDatum: List<Budget.BudgetDTO>,
+        val aflossingenOpDatum: List<Aflossing.AflossingDTO>,
+        val geaggregeerdeAflossingenOpDatum: Aflossing.AflossingDTO? = null
+    )
 }
 

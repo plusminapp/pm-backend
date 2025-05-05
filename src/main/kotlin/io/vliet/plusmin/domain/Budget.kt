@@ -38,41 +38,99 @@ class Budget(
     data class BudgetDTO(
         val id: Long = 0,
         val rekeningNaam: String,
-        val rekeningSoort: String,
+        val rekeningSoort: String? = null,
         val budgetNaam: String,
+        val budgetType: String,
         val budgetPeriodiciteit: String,
         val bedrag: BigDecimal,
         val betaalDag: Int?,
         val budgetMaandBedrag: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null,
-        val budgetBetaling: BigDecimal? = null
-    )
+        val budgetBetaling: BigDecimal? = null,
+        val betaaldBinnenBudget: BigDecimal? = null,
+        val minderDanBudget: BigDecimal? = null,
+        val meerDanBudget: BigDecimal? = null,
+        val meerDanMaandBudget: BigDecimal? = null,
+        val restMaandBudget: BigDecimal? = null,
+    ) {
+        fun fullCopy(
+            rekeningNaam: String = this.rekeningNaam,
+            rekeningSoort: String? = this.rekeningSoort,
+            budgetNaam: String = this.budgetNaam,
+            budgetType: String = this.budgetType,
+            budgetPeriodiciteit: String = this.budgetPeriodiciteit,
+            bedrag: BigDecimal = this.bedrag,
+            betaalDag: Int? = this.betaalDag,
+            budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
+            budgetPeilDatum: String? = this.budgetPeilDatum,
+            budgetOpPeilDatum: BigDecimal? = this.budgetOpPeilDatum,
+            budgetBetaling: BigDecimal? = this.budgetBetaling,
+            betaaldBinnenBudget: BigDecimal? = this.betaaldBinnenBudget,
+            minderDanBudget: BigDecimal? = this.minderDanBudget,
+            meerDanBudget: BigDecimal? = this.meerDanBudget,
+            meerDanMaandBudget: BigDecimal? = this.meerDanMaandBudget,
+            restMaandBudget: BigDecimal? = this.restMaandBudget,
+        ): BudgetDTO = BudgetDTO(
+            this.id,
+            rekeningNaam,
+            rekeningSoort,
+            budgetNaam,
+            budgetType,
+            budgetPeriodiciteit,
+            bedrag,
+            betaalDag,
+            budgetMaandBedrag,
+            budgetPeilDatum,
+            budgetOpPeilDatum,
+            budgetBetaling,
+            betaaldBinnenBudget,
+            minderDanBudget,
+            meerDanBudget,
+            meerDanMaandBudget,
+            restMaandBudget,
+        )
+    }
 
     fun toDTO(
         budgetMaandBedrag: BigDecimal? = null,
         budgetPeilDatum: String? = null,
         budgetOpPeilDatum: BigDecimal? = null,
-        budgetBetaling: BigDecimal? = null
+        budgetBetaling: BigDecimal? = null,
+        betaaldBinnenBudget: BigDecimal? = null,
+        minderDanBudget: BigDecimal? = null,
+        meerDanBudget: BigDecimal? = null,
+        meerDanMaandBudget: BigDecimal? = null,
+        restMaandBudget: BigDecimal? = null,
     ): BudgetDTO {
         return BudgetDTO(
             this.id,
             this.rekening.naam,
             this.rekening.rekeningSoort.toString(),
             this.budgetNaam,
+            this.rekening.budgetType.toString(),
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
             this.betaalDag,
             budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,
-            budgetBetaling
+            budgetBetaling,
+            betaaldBinnenBudget,
+            minderDanBudget,
+            meerDanBudget,
+            meerDanMaandBudget,
+            restMaandBudget,
         )
     }
 
-    enum class BudgetType {
-        VAST, CONTINU
-    }
+    data class BudgetSamenvattingDTO(
+        val percentagePeriodeVoorbij: Long,
+        val budgetMaandInkomstenBedrag: BigDecimal,
+        val besteedTotPeilDatum: BigDecimal,
+        val nogNodigNaPeilDatum: BigDecimal,
+        val actueleBuffer: BigDecimal,
+    )
 
     enum class BudgetPeriodiciteit {
         WEEK, MAAND

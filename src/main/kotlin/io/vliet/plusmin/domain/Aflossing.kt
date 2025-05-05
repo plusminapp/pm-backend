@@ -39,7 +39,17 @@ class Aflossing(
         betaalDag: Int = this.betaalDag,
         dossierNummer: String = this.dossierNummer,
         notities: String = this.notities,
-    ) = Aflossing(this.id, rekening, startDatum, eindDatum, eindBedrag, aflossingsBedrag, betaalDag, dossierNummer, notities)
+    ) = Aflossing(
+        this.id,
+        rekening,
+        startDatum,
+        eindDatum,
+        eindBedrag,
+        aflossingsBedrag,
+        betaalDag,
+        dossierNummer,
+        notities
+    )
 
     data class AflossingDTO(
         val id: Long = 0,
@@ -56,7 +66,59 @@ class Aflossing(
         val aflossingBetaling: BigDecimal? = null,
         val deltaStartPeriode: BigDecimal? = null,
         val saldoStartPeriode: BigDecimal? = null,
-    )
+        val aflossingMoetBetaaldZijn: Boolean? = null,
+        val actueleStand: BigDecimal? = null,
+        val actueleAchterstand: BigDecimal? = null,
+        val betaaldBinnenAflossing: BigDecimal? = null,
+        val meerDanVerwacht: BigDecimal? = null,
+        val minderDanVerwacht: BigDecimal? = null,
+        val meerDanMaandAflossing: BigDecimal? = null,
+    ) {
+        fun fullCopy(
+            rekening: Rekening.RekeningDTO = this.rekening,
+            startDatum: String = this.startDatum,
+            eindDatum: String = this.eindDatum,
+            eindBedrag: String = this.eindBedrag,
+            aflossingsBedrag: String = this.aflossingsBedrag,
+            betaalDag: Int = this.betaalDag,
+            dossierNummer: String = this.dossierNummer,
+            notities: String = this.notities,
+            aflossingPeilDatum: String? = this.aflossingPeilDatum,
+            aflossingOpPeilDatum: BigDecimal? = this.aflossingOpPeilDatum,
+            aflossingBetaling: BigDecimal? = this.aflossingBetaling,
+            deltaStartPeriode: BigDecimal? = this.deltaStartPeriode,
+            saldoStartPeriode: BigDecimal? = this.saldoStartPeriode,
+            aflossingMoetBetaaldZijn: Boolean? = this.aflossingMoetBetaaldZijn,
+            actueleStand: BigDecimal? = this.actueleStand,
+            actueleAchterstand: BigDecimal? = this.actueleAchterstand,
+            betaaldBinnenAflossing: BigDecimal? = this.betaaldBinnenAflossing,
+            meerDanVerwacht: BigDecimal? = this.meerDanVerwacht,
+            minderDanVerwacht: BigDecimal? = this.minderDanVerwacht,
+            meerDanMaandAflossing: BigDecimal? = this.meerDanMaandAflossing,
+        ): AflossingDTO = AflossingDTO(
+            this.id,
+            rekening,
+            startDatum,
+            eindDatum,
+            eindBedrag,
+            aflossingsBedrag,
+            betaalDag,
+            dossierNummer,
+            notities,
+            aflossingPeilDatum,
+            aflossingOpPeilDatum,
+            aflossingBetaling,
+            deltaStartPeriode,
+            saldoStartPeriode,
+            aflossingMoetBetaaldZijn,
+            actueleStand,
+            actueleAchterstand,
+            betaaldBinnenAflossing,
+            meerDanVerwacht,
+            minderDanVerwacht,
+            meerDanMaandAflossing,
+        )
+    }
 
     fun toDTO(
         aflossingPeilDatum: String? = null,
@@ -64,6 +126,13 @@ class Aflossing(
         aflossingBetaling: BigDecimal? = null,
         deltaStartPeriode: BigDecimal? = null,
         saldoStartPeriode: BigDecimal? = null,
+        aflossingMoetBetaaldZijn: Boolean,
+        actueleStand: BigDecimal? = null,
+        actueleAchterstand: BigDecimal? = null,
+        betaaldBinnenAflossing: BigDecimal? = null,
+        meerDanVerwacht: BigDecimal? = null,
+        minderDanVerwacht: BigDecimal? = null,
+        meerDanMaandAflossing: BigDecimal? = null,
     ): AflossingDTO {
         return AflossingDTO(
             this.id,
@@ -80,6 +149,13 @@ class Aflossing(
             aflossingBetaling = aflossingBetaling,
             deltaStartPeriode = deltaStartPeriode,
             saldoStartPeriode = saldoStartPeriode,
+            aflossingMoetBetaaldZijn = aflossingMoetBetaaldZijn,
+            actueleStand = actueleStand,
+            actueleAchterstand = actueleAchterstand,
+            betaaldBinnenAflossing = betaaldBinnenAflossing,
+            meerDanVerwacht = meerDanVerwacht,
+            minderDanVerwacht = minderDanVerwacht,
+            meerDanMaandAflossing = meerDanMaandAflossing,
         )
     }
 
@@ -88,6 +164,7 @@ class Aflossing(
         val aflossingsBedrag: BigDecimal,
         val betaalDag: Int
     )
+
     fun toSamenvattingDTO(): AflossingSamenvattingDTO {
         return AflossingSamenvattingDTO(
             this.rekening.naam,
