@@ -26,6 +26,12 @@ class Budget(
     val budgetPeriodiciteit: BudgetPeriodiciteit = BudgetPeriodiciteit.MAAND,
     val bedrag: BigDecimal,
     val betaalDag: Int?,
+    @ManyToOne
+    @JoinColumn(name = "van_periode_id")
+    val vanPeriode: Periode? = null,
+    @ManyToOne
+    @JoinColumn(name = "tot_periode_id")
+    val totEnMetPeriode: Periode? = null,
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
@@ -33,7 +39,9 @@ class Budget(
         bedrag: BigDecimal = this.bedrag,
         budgetPeriodiciteit: BudgetPeriodiciteit = this.budgetPeriodiciteit,
         betaalDag: Int? = this.betaalDag,
-    ) = Budget(this.id, rekening, budgetNaam, budgetPeriodiciteit, bedrag, betaalDag)
+        vanPeriode: Periode? = this.vanPeriode,
+        totPeriode: Periode? = this.totEnMetPeriode,
+    ) = Budget(this.id, rekening, budgetNaam, budgetPeriodiciteit, bedrag, betaalDag, vanPeriode, totPeriode)
 
     data class BudgetDTO(
         val id: Long = 0,
@@ -44,6 +52,8 @@ class Budget(
         val budgetPeriodiciteit: String,
         val bedrag: BigDecimal,
         val betaalDag: Int?,
+        val vanPeriode: Periode? = null,
+        val totPeriode: Periode? = null,
         val budgetMaandBedrag: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null,
@@ -62,6 +72,8 @@ class Budget(
             budgetPeriodiciteit: String = this.budgetPeriodiciteit,
             bedrag: BigDecimal = this.bedrag,
             betaalDag: Int? = this.betaalDag,
+            vanPeriode: Periode? = this.vanPeriode,
+            totPeriode: Periode? = this.totPeriode,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             budgetPeilDatum: String? = this.budgetPeilDatum,
             budgetOpPeilDatum: BigDecimal? = this.budgetOpPeilDatum,
@@ -80,6 +92,8 @@ class Budget(
             budgetPeriodiciteit,
             bedrag,
             betaalDag,
+            vanPeriode,
+            totPeriode,
             budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,
@@ -112,6 +126,8 @@ class Budget(
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
             this.betaalDag,
+            this.vanPeriode,
+            this.totEnMetPeriode,
             budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,

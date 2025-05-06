@@ -125,7 +125,6 @@ class GebruikerController {
             gebruiker.roles.map { it.toString() },
             gebruiker.vrijwilliger?.email ?: "",
             gebruiker.vrijwilliger?.bijnaam ?: "",
-            gebruiker.rekeningen.map { it },
             periodes= periodes.map { it.toDTO() },
             aflossingen = aflossingen.map { it.toSamenvattingDTO() }
         )

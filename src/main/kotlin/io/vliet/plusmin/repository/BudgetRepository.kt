@@ -22,4 +22,6 @@ interface BudgetRepository : JpaRepository<Budget, Long> {
                 "AND b.budgetNaam = :budgetNaam"
     )
     fun findByRekeningEnBudgetNaam(rekening: Rekening, budgetNaam: String): Budget?
+
+
 }

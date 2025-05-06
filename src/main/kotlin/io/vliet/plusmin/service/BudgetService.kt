@@ -86,12 +86,17 @@ class BudgetService {
     }
 
     fun berekenBudgettenOpDatum(gebruiker: Gebruiker, peilDatum: LocalDate): List<BudgetDTO> {
-        val budgettenLijst = budgetRepository.findBudgettenByGebruiker(gebruiker)
         val saldoPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
         val gekozenPeriode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, peilDatum) ?: run {
             logger.error("Geen periode voor ${gebruiker.bijnaam} op ${peilDatum}, gebruik ${saldoPeriode.periodeStartDatum}")
             saldoPeriode
         }
+        val budgettenLijst = budgetRepository
+            .findBudgettenByGebruiker(gebruiker)
+            .filter { budget ->
+                budgetIsGeldigInPeriode(budget, gekozenPeriode)
+            }
+        logger.info("budgettenLijst: ${budgettenLijst.joinToString { it.budgetNaam +'/'+ it.vanPeriode?.periodeStartDatum.toString() +'/'+ it.totEnMetPeriode?.periodeStartDatum.toString() }} voor periodeStartDatum ${gekozenPeriode.periodeStartDatum} ")
         return budgettenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { budget ->
@@ -233,6 +238,11 @@ class BudgetService {
             nogNodigNaPeilDatum = nogNodigNaPeilDatum,
             actueleBuffer = actueleBuffer
         )
+    }
+
+    fun budgetIsGeldigInPeriode(budget: Budget, periode: Periode): Boolean {
+        return (budget.vanPeriode == null || periode.periodeStartDatum >= budget.vanPeriode.periodeStartDatum) &&
+                (budget.totEnMetPeriode == null || periode.periodeEindDatum <= budget.totEnMetPeriode.periodeEindDatum)
     }
 }
 

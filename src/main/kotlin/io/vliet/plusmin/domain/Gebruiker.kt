@@ -28,8 +28,6 @@ class Gebruiker(
     @JsonIgnore
     @JoinColumn(name = "vrijwilliger_id", referencedColumnName = "id")
     val vrijwilliger: Gebruiker? = null,
-    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
-    var rekeningen: List<Rekening> = emptyList()
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -42,19 +40,13 @@ class Gebruiker(
     @JsonIgnore
     override fun getUsername(): String = email
 
-    fun with(rekening: List<Rekening>): Gebruiker {
-        this.rekeningen = rekening
-        return this
-    }
-
     fun fullCopy(
         email: String = this.email,
         bijnaam: String = this.bijnaam,
         periodeDag: Int = this.periodeDag,
         roles: MutableSet<Role> = this.roles,
         vrijwilliger: Gebruiker? = this.vrijwilliger,
-        rekeningen: List<Rekening> = this.rekeningen,
-    ) = Gebruiker(this.id, email, bijnaam, periodeDag, roles, vrijwilliger, rekeningen)
+    ) = Gebruiker(this.id, email, bijnaam, periodeDag, roles, vrijwilliger)
 
      enum class Role {
         ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
@@ -67,7 +59,6 @@ class Gebruiker(
         val roles: List<String> = emptyList(),
         val vrijwilligerEmail: String = "",
         val vrijwilligerBijnaam: String = "",
-        val rekeningen: List<Rekening>? = emptyList(),
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
         val aflossingen: List<Aflossing.AflossingSamenvattingDTO>? = emptyList(),
     )

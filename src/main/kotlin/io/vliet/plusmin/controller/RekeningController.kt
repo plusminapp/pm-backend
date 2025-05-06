@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.service.RekeningService
 import jakarta.validation.Valid
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.resource.NoResourceFoundException
+import kotlin.jvm.optionals.getOrElse
 
 @RestController
 @RequestMapping("/rekening")
@@ -23,7 +26,7 @@ class RekeningController {
     lateinit var rekeningService: RekeningService
 
     @Autowired
-    lateinit var gebruikerRepository: GebruikerRepository
+    lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
     lateinit var gebruikerController: GebruikerController
@@ -40,13 +43,16 @@ class RekeningController {
     }
 
     @Operation(summary = "GET de rekening op basis van de JWT van een rekening")
-    @GetMapping("/hulpvrager/{hulpvragerId}")
+    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
     fun getAlleRekeningenVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET BetalingController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(rekeningRepository.findRekeningenVoorGebruiker(hulpvrager))
+        val periode = periodeRepository.findById(periodeId)
+            .getOrElse { return ResponseEntity.notFound().build() }
+        return ResponseEntity.ok().body(rekeningService.findRekeningenVoorGebruikerEnPeriode(hulpvrager, periode))
     }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")

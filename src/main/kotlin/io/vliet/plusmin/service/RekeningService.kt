@@ -1,10 +1,8 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Rekening
+import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.domain.Rekening.RekeningSoort
-import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -23,6 +21,9 @@ class RekeningService {
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
+
+    @Autowired
+    lateinit var budgetService: BudgetService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -62,5 +63,20 @@ class RekeningService {
             ))
         }
         return rekening.toDTO()
+    }
+
+    fun filterBudgettenVoorPeriode(rekening: Rekening, periode: Periode): List<Budget> {
+        return rekening.budgetten.filter { budget ->
+            budgetService.budgetIsGeldigInPeriode(budget, periode)
+        }
+    }
+
+    fun findRekeningenVoorGebruikerEnPeriode(gebruiker: Gebruiker, periode: Periode): List<Rekening> {
+        val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
+        return rekeningenLijst.map { rekening ->
+            rekening.fullCopy(
+                budgetten = filterBudgettenVoorPeriode(rekening, periode)
+            )
+        }
     }
 }
