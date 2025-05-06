@@ -24,6 +24,9 @@ class BetalingService {
     lateinit var budgetRepository: BudgetRepository
 
     @Autowired
+    lateinit var budgetService: BudgetService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
@@ -126,5 +129,17 @@ class BetalingService {
             omschrijving = betalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
         )
+    }
+
+
+    fun valideerBudgettenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
+        val betalingenLijst = betalingRepository
+            .findAllByGebruiker(gebruiker)
+            .filter { betaling: Betaling ->
+                val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
+                betaling.budget != null && periode != null && !budgetService.budgetIsGeldigInPeriode(betaling.budget, periode)
+            }
+
+        return betalingenLijst
     }
 }

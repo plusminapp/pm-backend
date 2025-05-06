@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
+import io.vliet.plusmin.domain.Budget
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
@@ -183,6 +184,16 @@ class BetalingController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT BetalingController.valideerOcrBetalingen voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(hulpvrager, betalingValidatieWrapper))
+    }
+
+    @Operation(summary = "GET valideer budgetten voor hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}/valideer-budgetten")
+    fun valideerBudgettenVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): List<Betaling> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET BudgetController.valideerBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return betalingService.valideerBudgettenVoorGebruiker(hulpvrager)
     }
 
     @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")
