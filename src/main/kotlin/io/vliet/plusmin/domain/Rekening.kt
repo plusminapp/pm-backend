@@ -29,6 +29,8 @@ class Rekening(
     val nummer: String? = null,
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val bankNaam: String? = null,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val rekeningIcoonNaam: String? = null,
     val sortOrder: Int,
     @Enumerated(EnumType.STRING)
     val budgetType: BudgetType? = BudgetType.VAST,
@@ -58,10 +60,11 @@ class Rekening(
         rekeningSoort: RekeningSoort = this.rekeningSoort,
         nummer: String? = this.nummer,
         bankNaam: String? = this.bankNaam,
+        rekeningIcoonNaam: String? = this.rekeningIcoonNaam,
         sortOrder: Int = this.sortOrder,
         budgetType: BudgetType? = this.budgetType,
         budgetten: List<Budget> = this.budgetten
-    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, bankNaam, sortOrder, budgetType, budgetten)
+    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, bankNaam, rekeningIcoonNaam, sortOrder, budgetType, budgetten)
 
     data class RekeningDTO(
         val id: Long = 0,
@@ -69,6 +72,7 @@ class Rekening(
         val rekeningSoort: String,
         val nummer: String?,
         val bankNaam: String?,
+        val rekeningIcoonNaam: String?,
         val saldo: BigDecimal = BigDecimal(0),
         val sortOrder: Int,
         val budgetten: List<Budget>? = emptyList()
@@ -81,7 +85,7 @@ class Rekening(
             saldo: BigDecimal = this.saldo,
             sortOrder: Int = this.sortOrder,
             budgetten: List<Budget>? = this.budgetten
-        ) = RekeningDTO(this.id, naam, rekeningSoort, nummer, bankNaam, saldo, sortOrder, budgetten)
+        ) = RekeningDTO(this.id, naam, rekeningSoort, nummer, bankNaam, rekeningIcoonNaam, saldo, sortOrder, budgetten)
     }
 
     fun toDTO(): RekeningDTO {
@@ -91,6 +95,7 @@ class Rekening(
             this.rekeningSoort.toString(),
             this.nummer,
             this.bankNaam,
+            this.rekeningIcoonNaam,
             sortOrder = this.sortOrder,
             budgetten = this.budgetten
         )
