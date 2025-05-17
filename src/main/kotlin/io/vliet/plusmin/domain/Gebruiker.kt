@@ -63,6 +63,21 @@ class Gebruiker(
         val aflossingen: List<Aflossing.AflossingSamenvattingDTO>? = emptyList(),
     )
 
+    fun toDTO(periodes: List<Periode> = emptyList(), aflossingen: List<Aflossing> = emptyList()): GebruikerDTO {
+        return GebruikerDTO(
+            this.id,
+            this.email,
+            this.bijnaam,
+            this.periodeDag,
+            this.roles.map { it.toString() },
+            this.vrijwilliger?.email ?: "",
+            this.vrijwilliger?.bijnaam ?: "",
+            periodes= periodes.map { it.toDTO() },
+            aflossingen = aflossingen.map { it.toSamenvattingDTO() }
+        )
+    }
+
+
     data class GebruikerMetHulpvragersDTO(
         val gebruiker: GebruikerDTO,
         val hulpvragers: List<GebruikerDTO>

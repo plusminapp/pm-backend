@@ -140,7 +140,7 @@ class AflossingController {
             "Aflossing met id $aflossingId niet gevonden.",
             HttpStatus.NOT_FOUND
         )
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(aflossingOpt.get().rekening.gebruiker.id)
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(aflossingOpt.get().rekening.rekeningGroep.gebruiker.id)
         logger.info("DELETE AflossingController.verwijderAflossing voor ${hulpvrager.email} door ${vrijwilliger.email}")
         saldoRepository.deleteByRekening(aflossingOpt.get().rekening)
         aflossingRepository.deleteById(aflossingId)

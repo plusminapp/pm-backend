@@ -14,6 +14,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class AflossingService {
@@ -22,6 +23,9 @@ class AflossingService {
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
+
+    @Autowired
+    lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
     lateinit var periodeService: PeriodeService
@@ -40,23 +44,21 @@ class AflossingService {
     @Transactional
     fun creeerAflossingen(gebruiker: Gebruiker, aflossingenLijst: List<AflossingDTO>) {
         aflossingenLijst.map { aflossingDTO ->
-            val maxSortOrderOpt = rekeningRepository.findMaxSortOrder()
-            val maxSortOrder =
-                if (maxSortOrderOpt != null)
-                    maxSortOrderOpt.sortOrder + 100
-                else 10
-            val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, aflossingDTO.rekening.naam)
+            val maxSortOrder = rekeningRepository.findMaxSortOrder().getOrNull()?.sortOrder ?: 0
+            val rekeningGroep = rekeningGroepRepository
+                .findRekeningGroepVoorGebruiker(gebruiker, aflossingDTO.rekening.rekeningGroep.naam)
+                .getOrNull() ?: throw DataIntegrityViolationException("Geen rekeninggroep voor gebruiker ${gebruiker.bijnaam} en rekeninggroep ${aflossingDTO.rekening.rekeningGroep.naam}")
+            val rekening = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, aflossingDTO.rekening.naam).getOrNull()
                 ?: rekeningRepository.save(
                     Rekening(
-                        gebruiker = gebruiker,
-                        rekeningSoort = Rekening.RekeningSoort.AFLOSSING,
-                        naam = aflossingDTO.rekening.naam,
-                        sortOrder = maxSortOrder
+                        rekeningGroep = rekeningGroep,
+                        naam = aflossingDTO.rekening.rekeningGroep.naam,
+                        sortOrder = maxSortOrder + 100,
                     )
                 )
-            if (rekening.rekeningSoort != Rekening.RekeningSoort.AFLOSSING) {
+            if (rekening.rekeningGroep.rekeningGroepSoort != RekeningGroep.RekeningGroepSoort.AFLOSSING) {
                 val message =
-                    "Rekening ${aflossingDTO.rekening} voor ${gebruiker.bijnaam} heeft rekeningsoort ${rekening.rekeningSoort} en kan dus geen aflossing koppelen."
+                    "Rekening ${aflossingDTO.rekening} voor ${gebruiker.bijnaam} heeft rekeningsoort ${rekening.rekeningGroep.rekeningGroepSoort} en kan dus geen aflossing koppelen."
                 logger.error(message)
                 throw DataIntegrityViolationException(message)
             }
@@ -191,7 +193,7 @@ class AflossingService {
 
     fun getBetalingVoorAflossingInPeriode(aflossing: Aflossing, periode: Periode): BigDecimal {
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(
-            aflossing.rekening.gebruiker,
+            aflossing.rekening.rekeningGroep.gebruiker,
             periode.periodeStartDatum,
             periode.periodeEindDatum
         )

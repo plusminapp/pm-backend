@@ -120,9 +120,9 @@ class Budget(
         return BudgetDTO(
             this.id,
             this.rekening.naam,
-            this.rekening.rekeningSoort.toString(),
+            this.rekening.rekeningGroep.rekeningGroepSoort.toString(),
             this.budgetNaam,
-            this.rekening.budgetType.toString(),
+            this.rekening.rekeningGroep.budgetType.toString(),
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
             this.betaalDag,

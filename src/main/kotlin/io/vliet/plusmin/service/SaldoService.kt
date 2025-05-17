@@ -2,8 +2,8 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.Rekening.Companion.balansRekeningSoort
-import io.vliet.plusmin.domain.Rekening.Companion.resultaatRekeningSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class SaldoService {
@@ -53,35 +54,35 @@ class SaldoService {
 
         val openingsBalans =
             balansSaldiBijOpening
-                .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
         val mutatiesOpDatum =
             mutatiePeilDatumLijst
-                .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
         val balansOpDatum: List<Saldo.SaldoDTO> =
             balansSaldiOpDatum
-                .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
         val resultaatOpDatum =
             mutatiePeilDatumLijst
-                .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
+                .filter { it.rekening.rekeningGroep.rekeningGroepSoort in resultaatRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
-        val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
-        val geaggregeerdeBudgettenOpDatum = budgettenOpDatum
-            .groupBy { it.rekeningNaam }
-            .mapValues { it.value.reduce { acc, budgetDTO -> budgetService.add(acc, budgetDTO) } }
-            .values.toList()
+//        val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
+//        val geaggregeerdeBudgettenOpDatum = budgettenOpDatum
+//            .groupBy { it.rekeningNaam }
+//            .mapValues { it.value.reduce { acc, budgetDTO -> budgetService.add(acc, budgetDTO) } }
+//            .values.toList()
         val aflossingenOpDatum =
             aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
         val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
 
-        val budgetSamenvatting: Budget.BudgetSamenvattingDTO =
-            budgetService.berekenBudgetSamenvatting(periode, peilDatum, geaggregeerdeBudgettenOpDatum, geaggregeerdeAflossingenOpDatum)
+//        val budgetSamenvatting: Budget.BudgetSamenvattingDTO =
+//            budgetService.berekenBudgetSamenvatting(periode, peilDatum, geaggregeerdeBudgettenOpDatum, geaggregeerdeAflossingenOpDatum)
         return SaldoController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findLaatsteBetalingDatumBijGebruiker(openingPeriode.gebruiker),
             periodeStartDatum = periode.periodeStartDatum,
@@ -90,9 +91,9 @@ class SaldoService {
             mutatiesOpDatum = mutatiesOpDatum,
             balansOpDatum = balansOpDatum,
             resultaatOpDatum = resultaatOpDatum,
-            budgetSamenvatting = budgetSamenvatting,
-            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
-            budgettenOpDatum = budgettenOpDatum,
+//            budgetSamenvatting = budgetSamenvatting,
+//            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
+//            budgettenOpDatum = budgettenOpDatum,
             aflossingenOpDatum = aflossingenOpDatum,
             geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
         )
@@ -154,11 +155,12 @@ class SaldoService {
     }
 
     fun dto2Saldo(gebruiker: Gebruiker, saldoDTO: Saldo.SaldoDTO, periode: Periode): Saldo {
-        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekeningNaam)
-        if (rekening == null) {
-            logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekeningNaam} voor ${gebruiker.bijnaam}.")
-            throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
-        }
+        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekeningNaam).getOrNull()
+            ?: run {
+                logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekeningNaam} voor ${gebruiker.bijnaam}.")
+                throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
+            }
+
         val bedrag = saldoDTO.bedrag
         val saldo = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         return if (saldo == null) {

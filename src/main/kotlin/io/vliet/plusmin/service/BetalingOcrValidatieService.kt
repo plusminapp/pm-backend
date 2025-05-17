@@ -34,7 +34,7 @@ class BetalingvalidatieService {
                 gebruiker,
                 it.rekeningNaam
             )
-        } ?: throw IllegalStateException("betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is leeg")
+        }.getOrNull() ?: throw IllegalStateException("betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is leeg")
         val openingsSaldo = saldoRepository.findLastSaldoByRekening(rekening).getOrNull()
             ?: throw IllegalStateException("Geen Saldo voor ${rekening.naam}/${rekening.id} voor ${gebruiker.email}.")
         val betalingen = if (openingsSaldo.periode == null) {

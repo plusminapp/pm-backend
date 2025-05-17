@@ -11,14 +11,16 @@ interface AflossingRepository : JpaRepository<Aflossing, Long> {
     @Query(
         value = "SELECT l FROM Aflossing l " +
                 "JOIN rekening r ON r = l.rekening " +
-                "WHERE r.gebruiker = :gebruiker"
+                "JOIN rekeningGroep rg ON rg = r.rekeningGroep " +
+                "WHERE rg.gebruiker = :gebruiker"
     )
     fun findAflossingenVoorGebruiker(gebruiker: Gebruiker): List<Aflossing>
 
     @Query(
         value = "SELECT l FROM Aflossing l " +
                 "JOIN rekening r ON r = l.rekening " +
-                "WHERE r.gebruiker = :gebruiker AND r.naam = :rekeningNaam"
+                "JOIN rekeningGroep rg ON rg = r.rekeningGroep " +
+                "WHERE rg.gebruiker = :gebruiker AND r.naam = :rekeningNaam"
     )
     fun findAflossingVoorRekeningNaam(gebruiker: Gebruiker, rekeningNaam: String): Aflossing?
 }

@@ -30,26 +30,25 @@ class BudgetController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    @Operation(summary = "GET de stand voor hulpvrager op datum")
-    @GetMapping("/hulpvrager/{hulpvragerId}")
-    fun getBudgettenVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
-    ): List<Budget> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET BudgetController.getBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return budgetRepository.findBudgettenByGebruiker(hulpvrager)
-    }
-
-    @Operation(summary = "PUT de saldi voor hulpvrager")
-    @PutMapping("/hulpvrager/{hulpvragerId}")
-    fun upsertBudgetVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @Valid @RequestBody budgetDTOListDTO: List<Budget.BudgetDTO>): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT BudgetController.upsertBudgetVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(budgetService.saveAll(hulpvrager, budgetDTOListDTO))
-    }
-
-
+//    @Operation(summary = "GET de stand voor hulpvrager op datum")
+//    @GetMapping("/hulpvrager/{hulpvragerId}")
+//    fun getBudgettenVoorHulpvrager(
+//        @PathVariable("hulpvragerId") hulpvragerId: Long,
+//    ): List<Budget> {
+//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+//        logger.info("GET BudgetController.getBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+//        return budgetRepository.findBudgettenByGebruiker(hulpvrager)
+//    }
+//
+//    @Operation(summary = "PUT de saldi voor hulpvrager")
+//    @PutMapping("/hulpvrager/{hulpvragerId}")
+//    fun upsertBudgetVoorHulpvrager(
+//        @PathVariable("hulpvragerId") hulpvragerId: Long,
+//        @Valid @RequestBody budgetDTOListDTO: List<Budget.BudgetDTO>): ResponseEntity<Any> {
+//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+//        logger.info("PUT BudgetController.upsertBudgetVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+//        return ResponseEntity.ok().body(budgetService.saveAll(hulpvrager, budgetDTOListDTO))
+//    }
+//
 }
 

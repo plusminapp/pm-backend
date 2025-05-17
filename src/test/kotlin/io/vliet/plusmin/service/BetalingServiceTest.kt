@@ -1,26 +1,19 @@
 package io.vliet.plusmin
 
-import org.junit.jupiter.api.Assertions.assertEquals
+import io.vliet.plusmin.TestFixtures.testBetalingenLijst
+import io.vliet.plusmin.TestFixtures.testGebruiker
+import io.vliet.plusmin.repository.BetalingRepository
+import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.repository.PeriodeRepository
+import io.vliet.plusmin.repository.RekeningRepository
+import io.vliet.plusmin.service.BetalingService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.GebruikerRepository
-import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.service.BetalingService
-import io.vliet.plusmin.domain.Betaling
-import io.vliet.plusmin.TestFixtures.testGebruiker
-import io.vliet.plusmin.TestFixtures.testBetaalrekening
-import io.vliet.plusmin.TestFixtures.testUitgave
-import io.vliet.plusmin.TestFixtures.testBetalingenLijst
-import io.vliet.plusmin.TestFixtures.testBetaling
-import io.vliet.plusmin.TestFixtures.testPeriode
-import io.vliet.plusmin.repository.PeriodeRepository
-import java.time.LocalDate
 
 class BetalingServiceTest {
 

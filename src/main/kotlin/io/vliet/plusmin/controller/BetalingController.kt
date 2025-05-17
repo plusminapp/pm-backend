@@ -186,55 +186,55 @@ class BetalingController {
         return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(hulpvrager, betalingValidatieWrapper))
     }
 
-    @Operation(summary = "GET valideer budgetten voor hulpvrager")
-    @GetMapping("/hulpvrager/{hulpvragerId}/valideer-budgetten")
-    fun valideerBudgettenVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
-    ): List<Betaling> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET BudgetController.valideerBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return betalingService.valideerBudgettenVoorGebruiker(hulpvrager)
-    }
+//    @Operation(summary = "GET valideer budgetten voor hulpvrager")
+//    @GetMapping("/hulpvrager/{hulpvragerId}/valideer-budgetten")
+//    fun valideerBudgettenVoorHulpvrager(
+//        @PathVariable("hulpvragerId") hulpvragerId: Long,
+//    ): List<Betaling> {
+//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+//        logger.info("GET BudgetController.valideerBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+//        return betalingService.valideerBudgettenVoorGebruiker(hulpvrager)
+//    }
 
-    @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")
-    @PostMapping("/camt053/{hulpvragerId}", consumes = ["multipart/form-data"])
-    fun verwerkCamt053(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @RequestParam("file") file: MultipartFile,
-        @RequestParam("debug") debug: Boolean
-    ): ResponseEntity<Any> {
-        if (file.size > 4000000) {
-            logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker $hulpvragerId")
-            return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
-        }
-        val hulpvrager = gebruikerRepository.selectById(hulpvragerId) ?: run {
-            logger.error("BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet")
-            return ResponseEntity(
-                "BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet",
-                HttpStatus.NOT_FOUND
-            )
-        }
-
-        val jwtGebruiker = gebruikerController.getJwtGebruiker()
-        if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id && !jwtGebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
-            logger.error("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}")
-            return ResponseEntity(
-                "BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}",
-                HttpStatus.FORBIDDEN
-            )
-        }
-        logger.info("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} upload camt053 bestand voor ${hulpvrager.email}")
-        val result = camt053Service.loadCamt053File(
-            hulpvrager,
-            BufferedReader(
-                InputStreamReader(
-                    BOMInputStream.builder()
-                        .setInputStream(file.inputStream)
-                        .get()
-                )
-            ),
-            debug
-        )
-        return ResponseEntity.ok().body(result)
-    }
+//    @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")
+//    @PostMapping("/camt053/{hulpvragerId}", consumes = ["multipart/form-data"])
+//    fun verwerkCamt053(
+//        @PathVariable("hulpvragerId") hulpvragerId: Long,
+//        @RequestParam("file") file: MultipartFile,
+//        @RequestParam("debug") debug: Boolean
+//    ): ResponseEntity<Any> {
+//        if (file.size > 4000000) {
+//            logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker $hulpvragerId")
+//            return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
+//        }
+//        val hulpvrager = gebruikerRepository.selectById(hulpvragerId) ?: run {
+//            logger.error("BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet")
+//            return ResponseEntity(
+//                "BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet",
+//                HttpStatus.NOT_FOUND
+//            )
+//        }
+//
+//        val jwtGebruiker = gebruikerController.getJwtGebruiker()
+//        if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id && !jwtGebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
+//            logger.error("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}")
+//            return ResponseEntity(
+//                "BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}",
+//                HttpStatus.FORBIDDEN
+//            )
+//        }
+//        logger.info("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} upload camt053 bestand voor ${hulpvrager.email}")
+//        val result = camt053Service.loadCamt053File(
+//            hulpvrager,
+//            BufferedReader(
+//                InputStreamReader(
+//                    BOMInputStream.builder()
+//                        .setInputStream(file.inputStream)
+//                        .get()
+//                )
+//            ),
+//            debug
+//        )
+//        return ResponseEntity.ok().body(result)
+//    }
 }

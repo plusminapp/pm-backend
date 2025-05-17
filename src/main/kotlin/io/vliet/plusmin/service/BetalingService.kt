@@ -14,6 +14,7 @@ import java.lang.Integer.parseInt
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class BetalingService {
@@ -51,16 +52,16 @@ class BetalingService {
             logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
             update(betalingList[0], betalingDTO)
         } else {
-            val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
+            val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron).getOrNull()
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
-            val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
+            val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming).getOrNull()
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
             val budgetRekening = if (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
                 betalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString()
             ) bron else bestemming
             val budget: Budget? =
                 if (!betalingDTO.budgetNaam.isNullOrBlank()) {
-                    budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, betalingDTO.budgetNaam!!)
+                    budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, betalingDTO.budgetNaam)
                         ?: run {
                             logger.warn("Budget ${betalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
                             null
@@ -93,9 +94,9 @@ class BetalingService {
 
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
         val gebruiker = oldBetaling.gebruiker
-        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
+        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron).getOrNull()
             ?: oldBetaling.bron
-        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
+        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming).getOrNull()
             ?: oldBetaling.bestemming
         val budgetRekening = if (
             newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
@@ -132,14 +133,14 @@ class BetalingService {
     }
 
 
-    fun valideerBudgettenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
-        val betalingenLijst = betalingRepository
-            .findAllByGebruiker(gebruiker)
-            .filter { betaling: Betaling ->
-                val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
-                betaling.budget != null && periode != null && !budgetService.budgetIsGeldigInPeriode(betaling.budget, periode)
-            }
-
-        return betalingenLijst
-    }
+//    fun valideerBudgettenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
+//        val betalingenLijst = betalingRepository
+//            .findAllByGebruiker(gebruiker)
+//            .filter { betaling: Betaling ->
+//                val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
+//                betaling.budget != null && periode != null && !budgetService.budgetIsGeldigInPeriode(betaling.budget, periode)
+//            }
+//
+//        return betalingenLijst
+//    }
 }

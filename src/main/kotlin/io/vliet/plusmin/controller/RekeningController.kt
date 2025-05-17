@@ -42,18 +42,18 @@ class RekeningController {
         return rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
     }
 
-    @Operation(summary = "GET de rekening op basis van de JWT van een rekening")
-    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
-    fun getAlleRekeningenVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @PathVariable("periodeId") periodeId: Long,
-    ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET BetalingController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val periode = periodeRepository.findById(periodeId)
-            .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(rekeningService.findRekeningenVoorGebruikerEnPeriode(hulpvrager, periode))
-    }
+//    @Operation(summary = "GET de rekening op basis van de JWT van een rekening")
+//    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
+//    fun getAlleRekeningenVoorHulpvrager(
+//        @PathVariable("hulpvragerId") hulpvragerId: Long,
+//        @PathVariable("periodeId") periodeId: Long,
+//    ): ResponseEntity<Any> {
+//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+//        logger.info("GET BetalingController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+//        val periode = periodeRepository.findById(periodeId)
+//            .getOrElse { return ResponseEntity.notFound().build() }
+//        return ResponseEntity.ok().body(rekeningService.findRekeningenVoorGebruikerEnPeriode(hulpvrager, periode))
+//    }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweRekeningVoorHulpvrager(

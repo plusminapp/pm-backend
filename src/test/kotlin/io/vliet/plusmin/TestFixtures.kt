@@ -10,19 +10,19 @@ import java.time.LocalDate
 object TestFixtures {
     val testGebruiker = Gebruiker(bijnaam = "testUser1", email = "testUser1@example.com")
 
-    val testBetaalrekening = Rekening(
-        gebruiker = testGebruiker,
-        naam = "Betaalrekening",
-        rekeningSoort = Rekening.RekeningSoort.BETAALREKENING,
-        sortOrder = 0
-    )
-
-    val testUitgave = Rekening(
-        gebruiker = testGebruiker,
-        naam = "Uitgave",
-        rekeningSoort = Rekening.RekeningSoort.UITGAVEN,
-        sortOrder = 10
-    )
+//    val testBetaalrekening = Rekening(
+//        gebruiker = testGebruiker,
+//        naam = "Betaalrekening",
+//        rekeningSoort = RekeningGroep.RekeningGroepSoort.BETAALREKENING,
+//        sortOrder = 0
+//    )
+//
+//    val testUitgave = Rekening(
+//        gebruiker = testGebruiker,
+//        naam = "Uitgave",
+//        rekeningSoort = RekeningGroep.RekeningGroepSoort.VASTE_UITGAVEN,
+//        sortOrder = 10
+//    )
 
     val testBetalingDTO = Betaling.BetalingDTO(
         boekingsdatum = "2023-01-01",
@@ -36,17 +36,17 @@ object TestFixtures {
 
     val testBetalingenLijst = listOf(testBetalingDTO)
 
-    val testBetaling = Betaling(
-        id = 1,
-        gebruiker = testGebruiker,
-        boekingsdatum = LocalDate.parse("2023-01-01"),
-        bedrag = BigDecimal(100.00),
-        omschrijving = "Test betaling",
-        betalingsSoort = Betaling.BetalingsSoort.UITGAVEN,
-        bron = testBetaalrekening,
-        sortOrder = "20230101.900",
-        bestemming = testUitgave
-    )
+//    val testBetaling = Betaling(
+//        id = 1,
+//        gebruiker = testGebruiker,
+//        boekingsdatum = LocalDate.parse("2023-01-01"),
+//        bedrag = BigDecimal(100.00),
+//        omschrijving = "Test betaling",
+//        betalingsSoort = Betaling.BetalingsSoort.UITGAVEN,
+//        bron = testBetaalrekening,
+//        sortOrder = "20230101.900",
+//        bestemming = testUitgave
+//    )
 
     val testPeriode = Periode(
         id = 1,
