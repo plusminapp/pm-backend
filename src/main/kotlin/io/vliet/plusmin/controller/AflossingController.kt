@@ -64,7 +64,7 @@ class AflossingController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET AflossingController.getAflossingenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val aflossingsBedrag = aflossingRepository.findAflossingenVoorGebruiker(hulpvrager)
-            .fold(BigDecimal(0)) { acc, aflossing -> acc + aflossing.aflossingsBedrag }
+            .fold(BigDecimal(0)) { acc, aflossing -> acc + aflossing.rekening.budgetBedrag }
         return ResponseEntity.ok().body(aflossingsBedrag)
     }
 

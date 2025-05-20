@@ -63,18 +63,21 @@ class RekeningService {
                 Rekening(
                     naam = rekeningDTO.naam,
                     rekeningGroep = rekeningGroep,
-                    sortOrder = rekeningDTO.sortOrder
+                    sortOrder = rekeningDTO.sortOrder,
+                    budgetBetaalDag = rekeningDTO.budgetBetaalDag,
+                    budgetBedrag = rekeningDTO.budgetBedrag
                 )
             )
         }
         logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam}")
         if (rekeningOpt == null) {
             val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-            saldoRepository.save(Saldo(
-                rekening = rekening,
-                bedrag = rekeningDTO.saldo,
-                periode = periode
-            ))
+//            TODO
+//            saldoRepository.save(Saldo(
+//                rekening = rekening,
+//                bedrag = rekeningDTO.saldo,
+//                periode = periode
+//            ))
         }
         return rekening.toDTO()
     }

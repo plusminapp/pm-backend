@@ -38,7 +38,7 @@ class AflossingGrafiekService {
             aflossingGrafiekDataMap.forEach { (maand, saldoDtoLijst) ->
                 append("{ month: '${maand}'")
                 saldoDtoLijst.forEach { saldoDto ->
-                    append(", ${saldoDto.rekeningNaam.lowercase().replace("\\s".toRegex(), "")}: ${saldoDto.bedrag}")
+                    append(", ${saldoDto.rekeningNaam.lowercase().replace("\\s".toRegex(), "")}: ${saldoDto.saldo}")
                 }
                 append(" },\n")
             }
@@ -57,11 +57,11 @@ class AflossingGrafiekService {
                     maand = huidigeMaand.format(formatter),
                     aflossingSaldoDTO = Saldo.SaldoDTO(
                         rekeningNaam = aflossing.rekening.naam,
-                        bedrag = huidigeBedrag,
+                        saldo = huidigeBedrag,
                     )
                 )
             )
-            huidigeBedrag -= aflossing.aflossingsBedrag
+            huidigeBedrag -= aflossing.rekening.budgetBedrag
             huidigeMaand = huidigeMaand.plus(1, ChronoUnit.MONTHS)
         }
         return aflossingGrafiekDataLijst.toList()

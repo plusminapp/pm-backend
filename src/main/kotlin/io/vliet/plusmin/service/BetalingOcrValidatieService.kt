@@ -46,7 +46,7 @@ class BetalingvalidatieService {
                 LocalDate.now()
             )
         }
-        val saldoOpDatum = betalingen.fold(openingsSaldo.bedrag) { saldo, betaling ->
+        val saldoOpDatum = betalingen.fold(openingsSaldo.saldo) { saldo, betaling ->
             saldo + berekenMutaties(betaling, rekening)
         }
         val validatedBetalingen = betalingvalidatieWrapper.betalingen.map { betaling ->

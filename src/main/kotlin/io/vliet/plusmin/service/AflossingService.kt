@@ -2,7 +2,6 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Aflossing.AflossingDTO
-import io.vliet.plusmin.domain.Budget.BudgetDTO
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -47,15 +46,22 @@ class AflossingService {
             val maxSortOrder = rekeningRepository.findMaxSortOrder().getOrNull()?.sortOrder ?: 0
             val rekeningGroep = rekeningGroepRepository
                 .findRekeningGroepVoorGebruiker(gebruiker, aflossingDTO.rekening.rekeningGroep.naam)
-                .getOrNull() ?: throw DataIntegrityViolationException("Geen rekeninggroep voor gebruiker ${gebruiker.bijnaam} en rekeninggroep ${aflossingDTO.rekening.rekeningGroep.naam}")
-            val rekening = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, aflossingDTO.rekening.naam).getOrNull()
-                ?: rekeningRepository.save(
-                    Rekening(
-                        rekeningGroep = rekeningGroep,
-                        naam = aflossingDTO.rekening.rekeningGroep.naam,
-                        sortOrder = maxSortOrder + 100,
+                .getOrNull()
+                ?: throw DataIntegrityViolationException("Geen rekeninggroep voor gebruiker ${gebruiker.bijnaam} en rekeninggroep ${aflossingDTO.rekening.rekeningGroep.naam}")
+            val rekening =
+                rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, aflossingDTO.rekening.naam).getOrNull()
+                    ?: rekeningRepository.save(
+                        Rekening(
+                            rekeningGroep = rekeningGroep,
+                            naam = aflossingDTO.rekening.naam,
+                            sortOrder = maxSortOrder + 100,
+                            budgetPeriodiciteit = Rekening.BudgetPeriodiciteit.MAAND,
+                            budgetBedrag = aflossingDTO.rekening.budgetBedrag,
+                            budgetBetaalDag = aflossingDTO.rekening.budgetBetaalDag,
+                            vanPeriode = aflossingDTO.rekening.vanPeriode,
+                            totEnMetPeriode = aflossingDTO.rekening.totPeriode,
+                        )
                     )
-                )
             if (rekening.rekeningGroep.rekeningGroepSoort != RekeningGroep.RekeningGroepSoort.AFLOSSING) {
                 val message =
                     "Rekening ${aflossingDTO.rekening} voor ${gebruiker.bijnaam} heeft rekeningsoort ${rekening.rekeningGroep.rekeningGroepSoort} en kan dus geen aflossing koppelen."
@@ -68,8 +74,6 @@ class AflossingService {
                     startDatum = LocalDate.parse(aflossingDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                     eindDatum = LocalDate.parse(aflossingDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                     eindBedrag = aflossingDTO.eindBedrag.toBigDecimal(),
-                    aflossingsBedrag = aflossingDTO.aflossingsBedrag.toBigDecimal(),
-                    betaalDag = aflossingDTO.betaalDag,
                     dossierNummer = aflossingDTO.dossierNummer,
                     notities = aflossingDTO.notities,
                 )
@@ -78,8 +82,6 @@ class AflossingService {
                     startDatum = LocalDate.parse(aflossingDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                     eindDatum = LocalDate.parse(aflossingDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                     eindBedrag = aflossingDTO.eindBedrag.toBigDecimal(),
-                    aflossingsBedrag = aflossingDTO.aflossingsBedrag.toBigDecimal(),
-                    betaalDag = aflossingDTO.betaalDag,
                     dossierNummer = aflossingDTO.dossierNummer,
                     notities = aflossingDTO.notities,
                 )
@@ -94,7 +96,7 @@ class AflossingService {
                 saldoRepository.save(
                     Saldo(
                         rekening = aflossing.rekening,
-                        bedrag = -berekenAflossingBedragOpDatum(
+                        saldo = -berekenAflossingBedragOpDatum(
                             aflossing,
                             periode.periodeStartDatum
                         ),
@@ -121,7 +123,7 @@ class AflossingService {
             .sortedBy { it.rekening.sortOrder }
             .map { aflossing ->
                 val aflossingOpPeilDatum = if (ishetAlAfgeschreven(aflossing, gekozenPeriode, peilDatum))
-                    aflossing.aflossingsBedrag else BigDecimal(0)
+                    aflossing.rekening.budgetBedrag else BigDecimal(0)
                 val saldoStartPeriode = getBalansVanStand(balansOpDatum, aflossing.rekening)
                 val deltaStartPeriode =
                     saldoStartPeriode - berekenAflossingBedragOpDatum(
@@ -129,15 +131,16 @@ class AflossingService {
                         gekozenPeriode.periodeStartDatum.minusDays(1)
                     )
                 val aflossingMoetBetaaldZijn = periodeService.berekenDagInPeriode(
-                    aflossing.betaalDag,
+                    aflossing.rekening.budgetBetaalDag
+                        ?: throw DataIntegrityViolationException("Geen betaaldag voor aflossing ${aflossing.rekening.naam} gebruiker ${gebruiker.bijnaam}"),
                     gekozenPeriode
                 ) < peilDatum
                 val aflossingBetaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
                 val actueleAchterstand =
-                    (if (aflossingMoetBetaaldZijn) aflossing.aflossingsBedrag else BigDecimal(0)) +
+                    (if (aflossingMoetBetaaldZijn) aflossing.rekening.budgetBedrag else BigDecimal(0)) +
                             deltaStartPeriode - aflossingBetaling
                 val betaaldBinnenAflossing = aflossingBetaling.min(
-                    (if (aflossingMoetBetaaldZijn) aflossing.aflossingsBedrag else BigDecimal(0)) + deltaStartPeriode
+                    (if (aflossingMoetBetaaldZijn) aflossing.rekening.budgetBedrag else BigDecimal(0)) + deltaStartPeriode
                 )
                 aflossing.toDTO(
                     aflossingPeilDatum = peilDatumAsString,
@@ -169,26 +172,31 @@ class AflossingService {
 
     fun getBalansVanStand(balansOpDatum: List<Saldo.SaldoDTO>, rekening: Rekening): BigDecimal {
         val saldo = balansOpDatum.find { it.rekeningNaam == rekening.naam }
-        return if (saldo == null) BigDecimal(0) else -saldo.bedrag
+        return if (saldo == null) BigDecimal(0) else -saldo.saldo
     }
 
     fun ishetAlAfgeschreven(aflossing: Aflossing, periode: Periode, peilDatum: LocalDate): Boolean {
-        val datumDatHetWordtAfgeschreven = if (periode.periodeStartDatum.dayOfMonth <= aflossing.betaalDag) {
-            periode.periodeStartDatum.withDayOfMonth(aflossing.betaalDag)
+        val betaalDag = aflossing.rekening.budgetBetaalDag
+            ?: throw DataIntegrityViolationException("Geen betaaldag voor aflossing ${aflossing.rekening.naam} gebruiker ${periode.gebruiker.bijnaam}")
+        val datumDatHetWordtAfgeschreven = if (periode.periodeStartDatum.dayOfMonth <= betaalDag) {
+            periode.periodeStartDatum.withDayOfMonth(betaalDag)
         } else {
-            periode.periodeStartDatum.withDayOfMonth(aflossing.betaalDag).plusMonths(1)
+            periode.periodeStartDatum.withDayOfMonth(betaalDag).plusMonths(1)
         }
         return peilDatum > datumDatHetWordtAfgeschreven
     }
 
     fun berekenAflossingBedragOpDatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {
-        if (peilDatum < aflossing.startDatum || peilDatum.withDayOfMonth(aflossing.betaalDag) < aflossing.startDatum)
+        val betaalDag = aflossing.rekening.budgetBetaalDag
+            ?: throw DataIntegrityViolationException("Geen betaaldag voor aflossing ${aflossing.rekening.naam} gebruiker ${aflossing.rekening.rekeningGroep.gebruiker.bijnaam}")
+
+        if (peilDatum < aflossing.startDatum || peilDatum.withDayOfMonth(betaalDag) < aflossing.startDatum)
             return aflossing.eindBedrag
         if (peilDatum > aflossing.eindDatum) return BigDecimal(0)
-        val isHetAlAfgeschreven = if (peilDatum.dayOfMonth <= aflossing.betaalDag) 0 else 1
+        val isHetAlAfgeschreven = if (peilDatum.dayOfMonth <= betaalDag) 0 else 1
         val aantalMaanden = ChronoUnit.MONTHS.between(aflossing.startDatum, peilDatum) + isHetAlAfgeschreven
-        logger.warn("berekenAflossingDTOOpDatum ${aflossing.startDatum} -> ${peilDatum} = ${aantalMaanden}: ${peilDatum.dayOfMonth} - ${aflossing.betaalDag} ${peilDatum.dayOfMonth < aflossing.betaalDag} ${isHetAlAfgeschreven}")
-        return aflossing.eindBedrag - BigDecimal(aantalMaanden) * aflossing.aflossingsBedrag
+        logger.warn("berekenAflossingDTOOpDatum ${aflossing.startDatum} -> ${peilDatum} = ${aantalMaanden}: ${peilDatum.dayOfMonth} - ${betaalDag} ${peilDatum.dayOfMonth < betaalDag} ${isHetAlAfgeschreven}")
+        return aflossing.eindBedrag - BigDecimal(aantalMaanden) * aflossing.rekening.budgetBedrag
     }
 
     fun getBetalingVoorAflossingInPeriode(aflossing: Aflossing, periode: Periode): BigDecimal {
@@ -207,8 +215,11 @@ class AflossingService {
     fun add(aflossing1: AflossingDTO, aflossing2: AflossingDTO): AflossingDTO {
         return aflossing1.fullCopy(
             eindBedrag = aflossing1.eindBedrag.toBigDecimal().plus(aflossing2.eindBedrag.toBigDecimal()).toString(),
-            aflossingsBedrag = aflossing1.aflossingsBedrag.toBigDecimal().plus(aflossing2.aflossingsBedrag.toBigDecimal()).toString(),
-            aflossingOpPeilDatum = aflossing1.aflossingOpPeilDatum?.plus(aflossing2.aflossingOpPeilDatum ?: BigDecimal(0)),
+//            aflossingsBedrag = aflossing1.rekening.budgetBedrag
+//                .plus(aflossing2.rekening.budgetBedrag).toString(),
+            aflossingOpPeilDatum = aflossing1.aflossingOpPeilDatum?.plus(
+                aflossing2.aflossingOpPeilDatum ?: BigDecimal(0)
+            ),
             aflossingBetaling = aflossing1.aflossingBetaling?.plus(aflossing2.aflossingBetaling ?: BigDecimal(0)),
             deltaStartPeriode = aflossing1.deltaStartPeriode?.plus(aflossing2.deltaStartPeriode ?: BigDecimal(0)),
             saldoStartPeriode = aflossing1.saldoStartPeriode?.plus(aflossing2.saldoStartPeriode ?: BigDecimal(0)),

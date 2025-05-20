@@ -126,7 +126,7 @@ class GebruikerController {
             gebruiker.vrijwilliger?.email ?: "",
             gebruiker.vrijwilliger?.bijnaam ?: "",
             periodes= periodes.map { it.toDTO() },
-            aflossingen = aflossingen.map { it.toSamenvattingDTO() }
+//            aflossingen = aflossingen.map { it.toSamenvattingDTO() }
         )
     }
 }

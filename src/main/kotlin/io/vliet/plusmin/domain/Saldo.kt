@@ -23,7 +23,10 @@ class Saldo(
     @ManyToOne
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,
-    val bedrag: BigDecimal,
+    val saldo: BigDecimal = BigDecimal(0),
+    val achterstand: BigDecimal = BigDecimal(0),
+    val budgetMaandBedrag: BigDecimal = BigDecimal(0),
+    val budgetBetaling: BigDecimal = BigDecimal(0),
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "periode_id", referencedColumnName = "id")
@@ -31,28 +34,41 @@ class Saldo(
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
-        bedrag: BigDecimal = this.bedrag,
-        periode: Periode? = this.periode
-    ) = Saldo(this.id, rekening, bedrag, periode)
+        saldo: BigDecimal = this.saldo,
+        periode: Periode? = this.periode,
+        achterstand: BigDecimal = this.achterstand,
+        budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
+        budgetBetaling: BigDecimal = this.budgetBetaling,
+    ) = Saldo(this.id, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, periode)
 
     data class SaldoDTO(
         val id: Long = 0,
         val rekeningNaam: String,
-        val bedrag: BigDecimal = BigDecimal(0)
+        val saldo: BigDecimal = BigDecimal(0),
+        val achterstand: BigDecimal = BigDecimal(0),
+        val budgetMaandBedrag: BigDecimal = BigDecimal(0),
+        val budgetBetaling: BigDecimal = BigDecimal(0),
     )
 
     fun toBalansDTO(): SaldoDTO {
         return SaldoDTO(
             this.id,
             this.rekening.naam,
-            this.bedrag,
+            this.saldo,
+            this.achterstand,
+            this.budgetMaandBedrag,
+            this.budgetBetaling,
         )
     }
+
     fun toResultaatDTO(): SaldoDTO {
         return SaldoDTO(
             this.id,
             this.rekening.naam,
-            -this.bedrag,
+            -this.saldo,
+            this.achterstand,
+            this.budgetMaandBedrag,
+            this.budgetBetaling,
         )
     }
 }

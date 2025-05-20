@@ -23,7 +23,7 @@ class Budget(
     @JoinColumn(name = "rekening_id", nullable = false)
     val rekening: Rekening,
     val budgetNaam: String,
-    val budgetPeriodiciteit: BudgetPeriodiciteit = BudgetPeriodiciteit.MAAND,
+    val budgetPeriodiciteit: Rekening.BudgetPeriodiciteit = Rekening.BudgetPeriodiciteit.MAAND,
     val bedrag: BigDecimal,
     val betaalDag: Int?,
     @ManyToOne
@@ -37,7 +37,7 @@ class Budget(
         rekening: Rekening = this.rekening,
         budgetNaam: String = this.budgetNaam,
         bedrag: BigDecimal = this.bedrag,
-        budgetPeriodiciteit: BudgetPeriodiciteit = this.budgetPeriodiciteit,
+        budgetPeriodiciteit: Rekening.BudgetPeriodiciteit = this.budgetPeriodiciteit,
         betaalDag: Int? = this.betaalDag,
         vanPeriode: Periode? = this.vanPeriode,
         totPeriode: Periode? = this.totEnMetPeriode,
@@ -147,8 +147,4 @@ class Budget(
         val nogNodigNaPeilDatum: BigDecimal,
         val actueleBuffer: BigDecimal,
     )
-
-    enum class BudgetPeriodiciteit {
-        WEEK, MAAND
-    }
 }

@@ -119,7 +119,7 @@ class SaldoService {
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
             Saldo(0, rekening, mutatie)
         }
-        logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.bedrag}" }}")
+        logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.saldo}" }}")
         return saldoLijst
     }
 
@@ -130,9 +130,9 @@ class SaldoService {
 
     fun berekenSaldiOpDatum(openingsSaldi: List<Saldo>, mutatieLijst: List<Saldo>): List<Saldo> {
         val saldoLijst = openingsSaldi.map { saldo: Saldo ->
-            val mutatie: BigDecimal? = mutatieLijst.find { it.rekening.naam == saldo.rekening.naam }?.bedrag
+            val mutatie: BigDecimal? = mutatieLijst.find { it.rekening.naam == saldo.rekening.naam }?.saldo
             saldo.fullCopy(
-                bedrag = saldo.bedrag + (mutatie ?: BigDecimal(0))
+                saldo = saldo.saldo + (mutatie ?: BigDecimal(0))
             )
         }
         return saldoLijst
@@ -148,7 +148,7 @@ class SaldoService {
                 dto2Saldo(gebruiker, saldoDTO, periode)
             } else {
                 bestaandeSaldoMap.remove(saldoDTO.rekeningNaam)
-                bestaandeSaldo.fullCopy(bedrag = saldoDTO.bedrag)
+                bestaandeSaldo.fullCopy(saldo = saldoDTO.saldo)
             }
         }
         return bestaandeSaldoMap.values.toList() + nieuweSaldoList
@@ -161,12 +161,12 @@ class SaldoService {
                 throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
             }
 
-        val bedrag = saldoDTO.bedrag
+        val bedrag = saldoDTO.saldo
         val saldo = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         return if (saldo == null) {
-            Saldo(0, rekening, bedrag, periode)
+            Saldo(0, rekening, bedrag, periode = periode)
         } else {
-            saldo.fullCopy(bedrag = bedrag)
+            saldo.fullCopy(saldo = bedrag)
         }
     }
 }

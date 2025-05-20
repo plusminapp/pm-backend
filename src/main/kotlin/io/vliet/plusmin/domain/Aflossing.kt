@@ -24,8 +24,6 @@ class Aflossing(
     val startDatum: LocalDate,
     val eindDatum: LocalDate,
     val eindBedrag: BigDecimal,
-    val aflossingsBedrag: BigDecimal,
-    val betaalDag: Int,
     val dossierNummer: String,
     @Column(columnDefinition = "TEXT")
     val notities: String
@@ -35,8 +33,6 @@ class Aflossing(
         startDatum: LocalDate = this.startDatum,
         eindDatum: LocalDate = this.eindDatum,
         eindBedrag: BigDecimal = this.eindBedrag,
-        aflossingsBedrag: BigDecimal = this.aflossingsBedrag,
-        betaalDag: Int = this.betaalDag,
         dossierNummer: String = this.dossierNummer,
         notities: String = this.notities,
     ) = Aflossing(
@@ -45,8 +41,6 @@ class Aflossing(
         startDatum,
         eindDatum,
         eindBedrag,
-        aflossingsBedrag,
-        betaalDag,
         dossierNummer,
         notities
     )
@@ -57,8 +51,6 @@ class Aflossing(
         val startDatum: String,
         val eindDatum: String,
         val eindBedrag: String,
-        val aflossingsBedrag: String,
-        val betaalDag: Int,
         val dossierNummer: String,
         val notities: String,
         val aflossingPeilDatum: String? = null,
@@ -79,8 +71,6 @@ class Aflossing(
             startDatum: String = this.startDatum,
             eindDatum: String = this.eindDatum,
             eindBedrag: String = this.eindBedrag,
-            aflossingsBedrag: String = this.aflossingsBedrag,
-            betaalDag: Int = this.betaalDag,
             dossierNummer: String = this.dossierNummer,
             notities: String = this.notities,
             aflossingPeilDatum: String? = this.aflossingPeilDatum,
@@ -101,8 +91,6 @@ class Aflossing(
             startDatum,
             eindDatum,
             eindBedrag,
-            aflossingsBedrag,
-            betaalDag,
             dossierNummer,
             notities,
             aflossingPeilDatum,
@@ -140,8 +128,6 @@ class Aflossing(
             this.startDatum.toString(),
             this.eindDatum.toString(),
             this.eindBedrag.toString(),
-            this.aflossingsBedrag.toString(),
-            this.betaalDag,
             this.dossierNummer,
             this.notities,
             aflossingPeilDatum = aflossingPeilDatum,
@@ -159,17 +145,17 @@ class Aflossing(
         )
     }
 
-    data class AflossingSamenvattingDTO(
-        val aflossingNaam: String,
-        val aflossingsBedrag: BigDecimal,
-        val betaalDag: Int
-    )
-
-    fun toSamenvattingDTO(): AflossingSamenvattingDTO {
-        return AflossingSamenvattingDTO(
-            this.rekening.naam,
-            this.aflossingsBedrag,
-            this.betaalDag
-        )
-    }
+//    data class AflossingSamenvattingDTO(
+//        val aflossingNaam: String,
+//        val aflossingsBedrag: BigDecimal,
+//        val betaalDag: Int
+//    )
+//
+//    fun toSamenvattingDTO(): AflossingSamenvattingDTO {
+//        return AflossingSamenvattingDTO(
+//            this.rekening.naam,
+//            this.aflossingsBedrag,
+//            this.betaalDag
+//        )
+//    }
 }

@@ -60,7 +60,7 @@ class Gebruiker(
         val vrijwilligerEmail: String = "",
         val vrijwilligerBijnaam: String = "",
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
-        val aflossingen: List<Aflossing.AflossingSamenvattingDTO>? = emptyList(),
+//      TODO  val aflossingen: List<Aflossing.AflossingSamenvattingDTO>? = emptyList(),
     )
 
     fun toDTO(periodes: List<Periode> = emptyList(), aflossingen: List<Aflossing> = emptyList()): GebruikerDTO {
@@ -73,7 +73,7 @@ class Gebruiker(
             this.vrijwilliger?.email ?: "",
             this.vrijwilliger?.bijnaam ?: "",
             periodes= periodes.map { it.toDTO() },
-            aflossingen = aflossingen.map { it.toSamenvattingDTO() }
+//           TODO aflossingen = aflossingen.map { it.toSamenvattingDTO() }
         )
     }
 
