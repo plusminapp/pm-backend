@@ -10,7 +10,10 @@ import java.util.*
 
 @Repository
 interface RekeningGroepRepository : JpaRepository<RekeningGroep, Long> {
-    @Query(value = "SELECT r FROM RekeningGroep r WHERE r.gebruiker = :gebruiker AND r.naam = :rekeningGroepNaam")
+    @Query(value = "SELECT rg FROM RekeningGroep rg WHERE rg.gebruiker = :gebruiker AND rg.naam = :rekeningGroepNaam")
     fun findRekeningGroepVoorGebruiker(gebruiker: Gebruiker, rekeningGroepNaam: String ): Optional<RekeningGroep>
+
+    @Query(value = "SELECT rg FROM RekeningGroep rg WHERE rg.gebruiker = :gebruiker")
+    fun findRekeningGroepenVoorGebruiker(gebruiker: Gebruiker ): List<RekeningGroep>
 }
 

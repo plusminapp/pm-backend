@@ -39,15 +39,17 @@ class RekeningService {
     fun save(gebruiker: Gebruiker, rekeningDTO: RekeningDTO): RekeningDTO {
         val rekeningGroep = rekeningGroepRepository
             .findRekeningGroepVoorGebruiker(gebruiker, rekeningDTO.rekeningGroep.naam)
-            .getOrNull() ?: rekeningGroepRepository.save(RekeningGroep(
-            naam = rekeningDTO.rekeningGroep.naam,
-            gebruiker = gebruiker,
-            rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningDTO.rekeningGroep.rekeningGroepSoort),
-            rekeningGroepIcoonNaam = rekeningDTO.rekeningGroep.rekeningGroepIcoonNaam,
-            sortOrder = rekeningDTO.rekeningGroep.sortOrder,
-            budgetType = enumValueOf<RekeningGroep.BudgetType>(rekeningDTO.rekeningGroep.budgetType),
-            rekeningen = emptyList(),
-        ))
+            .getOrNull() ?: rekeningGroepRepository.save(
+            RekeningGroep(
+                naam = rekeningDTO.rekeningGroep.naam,
+                gebruiker = gebruiker,
+                rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningDTO.rekeningGroep.rekeningGroepSoort),
+                rekeningGroepIcoonNaam = rekeningDTO.rekeningGroep.rekeningGroepIcoonNaam,
+                sortOrder = rekeningDTO.rekeningGroep.sortOrder,
+                budgetType = enumValueOf<RekeningGroep.BudgetType>(rekeningDTO.rekeningGroep.budgetType),
+                rekeningen = emptyList(),
+            )
+        )
         val rekeningOpt = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, rekeningDTO.naam)
             .getOrNull()
         val rekening = if (rekeningOpt != null) {
@@ -82,18 +84,18 @@ class RekeningService {
         return rekening.toDTO()
     }
 
-//    fun filterBudgettenVoorPeriode(rekening: Rekening, periode: Periode): List<Budget> {
-//        return rekening.budgetten.filter { budget ->
-//            budgetService.budgetIsGeldigInPeriode(budget, periode)
-//        }
-//    }
-//
-//    fun findRekeningenVoorGebruikerEnPeriode(gebruiker: Gebruiker, periode: Periode): List<Rekening> {
-//        val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-//        return rekeningenLijst.map { rekening ->
-//            rekening.fullCopy(
-//                budgetten = filterBudgettenVoorPeriode(rekening, periode)
-//            )
-//        }
-//    }
+    fun rekeningIsGeldigInPeriode(rekening: Rekening, periode: Periode): Boolean {
+        return (rekening.vanPeriode == null || periode.periodeStartDatum >= rekening.vanPeriode.periodeStartDatum) &&
+                (rekening.totEnMetPeriode == null || periode.periodeEindDatum <= rekening.totEnMetPeriode.periodeEindDatum)
+    }
+
+
+    fun findRekeningGroepenMetGeldigeRekeningen(gebruiker: Gebruiker, periode: Periode): List<RekeningGroep> {
+        val rekeningGroepenLijst = rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
+        return rekeningGroepenLijst.map { rekeningGroep ->
+            rekeningGroep.fullCopy(
+                rekeningen = rekeningGroep.rekeningen.filter { rekeningIsGeldigInPeriode(it, periode) }
+            )
+        }.filter { it.rekeningen.isNotEmpty() }
+    }
 }

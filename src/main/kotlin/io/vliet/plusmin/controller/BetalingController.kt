@@ -186,15 +186,15 @@ class BetalingController {
         return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(hulpvrager, betalingValidatieWrapper))
     }
 
-//    @Operation(summary = "GET valideer budgetten voor hulpvrager")
-//    @GetMapping("/hulpvrager/{hulpvragerId}/valideer-budgetten")
-//    fun valideerBudgettenVoorHulpvrager(
-//        @PathVariable("hulpvragerId") hulpvragerId: Long,
-//    ): List<Betaling> {
-//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-//        logger.info("GET BudgetController.valideerBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-//        return betalingService.valideerBudgettenVoorGebruiker(hulpvrager)
-//    }
+    @Operation(summary = "GET valideer budgetten voor hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}/valideer-budgetten")
+    fun valideerRekeningenVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): List<Betaling> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET BetalingController.valideerRekeningenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return betalingService.valideerRekeningenVoorGebruiker(hulpvrager)
+    }
 
 //    @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")
 //    @PostMapping("/camt053/{hulpvragerId}", consumes = ["multipart/form-data"])

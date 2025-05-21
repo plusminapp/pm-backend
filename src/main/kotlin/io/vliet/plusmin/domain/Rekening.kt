@@ -31,6 +31,7 @@ class Rekening(
     @JoinColumn(name = "tot_periode_id")
     val totEnMetPeriode: Periode? = null,
     val budgetBedrag: BigDecimal,
+    @Enumerated(EnumType.STRING)
     val budgetPeriodiciteit: BudgetPeriodiciteit = BudgetPeriodiciteit.MAAND,
     val budgetBetaalDag: Int?,
     ) {
@@ -70,7 +71,6 @@ class Rekening(
         val sortOrder: Int,
         val vanPeriode: Periode? = null,
         val totPeriode: Periode? = null,
-        val budgetType: String,
         val budgetPeriodiciteit: String,
         val budgetBedrag: BigDecimal,
         val budgetBetaalDag: Int?,
@@ -90,7 +90,6 @@ class Rekening(
             sortOrder: Int = this.sortOrder,
             vanPeriode: Periode? = this.vanPeriode,
             totPeriode: Periode? = this.totPeriode,
-            budgetType: String = this.budgetType,
             budgetPeriodiciteit: String = this.budgetPeriodiciteit,
             budgetBedrag: BigDecimal = this.budgetBedrag,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
@@ -108,7 +107,6 @@ class Rekening(
             sortOrder,
             vanPeriode,
             totPeriode,
-            budgetType,
             budgetPeriodiciteit,
             budgetBedrag,
             budgetBetaalDag,
@@ -142,7 +140,6 @@ class Rekening(
             this.sortOrder,
             this.vanPeriode,
             this.totEnMetPeriode,
-            this.rekeningGroep.budgetType.toString(),
             this.budgetPeriodiciteit.toString(),
             this.budgetBedrag,
             this.budgetBetaalDag,

@@ -81,7 +81,6 @@ class RekeningGroep(
     data class RekeningGroepDTO(
         val id: Long = 0,
         val naam: String,
-        val gebruiker: Gebruiker,
         val rekeningGroepSoort: String,
         val rekeningGroepIcoonNaam: String? = null,
         val sortOrder: Int,
@@ -89,7 +88,6 @@ class RekeningGroep(
     ) {
         fun fullCopy(
             naam: String = this.naam,
-            gebruiker: Gebruiker = this.gebruiker,
             rekeningGroepSoort: String = this.rekeningGroepSoort,
             rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
             sortOrder: Int = this.sortOrder,
@@ -97,7 +95,6 @@ class RekeningGroep(
         ) = RekeningGroepDTO(
             this.id,
             naam,
-            gebruiker,
             rekeningGroepSoort,
             rekeningGroepIcoonNaam,
             sortOrder,
@@ -106,7 +103,7 @@ class RekeningGroep(
 
         fun fromDTO(
             naam: String = this.naam,
-            gebruiker: Gebruiker = this.gebruiker,
+            gebruiker: Gebruiker,
             rekeningGroepSoort: String = this.rekeningGroepSoort,
             rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
             sortOrder: Int = this.sortOrder,
@@ -126,7 +123,6 @@ class RekeningGroep(
         return RekeningGroepDTO(
             this.id,
             this.naam,
-            this.gebruiker,
             this.rekeningGroepSoort.toString(),
             this.rekeningGroepIcoonNaam,
             this.sortOrder,

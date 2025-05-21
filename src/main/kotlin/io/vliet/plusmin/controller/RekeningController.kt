@@ -42,18 +42,18 @@ class RekeningController {
         return rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
     }
 
-//    @Operation(summary = "GET de rekening op basis van de JWT van een rekening")
-//    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
-//    fun getAlleRekeningenVoorHulpvrager(
-//        @PathVariable("hulpvragerId") hulpvragerId: Long,
-//        @PathVariable("periodeId") periodeId: Long,
-//    ): ResponseEntity<Any> {
-//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-//        logger.info("GET BetalingController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-//        val periode = periodeRepository.findById(periodeId)
-//            .getOrElse { return ResponseEntity.notFound().build() }
-//        return ResponseEntity.ok().body(rekeningService.findRekeningenVoorGebruikerEnPeriode(hulpvrager, periode))
-//    }
+    @Operation(summary = "GET de geldige rekeningen in een periode")
+    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
+    fun getAlleRekeningenVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET RekeningController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val periode = periodeRepository.findById(periodeId)
+            .getOrElse { return ResponseEntity.notFound().build() }
+        return ResponseEntity.ok().body(rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode))
+    }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweRekeningVoorHulpvrager(
@@ -61,7 +61,7 @@ class RekeningController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any>  {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("POST BetalingController.creeerNieuweRekeningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("POST RekeningController.creeerNieuweRekeningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(rekeningService.saveAll(hulpvrager, rekeningList))
     }
 }

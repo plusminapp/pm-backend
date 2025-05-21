@@ -1,50 +1,72 @@
 [
-  {
-    "rekeningSoort": "BETAALREKENING",
-    "nummer": "betaalrekeningnummer",
-    "naam": "ASN betaalrekening",
-    "afkorting": "btr",
-    "sortOrder": 1
-  },
-  {
-    "rekeningSoort": "SPAARREKENING",
-    "nummer": "spaarrekeningnummer",
-    "naam": "ASN spaarrekening",
-    "afkorting": "btr",
-    "sortOrder": 1
-  },
-  {
-    "rekeningSoort": "RENTE",
-    "naam": "Rente",
-    "afkorting": "btr",
-    "sortOrder": 1
-  },
-  {
-    "rekeningSoort": "INKOMSTEN",
-    "nummer": "",
-    "naam": "Inkomsten",
-    "afkorting": "ink",
-    "sortOrder": 110
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Boodschappen",
-    "afkorting": "boo",
-    "sortOrder": 111
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Vaste lasten",
-    "afkorting": "vl",
-    "sortOrder": 112
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Andere uitgave",
-    "afkorting": "au",
-    "sortOrder": 113
-  }
+    {
+      "naam": "Inkomsten",
+      "rekeningGroep": {
+        "naam": "Inkomsten",
+        "rekeningGroepSoort": "INKOMSTEN",
+        "rekeningGroepIcoonNaam": "inkomsten",
+        "sortOrder": 100,
+        "budgetType": "VAST"
+      },
+      "sortOrder": 100,
+      "budgetPeriodiciteit": "MAAND",
+      "budgetBedrag": 1000,
+      "budgetBetaalDag": 24
+    },
+    {
+      "naam": "Rente",
+      "rekeningGroep": {
+        "naam": "Inkomsten",
+        "rekeningGroepSoort": "INKOMSTEN",
+        "rekeningGroepIcoonNaam": "inkomsten",
+        "sortOrder": 100,
+        "budgetType": "VAST"
+      },
+      "sortOrder": 200,
+      "budgetPeriodiciteit": "MAAND",
+      "budgetBedrag": 50,
+      "budgetBetaalDag": 5
+    },
+    {
+      "naam": "Boodschappen",
+      "rekeningGroep": {
+        "naam": "Boodschappen",
+        "rekeningGroepSoort": "UITGAVEN",
+        "rekeningGroepIcoonNaam": "boodschappen",
+        "sortOrder": 110,
+        "budgetType": "VAST"
+      },
+      "sortOrder": 110,
+      "budgetPeriodiciteit": "MAAND",
+      "budgetBedrag": 300,
+      "budgetBetaalDag": 24
+    },
+    {
+      "naam": "Vaste lasten",
+      "rekeningGroep": {
+        "naam": "Vaste lasten",
+        "rekeningGroepSoort": "UITGAVEN",
+        "rekeningGroepIcoonNaam": "vaste_lasten",
+        "sortOrder": 120,
+        "budgetType": "VAST"
+      },
+      "sortOrder": 120,
+      "budgetPeriodiciteit": "MAAND",
+      "budgetBedrag": 500,
+      "budgetBetaalDag": 24
+    },
+    {
+      "naam": "Andere uitgave",
+      "rekeningGroep": {
+        "naam": "Andere uitgave",
+        "rekeningGroepSoort": "UITGAVEN",
+        "rekeningGroepIcoonNaam": "andere_uitgave",
+        "sortOrder": 130,
+        "budgetType": "VAST"
+      },
+      "sortOrder": 130,
+      "budgetPeriodiciteit": "MAAND",
+      "budgetBedrag": 200,
+      "budgetBetaalDag": 24
+    }
 ]
