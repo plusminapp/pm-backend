@@ -61,7 +61,7 @@ class AflossingGrafiekService {
                     )
                 )
             )
-            huidigeBedrag -= aflossing.rekening.budgetBedrag
+            huidigeBedrag -= aflossing.rekening.budgetBedrag ?: BigDecimal.ZERO
             huidigeMaand = huidigeMaand.plus(1, ChronoUnit.MONTHS)
         }
         return aflossingGrafiekDataLijst.toList()

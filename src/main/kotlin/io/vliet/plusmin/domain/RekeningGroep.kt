@@ -9,6 +9,7 @@ import jakarta.persistence.*
     name = "rekening_groep",
     uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
 )
+@JsonInclude( JsonInclude.Include.NON_EMPTY)
 class RekeningGroep(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -48,6 +49,22 @@ class RekeningGroep(
             RekeningGroepSoort.AFLOSSING,
             RekeningGroepSoort.RESERVERING
         )
+        val betaalMethodeRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.BETAALREKENING,
+            RekeningGroepSoort.SPAARREKENING,
+            RekeningGroepSoort.CONTANT,
+            RekeningGroepSoort.CREDITCARD,
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RekeningGroep) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 
     fun fullCopy(
@@ -84,49 +101,56 @@ class RekeningGroep(
         val rekeningGroepSoort: String,
         val rekeningGroepIcoonNaam: String? = null,
         val sortOrder: Int,
-        val budgetType: String,
+        val budgetType: String? = null,
+        val rekeningen: List<Rekening.RekeningDTO> = emptyList()
     ) {
         fun fullCopy(
             naam: String = this.naam,
             rekeningGroepSoort: String = this.rekeningGroepSoort,
             rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
             sortOrder: Int = this.sortOrder,
-            budgetType: String = this.budgetType
+            budgetType: String? = this.budgetType,
+            rekeningen: List<Rekening.RekeningDTO>
         ) = RekeningGroepDTO(
             this.id,
             naam,
             rekeningGroepSoort,
             rekeningGroepIcoonNaam,
             sortOrder,
-            budgetType
+            budgetType,
+            rekeningen
         )
 
-        fun fromDTO(
-            naam: String = this.naam,
-            gebruiker: Gebruiker,
-            rekeningGroepSoort: String = this.rekeningGroepSoort,
-            rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
-            sortOrder: Int = this.sortOrder,
-            budgetType: String = this.budgetType
-        ) = RekeningGroep(
-            this.id,
-            naam,
-            gebruiker,
-            enumValueOf<RekeningGroepSoort>(rekeningGroepSoort),
-            rekeningGroepIcoonNaam,
-            sortOrder,
-            enumValueOf<BudgetType>(budgetType)
-        )
+//        fun fromDTO(
+//            naam: String = this.naam,
+//            gebruiker: Gebruiker,
+//            rekeningGroepSoort: String = this.rekeningGroepSoort,
+//            rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
+//            sortOrder: Int = this.sortOrder,
+//            budgetType: String = this.budgetType
+//        ) = RekeningGroep(
+//            this.id,
+//            naam,
+//            gebruiker,
+//            enumValueOf<RekeningGroepSoort>(rekeningGroepSoort),
+//            rekeningGroepIcoonNaam,
+//            sortOrder,
+//            enumValueOf<BudgetType>(budgetType),
+//            this.rekeningen.map { it.fromDTO() }
+//        )
     }
 
-    fun toDTO(): RekeningGroepDTO {
+    fun toDTO(periode: Periode? = null): RekeningGroepDTO {
         return RekeningGroepDTO(
             this.id,
             this.naam,
             this.rekeningGroepSoort.toString(),
             this.rekeningGroepIcoonNaam,
             this.sortOrder,
-            this.budgetType.toString()
+            this.budgetType.toString(),
+            this.rekeningen.map {
+                it.toDTO(periode)
+            }
         )
     }
 }

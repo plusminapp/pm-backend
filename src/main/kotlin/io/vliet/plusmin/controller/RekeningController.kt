@@ -1,19 +1,15 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.Rekening
-import io.vliet.plusmin.domain.Rekening.RekeningDTO
-import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.service.RekeningService
-import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.resource.NoResourceFoundException
 import kotlin.jvm.optionals.getOrElse
 
 @RestController
@@ -34,12 +30,12 @@ class RekeningController {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     // Iedereen mag de eigen rekening opvragen
-    @Operation(summary = "GET de eigen rekeningen op basis van de JWT")
+    @Operation(summary = "GET de eigen rekeninggroepen op basis van de JWT")
     @GetMapping("")
-    fun findRekeningen(): List<Rekening> {
+    fun findRekeningGroepen(): List<RekeningGroep> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         logger.info("GET RekeningController.findRekeningen() voor gebruiker ${gebruiker.email}.")
-        return rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
+        return rekeningRepository.findRekeningGroepenVoorGebruiker(gebruiker)
     }
 
     @Operation(summary = "GET de geldige rekeningen in een periode")
@@ -57,12 +53,12 @@ class RekeningController {
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweRekeningVoorHulpvrager(
-        @RequestBody rekeningList: List<RekeningDTO>,
+        @RequestBody rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any>  {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST RekeningController.creeerNieuweRekeningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(rekeningService.saveAll(hulpvrager, rekeningList))
+        return ResponseEntity.ok().body(rekeningService.saveAll(hulpvrager, rekeningGroepLijst))
     }
 }
 

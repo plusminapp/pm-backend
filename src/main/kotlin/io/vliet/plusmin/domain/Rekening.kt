@@ -1,6 +1,7 @@
 package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal
     name = "rekening",
     uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
 )
+@JsonInclude( JsonInclude.Include.NON_EMPTY)
 class Rekening(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -24,17 +26,25 @@ class Rekening(
     @JoinColumn(name = "rekening_groep_id", nullable = false)
     val rekeningGroep: RekeningGroep,
     val sortOrder: Int,
+    val bankNaam: String? = null,
     @ManyToOne
     @JoinColumn(name = "van_periode_id")
     val vanPeriode: Periode? = null,
     @ManyToOne
     @JoinColumn(name = "tot_periode_id")
     val totEnMetPeriode: Periode? = null,
-    val budgetBedrag: BigDecimal,
+    val budgetBedrag: BigDecimal? = null,
     @Enumerated(EnumType.STRING)
-    val budgetPeriodiciteit: BudgetPeriodiciteit = BudgetPeriodiciteit.MAAND,
-    val budgetBetaalDag: Int?,
-    ) {
+    val budgetPeriodiciteit: BudgetPeriodiciteit? = null,
+    val budgetBetaalDag: Int? = null,
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rekening_betaal_methoden",
+        joinColumns = [JoinColumn(name = "rekening_id")],
+        inverseJoinColumns = [JoinColumn(name = "betaalmethode_id")]
+    )
+    var betaalMethoden: List<Rekening> = emptyList()
+) {
     companion object {
         val sortableFields = setOf("id", "naam")
     }
@@ -43,37 +53,59 @@ class Rekening(
         naam: String = this.naam,
         rekeningGroep: RekeningGroep = this.rekeningGroep,
         sortOrder: Int = this.sortOrder,
+        bankNaam: String? = this.bankNaam,
         vanPeriode: Periode? = this.vanPeriode,
         totEnMetPeriode: Periode? = this.totEnMetPeriode,
-        budgetBedrag: BigDecimal = this.budgetBedrag,
-        budgetPeriodiciteit: BudgetPeriodiciteit = this.budgetPeriodiciteit,
+        budgetBedrag: BigDecimal? = this.budgetBedrag,
+        budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
-
-        ) = Rekening(
+        betaalMethoden: List<Rekening> = this.betaalMethoden
+    ) = Rekening(
         this.id,
         naam,
         rekeningGroep,
         sortOrder,
+        bankNaam,
         vanPeriode,
         totEnMetPeriode,
         budgetBedrag,
         budgetPeriodiciteit,
         budgetBetaalDag,
+        betaalMethoden
     )
+
+    fun fromDTO(
+        dto: RekeningDTO,
+        gebruiker: Gebruiker,
+        rekeningGroep: RekeningGroep,
+    ) = Rekening(
+        dto.id,
+        dto.naam,
+        rekeningGroep,
+        dto.sortOrder,
+        dto.bankNaam,
+        dto.vanPeriode,
+        dto.totPeriode,
+        dto.budgetBedrag,
+        BudgetPeriodiciteit.valueOf(dto.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
+        dto.budgetBetaalDag
+    )
+
     enum class BudgetPeriodiciteit {
         WEEK, MAAND
     }
-
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     data class RekeningDTO(
         val id: Long = 0,
         val naam: String,
-        val rekeningGroep: RekeningGroep.RekeningGroepDTO,
         val sortOrder: Int,
+        val bankNaam: String? = null,
         val vanPeriode: Periode? = null,
         val totPeriode: Periode? = null,
-        val budgetPeriodiciteit: String,
-        val budgetBedrag: BigDecimal,
+        val budgetPeriodiciteit: String? = null,
+        val budgetBedrag: BigDecimal? = null,
         val budgetBetaalDag: Int?,
+        val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null,
@@ -86,13 +118,14 @@ class Rekening(
     ) {
         fun fullCopy(
             naam: String = this.naam,
-            rekeningGroep: RekeningGroep.RekeningGroepDTO = this.rekeningGroep,
             sortOrder: Int = this.sortOrder,
+            bankNaam: String? = this.bankNaam,
             vanPeriode: Periode? = this.vanPeriode,
             totPeriode: Periode? = this.totPeriode,
-            budgetPeriodiciteit: String = this.budgetPeriodiciteit,
-            budgetBedrag: BigDecimal = this.budgetBedrag,
+            budgetPeriodiciteit: String? = this.budgetPeriodiciteit,
+            budgetBedrag: BigDecimal? = this.budgetBedrag,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
+            betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             budgetPeilDatum: String? = this.budgetPeilDatum,
             budgetOpPeilDatum: BigDecimal? = this.budgetOpPeilDatum,
@@ -103,13 +136,15 @@ class Rekening(
             meerDanMaandBudget: BigDecimal? = this.meerDanMaandBudget,
             restMaandBudget: BigDecimal? = this.restMaandBudget,
         ) = RekeningDTO(
-            this.id, naam, rekeningGroep,
+            this.id, naam,
             sortOrder,
+            bankNaam,
             vanPeriode,
             totPeriode,
             budgetPeriodiciteit,
             budgetBedrag,
             budgetBetaalDag,
+            betaalMethoden,
             budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,
@@ -123,7 +158,7 @@ class Rekening(
     }
 
     fun toDTO(
-        budgetMaandBedrag: BigDecimal? = null,
+        periode: Periode? = null,
         budgetPeilDatum: String? = null,
         budgetOpPeilDatum: BigDecimal? = null,
         budgetBetaling: BigDecimal? = null,
@@ -133,16 +168,28 @@ class Rekening(
         meerDanMaandBudget: BigDecimal? = null,
         restMaandBudget: BigDecimal? = null,
     ): RekeningDTO {
+        val budgetMaandBedrag = if (periode != null && budgetBedrag != null) {
+            if (budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
+                val periodeLengte = periode.periodeEindDatum.dayOfYear - periode.periodeStartDatum.dayOfYear + 1
+                (budgetBedrag.times(BigDecimal(periodeLengte)).div(BigDecimal(7))).setScale(
+                    2,
+                    java.math.RoundingMode.HALF_UP
+                )
+            } else {
+                budgetBedrag
+            }
+        } else null
         return RekeningDTO(
             this.id,
             this.naam,
-            this.rekeningGroep.toDTO(),
             this.sortOrder,
+            this.bankNaam,
             this.vanPeriode,
             this.totEnMetPeriode,
             this.budgetPeriodiciteit.toString(),
             this.budgetBedrag,
             this.budgetBetaalDag,
+            this.betaalMethoden.map { it.toDTO(periode) },
             budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,

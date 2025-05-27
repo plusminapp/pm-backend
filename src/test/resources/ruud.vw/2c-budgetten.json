@@ -1,120 +1,95 @@
-[
+{
+  "naam": "Vaste lasten",
+  "rekeningGroepSoort": "UITGAVEN",
+  "rekeningGroepIcoonNaam": "vaste_lasten",
+  "sortOrder": 110,
+  "budgetType": "VAST",
+  "rekeningen": [
   {
-    "rekeningNaam": "Inkomsten",
-    "budgetNaam": "AOW",
-    "budgetType": "vast",
-    "budgetPeriodiciteit": "maand",
-    "bedrag": 1214,
-    "betaalDag": 26
-  },
-  {
-    "rekeningNaam": "Inkomsten",
-    "budgetNaam": "Pensioen",
-    "budgetType": "vast",
-    "budgetPeriodiciteit": "maand",
-    "bedrag": 2554,
-    "betaalDag": 26
-  },
-  {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "Greenchoice",
+    "naam": "Greenchoice",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 75,
-    "betaalDag": 8
+    "betaalDag": 8,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "VvE",
+    "naam": "VvE",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 194.07,
-    "betaalDag": 8
+    "betaalDag": 8,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "ZIEKTEKOSTEN",
+    "naam": "ZIEKTEKOSTEN",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 187.50,
-    "betaalDag": 3
+    "betaalDag": 3,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "SCHADEVERZEKERING",
+    "naam": "SCHADEVERZEKERING",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 26.22,
-    "betaalDag": 1
+    "betaalDag": 1,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "GroenLinks Contributies",
+    "naam": "GroenLinks Contributies",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 25,
-    "betaalDag": 28
+    "betaalDag": 28,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "Energiewacht",
+    "naam": "Energiewacht",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 25,
-    "betaalDag": 28
+    "betaalDag": 28,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "Hypotheek",
+    "naam": "Hypotheek",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 894.95,
-    "betaalDag": 28
+    "betaalDag": 28,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "GBLT",
+    "naam": "GBLT",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 31.49,
-    "betaalDag": 28
+    "betaalDag": 28,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "ODIDO",
+    "naam": "ODIDO",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 46.44,
-    "betaalDag": 26
+    "betaalDag": 26,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "Regionale belasting",
+    "naam": "Regionale belasting",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 74.70,
-    "betaalDag": 26
+    "betaalDag": 26,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
   },
   {
-    "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "Vitens",
+    "naam": "Vitens",
     "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 8,
-    "betaalDag": 26
-  },
-  {
-    "rekeningNaam":  "Boodschappen",
-    "budgetNaam": "Boodschappen",
-    "budgetType": "continu",
-    "budgetPeriodiciteit": "week",
-    "bedrag": 55
-  },
-  {
-    "rekeningNaam":  "Andere uitgave",
-    "budgetNaam": "Andere uitgave",
-    "budgetType": "continu",
-    "budgetPeriodiciteit": "week",
-    "bedrag": 125
-  }
-]
+    "betaalDag": 26,
+    "betaalMethoden": [{"naam": "ASN betaalrekening"}]
+  }]}

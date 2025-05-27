@@ -1,7 +1,9 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
+import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
@@ -27,29 +29,44 @@ class RekeningService {
     @Autowired
     lateinit var saldoRepository: SaldoRepository
 
-    @Autowired
-    lateinit var budgetService: BudgetService
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruiker: Gebruiker, rekeningenLijst: List<RekeningDTO>): List<RekeningDTO> {
-        return rekeningenLijst.map { rekeningDTO -> save(gebruiker, rekeningDTO) }
+    fun saveAll(gebruiker: Gebruiker, rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>): Set<RekeningGroep> {
+        val rekeningGroepLijst = rekeningGroepLijst
+            .map { rekeningGroepDTO -> save(gebruiker, rekeningGroepDTO) }
+        return rekeningGroepLijst.toSet()
     }
 
-    fun save(gebruiker: Gebruiker, rekeningDTO: RekeningDTO): RekeningDTO {
+    fun save(gebruiker: Gebruiker, rekeningGroepDTO: RekeningGroep.RekeningGroepDTO): RekeningGroep {
         val rekeningGroep = rekeningGroepRepository
-            .findRekeningGroepVoorGebruiker(gebruiker, rekeningDTO.rekeningGroep.naam)
+            .findRekeningGroepVoorGebruiker(gebruiker, rekeningGroepDTO.naam)
             .getOrNull() ?: rekeningGroepRepository.save(
             RekeningGroep(
-                naam = rekeningDTO.rekeningGroep.naam,
+                naam = rekeningGroepDTO.naam,
                 gebruiker = gebruiker,
-                rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningDTO.rekeningGroep.rekeningGroepSoort),
-                rekeningGroepIcoonNaam = rekeningDTO.rekeningGroep.rekeningGroepIcoonNaam,
-                sortOrder = rekeningDTO.rekeningGroep.sortOrder,
-                budgetType = enumValueOf<RekeningGroep.BudgetType>(rekeningDTO.rekeningGroep.budgetType),
+                rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningGroepDTO.rekeningGroepSoort),
+                rekeningGroepIcoonNaam = rekeningGroepDTO.rekeningGroepIcoonNaam,
+                sortOrder = rekeningGroepDTO.sortOrder,
+                budgetType = if (rekeningGroepDTO.budgetType !== null) enumValueOf<RekeningGroep.BudgetType>(
+                    rekeningGroepDTO.budgetType
+                ) else null,
                 rekeningen = emptyList(),
             )
         )
+        val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, rekeningGroep, it) }
+        return rekeningGroep.fullCopy(rekeningen = rekeningen)
+    }
+
+    fun saveRekening(gebruiker: Gebruiker, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
+        val betaalMethoden = if (!betaalMethodeRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
+            rekeningDTO.betaalMethoden.mapNotNull {
+                rekeningRepository.findRekeningGebruikerEnNaam(
+                    gebruiker,
+                    it.naam
+                ).getOrNull()
+            }
+                .filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
+        else emptyList()
         val rekeningOpt = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, rekeningDTO.naam)
             .getOrNull()
         val rekening = if (rekeningOpt != null) {
@@ -57,7 +74,14 @@ class RekeningService {
             rekeningRepository.save(
                 rekeningOpt.fullCopy(
                     rekeningGroep = rekeningGroep,
-                    sortOrder = rekeningDTO.sortOrder
+                    sortOrder = rekeningDTO.sortOrder,
+                    bankNaam = rekeningDTO.bankNaam,
+                    budgetBetaalDag = rekeningDTO.budgetBetaalDag,
+                    budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
+                        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit)
+                    else null,
+                    budgetBedrag = rekeningDTO.budgetBedrag,
+                    betaalMethoden = betaalMethoden
                 )
             )
         } else {
@@ -66,12 +90,17 @@ class RekeningService {
                     naam = rekeningDTO.naam,
                     rekeningGroep = rekeningGroep,
                     sortOrder = rekeningDTO.sortOrder,
+                    bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
-                    budgetBedrag = rekeningDTO.budgetBedrag
+                    budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
+                        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
+                    else null,
+                    budgetBedrag = rekeningDTO.budgetBedrag,
+                    betaalMethoden = betaalMethoden
                 )
             )
         }
-        logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam}")
+        logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag}; banknaam ${rekeningDTO.bankNaam}.")
         if (rekeningOpt == null) {
             val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
 //            TODO
@@ -81,7 +110,7 @@ class RekeningService {
 //                periode = periode
 //            ))
         }
-        return rekening.toDTO()
+        return rekening
     }
 
     fun rekeningIsGeldigInPeriode(rekening: Rekening, periode: Periode): Boolean {
@@ -90,12 +119,16 @@ class RekeningService {
     }
 
 
-    fun findRekeningGroepenMetGeldigeRekeningen(gebruiker: Gebruiker, periode: Periode): List<RekeningGroep> {
+    fun findRekeningGroepenMetGeldigeRekeningen(
+        gebruiker: Gebruiker,
+        periode: Periode
+    ): List<RekeningGroep.RekeningGroepDTO> {
         val rekeningGroepenLijst = rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
         return rekeningGroepenLijst.map { rekeningGroep ->
             rekeningGroep.fullCopy(
-                rekeningen = rekeningGroep.rekeningen.filter { rekeningIsGeldigInPeriode(it, periode) }
-            )
+                rekeningen = rekeningGroep.rekeningen
+                    .filter { rekeningIsGeldigInPeriode(it, periode) }
+            ).toDTO(periode)
         }.filter { it.rekeningen.isNotEmpty() }
     }
 }
