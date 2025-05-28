@@ -18,7 +18,12 @@
     "rekeningen": [
       {
         "naam": "Contant",
-        "sortOrder": 200
+        "sortOrder": 200,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
       }
     ]
   },
@@ -30,7 +35,12 @@
       {
         "naam": "ASN spaarrekening",
         "bankNaam": "ASN",
-        "sortOrder": 300
+        "sortOrder": 300,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
       }
     ]
   },

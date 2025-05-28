@@ -58,15 +58,13 @@ class RekeningService {
     }
 
     fun saveRekening(gebruiker: Gebruiker, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
-        val betaalMethoden = if (!betaalMethodeRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
+        val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
                 rekeningRepository.findRekeningGebruikerEnNaam(
                     gebruiker,
                     it.naam
                 ).getOrNull()
-            }
-                .filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
-        else emptyList()
+            }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
         val rekeningOpt = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, rekeningDTO.naam)
             .getOrNull()
         val rekening = if (rekeningOpt != null) {
@@ -130,5 +128,17 @@ class RekeningService {
                     .filter { rekeningIsGeldigInPeriode(it, periode) }
             ).toDTO(periode)
         }.filter { it.rekeningen.isNotEmpty() }
+    }
+
+    fun rekeningenPerBetalingsSoort(
+        rekeningGroepen: List<RekeningGroep.RekeningGroepDTO>
+    ): List<RekeningGroep.RekeningGroepPerBetalingsSoort> {
+        return RekeningGroep.betaalSoort2RekeningGroepSoort.map { (betalingsSoort, rekeningGroepSoort) ->
+            RekeningGroep.RekeningGroepPerBetalingsSoort(
+                betalingsSoort = betalingsSoort,
+                rekeningGroepen = rekeningGroepen
+                    .filter { it.rekeningGroepSoort == rekeningGroepSoort.name }
+            )
+        }.filter { it.rekeningGroepen.isNotEmpty() }
     }
 }

@@ -51,10 +51,21 @@ class RekeningGroep(
         )
         val betaalMethodeRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
-            RekeningGroepSoort.SPAARREKENING,
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
         )
+        val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
+            Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
+            Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
+            Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
+            Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
+            Betaling.BetalingsSoort.TOEVOEGEN_RESERVERING to RekeningGroepSoort.RESERVERING,
+            Betaling.BetalingsSoort.BESTEDEN_RESERVERING to RekeningGroepSoort.RESERVERING,
+            Betaling.BetalingsSoort.OPNEMEN_SPAARREKENING to RekeningGroepSoort.SPAARREKENING,
+            Betaling.BetalingsSoort.STORTEN_SPAARREKENING to  RekeningGroepSoort.SPAARREKENING,
+            Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
+            Betaling.BetalingsSoort.STORTEN_CONTANT to RekeningGroepSoort.CONTANT,
+            )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -120,24 +131,6 @@ class RekeningGroep(
             budgetType,
             rekeningen
         )
-
-//        fun fromDTO(
-//            naam: String = this.naam,
-//            gebruiker: Gebruiker,
-//            rekeningGroepSoort: String = this.rekeningGroepSoort,
-//            rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
-//            sortOrder: Int = this.sortOrder,
-//            budgetType: String = this.budgetType
-//        ) = RekeningGroep(
-//            this.id,
-//            naam,
-//            gebruiker,
-//            enumValueOf<RekeningGroepSoort>(rekeningGroepSoort),
-//            rekeningGroepIcoonNaam,
-//            sortOrder,
-//            enumValueOf<BudgetType>(budgetType),
-//            this.rekeningen.map { it.fromDTO() }
-//        )
     }
 
     fun toDTO(periode: Periode? = null): RekeningGroepDTO {
@@ -153,4 +146,9 @@ class RekeningGroep(
             }
         )
     }
+
+    data class RekeningGroepPerBetalingsSoort(
+        val betalingsSoort: Betaling.BetalingsSoort,
+        val rekeningGroepen: List<RekeningGroepDTO> = emptyList()
+    )
 }

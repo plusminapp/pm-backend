@@ -1,0 +1,430 @@
+[
+  {
+    "betalingsSoort": "INKOMSTEN",
+    "rekeningGroepen": [
+      {
+        "id": 56733,
+        "naam": "Inkomsten",
+        "rekeningGroepSoort": "INKOMSTEN",
+        "rekeningGroepIcoonNaam": "inkomsten",
+        "sortOrder": 100,
+        "budgetType": "VAST",
+        "rekeningen": [
+          {
+            "id": 56734,
+            "naam": "Salaris",
+            "sortOrder": 100,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 2100,
+            "budgetBetaalDag": 24,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 2100
+          },
+          {
+            "id": 56735,
+            "naam": "Rente",
+            "sortOrder": 200,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 50,
+            "budgetBetaalDag": 5,
+            "budgetMaandBedrag": 50
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "betalingsSoort": "UITGAVEN",
+    "rekeningGroepen": [
+      {
+        "id": 56736,
+        "naam": "Leefgeld",
+        "rekeningGroepSoort": "UITGAVEN",
+        "rekeningGroepIcoonNaam": "boodschappen",
+        "sortOrder": 110,
+        "budgetType": "CONTINU",
+        "rekeningen": [
+          {
+            "id": 56737,
+            "naam": "Boodschappen",
+            "sortOrder": 110,
+            "budgetPeriodiciteit": "WEEK",
+            "budgetBedrag": 85,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              },
+              {
+                "id": 56752,
+                "naam": "Contant",
+                "sortOrder": 200,
+                "betaalMethoden": [
+                  {
+                    "id": 56730,
+                    "naam": "ASN betaalrekening",
+                    "sortOrder": 100,
+                    "bankNaam": "ASN"
+                  }
+                ]
+              }
+            ],
+            "budgetMaandBedrag": 376.43
+          },
+          {
+            "id": 56738,
+            "naam": "Verzorging",
+            "sortOrder": 120,
+            "budgetPeriodiciteit": "WEEK",
+            "budgetBedrag": 25,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 110.71
+          }
+        ]
+      },
+      {
+        "id": 56739,
+        "naam": "Vaste lasten",
+        "rekeningGroepSoort": "UITGAVEN",
+        "rekeningGroepIcoonNaam": "vaste_lasten",
+        "sortOrder": 110,
+        "budgetType": "VAST",
+        "rekeningen": [
+          {
+            "id": 56740,
+            "naam": "Greenchoice",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 75,
+            "budgetBetaalDag": 8,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 75
+          },
+          {
+            "id": 56741,
+            "naam": "VvE",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 194.07,
+            "budgetBetaalDag": 8,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 194.07
+          },
+          {
+            "id": 56742,
+            "naam": "Ziektekosten",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 187.5,
+            "budgetBetaalDag": 3,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 187.5
+          },
+          {
+            "id": 56743,
+            "naam": "Schadeverzekeringen",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 26.22,
+            "budgetBetaalDag": 1,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 26.22
+          },
+          {
+            "id": 56744,
+            "naam": "GroenLinks Contributies",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 25,
+            "budgetBetaalDag": 28,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 25
+          },
+          {
+            "id": 56745,
+            "naam": "Energiewacht",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 25,
+            "budgetBetaalDag": 28,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 25
+          },
+          {
+            "id": 56746,
+            "naam": "Hypotheek",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 894.95,
+            "budgetBetaalDag": 28,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 894.95
+          },
+          {
+            "id": 56747,
+            "naam": "GBLT",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 31.49,
+            "budgetBetaalDag": 28,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 31.49
+          },
+          {
+            "id": 56748,
+            "naam": "Odido",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 46.44,
+            "budgetBetaalDag": 26,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 46.44
+          },
+          {
+            "id": 56749,
+            "naam": "Regionale belasting",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 74.7,
+            "budgetBetaalDag": 26,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 74.7
+          },
+          {
+            "id": 56750,
+            "naam": "Vitens",
+            "sortOrder": 0,
+            "budgetPeriodiciteit": "MAAND",
+            "budgetBedrag": 8,
+            "budgetBetaalDag": 26,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ],
+            "budgetMaandBedrag": 8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "betalingsSoort": "AFLOSSEN",
+    "rekeningGroepen": []
+  },
+  {
+    "betalingsSoort": "INCASSO_CREDITCARD",
+    "rekeningGroepen": []
+  },
+  {
+    "betalingsSoort": "TOEVOEGEN_RESERVERING",
+    "rekeningGroepen": []
+  },
+  {
+    "betalingsSoort": "BESTEDEN_RESERVERING",
+    "rekeningGroepen": []
+  },
+  {
+    "betalingsSoort": "OPNEMEN_SPAARREKENING",
+    "rekeningGroepen": [
+      {
+        "id": 56731,
+        "naam": "Spaarrekening",
+        "rekeningGroepSoort": "SPAARREKENING",
+        "rekeningGroepIcoonNaam": null,
+        "sortOrder": 200,
+        "budgetType": "null",
+        "rekeningen": [
+          {
+            "id": 56732,
+            "naam": "ASN spaarrekening",
+            "sortOrder": 300,
+            "bankNaam": "ASN",
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "betalingsSoort": "STORTEN_SPAARREKENING",
+    "rekeningGroepen": [
+      {
+        "id": 56731,
+        "naam": "Spaarrekening",
+        "rekeningGroepSoort": "SPAARREKENING",
+        "rekeningGroepIcoonNaam": null,
+        "sortOrder": 200,
+        "budgetType": "null",
+        "rekeningen": [
+          {
+            "id": 56732,
+            "naam": "ASN spaarrekening",
+            "sortOrder": 300,
+            "bankNaam": "ASN",
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "betalingsSoort": "OPNEMEN_CONTANT",
+    "rekeningGroepen": [
+      {
+        "id": 56751,
+        "naam": "Contant",
+        "rekeningGroepSoort": "CONTANT",
+        "rekeningGroepIcoonNaam": null,
+        "sortOrder": 200,
+        "budgetType": "null",
+        "rekeningen": [
+          {
+            "id": 56752,
+            "naam": "Contant",
+            "sortOrder": 200,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "betalingsSoort": "STORTEN_CONTANT",
+    "rekeningGroepen": [
+      {
+        "id": 56751,
+        "naam": "Contant",
+        "rekeningGroepSoort": "CONTANT",
+        "rekeningGroepIcoonNaam": null,
+        "sortOrder": 200,
+        "budgetType": "null",
+        "rekeningen": [
+          {
+            "id": 56752,
+            "naam": "Contant",
+            "sortOrder": 200,
+            "betaalMethoden": [
+              {
+                "id": 56730,
+                "naam": "ASN betaalrekening",
+                "sortOrder": 100,
+                "bankNaam": "ASN"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -186,7 +186,7 @@ class Rekening(
             this.bankNaam,
             this.vanPeriode,
             this.totEnMetPeriode,
-            this.budgetPeriodiciteit.toString(),
+            this.budgetPeriodiciteit?.name,
             this.budgetBedrag,
             this.budgetBetaalDag,
             this.betaalMethoden.map { it.toDTO(periode) },

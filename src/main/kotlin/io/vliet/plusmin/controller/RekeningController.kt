@@ -48,7 +48,8 @@ class RekeningController {
         logger.info("GET RekeningController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode))
+        val rekeningGroepLijst = rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
+        return ResponseEntity.ok().body(rekeningService.rekeningenPerBetalingsSoort(rekeningGroepLijst))
     }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
