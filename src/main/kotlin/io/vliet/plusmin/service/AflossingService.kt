@@ -59,7 +59,7 @@
 //                            budgetBedrag = aflossingDTO.rekening.budgetBedrag,
 //                            budgetBetaalDag = aflossingDTO.rekening.budgetBetaalDag,
 //                            vanPeriode = aflossingDTO.rekening.vanPeriode,
-//                            totEnMetPeriode = aflossingDTO.rekening.totPeriode,
+//                            totEnMetPeriode = aflossingDTO.rekening.totEnMetPeriode,
 //                        )
 //                    )
 //            if (rekening.rekeningGroep.rekeningGroepSoort != RekeningGroep.RekeningGroepSoort.AFLOSSING) {

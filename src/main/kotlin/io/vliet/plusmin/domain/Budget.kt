@@ -40,8 +40,8 @@ class Budget(
         budgetPeriodiciteit: Rekening.BudgetPeriodiciteit = this.budgetPeriodiciteit,
         betaalDag: Int? = this.betaalDag,
         vanPeriode: Periode? = this.vanPeriode,
-        totPeriode: Periode? = this.totEnMetPeriode,
-    ) = Budget(this.id, rekening, budgetNaam, budgetPeriodiciteit, bedrag, betaalDag, vanPeriode, totPeriode)
+        totEnMetPeriode: Periode? = this.totEnMetPeriode,
+    ) = Budget(this.id, rekening, budgetNaam, budgetPeriodiciteit, bedrag, betaalDag, vanPeriode, totEnMetPeriode)
 
     data class BudgetDTO(
         val id: Long = 0,
@@ -53,7 +53,7 @@ class Budget(
         val bedrag: BigDecimal,
         val betaalDag: Int?,
         val vanPeriode: Periode? = null,
-        val totPeriode: Periode? = null,
+        val totEnMetPeriode: Periode? = null,
         val budgetMaandBedrag: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null,
@@ -73,7 +73,7 @@ class Budget(
             bedrag: BigDecimal = this.bedrag,
             betaalDag: Int? = this.betaalDag,
             vanPeriode: Periode? = this.vanPeriode,
-            totPeriode: Periode? = this.totPeriode,
+            totEnMetPeriode: Periode? = this.totEnMetPeriode,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             budgetPeilDatum: String? = this.budgetPeilDatum,
             budgetOpPeilDatum: BigDecimal? = this.budgetOpPeilDatum,
@@ -93,7 +93,7 @@ class Budget(
             bedrag,
             betaalDag,
             vanPeriode,
-            totPeriode,
+            totEnMetPeriode,
             budgetMaandBedrag,
             budgetPeilDatum,
             budgetOpPeilDatum,

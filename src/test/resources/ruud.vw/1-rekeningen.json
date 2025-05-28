@@ -12,14 +12,25 @@
     ]
   },
   {
+    "naam": "Contant",
+    "rekeningGroepSoort": "CONTANT",
+    "sortOrder": 200,
+    "rekeningen": [
+      {
+        "naam": "Contant",
+        "sortOrder": 200
+      }
+    ]
+  },
+  {
     "naam": "Spaarrekening",
     "rekeningGroepSoort": "SPAARREKENING",
-    "sortOrder": 200,
+    "sortOrder": 300,
     "rekeningen": [
       {
         "naam": "ASN spaarrekening",
         "bankNaam": "ASN",
-        "sortOrder": 200
+        "sortOrder": 300
       }
     ]
   },
@@ -71,6 +82,9 @@
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
+          },
+          {
+            "naam": "Contant"
           }
         ]
       },
