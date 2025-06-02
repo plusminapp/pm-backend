@@ -28,6 +28,22 @@
     ]
   },
   {
+    "naam": "Creditcard",
+    "rekeningGroepSoort": "CREDITCARD",
+    "sortOrder": 200,
+    "rekeningen": [
+      {
+        "naam": "Visa Creditcard",
+        "sortOrder": 200,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "naam": "Spaarrekening",
     "rekeningGroepSoort": "SPAARREKENING",
     "sortOrder": 300,
@@ -92,6 +108,9 @@
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
+          },
+          {
+            "naam": "Visa Creditcard"
           },
           {
             "naam": "Contant"

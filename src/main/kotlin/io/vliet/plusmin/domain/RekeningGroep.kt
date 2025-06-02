@@ -51,6 +51,7 @@ class RekeningGroep(
         )
         val betaalMethodeRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
+            RekeningGroepSoort.SPAARREKENING,
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
         )
