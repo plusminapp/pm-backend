@@ -37,9 +37,6 @@ class Betaling(
     @ManyToOne
     @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
     val bestemming: Rekening,
-    @ManyToOne
-    @JoinColumn(name = "budget_id", referencedColumnName = "id")
-    val budget: Budget? = null,
 ) {
     companion object {
         val sortableFields = setOf("id", "boekingsdatum", "status")
@@ -54,7 +51,6 @@ class Betaling(
         sortOrder: String = this.sortOrder,
         bron: Rekening = this.bron,
         bestemming: Rekening = this.bestemming,
-        budget: Budget? = this.budget
     ) = Betaling(
         this.id,
         gebruiker,
@@ -65,7 +61,6 @@ class Betaling(
         sortOrder,
         bron,
         bestemming,
-        budget
     )
 
     data class BetalingDTO(
@@ -74,10 +69,9 @@ class Betaling(
         val bedrag: String,
         val omschrijving: String,
         val betalingsSoort: String,
-        val sortOrder: String,
+        val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
-        val budgetNaam: String? = null
     )
 
     fun toDTO(): BetalingDTO {
@@ -89,8 +83,7 @@ class Betaling(
             this.betalingsSoort.toString(),
             this.sortOrder,
             this.bron.naam,
-            this.bestemming.naam,
-            this.budget?.budgetNaam
+            this.bestemming.naam
         )
     }
 

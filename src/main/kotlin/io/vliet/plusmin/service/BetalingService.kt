@@ -3,7 +3,6 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.repository.BudgetRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
@@ -13,16 +12,12 @@ import org.springframework.stereotype.Service
 import java.lang.Integer.parseInt
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 @Service
 class BetalingService {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
-
-    @Autowired
-    lateinit var budgetRepository: BudgetRepository
 
     @Autowired
     lateinit var rekeningService: RekeningService
@@ -56,17 +51,7 @@ class BetalingService {
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
             val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming).getOrNull()
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
-            val budgetRekening = if (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
-                betalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString()
-            ) bron else bestemming
-            val budget: Budget? =
-                if (!betalingDTO.budgetNaam.isNullOrBlank()) {
-                    budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, betalingDTO.budgetNaam)
-                        ?: run {
-                            logger.warn("Budget ${betalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
-                            null
-                        }
-                } else null
+
             val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
             val sortOrderDatum = betalingDTO.boekingsdatum.replace("-", "")
             val sortOrder = if (laatsteSortOrder == null) sortOrderDatum + ".900"
@@ -86,7 +71,6 @@ class BetalingService {
                 bron = bron,
                 bestemming = bestemming,
                 sortOrder = sortOrder,
-                budget = budget
             )
         }
         return betalingRepository.save(betaling).toDTO()
@@ -98,18 +82,8 @@ class BetalingService {
             ?: oldBetaling.bron
         val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming).getOrNull()
             ?: oldBetaling.bestemming
-        val budgetRekening = if (
-            newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
-            newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.RENTE.toString()
-        ) bron else bestemming
-        val budget = if (!newBetalingDTO.budgetNaam.isNullOrBlank()) {
-            budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, newBetalingDTO.budgetNaam)
-                ?: run {
-                    logger.warn("Budget ${newBetalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
-                    null
-                }
-        } else null
-        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} met budget ${budget?.id ?: (newBetalingDTO.budgetNaam + "niet gevonden")} ")
+
+        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             bedrag = newBetalingDTO.bedrag.toBigDecimal(),
@@ -117,7 +91,6 @@ class BetalingService {
             betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
             bron = bron,
             bestemming = bestemming,
-            budget = budget
         )
         return betalingRepository.save(newBetaling)
     }
@@ -133,7 +106,7 @@ class BetalingService {
     }
 
 
-    fun valideerRekeningenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
+    fun valideerBetalingenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
         val betalingenLijst = betalingRepository
             .findAllByGebruiker(gebruiker)
             .filter { betaling: Betaling ->

@@ -76,7 +76,6 @@ class Rekening(
 
     fun fromDTO(
         dto: RekeningDTO,
-        gebruiker: Gebruiker,
         rekeningGroep: RekeningGroep,
     ) = Rekening(
         dto.id,
@@ -98,6 +97,7 @@ class Rekening(
     data class RekeningDTO(
         val id: Long = 0,
         val naam: String,
+        val rekeningGroepNaam: String,
         val sortOrder: Int,
         val bankNaam: String? = null,
         val vanPeriode: Periode? = null,
@@ -118,6 +118,7 @@ class Rekening(
     ) {
         fun fullCopy(
             naam: String = this.naam,
+            rekeningGroepNaam: String = this.rekeningGroepNaam,
             sortOrder: Int = this.sortOrder,
             bankNaam: String? = this.bankNaam,
             vanPeriode: Periode? = this.vanPeriode,
@@ -136,7 +137,9 @@ class Rekening(
             meerDanMaandBudget: BigDecimal? = this.meerDanMaandBudget,
             restMaandBudget: BigDecimal? = this.restMaandBudget,
         ) = RekeningDTO(
-            this.id, naam,
+            this.id,
+            naam,
+            rekeningGroepNaam,
             sortOrder,
             bankNaam,
             vanPeriode,
@@ -182,6 +185,7 @@ class Rekening(
         return RekeningDTO(
             this.id,
             this.naam,
+            this.rekeningGroep.naam,
             this.sortOrder,
             this.bankNaam,
             this.vanPeriode,

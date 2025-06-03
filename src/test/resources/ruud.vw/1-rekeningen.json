@@ -76,6 +76,9 @@
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
+          },
+          {
+            "naam": "Contant"
           }
         ]
       },

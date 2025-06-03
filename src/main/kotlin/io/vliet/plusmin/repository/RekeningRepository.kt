@@ -15,6 +15,11 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
                 "WHERE rg.gebruiker = :gebruiker")
     fun findRekeningGroepenVoorGebruiker(gebruiker: Gebruiker): List<RekeningGroep>
 
+    @Query(
+        value = "SELECT r FROM Rekening r " +
+                "WHERE r.rekeningGroep.gebruiker = :gebruiker")
+    fun findRekeningenVoorGebruiker(gebruiker: Gebruiker): List<Rekening>
+
     @Query(value = "SELECT r FROM Rekening r " +
             "WHERE r.rekeningGroep = :rekeningGroep AND r.naam = :naam")
     fun findRekeningOpGroepEnNaam(rekeningGroep: RekeningGroep, naam: String): Optional<Rekening>

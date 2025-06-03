@@ -75,7 +75,6 @@ class DemoService {
                 bron = betaling.bron.naam,
                 bestemming = betaling.bestemming.naam,
                 betalingsSoort = betaling.betalingsSoort.toString(),
-                budgetNaam = betaling.budget?.budgetNaam
             )
             if (betalingDTO.boekingsdatum <= vandaag) {
                 betalingService.creeerBetaling(gebruiker, betalingDTO)
