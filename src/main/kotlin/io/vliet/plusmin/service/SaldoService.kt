@@ -64,22 +64,22 @@ class SaldoService {
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
-        val resultaatOpDatum =
+        val resultaatOpDatum: List<Saldo.SaldoDTO> =
             mutatiePeilDatumLijst
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in resultaatRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
-        val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
-        val geaggregeerdeBudgettenOpDatum = budgettenOpDatum
-            .groupBy { it.rekeningNaam }
-            .mapValues { it.value.reduce { acc, budgetDTO -> budgetService.add(acc, budgetDTO) } }
-            .values.toList()
+//        val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
+//        val geaggregeerdeBudgettenOpDatum = budgettenOpDatum
+//            .groupBy { it.rekeningNaam }
+//            .mapValues { it.value.reduce { acc, budgetDTO -> budgetService.add(acc, budgetDTO) } }
+//            .values.toList()
         val aflossingenOpDatum =
             aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
         val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
 
-        val budgetSamenvatting: Budget.BudgetSamenvattingDTO =
-            budgetService.berekenBudgetSamenvatting(periode, peilDatum, geaggregeerdeBudgettenOpDatum, geaggregeerdeAflossingenOpDatum)
+//        val budgetSamenvatting: Budget.BudgetSamenvattingDTO =
+//            budgetService.berekenBudgetSamenvatting(periode, peilDatum, geaggregeerdeBudgettenOpDatum, geaggregeerdeAflossingenOpDatum)
         return SaldoController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findLaatsteBetalingDatumBijGebruiker(openingPeriode.gebruiker),
             periodeStartDatum = periode.periodeStartDatum,
@@ -88,9 +88,9 @@ class SaldoService {
             mutatiesOpDatum = mutatiesOpDatum,
             balansOpDatum = balansOpDatum,
             resultaatOpDatum = resultaatOpDatum,
-            budgetSamenvatting = budgetSamenvatting,
-            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
-            budgettenOpDatum = budgettenOpDatum,
+//            budgetSamenvatting = budgetSamenvatting,
+//            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
+//            budgettenOpDatum = budgettenOpDatum,
             aflossingenOpDatum = aflossingenOpDatum,
             geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
         )
@@ -111,19 +111,22 @@ class SaldoService {
     fun berekenMutatieLijstOpDatum(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
         val rekeningGroepLijst = rekeningRepository.findRekeningGroepenVoorGebruiker(gebruiker)
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
-        val saldoLijst = rekeningGroepLijst.map { rekeningGroep ->
-            val mutatie =
-                betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekeningGroep) }
-            // TODO
-            Saldo(0, rekeningGroep.rekeningen[0], mutatie)
+        val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
+            rekeningGroep.rekeningen.map { rekening ->
+                val mutatie =
+                    betalingen.fold(BigDecimal(0)) { acc, betaling ->
+                        acc + this.berekenMutaties(betaling, rekening )
+                    }
+                Saldo(0, rekening, mutatie)
+            }
         }
         logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.saldo}" }}")
         return saldoLijst
     }
 
-    fun berekenMutaties(betaling: Betaling, rekeningGroep: RekeningGroep): BigDecimal {
-        return if (rekeningGroep.rekeningen.map {it.id}.contains(betaling.bron.id)) -betaling.bedrag else BigDecimal(0) +
-                if (rekeningGroep.rekeningen.map {it.id}.contains(betaling.bestemming.id)) betaling.bedrag else BigDecimal(0)
+    fun berekenMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
+        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal(0) +
+                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
     }
 
     fun berekenSaldiOpDatum(openingsSaldi: List<Saldo>, mutatieLijst: List<Saldo>): List<Saldo> {
