@@ -42,18 +42,11 @@ class SaldoController {
     ): StandDTO {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val gevraagdePeilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
-
-        val laatsteBetaalDatum = betalingRepository.findLaatsteBetalingDatumBijGebruiker(hulpvrager)
-        val peilDatum = if (laatsteBetaalDatum != null && laatsteBetaalDatum.isBefore(gevraagdePeilDatum)) {
-            laatsteBetaalDatum
-        } else {
-            gevraagdePeilDatum
-        }
+        val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
 
         val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(hulpvrager)
         val periode = periodeService.getPeriode(hulpvrager, peilDatum)
-        return saldoService.getStandOpDatum(openingPeriode, periode, peilDatum)
+        return saldoService.getStandOpDatum(openingPeriode, peilDatum, periode)
     }
 
 //    @Operation(summary = "PUT de saldi voor hulpvrager")
@@ -78,7 +71,7 @@ class SaldoController {
         val resultaatOpDatum: List<SaldoDTO>,
 //        val budgetSamenvatting: Budget.BudgetSamenvattingDTO,
 //        val budgettenOpDatum: List<Budget.BudgetDTO>,
-//        val geaggregeerdeBudgettenOpDatum: List<Budget.BudgetDTO>,
+        val geaggregeerdeBudgettenOpDatum: List<SaldoDTO>,
         val aflossingenOpDatum: List<Aflossing.AflossingDTO>,
         val geaggregeerdeAflossingenOpDatum: Aflossing.AflossingDTO? = null
     )

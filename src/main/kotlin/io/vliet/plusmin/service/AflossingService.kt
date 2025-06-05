@@ -45,7 +45,7 @@ class AflossingService {
         aflossingenLijst.map { aflossingDTO ->
             val maxSortOrder = rekeningRepository.findMaxSortOrder().getOrNull()?.sortOrder ?: 0
             val rekeningGroep = rekeningGroepRepository
-                .findRekeningGroepVoorGebruiker(gebruiker, aflossingDTO.rekening.rekeningGroepNaam)
+                .findRekeningGroepVoorGebruiker(gebruiker, aflossingDTO.rekening.rekeningGroepNaam!!)
                 .getOrNull()
                 ?: throw DataIntegrityViolationException("Geen rekeninggroep voor gebruiker ${gebruiker.bijnaam} en rekeninggroep ${aflossingDTO.rekening.rekeningGroepNaam}")
             val rekening =
@@ -95,6 +95,7 @@ class AflossingService {
             if (periode != null) {
                 saldoRepository.save(
                     Saldo(
+                        rekeningGroep = aflossing.rekening.rekeningGroep,
                         rekening = aflossing.rekening,
                         saldo = -berekenAflossingBedragOpDatum(
                             aflossing,

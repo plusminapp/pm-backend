@@ -1,6 +1,6 @@
 [
   {
-    "boekingsdatum": "2025-5-21",
+    "boekingsdatum": "2025-05-21",
     "bedrag": 2335,
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
@@ -8,7 +8,7 @@
     "bestemming": "ASN betaalrekening"
   },
   {
-    "boekingsdatum": "2025-5-23",
+    "boekingsdatum": "2025-05-23",
     "bedrag": 74.88,
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
@@ -16,7 +16,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-6-02",
+    "boekingsdatum": "2025-06-02",
     "bedrag": 25.23,
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
@@ -24,7 +24,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-6-09",
+    "boekingsdatum": "2025-06-09",
     "bedrag": 54.01,
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
@@ -32,7 +32,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-6-16",
+    "boekingsdatum": "2025-06-16",
     "bedrag": 49.91,
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
@@ -40,7 +40,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-6-02",
+    "boekingsdatum": "2025-06-02",
     "bedrag": 169,
     "omschrijving": "Greenchoice",
     "betalingsSoort": "UITGAVEN",
@@ -49,7 +49,7 @@
 
   },
   {
-    "boekingsdatum": "2025-6-02",
+    "boekingsdatum": "2025-06-02",
     "bedrag": 14,
     "omschrijving": "Vitens",
     "betalingsSoort": "UITGAVEN",
@@ -57,15 +57,7 @@
     "bestemming": "Vitens"
   },
   {
-    "boekingsdatum": "2025-6-02",
-    "bedrag": 14,
-    "omschrijving": "Tribuut",
-    "betalingsSoort": "UITGAVEN",
-    "bron": "ASN betaalrekening",
-    "bestemming": "Tribuut"
-  },
-  {
-    "boekingsdatum": "2025-6-05",
+    "boekingsdatum": "2025-06-05",
     "bedrag": 62.5,
     "omschrijving": "GBLT",
     "betalingsSoort": "UITGAVEN",

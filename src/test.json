@@ -1,10 +1,11 @@
 {
   "periodeStartDatum": "2025-05-20",
-  "peilDatum": "2025-05-21",
-  "datumLaatsteBetaling": "2025-05-21",
+  "peilDatum": "2025-06-05",
+  "datumLaatsteBetaling": "2025-06-16",
   "openingsBalans": [
     {
       "id": 0,
+      "rekeningGroepNaam": "Betaalrekening",
       "rekeningNaam": "ASN betaalrekening",
       "saldo": 0,
       "achterstand": 0,
@@ -13,6 +14,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Contant",
       "rekeningNaam": "Contant",
       "saldo": 0,
       "achterstand": 0,
@@ -21,6 +23,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Creditcard",
       "rekeningNaam": "Visa Creditcard",
       "saldo": 0,
       "achterstand": 0,
@@ -29,6 +32,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Spaarrekening",
       "rekeningNaam": "ASN spaarrekening",
       "saldo": 0,
       "achterstand": 0,
@@ -39,14 +43,16 @@
   "mutatiesOpDatum": [
     {
       "id": 0,
+      "rekeningGroepNaam": "Betaalrekening",
       "rekeningNaam": "ASN betaalrekening",
-      "saldo": 2335,
+      "saldo": 1989.39,
       "achterstand": 0,
       "budgetMaandBedrag": 0,
       "budgetBetaling": 0
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Contant",
       "rekeningNaam": "Contant",
       "saldo": 0,
       "achterstand": 0,
@@ -55,6 +61,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Creditcard",
       "rekeningNaam": "Visa Creditcard",
       "saldo": 0,
       "achterstand": 0,
@@ -63,6 +70,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Spaarrekening",
       "rekeningNaam": "ASN spaarrekening",
       "saldo": 0,
       "achterstand": 0,
@@ -73,14 +81,16 @@
   "balansOpDatum": [
     {
       "id": 0,
+      "rekeningGroepNaam": "Betaalrekening",
       "rekeningNaam": "ASN betaalrekening",
-      "saldo": 2335,
+      "saldo": 1989.39,
       "achterstand": 0,
       "budgetMaandBedrag": 0,
       "budgetBetaling": 0
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Contant",
       "rekeningNaam": "Contant",
       "saldo": 0,
       "achterstand": 0,
@@ -89,6 +99,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Creditcard",
       "rekeningNaam": "Visa Creditcard",
       "saldo": 0,
       "achterstand": 0,
@@ -97,6 +108,7 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Spaarrekening",
       "rekeningNaam": "ASN spaarrekening",
       "saldo": 0,
       "achterstand": 0,
@@ -107,7 +119,17 @@
   "resultaatOpDatum": [
     {
       "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
       "rekeningNaam": "Greenchoice",
+      "saldo": -169,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "VvE",
       "saldo": 0,
       "achterstand": 0,
       "budgetMaandBedrag": 0,
@@ -115,6 +137,88 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Ziektekosten",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Schadeverzekeringen",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "GroenLinks Contributies",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Energiewacht",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Hypotheek",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "GBLT",
+      "saldo": -62.5,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Odido",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Regionale belasting",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningNaam": "Vitens",
+      "saldo": -14,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Inkomsten",
       "rekeningNaam": "Salaris",
       "saldo": 2335,
       "achterstand": 0,
@@ -123,7 +227,26 @@
     },
     {
       "id": 0,
+      "rekeningGroepNaam": "Leefgeld",
       "rekeningNaam": "Boodschappen",
+      "saldo": -100.11,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Leefgeld",
+      "rekeningNaam": "Verzorging",
+      "saldo": 0,
+      "achterstand": 0,
+      "budgetMaandBedrag": 0,
+      "budgetBetaling": 0
+    },
+    {
+      "id": 0,
+      "rekeningGroepNaam": "Inkomsten",
+      "rekeningNaam": "Rente",
       "saldo": 0,
       "achterstand": 0,
       "budgetMaandBedrag": 0,

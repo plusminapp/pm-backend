@@ -97,7 +97,7 @@ class Rekening(
     data class RekeningDTO(
         val id: Long = 0,
         val naam: String,
-        val rekeningGroepNaam: String,
+        val rekeningGroepNaam: String?,
         val sortOrder: Int,
         val bankNaam: String? = null,
         val vanPeriode: Periode? = null,
@@ -107,18 +107,10 @@ class Rekening(
         val budgetBetaalDag: Int?,
         val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
-        val budgetPeilDatum: String? = null,
-        val budgetOpPeilDatum: BigDecimal? = null,
-        val budgetBetaling: BigDecimal? = null,
-        val betaaldBinnenBudget: BigDecimal? = null,
-        val minderDanBudget: BigDecimal? = null,
-        val meerDanBudget: BigDecimal? = null,
-        val meerDanMaandBudget: BigDecimal? = null,
-        val restMaandBudget: BigDecimal? = null,
     ) {
         fun fullCopy(
             naam: String = this.naam,
-            rekeningGroepNaam: String = this.rekeningGroepNaam,
+            rekeningGroepNaam: String? = this.rekeningGroepNaam,
             sortOrder: Int = this.sortOrder,
             bankNaam: String? = this.bankNaam,
             vanPeriode: Periode? = this.vanPeriode,
@@ -128,14 +120,6 @@ class Rekening(
             budgetBetaalDag: Int? = this.budgetBetaalDag,
             betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
-            budgetPeilDatum: String? = this.budgetPeilDatum,
-            budgetOpPeilDatum: BigDecimal? = this.budgetOpPeilDatum,
-            budgetBetaling: BigDecimal? = this.budgetBetaling,
-            betaaldBinnenBudget: BigDecimal? = this.betaaldBinnenBudget,
-            minderDanBudget: BigDecimal? = this.minderDanBudget,
-            meerDanBudget: BigDecimal? = this.meerDanBudget,
-            meerDanMaandBudget: BigDecimal? = this.meerDanMaandBudget,
-            restMaandBudget: BigDecimal? = this.restMaandBudget,
         ) = RekeningDTO(
             this.id,
             naam,
@@ -149,27 +133,11 @@ class Rekening(
             budgetBetaalDag,
             betaalMethoden,
             budgetMaandBedrag,
-            budgetPeilDatum,
-            budgetOpPeilDatum,
-            budgetBetaling,
-            betaaldBinnenBudget,
-            minderDanBudget,
-            meerDanBudget,
-            meerDanMaandBudget,
-            restMaandBudget,
         )
     }
 
     fun toDTO(
-        periode: Periode? = null,
-        budgetPeilDatum: String? = null,
-        budgetOpPeilDatum: BigDecimal? = null,
-        budgetBetaling: BigDecimal? = null,
-        betaaldBinnenBudget: BigDecimal? = null,
-        minderDanBudget: BigDecimal? = null,
-        meerDanBudget: BigDecimal? = null,
-        meerDanMaandBudget: BigDecimal? = null,
-        restMaandBudget: BigDecimal? = null,
+            periode: Periode? = null,
     ): RekeningDTO {
         val budgetMaandBedrag = if (periode != null && budgetBedrag != null) {
             if (budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
@@ -195,14 +163,6 @@ class Rekening(
             this.budgetBetaalDag,
             this.betaalMethoden.map { it.toDTO(periode) },
             budgetMaandBedrag,
-            budgetPeilDatum,
-            budgetOpPeilDatum,
-            budgetBetaling,
-            betaaldBinnenBudget,
-            minderDanBudget,
-            meerDanBudget,
-            meerDanMaandBudget,
-            restMaandBudget,
         )
     }
 }

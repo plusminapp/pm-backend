@@ -57,7 +57,7 @@ class BetalingvalidatieService {
 
         return Betaling.BetalingValidatieWrapper(
             laatsteBetalingDatum,
-            Saldo.SaldoDTO(0, rekening.naam, saldoOpDatum),
+            Saldo.SaldoDTO(0, rekening.rekeningGroep.naam,  rekening.naam, saldoOpDatum),
             validatedBetalingen,
         )
     }

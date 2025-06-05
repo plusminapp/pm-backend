@@ -38,7 +38,6 @@ class RekeningGroep(
         val sortableFields = setOf("id", "naam", "afkorting")
         val resultaatRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.INKOMSTEN,
-            RekeningGroepSoort.RENTE,
             RekeningGroepSoort.UITGAVEN,
         )
         val balansRekeningGroepSoort = arrayOf(
@@ -100,7 +99,7 @@ class RekeningGroep(
 
     enum class RekeningGroepSoort {
         BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, RESERVERING,
-        INKOMSTEN, RENTE, UITGAVEN
+        INKOMSTEN, UITGAVEN
     }
 
     enum class BudgetType {

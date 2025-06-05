@@ -50,7 +50,7 @@ class BetalingService {
             val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron).getOrNull()
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
             val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming).getOrNull()
-                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+                ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
 
             val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
             val sortOrderDatum = betalingDTO.boekingsdatum.replace("-", "")

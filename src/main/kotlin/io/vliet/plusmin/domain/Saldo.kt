@@ -5,7 +5,7 @@ import jakarta.persistence.*
 import java.math.BigDecimal
 
 /*
-    De Saldo tabel bevat het saldo van een rekening; door de relatie naar de Saldi tabel
+    De Saldo tabel bevat het saldo van een rekening; door de relatie naar de Periode tabel
     is het van 1 gebruiker, op 1 moment in de tijd
  */
 
@@ -21,6 +21,9 @@ class Saldo(
     )
     val id: Long = 0,
     @ManyToOne
+    @JoinColumn(name = "rekening_groep_id", referencedColumnName = "id")
+    val rekeningGroep: RekeningGroep,
+    @ManyToOne
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,
     val saldo: BigDecimal = BigDecimal(0),
@@ -33,42 +36,89 @@ class Saldo(
     var periode: Periode? = null
 ) {
     fun fullCopy(
+        rekeningGroep: RekeningGroep = this.rekeningGroep,
         rekening: Rekening = this.rekening,
         saldo: BigDecimal = this.saldo,
-        periode: Periode? = this.periode,
         achterstand: BigDecimal = this.achterstand,
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
         budgetBetaling: BigDecimal = this.budgetBetaling,
-    ) = Saldo(this.id, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, periode)
+        periode: Periode? = this.periode,
+    ) = Saldo(this.id, rekeningGroep, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, periode)
 
     data class SaldoDTO(
         val id: Long = 0,
+        val rekeningGroepNaam: String? = "",
         val rekeningNaam: String,
         val saldo: BigDecimal = BigDecimal(0),
         val achterstand: BigDecimal = BigDecimal(0),
         val budgetMaandBedrag: BigDecimal = BigDecimal(0),
         val budgetBetaling: BigDecimal = BigDecimal(0),
+        val periode: Periode? = null,
+        val budgetPeilDatum: String? = null,
+        val budgetOpPeilDatum: BigDecimal? = null,
+        val betaaldBinnenBudget: BigDecimal? = null,
+        val minderDanBudget: BigDecimal? = null,
+        val meerDanBudget: BigDecimal? = null,
+        val meerDanMaandBudget: BigDecimal? = null,
+        val restMaandBudget: BigDecimal? = null,
     )
 
-    fun toBalansDTO(): SaldoDTO {
+    fun toBalansDTO(
+        periode: Periode? = this.periode,
+        budgetPeilDatum: String? = null,
+        budgetOpPeilDatum: BigDecimal? = null,
+        betaaldBinnenBudget: BigDecimal? = null,
+        minderDanBudget: BigDecimal? = null,
+        meerDanBudget: BigDecimal? = null,
+        meerDanMaandBudget: BigDecimal? = null,
+        restMaandBudget: BigDecimal? = null,
+    ): SaldoDTO {
         return SaldoDTO(
             this.id,
+            this.rekening.rekeningGroep.naam,
             this.rekening.naam,
             this.saldo,
             this.achterstand,
             this.budgetMaandBedrag,
             this.budgetBetaling,
+            periode,
+            budgetPeilDatum,
+            budgetOpPeilDatum,
+            betaaldBinnenBudget,
+            minderDanBudget,
+            meerDanBudget,
+            meerDanMaandBudget,
+            restMaandBudget,
         )
     }
 
-    fun toResultaatDTO(): SaldoDTO {
+    fun toResultaatDTO(
+        periode: Periode? = this.periode,
+        budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
+        budgetPeilDatum: String? = null,
+        budgetOpPeilDatum: BigDecimal? = null,
+        betaaldBinnenBudget: BigDecimal? = null,
+        minderDanBudget: BigDecimal? = null,
+        meerDanBudget: BigDecimal? = null,
+        meerDanMaandBudget: BigDecimal? = null,
+        restMaandBudget: BigDecimal? = null,
+    ): SaldoDTO {
         return SaldoDTO(
             this.id,
+            this.rekening.rekeningGroep.naam,
             this.rekening.naam,
             -this.saldo,
             this.achterstand,
-            this.budgetMaandBedrag,
+            budgetMaandBedrag,
             this.budgetBetaling,
+            periode,
+            budgetPeilDatum,
+            budgetOpPeilDatum,
+            betaaldBinnenBudget,
+            minderDanBudget,
+            meerDanBudget,
+            meerDanMaandBudget,
+            restMaandBudget,
         )
     }
 }

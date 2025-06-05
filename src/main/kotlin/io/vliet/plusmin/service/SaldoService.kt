@@ -3,7 +3,6 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -21,6 +20,9 @@ class SaldoService {
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
+    lateinit var saldoResultaatService: SaldoResultaatService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
@@ -31,10 +33,14 @@ class SaldoService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    /*
+        Geef de stand van de saldi op een peildatum.
+        De peildatum is altijd IN de periode.
+     */
     fun getStandOpDatum(
         openingPeriode: Periode,
+        peilDatum: LocalDate,
         periode: Periode,
-        peilDatum: LocalDate
     ): SaldoController.StandDTO {
         logger.warn("openingPeriode: ${openingPeriode.periodeStartDatum}, periodeStartDatum: ${periode}, peilDatum: ${peilDatum}")
         val openingsSaldi = getOpeningSaldi(openingPeriode)
@@ -53,7 +59,7 @@ class SaldoService {
             balansSaldiBijOpening
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toBalansDTO() }
+                .map { it.toBalansDTO(periode = periode) }
         val mutatiesOpDatum =
             mutatiePeilDatumLijst
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
@@ -65,15 +71,12 @@ class SaldoService {
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
         val resultaatOpDatum: List<Saldo.SaldoDTO> =
-            mutatiePeilDatumLijst
-                .filter { it.rekening.rekeningGroep.rekeningGroepSoort in resultaatRekeningGroepSoort }
-                .sortedBy { it.rekening.sortOrder }
-                .map { it.toResultaatDTO() }
-//        val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
-//        val geaggregeerdeBudgettenOpDatum = budgettenOpDatum
-//            .groupBy { it.rekeningNaam }
-//            .mapValues { it.value.reduce { acc, budgetDTO -> budgetService.add(acc, budgetDTO) } }
-//            .values.toList()
+            saldoResultaatService
+                .berekenSaldoResultaatOpDatum(periode.gebruiker, peilDatum)
+        val geaggregeerdeBudgettenOpDatum = resultaatOpDatum
+            .groupBy { it.rekeningGroepNaam }
+            .mapValues { it.value.reduce { acc, budgetDTO -> add(acc, budgetDTO) } }
+            .values.toList()
         val aflossingenOpDatum =
             aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
         val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
@@ -89,8 +92,7 @@ class SaldoService {
             balansOpDatum = balansOpDatum,
             resultaatOpDatum = resultaatOpDatum,
 //            budgetSamenvatting = budgetSamenvatting,
-//            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
-//            budgettenOpDatum = budgettenOpDatum,
+            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
             aflossingenOpDatum = aflossingenOpDatum,
             geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
         )
@@ -104,7 +106,8 @@ class SaldoService {
         val missendeSaldiRekeningen =
             alleRekeningen.filterNot { bestaandeSaldiRekeningen.map { it.naam }.contains(it.naam) }
         logger.debug("missendeSaldiRekeningen: ${missendeSaldiRekeningen.joinToString { it.naam }}")
-        val saldoLijst = missendeSaldiRekeningen.map { Saldo.SaldoDTO(0, it.naam, BigDecimal(0)) }
+        val saldoLijst =
+            missendeSaldiRekeningen.map { Saldo.SaldoDTO(0, it.rekeningGroep.naam, it.naam, BigDecimal(0)) }
         return merge(openingPeriode.gebruiker, openingPeriode, saldoLijst)
     }
 
@@ -115,9 +118,9 @@ class SaldoService {
             rekeningGroep.rekeningen.map { rekening ->
                 val mutatie =
                     betalingen.fold(BigDecimal(0)) { acc, betaling ->
-                        acc + this.berekenMutaties(betaling, rekening )
+                        acc + this.berekenMutaties(betaling, rekening)
                     }
-                Saldo(0, rekening, mutatie)
+                Saldo(0, rekening.rekeningGroep, rekening, mutatie)
             }
         }
         logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.saldo}" }}")
@@ -165,9 +168,25 @@ class SaldoService {
         val bedrag = saldoDTO.saldo
         val saldo = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         return if (saldo == null) {
-            Saldo(0, rekening, bedrag, periode = periode)
+            Saldo(0, rekening.rekeningGroep, rekening, bedrag, periode = periode)
         } else {
             saldo.fullCopy(saldo = bedrag)
         }
+    }
+
+    fun add(saldoDTO1: Saldo.SaldoDTO, saldoDTO2: Saldo.SaldoDTO): Saldo.SaldoDTO {
+        return Saldo.SaldoDTO(
+            id = 0,
+            rekeningGroepNaam = saldoDTO1.rekeningGroepNaam,
+            rekeningNaam = "",
+            budgetMaandBedrag = saldoDTO1.budgetMaandBedrag.plus(saldoDTO2.budgetMaandBedrag),
+            budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal(0)),
+            budgetBetaling = saldoDTO1.budgetBetaling.plus(saldoDTO2.budgetBetaling),
+            betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal(0)),
+            minderDanBudget = saldoDTO1.minderDanBudget?.plus(saldoDTO2.minderDanBudget ?: BigDecimal(0)),
+            meerDanBudget = saldoDTO1.meerDanBudget?.plus(saldoDTO2.meerDanBudget ?: BigDecimal(0)),
+            meerDanMaandBudget = saldoDTO1.meerDanMaandBudget?.plus(saldoDTO2.meerDanMaandBudget ?: BigDecimal(0)),
+            restMaandBudget = saldoDTO1.restMaandBudget?.plus(saldoDTO2.restMaandBudget ?: BigDecimal(0))
+        )
     }
 }
