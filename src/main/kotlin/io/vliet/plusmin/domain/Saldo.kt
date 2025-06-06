@@ -48,6 +48,8 @@ class Saldo(
     data class SaldoDTO(
         val id: Long = 0,
         val rekeningGroepNaam: String? = "",
+        val rekeningGroepSoort: RekeningGroep.RekeningGroepSoort? = null,
+        val budgetType: RekeningGroep.BudgetType? = null,
         val rekeningNaam: String,
         val saldo: BigDecimal = BigDecimal(0),
         val achterstand: BigDecimal = BigDecimal(0),
@@ -76,6 +78,8 @@ class Saldo(
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
+            this.rekening.rekeningGroep.rekeningGroepSoort,
+            this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
             this.saldo,
             this.achterstand,
@@ -106,6 +110,8 @@ class Saldo(
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
+            this.rekening.rekeningGroep.rekeningGroepSoort,
+            this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
             -this.saldo,
             this.achterstand,
@@ -121,4 +127,11 @@ class Saldo(
             restMaandBudget,
         )
     }
+    data class ResultaatSamenvattingOpDatumDTO(
+        val percentagePeriodeVoorbij: Long,
+        val budgetMaandInkomstenBedrag: BigDecimal,
+        val besteedTotPeilDatum: BigDecimal,
+        val nogNodigNaPeilDatum: BigDecimal,
+        val actueleBuffer: BigDecimal,
+    )
 }

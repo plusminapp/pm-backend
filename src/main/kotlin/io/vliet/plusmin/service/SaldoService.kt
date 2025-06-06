@@ -73,16 +73,20 @@ class SaldoService {
         val resultaatOpDatum: List<Saldo.SaldoDTO> =
             saldoResultaatService
                 .berekenSaldoResultaatOpDatum(periode.gebruiker, peilDatum)
-        val geaggregeerdeBudgettenOpDatum = resultaatOpDatum
+        val geaggregeerdResultaatOpDatum = resultaatOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> add(acc, budgetDTO) } }
             .values.toList()
         val aflossingenOpDatum =
             aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
-        val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
-
-//        val budgetSamenvatting: Budget.BudgetSamenvattingDTO =
-//            budgetService.berekenBudgetSamenvatting(periode, peilDatum, geaggregeerdeBudgettenOpDatum, geaggregeerdeAflossingenOpDatum)
+//        val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
+        val resultaatSamenvattingOpDatumDTO =
+            saldoResultaatService.berekenResultaatSamenvatting(
+                periode,
+                peilDatum,
+                geaggregeerdResultaatOpDatum,
+//                geaggregeerdeAflossingenOpDatum
+            )
         return SaldoController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findLaatsteBetalingDatumBijGebruiker(openingPeriode.gebruiker),
             periodeStartDatum = periode.periodeStartDatum,
@@ -91,10 +95,9 @@ class SaldoService {
             mutatiesOpDatum = mutatiesOpDatum,
             balansOpDatum = balansOpDatum,
             resultaatOpDatum = resultaatOpDatum,
-//            budgetSamenvatting = budgetSamenvatting,
-            geaggregeerdeBudgettenOpDatum = geaggregeerdeBudgettenOpDatum,
-            aflossingenOpDatum = aflossingenOpDatum,
-            geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
+            resultaatSamenvattingOpDatumDTO = resultaatSamenvattingOpDatumDTO,
+            geaggregeerdResultaatOpDatum = geaggregeerdResultaatOpDatum,
+//            geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
         )
     }
 
@@ -107,7 +110,16 @@ class SaldoService {
             alleRekeningen.filterNot { bestaandeSaldiRekeningen.map { it.naam }.contains(it.naam) }
         logger.debug("missendeSaldiRekeningen: ${missendeSaldiRekeningen.joinToString { it.naam }}")
         val saldoLijst =
-            missendeSaldiRekeningen.map { Saldo.SaldoDTO(0, it.rekeningGroep.naam, it.naam, BigDecimal(0)) }
+            missendeSaldiRekeningen.map {
+                Saldo.SaldoDTO(
+                    0,
+                    it.rekeningGroep.naam,
+                    it.rekeningGroep.rekeningGroepSoort,
+                    it.rekeningGroep.budgetType,
+                    it.naam,
+                    BigDecimal(0)
+                )
+            }
         return merge(openingPeriode.gebruiker, openingPeriode, saldoLijst)
     }
 

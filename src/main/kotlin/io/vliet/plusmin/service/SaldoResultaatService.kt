@@ -40,7 +40,7 @@ class SaldoResultaatService {
             .findRekeningGroepenVoorGebruiker(gebruiker)
             .flatMap { it.rekeningen }
             .filter { rekening -> resultaatRekeningGroepSoort.contains(rekening.rekeningGroep.rekeningGroepSoort) }
-            .filter { rekening -> RekeningIsGeldigInPeriode(rekening, gekozenPeriode) }
+            .filter { rekening -> rekeningIsGeldigInPeriode(rekening, gekozenPeriode) }
         logger.info("RekeningenLijst: ${rekeningenLijst.joinToString { it.naam + '/' + it.vanPeriode?.periodeStartDatum.toString() + '/' + it.totEnMetPeriode?.periodeStartDatum.toString() }} voor periodeStartDatum ${gekozenPeriode.periodeStartDatum} ")
         return rekeningenLijst
             .sortedBy { it.sortOrder }
@@ -50,20 +50,22 @@ class SaldoResultaatService {
                     budgetBetaling > BigDecimal(0) &&
                             rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST &&
                             rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN
-                val budgetMaandBedrag = berekenMaandRekening(rekening, gekozenPeriode)
+                val budgetMaandBedrag = berekenBudgetMaandBedrag(rekening, gekozenPeriode)
                 val budgetOpPeilDatum = berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
                 val meerDanMaandRekening =
                     if (isVasteLastenRekeningBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling - budgetMaandBedrag)
                 val minderDanRekening =
                     if (isVasteLastenRekeningBetaald) BigDecimal(0)
-                    else BigDecimal(0).max(budgetOpPeilDatum?.minus(budgetBetaling))
+                    else BigDecimal(0).max(budgetOpPeilDatum.minus(budgetBetaling))
                 val meerDanRekening =
                     if (isVasteLastenRekeningBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling - budgetOpPeilDatum - meerDanMaandRekening)
                 Saldo.SaldoDTO(
                     0,
                     rekening.rekeningGroep.naam,
+                    rekening.rekeningGroep.rekeningGroepSoort,
+                    rekening.rekeningGroep.budgetType,
                     rekening.naam,
                     BigDecimal(0),
                     budgetMaandBedrag = budgetMaandBedrag,
@@ -94,7 +96,7 @@ class SaldoResultaatService {
         return if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN) -bedrag else bedrag
     }
 
-    fun berekenMaandRekening(rekening: Rekening, gekozenPeriode: Periode): BigDecimal {
+    fun berekenBudgetMaandBedrag(rekening: Rekening, gekozenPeriode: Periode): BigDecimal {
         val dagenInPeriode: Long =
             gekozenPeriode.periodeEindDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
         return when (rekening.budgetPeriodiciteit) {
@@ -155,73 +157,59 @@ class SaldoResultaatService {
         }
     }
 
-//    fun berekenRekeningSamenvatting(
-//        periode: Periode,
-//        peilDatum: LocalDate,
-//        Rekeningen: List<RekeningDTO>,
-//        aflossing: Aflossing.AflossingDTO?
-//    ): RekeningSamenvattingDTO {
-//        logger.info("berekenRekeningSamenvatting ${Rekeningen.joinToString { it.RekeningNaam }}")
-//        val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-//        val periodeVoorbij = peilDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-//        val percentagePeriodeVoorbij = 100 * periodeVoorbij / periodeLengte
-//        val isPeriodeVoorbij = peilDatum >= periode.periodeEindDatum
-//        logger.info("periodeLengte: $periodeLengte, periodeVoorbij: $periodeVoorbij, percentagePeriodeVoorbij: $percentagePeriodeVoorbij")
-//        val RekeningMaandInkomsten = Rekeningen
-//            .filter {
-//                it.rekeningSoort?.uppercase() == RekeningGroep.RekeningGroepSoort.INKOMSTEN.toString() ||
-//                        it.rekeningSoort?.uppercase() == RekeningGroep.RekeningGroepSoort.RENTE.toString()
-//            }
-//            .fold(BigDecimal(0)) { acc, Rekening -> acc + (Rekening.RekeningMaandBedrag ?: BigDecimal(0)) }
-//        val werkelijkeMaandInkomsten = Rekeningen
-//            .filter {
-//                it.rekeningSoort?.uppercase() == RekeningGroep.RekeningGroepSoort.INKOMSTEN.toString() ||
-//                        it.rekeningSoort?.uppercase() == RekeningGroep.RekeningGroepSoort.RENTE.toString()
-//            }
-//            .fold(BigDecimal(0)) { acc, Rekening -> acc + (Rekening.RekeningBetaling ?: BigDecimal(0)) }
-//        val RekeningMaandInkomstenBedrag = RekeningMaandInkomsten.max(werkelijkeMaandInkomsten)
-//
-//        val RekeningBesteedTotPeilDatum = Rekeningen
-//            .filter { it.rekeningSoort?.uppercase() == RekeningGroep.RekeningGroepSoort.UITGAVEN.toString() }
-//            .fold(BigDecimal(0)) { acc, Rekening -> acc + (Rekening.RekeningBetaling ?: BigDecimal(0)) }
-//        val aflossingBesteedTotPeildatum = (aflossing?.aflossingBetaling ?: BigDecimal(0))
-//        val besteedTotPeilDatum = RekeningBesteedTotPeilDatum + aflossingBesteedTotPeildatum
-//
-//        val RekeningNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal(0) else {
-//            Rekeningen
-//                .filter { it.rekeningSoort?.uppercase() == RekeningGroep.RekeningGroepSoort.UITGAVEN.toString() }
-//                .fold(BigDecimal(0)) { acc, Rekening ->
-//                    val restMaandRekening = if (Rekening.RekeningType == "CONTINU")
-//                        (Rekening.RekeningMaandBedrag ?: BigDecimal(0)) - (Rekening.betaaldBinnenRekening ?: BigDecimal(
-//                            0
-//                        ))
-//                    else (Rekening.restMaandRekening ?: BigDecimal(0)) + (Rekening.minderDanRekening ?: BigDecimal(0))
-//                    logger.info(">>> RekeningNodigNaPeilDatum: ${Rekening.RekeningNaam} $restMaandRekening")
-//                    acc + restMaandRekening
-//                }
-//        }
-//        val aflossingNodigNaPeildatum = if (isPeriodeVoorbij) BigDecimal(0) else
-//            (BigDecimal(aflossing?.aflossingsBedrag ?: "0") - (aflossing?.betaaldBinnenAflossing ?: BigDecimal(0)))
-//        val nogNodigNaPeilDatum = RekeningNodigNaPeilDatum + aflossingNodigNaPeildatum
-//        logger.info(
-//            "aflossingNodigNaPeildatum: $aflossingNodigNaPeildatum, RekeningNodigNaPeilDatum: $RekeningNodigNaPeilDatum"
-//        )
-//
-//        val actueleBuffer = RekeningMaandInkomstenBedrag - besteedTotPeilDatum - nogNodigNaPeilDatum
-//        return RekeningSamenvattingDTO(
-//            percentagePeriodeVoorbij = percentagePeriodeVoorbij,
-//            RekeningMaandInkomstenBedrag = if (isPeriodeVoorbij) werkelijkeMaandInkomsten else RekeningMaandInkomsten.max(
-//                werkelijkeMaandInkomsten
-//            ),
-//            besteedTotPeilDatum = besteedTotPeilDatum,
-//            nogNodigNaPeilDatum = nogNodigNaPeilDatum,
-//            actueleBuffer = actueleBuffer
-//        )
-//    }
+    fun berekenResultaatSamenvatting(
+        periode: Periode,
+        peilDatum: LocalDate,
+        saldi: List<Saldo.SaldoDTO>,
+    ): Saldo.ResultaatSamenvattingOpDatumDTO {
+        logger.info("berekenRekeningSamenvatting ${saldi.joinToString { it.rekeningNaam }}")
+        val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+        val periodeVoorbij = peilDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+        val percentagePeriodeVoorbij = 100 * periodeVoorbij / periodeLengte
+        val isPeriodeVoorbij = peilDatum >= periode.periodeEindDatum
+        logger.info("periodeLengte: $periodeLengte, periodeVoorbij: $periodeVoorbij, percentagePeriodeVoorbij: $percentagePeriodeVoorbij")
+        val rekeningMaandInkomsten = saldi
+            .filter {
+                it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN
+            }
+            .fold(BigDecimal(0)) { acc, saldoDTO -> acc + (saldoDTO.budgetMaandBedrag) }
+        val werkelijkeMaandInkomsten = saldi
+            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
+            .fold(BigDecimal(0)) { acc, saldoDTO -> acc + (saldoDTO.budgetBetaling) }
+        val rekeningMaandInkomstenBedrag = rekeningMaandInkomsten.max(werkelijkeMaandInkomsten)
 
-    fun RekeningIsGeldigInPeriode(Rekening: Rekening, periode: Periode): Boolean {
-        return (Rekening.vanPeriode == null || periode.periodeStartDatum >= Rekening.vanPeriode.periodeStartDatum) &&
-                (Rekening.totEnMetPeriode == null || periode.periodeEindDatum <= Rekening.totEnMetPeriode.periodeEindDatum)
+        val besteedTotPeilDatum = saldi
+            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN }
+            .fold(BigDecimal(0)) { acc, saldoDTO -> acc + (saldoDTO.budgetBetaling) }
+
+        val nogNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal(0) else {
+            saldi
+                .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN }
+                .fold(BigDecimal(0)) { acc, saldoDTO ->
+                    val restMaandRekening = if (saldoDTO.budgetType == RekeningGroep.BudgetType.CONTINU)
+                        (saldoDTO.budgetMaandBedrag) - (saldoDTO.betaaldBinnenBudget ?: BigDecimal(0))
+                    else (saldoDTO.restMaandBudget ?: BigDecimal(0)) + (saldoDTO.minderDanBudget ?: BigDecimal(0))
+                    logger.info(">>> RekeningNodigNaPeilDatum: ${saldoDTO.rekeningNaam} $restMaandRekening")
+                    acc + restMaandRekening
+                }
+        }
+
+        val actueleBuffer = rekeningMaandInkomstenBedrag - besteedTotPeilDatum - nogNodigNaPeilDatum
+        return Saldo.ResultaatSamenvattingOpDatumDTO(
+            percentagePeriodeVoorbij = percentagePeriodeVoorbij,
+            budgetMaandInkomstenBedrag =
+            if (isPeriodeVoorbij)
+                werkelijkeMaandInkomsten
+            else rekeningMaandInkomsten.max(werkelijkeMaandInkomsten),
+            besteedTotPeilDatum = besteedTotPeilDatum,
+            nogNodigNaPeilDatum = nogNodigNaPeilDatum,
+            actueleBuffer = actueleBuffer
+        )
+    }
+
+    fun rekeningIsGeldigInPeriode(rekening: Rekening, periode: Periode): Boolean {
+        return (rekening.vanPeriode == null || periode.periodeStartDatum >= rekening.vanPeriode.periodeStartDatum) &&
+                (rekening.totEnMetPeriode == null || periode.periodeEindDatum <= rekening.totEnMetPeriode.periodeEindDatum)
     }
 }
 
