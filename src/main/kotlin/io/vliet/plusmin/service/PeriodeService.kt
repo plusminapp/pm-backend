@@ -129,12 +129,18 @@ class PeriodeService {
                     .sortedBy { it.periodeStartDatum }
             logger.debug(
                 "PeriodeDag aanpassen voor ${gebruiker.email}: teVerschuivenPeriodes: " +
-                        teVerschuivenPeriodes.map { "${it.periodeStartDatum} (${it.periodeStatus})" }.joinToString(", ")
+                        teVerschuivenPeriodes.joinToString(", ") { "${it.periodeStartDatum} (${it.periodeStatus})" }
             )
             val periodeEindDatum1stePeriode =
                 berekenPeriodeDatums(gebruikerDTO.periodeDag, teVerschuivenPeriodes[0].periodeEindDatum).second
             logger.debug("periodeEindDatum1stePeriode: {}", periodeEindDatum1stePeriode)
-            logger.debug("Periode verschuiven van ${teVerschuivenPeriodes[0].periodeStartDatum}/${teVerschuivenPeriodes[0].periodeEindDatum} -> ${teVerschuivenPeriodes[0].periodeStartDatum}/$periodeEindDatum1stePeriode")
+            logger.debug(
+                "Periode verschuiven van {}/{} -> {}/{}",
+                teVerschuivenPeriodes[0].periodeStartDatum,
+                teVerschuivenPeriodes[0].periodeEindDatum,
+                teVerschuivenPeriodes[0].periodeStartDatum,
+                periodeEindDatum1stePeriode
+            )
             periodeRepository.save(
                 teVerschuivenPeriodes[0].fullCopy(
                     periodeStartDatum = teVerschuivenPeriodes[0].periodeStartDatum,

@@ -39,6 +39,7 @@ class RekeningGroep(
         val resultaatRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.INKOMSTEN,
             RekeningGroepSoort.UITGAVEN,
+            RekeningGroepSoort.AFLOSSING,
         )
         val balansRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,

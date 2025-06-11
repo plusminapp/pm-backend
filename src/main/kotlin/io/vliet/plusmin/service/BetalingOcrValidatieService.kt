@@ -64,6 +64,7 @@ class BetalingvalidatieService {
                 rekening.rekeningGroep.rekeningGroepSoort,
                 rekening.rekeningGroep.budgetType,
                 rekening.naam,
+                rekening.sortOrder,
                 saldoOpDatum
             ),
             validatedBetalingen,
@@ -83,7 +84,7 @@ class BetalingvalidatieService {
         )
         return betaling.fullCopy(
             bestaatAl = vergelijkbareBetalingen.isNotEmpty(),
-            omschrijving = vergelijkbareBetalingen.map { it.omschrijving }.joinToString(", ")
+            omschrijving = vergelijkbareBetalingen.joinToString(", ") { it.omschrijving }
         )
     }
 }

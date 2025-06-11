@@ -40,6 +40,12 @@ class Betaling(
 ) {
     companion object {
         val sortableFields = setOf("id", "boekingsdatum", "status")
+
+        val bestemmingBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.INKOMSTEN,
+            BetalingsSoort.STORTEN_CONTANT,
+            BetalingsSoort.OPNEMEN_SPAARREKENING,
+        )
     }
 
     fun fullCopy(

@@ -49,18 +49,10 @@ class BetalingService {
         } else {
             val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron).getOrNull()
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
-            val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming).getOrNull()
-                ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
-
-            val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
-            val sortOrderDatum = betalingDTO.boekingsdatum.replace("-", "")
-            val sortOrder = if (laatsteSortOrder == null) sortOrderDatum + ".900"
-            else {
-                val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) - 10).toString()
-                sortOrderDatum + "." + sortOrderTeller
-            }
-
-
+            val bestemming =
+                rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming).getOrNull()
+                    ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+            val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
             logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
             Betaling(
                 gebruiker = gebruiker,
@@ -76,21 +68,34 @@ class BetalingService {
         return betalingRepository.save(betaling).toDTO()
     }
 
+    fun berekenSortOrder(gebruiker: Gebruiker, boekingsDatum: LocalDate): String {
+        val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
+        val sortOrderDatum = boekingsDatum.toString().replace("-", "")
+        return if (laatsteSortOrder == null) sortOrderDatum + ".900"
+        else {
+            val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) - 10).toString()
+            sortOrderDatum + "." + sortOrderTeller
+        }
+    }
+
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
         val gebruiker = oldBetaling.gebruiker
         val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron).getOrNull()
             ?: oldBetaling.bron
-        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming).getOrNull()
-            ?: oldBetaling.bestemming
-
+        val bestemming =
+            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming).getOrNull()
+                ?: oldBetaling.bestemming
+        val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
+        val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
         logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
         val newBetaling = oldBetaling.fullCopy(
-            boekingsdatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
+            boekingsdatum = boekingsDatum,
             bedrag = newBetalingDTO.bedrag.toBigDecimal(),
             omschrijving = newBetalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
             bron = bron,
             bestemming = bestemming,
+            sortOrder = sortOrder,
         )
         return betalingRepository.save(newBetaling)
     }
@@ -113,7 +118,7 @@ class BetalingService {
                 val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
                 periode != null &&
                         (!rekeningService.rekeningIsGeldigInPeriode(betaling.bron, periode) ||
-                        !rekeningService.rekeningIsGeldigInPeriode(betaling.bestemming, periode))
+                                !rekeningService.rekeningIsGeldigInPeriode(betaling.bestemming, periode))
             }
         return betalingenLijst
     }

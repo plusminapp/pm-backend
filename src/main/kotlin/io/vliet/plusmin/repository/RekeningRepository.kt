@@ -25,7 +25,8 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
     fun findRekeningOpGroepEnNaam(rekeningGroep: RekeningGroep, naam: String): Optional<Rekening>
 
     @Query(value = "SELECT r FROM Rekening r " +
-            "WHERE r.rekeningGroep.gebruiker = :gebruiker AND r.naam = :rekeningNaam")
+            "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+            "AND r.naam = :rekeningNaam")
     fun findRekeningGebruikerEnNaam(gebruiker: Gebruiker, rekeningNaam: String): Optional<Rekening>
 
     @Query(value ="SELECT * FROM rekening r ORDER BY r.sort_order DESC LIMIT 1",

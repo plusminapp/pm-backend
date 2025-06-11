@@ -28,9 +28,6 @@ class SaldoService {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
-    @Autowired
-    lateinit var aflossingService: AflossingService
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     /*
@@ -72,20 +69,17 @@ class SaldoService {
                 .map { it.toBalansDTO() }
         val resultaatOpDatum: List<Saldo.SaldoDTO> =
             saldoResultaatService
-                .berekenSaldoResultaatOpDatum(periode.gebruiker, peilDatum)
+                .berekenSaldoResultaatOpDatum(periode.gebruiker, peilDatum, openingsBalans)
+        logger.info("resultaatOpDatum: ${resultaatOpDatum.joinToString { "${it.rekeningGroepNaam} -> ${it.budgetBetaling}" }}")
         val geaggregeerdResultaatOpDatum = resultaatOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> add(acc, budgetDTO) } }
             .values.toList()
-        val aflossingenOpDatum =
-            aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
-//        val geaggregeerdeAflossingenOpDatum = aflossingService.aggregeerAflossingenOpDatum(aflossingenOpDatum)
         val resultaatSamenvattingOpDatumDTO =
             saldoResultaatService.berekenResultaatSamenvatting(
                 periode,
                 peilDatum,
                 geaggregeerdResultaatOpDatum,
-//                geaggregeerdeAflossingenOpDatum
             )
         return SaldoController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findLaatsteBetalingDatumBijGebruiker(openingPeriode.gebruiker),
@@ -97,7 +91,6 @@ class SaldoService {
             resultaatOpDatum = resultaatOpDatum,
             resultaatSamenvattingOpDatumDTO = resultaatSamenvattingOpDatumDTO,
             geaggregeerdResultaatOpDatum = geaggregeerdResultaatOpDatum,
-//            geaggregeerdeAflossingenOpDatum = geaggregeerdeAflossingenOpDatum
         )
     }
 
@@ -117,6 +110,7 @@ class SaldoService {
                     it.rekeningGroep.rekeningGroepSoort,
                     it.rekeningGroep.budgetType,
                     it.naam,
+                    it.sortOrder,
                     BigDecimal(0)
                 )
             }
@@ -132,7 +126,7 @@ class SaldoService {
                     betalingen.fold(BigDecimal(0)) { acc, betaling ->
                         acc + this.berekenMutaties(betaling, rekening)
                     }
-                Saldo(0, rekening.rekeningGroep, rekening, mutatie)
+                Saldo(0, rekening, mutatie)
             }
         }
         logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.saldo}" }}")
@@ -180,7 +174,7 @@ class SaldoService {
         val bedrag = saldoDTO.saldo
         val saldo = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         return if (saldo == null) {
-            Saldo(0, rekening.rekeningGroep, rekening, bedrag, periode = periode)
+            Saldo(0, rekening, bedrag, periode = periode)
         } else {
             saldo.fullCopy(saldo = bedrag)
         }
@@ -190,10 +184,17 @@ class SaldoService {
         return Saldo.SaldoDTO(
             id = 0,
             rekeningGroepNaam = saldoDTO1.rekeningGroepNaam,
+            rekeningGroepSoort = saldoDTO1.rekeningGroepSoort,
+            budgetType = saldoDTO1.budgetType,
             rekeningNaam = "",
+            sortOrder = saldoDTO1.sortOrder,
+            saldo = saldoDTO1.saldo.plus(saldoDTO2.saldo),
+            achterstandNu = saldoDTO1.achterstandNu?.plus(saldoDTO2.achterstandNu ?: BigDecimal(0)),
             budgetMaandBedrag = saldoDTO1.budgetMaandBedrag.plus(saldoDTO2.budgetMaandBedrag),
-            budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal(0)),
             budgetBetaling = saldoDTO1.budgetBetaling.plus(saldoDTO2.budgetBetaling),
+            periode = saldoDTO1.periode,
+            budgetPeilDatum = saldoDTO1.budgetPeilDatum ?: saldoDTO2.budgetPeilDatum,
+            budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal(0)),
             betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal(0)),
             minderDanBudget = saldoDTO1.minderDanBudget?.plus(saldoDTO2.minderDanBudget ?: BigDecimal(0)),
             meerDanBudget = saldoDTO1.meerDanBudget?.plus(saldoDTO2.meerDanBudget ?: BigDecimal(0)),

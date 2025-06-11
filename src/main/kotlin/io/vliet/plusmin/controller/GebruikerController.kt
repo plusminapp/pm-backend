@@ -1,12 +1,9 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.Aflossing
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Periode
-import io.vliet.plusmin.domain.Rekening
-import io.vliet.plusmin.repository.AflossingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -37,9 +34,6 @@ class GebruikerController {
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
-
-    @Autowired
-    lateinit var aflossingRepository: AflossingRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -116,7 +110,7 @@ class GebruikerController {
     }
     fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
         val periodes: List<Periode> = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
-        val aflossingen: List<Aflossing> = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
+//        val aflossingen: List<Aflossing> = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
         return GebruikerDTO(
             gebruiker.id,
             gebruiker.email,

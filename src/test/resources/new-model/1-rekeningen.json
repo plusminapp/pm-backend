@@ -13,23 +13,6 @@
     ]
   },
   {
-    "naam": "Contant",
-    "rekeningGroepSoort": "CONTANT",
-    "sortOrder": 200,
-    "rekeningen": [
-      {
-        "naam": "Contant",
-        "sortOrder": 200,
-        "saldo": 250,
-        "betaalMethoden": [
-          {
-            "naam": "ASN betaalrekening"
-          }
-        ]
-      }
-    ]
-  },
-  {
     "naam": "Creditcard",
     "rekeningGroepSoort": "CREDITCARD",
     "sortOrder": 200,
@@ -71,18 +54,28 @@
     "budgetType": "VAST",
     "rekeningen": [
       {
-        "naam": "Salaris",
+        "naam": "Philips+BND",
         "sortOrder": 100,
         "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 2100,
+        "budgetBedrag": 962,
+        "budgetBetaalDag": 3,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "AOW+ASR",
+        "sortOrder": 100,
+        "saldo": 0,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 2806,
         "budgetBetaalDag": 24,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
-          },
-          {
-            "naam": "Contant"
           }
         ]
       },
@@ -91,7 +84,7 @@
         "sortOrder": 200,
         "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 50,
+        "budgetBedrag": 20,
         "budgetBetaalDag": 5,
         "betaalMethoden": [
           {
@@ -120,21 +113,21 @@
           },
           {
             "naam": "Visa Creditcard"
-          },
-          {
-            "naam": "Contant"
           }
         ]
       },
       {
-        "naam": "Verzorging",
+        "naam": "Andere uitgaven",
         "sortOrder": 120,
         "saldo": 0,
-        "budgetPeriodiciteit": "WEEK",
-        "budgetBedrag": 25,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 1000,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
+          },
+          {
+            "naam": "Visa Creditcard"
           }
         ]
       }
@@ -144,13 +137,11 @@
     "naam": "Vaste lasten",
     "rekeningGroepSoort": "UITGAVEN",
     "rekeningGroepIcoonNaam": "vaste_lasten",
-    "sortOrder": 200,
+    "sortOrder": 110,
     "budgetType": "VAST",
     "rekeningen": [
       {
         "naam": "Greenchoice",
-        "sortOrder": 210,
-        "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 75,
         "budgetBetaalDag": 8,
@@ -165,6 +156,105 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 194.07,
         "budgetBetaalDag": 8,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Ziektekosten",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 187.50,
+        "budgetBetaalDag": 3,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Schadeverzekeringen",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 26.22,
+        "budgetBetaalDag": 1,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "GroenLinks Contributies",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 28,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Energiewacht",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 28,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Hypotheek",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 894.95,
+        "budgetBetaalDag": 28,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "GBLT",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 31.49,
+        "budgetBetaalDag": 28,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Odido",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 46.44,
+        "budgetBetaalDag": 26,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Regionale belasting",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 74.70,
+        "budgetBetaalDag": 26,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Vitens",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 8,
+        "budgetBetaalDag": 26,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"

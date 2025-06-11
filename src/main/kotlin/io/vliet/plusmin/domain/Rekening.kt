@@ -10,7 +10,7 @@ import java.math.BigDecimal
     name = "rekening",
     uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
 )
-@JsonInclude( JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Rekening(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -43,7 +43,10 @@ class Rekening(
         joinColumns = [JoinColumn(name = "rekening_id")],
         inverseJoinColumns = [JoinColumn(name = "betaalmethode_id")]
     )
-    var betaalMethoden: List<Rekening> = emptyList()
+    var betaalMethoden: List<Rekening> = emptyList(),
+    @OneToOne(optional = true)
+    @JoinColumn(name = "aflossing_id", nullable = true)
+    val aflossing: Aflossing? = null,
 ) {
     companion object {
         val sortableFields = setOf("id", "naam")
@@ -59,7 +62,8 @@ class Rekening(
         budgetBedrag: BigDecimal? = this.budgetBedrag,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
-        betaalMethoden: List<Rekening> = this.betaalMethoden
+        betaalMethoden: List<Rekening> = this.betaalMethoden,
+        aflossing: Aflossing? = this.aflossing,
     ) = Rekening(
         this.id,
         naam,
@@ -71,28 +75,30 @@ class Rekening(
         budgetBedrag,
         budgetPeriodiciteit,
         budgetBetaalDag,
-        betaalMethoden
+        betaalMethoden,
+        aflossing
     )
 
     fun fromDTO(
-        dto: RekeningDTO,
+        rekeningDTO: RekeningDTO,
         rekeningGroep: RekeningGroep,
     ) = Rekening(
-        dto.id,
-        dto.naam,
+        rekeningDTO.id,
+        rekeningDTO.naam,
         rekeningGroep,
-        dto.sortOrder,
-        dto.bankNaam,
-        dto.vanPeriode,
-        dto.totEnMetPeriode,
-        dto.budgetBedrag,
-        BudgetPeriodiciteit.valueOf(dto.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
-        dto.budgetBetaalDag
+        rekeningDTO.sortOrder,
+        rekeningDTO.bankNaam,
+        rekeningDTO.vanPeriode,
+        rekeningDTO.totEnMetPeriode,
+        rekeningDTO.budgetBedrag,
+        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
+        rekeningDTO.budgetBetaalDag
     )
 
     enum class BudgetPeriodiciteit {
         WEEK, MAAND
     }
+
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     data class RekeningDTO(
         val id: Long = 0,
@@ -103,10 +109,12 @@ class Rekening(
         val vanPeriode: Periode? = null,
         val totEnMetPeriode: Periode? = null,
         val budgetPeriodiciteit: String? = null,
+        val saldo: BigDecimal? = null,
         val budgetBedrag: BigDecimal? = null,
         val budgetBetaalDag: Int?,
         val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
+        val aflossing: Aflossing.AflossingDTO? = null,
     ) {
         fun fullCopy(
             naam: String = this.naam,
@@ -116,10 +124,12 @@ class Rekening(
             vanPeriode: Periode? = this.vanPeriode,
             totEnMetPeriode: Periode? = this.totEnMetPeriode,
             budgetPeriodiciteit: String? = this.budgetPeriodiciteit,
+            saldo: BigDecimal? = this.saldo,
             budgetBedrag: BigDecimal? = this.budgetBedrag,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
             betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
+            aflossing: Aflossing.AflossingDTO? = this.aflossing,
         ) = RekeningDTO(
             this.id,
             naam,
@@ -129,15 +139,17 @@ class Rekening(
             vanPeriode,
             totEnMetPeriode,
             budgetPeriodiciteit,
+            saldo,
             budgetBedrag,
             budgetBetaalDag,
             betaalMethoden,
             budgetMaandBedrag,
+            aflossing
         )
     }
 
     fun toDTO(
-            periode: Periode? = null,
+        periode: Periode? = null,
     ): RekeningDTO {
         val budgetMaandBedrag = if (periode != null && budgetBedrag != null) {
             if (budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
@@ -159,10 +171,12 @@ class Rekening(
             this.vanPeriode,
             this.totEnMetPeriode,
             this.budgetPeriodiciteit?.name,
+            null,
             this.budgetBedrag,
             this.budgetBetaalDag,
             this.betaalMethoden.map { it.toDTO(periode) },
             budgetMaandBedrag,
+            this.aflossing?.toDTO()
         )
     }
 }

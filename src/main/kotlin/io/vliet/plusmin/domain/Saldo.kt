@@ -1,12 +1,15 @@
 package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.math.BigDecimal
 
 /*
     De Saldo tabel bevat het saldo van een rekening; door de relatie naar de Periode tabel
-    is het van 1 gebruiker, op 1 moment in de tijd
+    is het van 1 gebruiker, op 1 moment in de tijd.
+    Het saldo van een gesloten periode bevat alle benodigde informatie over de stand van
+    de rekening aan het einde van de periode.
  */
 
 @Entity
@@ -21,43 +24,43 @@ class Saldo(
     )
     val id: Long = 0,
     @ManyToOne
-    @JoinColumn(name = "rekening_groep_id", referencedColumnName = "id")
-    val rekeningGroep: RekeningGroep,
-    @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
-    val rekening: Rekening,
-    val saldo: BigDecimal = BigDecimal(0),
-    val achterstand: BigDecimal = BigDecimal(0),
-    val budgetMaandBedrag: BigDecimal = BigDecimal(0),
-    val budgetBetaling: BigDecimal = BigDecimal(0),
+    val rekening: Rekening,                                       // bevat de betaaldag en de rekeningGroep
+    val saldo: BigDecimal = BigDecimal(0),                  //saldo aan het begin van de periode
+    val achterstand: BigDecimal = BigDecimal(0),            // achterstand aan het begin van de periode
+    val budgetMaandBedrag: BigDecimal = BigDecimal(0),      // verwachte bedrag per maand
+    val budgetBetaling: BigDecimal = BigDecimal(0),         // betaling deze periode
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "periode_id", referencedColumnName = "id")
     var periode: Periode? = null
 ) {
     fun fullCopy(
-        rekeningGroep: RekeningGroep = this.rekeningGroep,
         rekening: Rekening = this.rekening,
         saldo: BigDecimal = this.saldo,
         achterstand: BigDecimal = this.achterstand,
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
         budgetBetaling: BigDecimal = this.budgetBetaling,
         periode: Periode? = this.periode,
-    ) = Saldo(this.id, rekeningGroep, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, periode)
+    ) = Saldo(this.id, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, periode)
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     data class SaldoDTO(
         val id: Long = 0,
-        val rekeningGroepNaam: String? = "",
-        val rekeningGroepSoort: RekeningGroep.RekeningGroepSoort? = null,
+        val rekeningGroepNaam: String = "",
+        val rekeningGroepSoort: RekeningGroep.RekeningGroepSoort,
         val budgetType: RekeningGroep.BudgetType? = null,
         val rekeningNaam: String,
+        val sortOrder: Int = 0,
         val saldo: BigDecimal = BigDecimal(0),
         val achterstand: BigDecimal = BigDecimal(0),
         val budgetMaandBedrag: BigDecimal = BigDecimal(0),
         val budgetBetaling: BigDecimal = BigDecimal(0),
         val periode: Periode? = null,
+        val achterstandNu: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
-        val budgetOpPeilDatum: BigDecimal? = null,
+        val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
         val betaaldBinnenBudget: BigDecimal? = null,
         val minderDanBudget: BigDecimal? = null,
         val meerDanBudget: BigDecimal? = null,
@@ -67,6 +70,7 @@ class Saldo(
 
     fun toBalansDTO(
         periode: Periode? = this.periode,
+        achterstandNu: BigDecimal? = null,
         budgetPeilDatum: String? = null,
         budgetOpPeilDatum: BigDecimal? = null,
         betaaldBinnenBudget: BigDecimal? = null,
@@ -81,11 +85,13 @@ class Saldo(
             this.rekening.rekeningGroep.rekeningGroepSoort,
             this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
+            this.rekening.sortOrder,
             this.saldo,
             this.achterstand,
             this.budgetMaandBedrag,
             this.budgetBetaling,
             periode,
+            achterstandNu,
             budgetPeilDatum,
             budgetOpPeilDatum,
             betaaldBinnenBudget,
@@ -98,6 +104,7 @@ class Saldo(
 
     fun toResultaatDTO(
         periode: Periode? = this.periode,
+        achterstandNu: BigDecimal? = null,
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
         budgetPeilDatum: String? = null,
         budgetOpPeilDatum: BigDecimal? = null,
@@ -113,11 +120,13 @@ class Saldo(
             this.rekening.rekeningGroep.rekeningGroepSoort,
             this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
+            this.rekening.sortOrder,
             -this.saldo,
             this.achterstand,
             budgetMaandBedrag,
             this.budgetBetaling,
             periode,
+            achterstandNu,
             budgetPeilDatum,
             budgetOpPeilDatum,
             betaaldBinnenBudget,
