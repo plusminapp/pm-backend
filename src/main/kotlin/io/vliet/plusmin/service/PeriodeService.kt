@@ -6,6 +6,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
@@ -52,6 +54,7 @@ class PeriodeService {
     /*
         check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
      */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     fun checkPeriodesVoorGebruiker(gebruiker: Gebruiker) {
         val laatstePeriode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
         logger.debug("laatstePeriode voor ${gebruiker.email}: ${laatstePeriode?.periodeStartDatum} -> ${laatstePeriode?.periodeEindDatum} ${laatstePeriode?.periodeStatus}")

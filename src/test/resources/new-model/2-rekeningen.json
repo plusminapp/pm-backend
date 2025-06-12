@@ -7,7 +7,7 @@
       {
         "naam": "ASN betaalrekening",
         "bankNaam": "ASN",
-        "saldo": 1000,
+        "saldo": 670.10,
         "sortOrder": 100
       }
     ]
@@ -37,7 +37,7 @@
         "naam": "ASN spaarrekening",
         "bankNaam": "ASN",
         "sortOrder": 300,
-        "saldo": 1234,
+        "saldo": 116.18,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
