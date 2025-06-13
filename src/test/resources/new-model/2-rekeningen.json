@@ -223,6 +223,8 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 31.49,
         "budgetBetaalDag": 28,
+        "variabiliteit": 1,
+        "maanden": [1,2,3,4,5,8,9,10,11,12],
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
@@ -245,7 +247,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 74.70,
         "budgetBetaalDag": 26,
-        "variabiliteit": 6,
+        "variabiliteit": 1,
         "maanden": [3,4,5,6,7,8,9,10,11,12],
         "betaalMethoden": [
           {
