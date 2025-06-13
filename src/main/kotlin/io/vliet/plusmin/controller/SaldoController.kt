@@ -72,8 +72,6 @@ class SaldoController {
         val resultaatOpDatum: List<SaldoDTO>,
         val resultaatSamenvattingOpDatumDTO: Saldo.ResultaatSamenvattingOpDatumDTO,
         val geaggregeerdResultaatOpDatum: List<SaldoDTO>,
-//        val aflossingenOpDatum: List<Aflossing.AflossingDTO>,
-//        val geaggregeerdeAflossingenOpDatum: Aflossing.AflossingDTO? = null
     )
 }
 

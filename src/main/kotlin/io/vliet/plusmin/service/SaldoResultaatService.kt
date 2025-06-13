@@ -2,7 +2,6 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
-//import io.vliet.plusmin.domain.Rekening.RekeningSamenvattingDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -30,7 +29,11 @@ class SaldoResultaatService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenSaldoResultaatOpDatum(gebruiker: Gebruiker, peilDatum: LocalDate, openingsBalans: List<Saldo.SaldoDTO>): List<Saldo.SaldoDTO> {
+    fun berekenSaldoResultaatOpDatum(
+        gebruiker: Gebruiker,
+        peilDatum: LocalDate,
+        openingsBalans: List<Saldo.SaldoDTO>
+    ): List<Saldo.SaldoDTO> {
         val saldoPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
         val gekozenPeriode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, peilDatum) ?: run {
             logger.error("Geen periode voor ${gebruiker.bijnaam} op ${peilDatum}, gebruik ${saldoPeriode.periodeStartDatum}")
@@ -45,48 +48,60 @@ class SaldoResultaatService {
         return rekeningenLijst
             .sortedBy { it.sortOrder }
             .map { rekening ->
-                val budgetBetaling = getBetalingVoorRekeningInPeriode(rekening, gekozenPeriode) // negatief voor uitgaven, positief voor inkomsten
+                val budgetBetaling = getBetalingVoorRekeningInPeriode(
+                    rekening,
+                    gekozenPeriode
+                ) // negatief voor uitgaven, positief voor inkomsten
                 val saldo = openingsBalans
                     .find { it.rekeningNaam == rekening.naam }
                 val isVasteLastenRekeningBetaald =
-                    budgetBetaling.abs() > BigDecimal(0) &&
-                            rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST &&
+                    budgetBetaling.abs() > rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
+                        BigDecimal((100 - (rekening.variabiliteit ?: 0))/100)
+                    ) && budgetBetaling.abs() < rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
+                        BigDecimal((100 + (rekening.variabiliteit ?: 0))/100)
+                    ) && rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST &&
                             rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN
-                val budgetMaandBedrag = berekenBudgetMaandBedrag(rekening, gekozenPeriode)
-                val budgetOpPeilDatum = berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
-                val meerDanMaandBudget =
-                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
-                    else BigDecimal(0).max(budgetBetaling.abs() - budgetMaandBedrag)
-                val minderDanBudget =
-                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
-                    else BigDecimal(0).max(budgetOpPeilDatum.minus(budgetBetaling.abs()))
-                val meerDanBudget =
-                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
-                    else BigDecimal(0).max(budgetBetaling.abs() - budgetOpPeilDatum - meerDanMaandBudget)
-                Saldo.SaldoDTO(
-                    0,
-                    rekening.rekeningGroep.naam,
-                    rekening.rekeningGroep.rekeningGroepSoort,
-                    rekening.rekeningGroep.budgetType,
-                    rekening.naam,
-                    rekening.rekeningGroep.sortOrder* 1000 + rekening.sortOrder,
-                    saldo?.saldo?.minus(budgetBetaling) ?: BigDecimal(0),
-                    achterstand = saldo?.achterstand ?: BigDecimal(0),
-                    // TODO: achterstandNu berekenen obv aflossing moet wel/niet betaald zijn
-                    achterstandNu = ((saldo?.achterstand ?: BigDecimal(0)) + budgetOpPeilDatum + budgetBetaling).max(BigDecimal(0)),
-                    budgetMaandBedrag = budgetMaandBedrag,
-                    budgetPeilDatum = peilDatum.toString(),
-                    budgetBetaling = budgetBetaling,
-                    budgetOpPeilDatum = budgetOpPeilDatum,
-                    betaaldBinnenBudget = budgetOpPeilDatum.min(budgetBetaling.abs()),
-                    minderDanBudget = minderDanBudget,
-                    meerDanBudget = meerDanBudget,
-                    meerDanMaandBudget = meerDanMaandBudget,
-                    restMaandBudget =
-                        if (isVasteLastenRekeningBetaald) BigDecimal(0)
-                        else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
-                )
-            }
+                logger.info("Rekening ${rekening.naam} met budgetBetaling: $budgetBetaling, isVasteLastenRekeningBetaald: $isVasteLastenRekeningBetaald)")
+                logger.info("${rekening.variabiliteit}  ->  ${BigDecimal((100 - (rekening.variabiliteit ?: 0)) / 100) }")
+                        val budgetMaandBedrag = berekenBudgetMaandBedrag(rekening, gekozenPeriode)
+                        val budgetOpPeilDatum =
+                            berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
+                        val meerDanMaandBudget =
+                            if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                            else BigDecimal(0).max(budgetBetaling.abs() - budgetMaandBedrag)
+                        val minderDanBudget =
+                            if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                            else BigDecimal(0).max(budgetOpPeilDatum.minus(budgetBetaling.abs()))
+                        val meerDanBudget =
+                            if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                            else BigDecimal(0).max(budgetBetaling.abs() - budgetOpPeilDatum - meerDanMaandBudget)
+                                    Saldo . SaldoDTO (
+                                    0,
+                        rekening.rekeningGroep.naam,
+                        rekening.rekeningGroep.rekeningGroepSoort,
+                        rekening.rekeningGroep.budgetType,
+                        rekening.naam,
+                        rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
+                        saldo?.saldo?.minus(budgetBetaling) ?: BigDecimal(0),
+                        achterstand = saldo?.achterstand ?: BigDecimal(0),
+                        // TODO: achterstandNu berekenen obv aflossing moet wel/niet betaald zijn
+                        achterstandNu =
+                            ((saldo?.achterstand ?: BigDecimal(0)) + budgetOpPeilDatum + budgetBetaling).max(
+                                BigDecimal(0)
+                            ),
+                        budgetMaandBedrag = budgetMaandBedrag,
+                        budgetPeilDatum = peilDatum.toString(),
+                        budgetBetaling = budgetBetaling,
+                        budgetOpPeilDatum = budgetOpPeilDatum,
+                        betaaldBinnenBudget = budgetOpPeilDatum.min(budgetBetaling.abs()),
+                        minderDanBudget = minderDanBudget,
+                        meerDanBudget = meerDanBudget,
+                        meerDanMaandBudget = meerDanMaandBudget,
+                        restMaandBudget =
+                            if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                            else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
+                        )
+                        }
     }
 
     fun getBetalingVoorRekeningInPeriode(rekening: Rekening, periode: Periode): BigDecimal {
@@ -126,7 +141,13 @@ class SaldoResultaatService {
                     } else {
                         gekozenPeriode.periodeStartDatum.withDayOfMonth(rekening.budgetBetaalDag)
                     }
-                logger.info("betaaldagInPeriode: $betaaldagInPeriode, peilDatum: $peilDatum, after: ${betaaldagInPeriode.isAfter(peilDatum)}")
+                logger.info(
+                    "betaaldagInPeriode: $betaaldagInPeriode, peilDatum: $peilDatum, after: ${
+                        betaaldagInPeriode.isAfter(
+                            peilDatum
+                        )
+                    }"
+                )
                 return if (betaaldagInPeriode.isAfter(peilDatum)) BigDecimal(0) else rekening.budgetBedrag
             }
 

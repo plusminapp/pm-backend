@@ -67,13 +67,13 @@ class RekeningService {
             budgetType = if (rekeningGroepDTO.budgetType !== null) enumValueOf<RekeningGroep.BudgetType>(
                 rekeningGroepDTO.budgetType
             ) else null,
-            rekeningen = emptyList(),
         ))
         val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
 
     fun saveRekening(gebruiker: Gebruiker, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
+        logger.info("Opslaan rekening ${rekeningDTO.naam} voor ${gebruiker.bijnaam} in groep ${rekeningGroep.naam}.")
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
                 rekeningRepository.findRekeningGebruikerEnNaam(
@@ -119,6 +119,8 @@ class RekeningService {
                         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit)
                     else null,
                     budgetBedrag = rekeningDTO.budgetBedrag,
+                    variabiliteit = rekeningDTO.variabiliteit,
+                    maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing ?: rekeningOpt.aflossing,
                 )
@@ -149,6 +151,8 @@ class RekeningService {
                         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
                     else null,
                     budgetBedrag = rekeningDTO.budgetBedrag,
+                    variabiliteit = rekeningDTO.variabiliteit,
+                    maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing,
                 )

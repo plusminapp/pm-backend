@@ -34,6 +34,10 @@ class Rekening(
     @JoinColumn(name = "tot_periode_id")
     val totEnMetPeriode: Periode? = null,
     val budgetBedrag: BigDecimal? = null,
+    val variabiliteit: Int? = 0, // toegestane afwijking in procenten om een betaling te accepteren bij vaste lasten en aflossingen
+    @Column(name = "maanden")
+    @Convert(converter = RekeningMaandenConverter::class)
+    var maanden: Set<Int>? = null,
     @Enumerated(EnumType.STRING)
     val budgetPeriodiciteit: BudgetPeriodiciteit? = null,
     val budgetBetaalDag: Int? = null,
@@ -60,6 +64,8 @@ class Rekening(
         vanPeriode: Periode? = this.vanPeriode,
         totEnMetPeriode: Periode? = this.totEnMetPeriode,
         budgetBedrag: BigDecimal? = this.budgetBedrag,
+        variabiliteit: Int? = this.variabiliteit,
+        maanden: Set<Int>? = this.maanden,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
         betaalMethoden: List<Rekening> = this.betaalMethoden,
@@ -73,6 +79,8 @@ class Rekening(
         vanPeriode,
         totEnMetPeriode,
         budgetBedrag,
+        variabiliteit,
+        maanden,
         budgetPeriodiciteit,
         budgetBetaalDag,
         betaalMethoden,
@@ -91,6 +99,8 @@ class Rekening(
         rekeningDTO.vanPeriode,
         rekeningDTO.totEnMetPeriode,
         rekeningDTO.budgetBedrag,
+        rekeningDTO.variabiliteit,
+        rekeningDTO.maanden,
         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
         rekeningDTO.budgetBetaalDag
     )
@@ -111,6 +121,8 @@ class Rekening(
         val budgetPeriodiciteit: String? = null,
         val saldo: BigDecimal? = null,
         val budgetBedrag: BigDecimal? = null,
+        val variabiliteit: Int? = null,
+        val maanden: Set<Int>? = emptySet(),
         val budgetBetaalDag: Int?,
         val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
@@ -141,6 +153,8 @@ class Rekening(
             budgetPeriodiciteit,
             saldo,
             budgetBedrag,
+            variabiliteit,
+            maanden,
             budgetBetaalDag,
             betaalMethoden,
             budgetMaandBedrag,
@@ -173,6 +187,8 @@ class Rekening(
             this.budgetPeriodiciteit?.name,
             null,
             this.budgetBedrag,
+            this.variabiliteit,
+            this.maanden,
             this.budgetBetaalDag,
             this.betaalMethoden.map { it.toDTO(periode) },
             budgetMaandBedrag,

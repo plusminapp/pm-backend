@@ -136,7 +136,7 @@
   {
     "naam": "Vaste lasten",
     "rekeningGroepSoort": "UITGAVEN",
-    "rekeningGroepIcoonNaam": "vaste_lasten",
+    "rekeningGroepIcoonNaam": "vaste lasten",
     "sortOrder": 110,
     "budgetType": "VAST",
     "rekeningen": [
@@ -200,6 +200,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
         "budgetBetaalDag": 28,
+        "variabiliteit": 5,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
@@ -244,6 +245,8 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 74.70,
         "budgetBetaalDag": 26,
+        "variabiliteit": 6,
+        "maanden": [3,4,5,6,7,8,9,10,11,12],
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
