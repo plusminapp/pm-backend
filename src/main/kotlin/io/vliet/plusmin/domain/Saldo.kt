@@ -49,7 +49,7 @@ class Saldo(
     data class SaldoDTO(
         val id: Long = 0,
         val rekeningGroepNaam: String = "",
-        val rekeningGroepSoort: RekeningGroep.RekeningGroepSoort,
+        val rekeningGroepSoort: RekeningGroep.RekeningGroepSoort? = null,
         val budgetType: RekeningGroep.BudgetType? = null,
         val rekeningNaam: String,
         val sortOrder: Int = 0,

@@ -1,18 +1,10 @@
 package io.vliet.plusmin.service
 
-import io.vliet.camt053parser.Camt053Parser
-import iso.std.iso._20022.tech.xsd.camt_053_001.CreditDebitCode
-
-import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Betaling
-import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
-import java.io.BufferedReader
 
 @Service
 class Camt053Service {

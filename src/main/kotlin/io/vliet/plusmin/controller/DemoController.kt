@@ -1,28 +1,14 @@
 package io.vliet.plusmin.controller
 
 //import io.vliet.plusmin.service.Camt053Service
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
-import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
-import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.repository.BetalingDao
-import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.repository.GebruikerRepository
-import io.vliet.plusmin.service.*
-import jakarta.annotation.security.RolesAllowed
-import jakarta.validation.Valid
-import org.apache.commons.io.input.BOMInputStream
+import io.vliet.plusmin.service.DemoService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.time.LocalDate
 
 @RestController
 @RequestMapping("/demo")
