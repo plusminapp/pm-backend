@@ -40,12 +40,12 @@ class RekeningController {
 
     @Operation(summary = "GET de geldige rekeningen in een periode")
     @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
-    fun getAlleRekeningenVoorHulpvrager(
+    fun getAlleRekeningenPerBetalingsSoortVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET RekeningController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("GET RekeningController.getAlleRekeningenPerBetalingsSoortVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
         val rekeningGroepLijst = rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)

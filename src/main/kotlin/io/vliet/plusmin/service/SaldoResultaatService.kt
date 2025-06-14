@@ -54,23 +54,25 @@ class SaldoResultaatService {
                 ) // negatief voor uitgaven, positief voor inkomsten
                 val saldo = openingsBalans
                     .find { it.rekeningNaam == rekening.naam }
-                val isVasteLastenRekeningBetaald =
-                    // alleen voor vaste uitgaven en aflossingen
-                    ((rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN
-                            && rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                            || rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING)
-                            // die óf deze maand géén betaling verwachten
-                            && ((!rekening.maanden.isNullOrEmpty() && !rekening.maanden!!.contains(peilDatum.monthValue))
-                            // óf het bedrag binnen de variabiliteit valt
-                            || (budgetBetaling.abs() > rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
-                        BigDecimal((100 - (rekening.variabiliteit ?: 0)) / 100))
-                            && budgetBetaling.abs() < rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
-                        BigDecimal((100 + (rekening.variabiliteit ?: 0)) / 100))))
-                logger.info("Rekening ${rekening.naam} met budgetBetaling: $budgetBetaling, isVasteLastenRekeningBetaald: $isVasteLastenRekeningBetaald)")
-                logger.info("${rekening.variabiliteit}  ->  ${BigDecimal((100 - (rekening.variabiliteit ?: 0)) / 100)}")
+                val isRekeningVasteLastOfAflossing = rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN &&
+                        rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST ||
+                        rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
+                val dagInPeriode = if (rekening.budgetBetaalDag != null) periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, gekozenPeriode) else null
+                val wordtDezeMaandBetalingVerwacht =
+                    rekening.maanden.isNullOrEmpty() || rekening.maanden!!.contains(dagInPeriode?.monthValue)
+                val isBedragBinnenVariabiliteit =
+                    budgetBetaling.abs() <= rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
+                        BigDecimal(100 + (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100)).setScale(2, RoundingMode.HALF_UP)
+                    ) &&
+                            budgetBetaling.abs() >= rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
+                                BigDecimal(100 - (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100)).setScale(2, RoundingMode.HALF_UP)
+                            )
+                // VasteLastenRekening is Betaald als de rekening een vaste lasten rekening is, en óf geen betaling wordt verwacht, óf de betaling binnen de budgetVariabiliteit valt
+                val isVasteLastenRekeningBetaald = isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || isBedragBinnenVariabiliteit)
+
                 val budgetMaandBedrag = berekenBudgetMaandBedrag(rekening, gekozenPeriode)
-                val budgetOpPeilDatum =
-                    berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
+                val budgetOpPeilDatum = if (!wordtDezeMaandBetalingVerwacht) BigDecimal(0)
+                    else berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
                 val meerDanMaandBudget =
                     if (isVasteLastenRekeningBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling.abs() - budgetMaandBedrag)

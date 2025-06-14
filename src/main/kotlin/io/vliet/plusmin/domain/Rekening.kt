@@ -34,7 +34,7 @@ class Rekening(
     @JoinColumn(name = "tot_periode_id")
     val totEnMetPeriode: Periode? = null,
     val budgetBedrag: BigDecimal? = null,
-    val variabiliteit: Int? = 0, // toegestane afwijking in procenten om een betaling te accepteren bij vaste lasten en aflossingen
+    val budgetVariabiliteit: Int? = 0, // toegestane afwijking in procenten om een betaling te accepteren bij vaste lasten en aflossingen
     @Column(name = "maanden")
     @Convert(converter = RekeningMaandenConverter::class)
     var maanden: Set<Int>? = null,
@@ -64,7 +64,7 @@ class Rekening(
         vanPeriode: Periode? = this.vanPeriode,
         totEnMetPeriode: Periode? = this.totEnMetPeriode,
         budgetBedrag: BigDecimal? = this.budgetBedrag,
-        variabiliteit: Int? = this.variabiliteit,
+        budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         maanden: Set<Int>? = this.maanden,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
@@ -79,7 +79,7 @@ class Rekening(
         vanPeriode,
         totEnMetPeriode,
         budgetBedrag,
-        variabiliteit,
+        budgetVariabiliteit,
         maanden,
         budgetPeriodiciteit,
         budgetBetaalDag,
@@ -99,7 +99,7 @@ class Rekening(
         rekeningDTO.vanPeriode,
         rekeningDTO.totEnMetPeriode,
         rekeningDTO.budgetBedrag,
-        rekeningDTO.variabiliteit,
+        rekeningDTO.budgetVariabiliteit,
         rekeningDTO.maanden,
         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
         rekeningDTO.budgetBetaalDag
@@ -121,7 +121,7 @@ class Rekening(
         val budgetPeriodiciteit: String? = null,
         val saldo: BigDecimal? = null,
         val budgetBedrag: BigDecimal? = null,
-        val variabiliteit: Int? = null,
+        val budgetVariabiliteit: Int? = null,
         val maanden: Set<Int>? = emptySet(),
         val budgetBetaalDag: Int?,
         val betaalMethoden: List<RekeningDTO> = emptyList(),
@@ -153,7 +153,7 @@ class Rekening(
             budgetPeriodiciteit,
             saldo,
             budgetBedrag,
-            variabiliteit,
+            budgetVariabiliteit,
             maanden,
             budgetBetaalDag,
             betaalMethoden,
@@ -187,7 +187,7 @@ class Rekening(
             this.budgetPeriodiciteit?.name,
             null,
             this.budgetBedrag,
-            this.variabiliteit,
+            this.budgetVariabiliteit,
             this.maanden,
             this.budgetBetaalDag,
             this.betaalMethoden.map { it.toDTO(periode) },

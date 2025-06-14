@@ -119,7 +119,7 @@ class RekeningService {
                         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit)
                     else null,
                     budgetBedrag = rekeningDTO.budgetBedrag,
-                    variabiliteit = rekeningDTO.variabiliteit,
+                    budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing ?: rekeningOpt.aflossing,
@@ -151,7 +151,7 @@ class RekeningService {
                         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
                     else null,
                     budgetBedrag = rekeningDTO.budgetBedrag,
-                    variabiliteit = rekeningDTO.variabiliteit,
+                    budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing,

@@ -110,9 +110,6 @@
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
-          },
-          {
-            "naam": "Visa Creditcard"
           }
         ]
       },
@@ -137,7 +134,7 @@
     "naam": "Vaste lasten",
     "rekeningGroepSoort": "UITGAVEN",
     "rekeningGroepIcoonNaam": "vaste lasten",
-    "sortOrder": 110,
+    "sortOrder": 120,
     "budgetType": "VAST",
     "rekeningen": [
       {
@@ -200,7 +197,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
         "budgetBetaalDag": 28,
-        "variabiliteit": 5,
+        "budgetVariabiliteit": 5,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
@@ -223,7 +220,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 31.49,
         "budgetBetaalDag": 28,
-        "variabiliteit": 1,
+        "budgetVariabiliteit": 1,
         "maanden": [1,2,3,4,5,8,9,10,11,12],
         "betaalMethoden": [
           {
@@ -247,7 +244,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 74.70,
         "budgetBetaalDag": 26,
-        "variabiliteit": 1,
+        "budgetVariabiliteit": 1,
         "maanden": [3,4,5,6,7,8,9,10,11,12],
         "betaalMethoden": [
           {

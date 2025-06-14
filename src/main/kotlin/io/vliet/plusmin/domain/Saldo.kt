@@ -31,6 +31,7 @@ class Saldo(
     val achterstand: BigDecimal = BigDecimal(0),            // achterstand aan het begin van de periode
     val budgetMaandBedrag: BigDecimal = BigDecimal(0),      // verwachte bedrag per maand
     val budgetBetaling: BigDecimal = BigDecimal(0),         // betaling deze periode
+    val budgetVariabiliteit: Int? = null,                        // variabiliteit als percentage van budgetMaandBedrag
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "periode_id", referencedColumnName = "id")
@@ -42,8 +43,9 @@ class Saldo(
         achterstand: BigDecimal = this.achterstand,
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
         budgetBetaling: BigDecimal = this.budgetBetaling,
+        budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         periode: Periode? = this.periode,
-    ) = Saldo(this.id, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, periode)
+    ) = Saldo(this.id, rekening, saldo, achterstand, budgetMaandBedrag, budgetBetaling, budgetVariabiliteit, periode)
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     data class SaldoDTO(
