@@ -79,7 +79,7 @@ class RekeningService {
                 rekeningRepository.findRekeningGebruikerEnNaam(
                     gebruiker,
                     it.naam
-                ).getOrNull()
+                )
             }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
         val rekeningOpt = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, rekeningDTO.naam)
             .getOrNull()

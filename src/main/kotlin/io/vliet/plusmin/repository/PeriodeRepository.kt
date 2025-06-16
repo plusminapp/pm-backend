@@ -39,5 +39,6 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
                 "ORDER BY p.periodeStartDatum DESC LIMIT 1"
     )
     fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode?
+    fun getPeriodeById(periodeId: Long): Periode?
 }
 

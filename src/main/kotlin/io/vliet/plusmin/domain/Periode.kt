@@ -11,8 +11,10 @@ import java.time.format.DateTimeFormatter
  */
 
 @Entity
-@Table(name = "periode",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "periodeStartDatum"])])
+@Table(
+    name = "periode",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "periodeStartDatum"])]
+)
 class Periode(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -54,6 +56,12 @@ class Periode(
             this.periodeStatus,
         )
     }
+
+    companion object {
+        val openPeriodes = listOf(PeriodeStatus.HUIDIG, PeriodeStatus.OPEN)
+        val geslotenPeriodes = listOf(PeriodeStatus.GESLOTEN, PeriodeStatus.OPGERUIMD)
+    }
+
     enum class PeriodeStatus {
         HUIDIG, OPEN, GESLOTEN, OPGERUIMD
     }

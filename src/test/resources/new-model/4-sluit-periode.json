@@ -1,0 +1,138 @@
+[
+  {
+    "id": 169,
+    "rekeningNaam": "ASN betaalrekening",
+    "saldo": 1973.29,
+    "achterstand": 0.00,
+    "budgetMaandBedrag": 0.00,
+    "budgetBetaling": 0.00
+  },
+  {
+    "id": 172,
+    "rekeningNaam": "Visa Creditcard",
+    "saldo": 0.00,
+    "achterstand": 0.00,
+    "budgetMaandBedrag": 0.00,
+    "budgetBetaling": 0.00
+  },
+  {
+    "id": 175,
+    "rekeningNaam": "ASN spaarrekening",
+    "saldo": 116.18,
+    "achterstand": 0.00,
+    "budgetMaandBedrag": 0.00,
+    "budgetBetaling": 0.00
+  },
+  {
+    "rekeningNaam": "Greenchoice",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 75.00,
+    "budgetBetaling": -75.00
+  },
+  {
+    "rekeningNaam": "VvE",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 194.07,
+    "budgetBetaling": -194.07
+  },
+  {
+    "rekeningNaam": "Ziektekosten",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 187.50,
+    "budgetBetaling": -187.50
+  },
+  {
+    "rekeningNaam": "Schadeverzekeringen",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 26.22,
+    "budgetBetaling": -26.22
+  },
+  {
+    "rekeningNaam": "GroenLinks Contributies",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 25.00,
+    "budgetBetaling": -25.00
+  },
+  {
+    "rekeningNaam": "Hypotheek",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 894.95,
+    "budgetBetaling": -894.95
+  },
+  {
+    "rekeningNaam": "Odido",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 46.44,
+    "budgetBetaling": -46.44
+  },
+  {
+    "rekeningNaam": "Vitens",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 8.00,
+    "budgetBetaling": -8.00
+  },
+  {
+    "rekeningNaam": "Energiewacht",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 8.98,
+    "budgetBetaling": -8.98
+  },
+  {
+    "rekeningNaam": "GBLT",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 31.49,
+    "budgetBetaling": -31.49
+  },
+  {
+    "rekeningNaam": "Regionale belasting",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 74.70,
+    "budgetBetaling": -74.70
+  },
+  {
+    "rekeningNaam": "Philips+BND",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 962.00,
+    "budgetBetaling": 962.00
+  },
+  {
+    "rekeningNaam": "AOW+ASR",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 2806.00,
+    "budgetBetaling": 2806
+  },
+  {
+    "rekeningNaam": "Boodschappen",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 376.43,
+    "budgetBetaling": -226.85
+  },
+  {
+    "rekeningNaam": "Andere uitgaven",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 1000.00,
+    "budgetBetaling":  -741.46
+  },
+  {
+    "rekeningNaam": "Rente",
+    "saldo": 0,
+    "achterstand": 0,
+    "budgetMaandBedrag": 20.00,
+    "budgetBetaling": 0.00
+  }
+]

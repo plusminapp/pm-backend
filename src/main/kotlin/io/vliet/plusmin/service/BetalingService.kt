@@ -47,10 +47,10 @@ class BetalingService {
             logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
             update(betalingList[0], betalingDTO)
         } else {
-            val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron).getOrNull()
+            val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
                 ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
             val bestemming =
-                rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming).getOrNull()
+                rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
                     ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
             val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
             logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
@@ -80,10 +80,10 @@ class BetalingService {
 
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
         val gebruiker = oldBetaling.gebruiker
-        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron).getOrNull()
+        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
             ?: oldBetaling.bron
         val bestemming =
-            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming).getOrNull()
+            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
                 ?: oldBetaling.bestemming
         val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
         val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)

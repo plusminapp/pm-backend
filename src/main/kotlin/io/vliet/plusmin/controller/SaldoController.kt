@@ -47,7 +47,7 @@ class SaldoController {
 
         val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(hulpvrager)
         val periode = periodeService.getPeriode(hulpvrager, peilDatum)
-        return saldoService.getStandOpDatum(openingPeriode, peilDatum, periode)
+        return saldoService.getStandOpDatum(hulpvrager, peilDatum)
     }
 
 //    @Operation(summary = "PUT de saldi voor hulpvrager")
