@@ -195,7 +195,7 @@
       {
         "naam": "Energiewacht",
         "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
+        "budgetBedrag": 8.98,
         "budgetBetaalDag": 28,
         "budgetVariabiliteit": 5,
         "betaalMethoden": [

@@ -67,7 +67,7 @@ class SaldoService {
             balansSaldiBijOpening
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toBalansDTO(periode = periode) }
+                .map { it.toBalansDTO() }
         val mutatiesOpDatum =
             mutatiePeilDatumLijst
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
@@ -140,7 +140,7 @@ class SaldoService {
                 Saldo(0, rekening, mutatie)
             }
         }
-        logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.saldo}" }}")
+        logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.openingsSaldo}" }}")
         return saldoLijst
     }
 
@@ -151,9 +151,9 @@ class SaldoService {
 
     fun berekenSaldiOpDatum(openingsSaldi: List<Saldo>, mutatieLijst: List<Saldo>): List<Saldo> {
         val saldoLijst = openingsSaldi.map { saldo: Saldo ->
-            val mutatie: BigDecimal? = mutatieLijst.find { it.rekening.naam == saldo.rekening.naam }?.saldo
+            val mutatie: BigDecimal? = mutatieLijst.find { it.rekening.naam == saldo.rekening.naam }?.openingsSaldo
             saldo.fullCopy(
-                saldo = saldo.saldo + (mutatie ?: BigDecimal(0))
+                openingsSaldo = saldo.openingsSaldo + (mutatie ?: BigDecimal(0))
             )
         }
         return saldoLijst
@@ -163,7 +163,7 @@ class SaldoService {
         return saldoRepository.findAllByPeriode(periode)
             .sortedBy { it.rekening.sortOrder }
             .map { it.fullCopy(
-                saldo = it.budgetBetaling
+                openingsSaldo = it.budgetBetaling
             ) }
     }
 
@@ -177,7 +177,7 @@ class SaldoService {
                 dto2Saldo(gebruiker, saldoDTO, periode)
             } else {
                 bestaandeSaldoMap.remove(saldoDTO.rekeningNaam)
-                bestaandeSaldo.fullCopy(saldo = saldoDTO.saldo)
+                bestaandeSaldo.fullCopy(openingsSaldo = saldoDTO.openingsSaldo)
             }
         }
         return bestaandeSaldoMap.values.toList() + nieuweSaldoList
@@ -190,12 +190,12 @@ class SaldoService {
                 throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
             }
 
-        val bedrag = saldoDTO.saldo
+        val bedrag = saldoDTO.openingsSaldo
         val saldo = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         return if (saldo == null) {
             Saldo(0, rekening, bedrag, periode = periode)
         } else {
-            saldo.fullCopy(saldo = bedrag)
+            saldo.fullCopy(openingsSaldo = bedrag)
         }
     }
 

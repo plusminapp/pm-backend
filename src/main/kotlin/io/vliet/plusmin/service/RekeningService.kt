@@ -167,7 +167,7 @@ class RekeningService {
                 Saldo(
                     id = 0,
                     rekening = rekening,
-                    saldo = rekeningDTO.saldo ?: BigDecimal(0),
+                    openingsSaldo = rekeningDTO.saldo ?: BigDecimal(0),
                     periode = periode,
                     achterstand = BigDecimal(0),
                     budgetMaandBedrag = BigDecimal(0),

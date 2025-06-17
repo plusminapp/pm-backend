@@ -39,7 +39,7 @@ class PeriodeSluitenService {
                 saldoRepository.save(
                     Saldo(
                         rekening = rekening,
-                        saldo = saldo.saldo,
+                        openingsSaldo = saldo.openingsSaldo,
                         achterstand = saldo.achterstand,
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
                         budgetBetaling = saldo.budgetBetaling,

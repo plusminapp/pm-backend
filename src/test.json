@@ -5,14 +5,14 @@
     "rekeningGroepSoort": "BETAALREKENING",
     "rekeningNaam": "ASN betaalrekening",
     "sortOrder": 100,
-    "saldo": -439.01,
+    "openingsSaldo": 1303.19,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -22,14 +22,14 @@
     "rekeningGroepSoort": "CREDITCARD",
     "rekeningNaam": "Visa Creditcard",
     "sortOrder": 200,
-    "saldo": 0,
+    "openingsSaldo": 0,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -39,14 +39,14 @@
     "rekeningGroepSoort": "SPAARREKENING",
     "rekeningNaam": "ASN spaarrekening",
     "sortOrder": 300,
-    "saldo": 2020.89,
+    "openingsSaldo": 0,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -57,14 +57,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Philips+BND",
     "sortOrder": 100,
-    "saldo": 1268,
+    "openingsSaldo": 962,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -75,14 +75,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "AOW+ASR",
     "sortOrder": 100,
-    "saldo": 2806,
+    "openingsSaldo": 2806,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -93,14 +93,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Rente",
     "sortOrder": 200,
-    "saldo": 20.89,
+    "openingsSaldo": 0,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -111,14 +111,14 @@
     "budgetType": "CONTINU",
     "rekeningNaam": "Boodschappen",
     "sortOrder": 110,
-    "saldo": -299.37,
+    "openingsSaldo": -226.85,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -129,14 +129,14 @@
     "budgetType": "CONTINU",
     "rekeningNaam": "Andere uitgaven",
     "sortOrder": 120,
-    "saldo": -715.98,
+    "openingsSaldo": -741.46,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -147,14 +147,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Greenchoice",
     "sortOrder": 0,
-    "saldo": -75,
+    "openingsSaldo": -75,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -165,14 +165,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "VvE",
     "sortOrder": 0,
-    "saldo": -194.07,
+    "openingsSaldo": -194.07,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -183,14 +183,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Ziektekosten",
     "sortOrder": 0,
-    "saldo": -187.5,
+    "openingsSaldo": -187.5,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -201,14 +201,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Schadeverzekeringen",
     "sortOrder": 0,
-    "saldo": -26.22,
+    "openingsSaldo": -26.22,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -219,32 +219,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "GroenLinks Contributies",
     "sortOrder": 0,
-    "saldo": -25,
+    "openingsSaldo": -25,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
-      "periodeStatus": "OPEN"
-    }
-  },
-  {
-    "id": 0,
-    "rekeningGroepNaam": "Vaste lasten",
-    "rekeningGroepSoort": "UITGAVEN",
-    "budgetType": "VAST",
-    "rekeningNaam": "Hypotheek",
-    "sortOrder": 0,
-    "saldo": -894.95,
-    "achterstand": 0,
-    "budgetMaandBedrag": 0,
-    "budgetBetaling": 0,
-    "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -255,14 +237,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Odido",
     "sortOrder": 0,
-    "saldo": -46.44,
+    "openingsSaldo": -45,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -273,14 +255,32 @@
     "budgetType": "VAST",
     "rekeningNaam": "Vitens",
     "sortOrder": 0,
-    "saldo": -8,
+    "openingsSaldo": -8,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
+      "periodeStatus": "OPEN"
+    }
+  },
+  {
+    "id": 0,
+    "rekeningGroepNaam": "Vaste lasten",
+    "rekeningGroepSoort": "UITGAVEN",
+    "budgetType": "VAST",
+    "rekeningNaam": "Hypotheek",
+    "sortOrder": 0,
+    "openingsSaldo": -895.23,
+    "achterstand": 0,
+    "budgetMaandBedrag": 0,
+    "budgetBetaling": 0,
+    "periode": {
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -291,14 +291,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Energiewacht",
     "sortOrder": 0,
-    "saldo": -8.98,
+    "openingsSaldo": -8.98,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -309,14 +309,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "GBLT",
     "sortOrder": 0,
-    "saldo": -31.5,
+    "openingsSaldo": -31.5,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   },
@@ -327,14 +327,14 @@
     "budgetType": "VAST",
     "rekeningNaam": "Regionale belasting",
     "sortOrder": 0,
-    "saldo": 0,
+    "openingsSaldo": 0,
     "achterstand": 0,
     "budgetMaandBedrag": 0,
     "budgetBetaling": 0,
     "periode": {
-      "id": 160,
-      "periodeStartDatum": "2025-02-20",
-      "periodeEindDatum": "2025-03-19",
+      "id": 5,
+      "periodeStartDatum": "2025-01-20",
+      "periodeEindDatum": "2025-02-19",
       "periodeStatus": "OPEN"
     }
   }

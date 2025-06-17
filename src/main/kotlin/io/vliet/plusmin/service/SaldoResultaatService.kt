@@ -89,7 +89,7 @@ class SaldoResultaatService {
                     rekening.rekeningGroep.budgetType,
                     rekening.naam,
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
-                    saldo?.saldo?.minus(budgetBetaling) ?: BigDecimal(0),
+                    saldo?.openingsSaldo?.minus(budgetBetaling) ?: BigDecimal(0),
                     achterstand = saldo?.achterstand ?: BigDecimal(0),
                     // TODO: achterstandNu berekenen obv aflossing moet wel/niet betaald zijn
                     achterstandNu =
