@@ -35,7 +35,7 @@ class BetalingvalidatieService {
                 it.rekeningNaam
             )
         } ?: throw IllegalStateException("betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is ongeldig: ${betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam} voor ${gebruiker.email}.")
-        val openingsSaldo = saldoRepository.findLastSaldoByRekening(rekening).getOrNull()
+        val openingsSaldo = saldoRepository.findLaatsteSaldoBijRekening( rekening.id).getOrNull()
             ?: throw IllegalStateException("Geen Saldo voor ${rekening.naam}/${rekening.id} voor ${gebruiker.email}.")
         val betalingen = if (openingsSaldo.periode == null) {
             throw IllegalStateException("Geen Periode bij Saldo ${openingsSaldo.id} voor ${gebruiker.email}.")

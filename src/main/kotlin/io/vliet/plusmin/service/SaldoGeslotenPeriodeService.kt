@@ -76,14 +76,37 @@ class SaldoGeslotenPeriodeService {
         val saldi = saldoRepository.findAllByPeriode(periode)
         return saldi
             .filter { RekeningGroep.balansRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-            .map { it.toBalansDTO() }
+            .map {
+                val meerDanMaandBudget =  BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag)
+                it.toBalansDTO(
+                achterstandNu = it.achterstand,
+                budgetPeilDatum = periode.periodeEindDatum.toString(),
+                budgetOpPeilDatum = it.budgetMaandBedrag.abs(),
+                betaaldBinnenBudget = it.budgetBetaling.abs().min(it.budgetMaandBedrag),
+                minderDanBudget = BigDecimal(0).max(it.budgetMaandBedrag.minus(it.budgetBetaling.abs())),
+                meerDanBudget = BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag - meerDanMaandBudget),
+                meerDanMaandBudget = meerDanMaandBudget,
+                restMaandBudget = BigDecimal(0)
+            ) }
     }
 
     fun getMutaties(periode: Periode): List<Saldo.SaldoDTO> {
         val saldi = saldoRepository.findAllByPeriode(periode)
         return saldi
-            .filter { RekeningGroep.resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-            .map { it.toResultaatDTO() }
+//            .filter { RekeningGroep.resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            .map {
+                val meerDanMaandBudget =  BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag)
+                it.toResultaatDTO(
+                    achterstandNu = it.achterstand,
+                    budgetPeilDatum = periode.periodeEindDatum.toString(),
+                    budgetOpPeilDatum = it.budgetMaandBedrag,
+                    betaaldBinnenBudget = it.budgetBetaling.abs().min(it.budgetMaandBedrag),
+                    minderDanBudget = BigDecimal(0).max(it.budgetMaandBedrag.minus(it.budgetBetaling.abs())),
+                    meerDanBudget = BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag - meerDanMaandBudget),
+                    meerDanMaandBudget = meerDanMaandBudget,
+                    restMaandBudget = BigDecimal(0)
+                )
+            }
     }
 
     fun add(saldoDTO1: Saldo.SaldoDTO, saldoDTO2: Saldo.SaldoDTO): Saldo.SaldoDTO {

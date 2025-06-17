@@ -24,12 +24,15 @@ class PeriodeSluitenService {
     lateinit var saldoService: SaldoService
 
     @Autowired
+    lateinit var saldoResultaatService: SaldoResultaatService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun sluitPeriode(gebruiker: Gebruiker, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
-        val (openingPeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+        val periode = checkPeriodeSluiten(gebruiker, periodeId)
 
         saldoLijst
             .forEach { saldo ->
@@ -44,7 +47,7 @@ class PeriodeSluitenService {
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
                         budgetBetaling = saldo.budgetBetaling,
                         budgetVariabiliteit = rekening.budgetVariabiliteit,
-                        periode = periode
+                        periode = periode,
                     )
                 )
             }
@@ -57,20 +60,19 @@ class PeriodeSluitenService {
     }
 
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
-        val (openingPeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+        val  periode = checkPeriodeSluiten(gebruiker, periodeId)
         val openingsBalans = saldoService.getOpeningSaldi(periode)
-        val mutatieLijst = saldoService.berekenMutatieLijstOpDatum(gebruiker, periode.periodeStartDatum, periode.periodeEindDatum)
-        return  saldoService
-            .berekenSaldiOpDatum(openingsBalans, mutatieLijst)
             .map { saldo ->
                 if (RekeningGroep.balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
                     saldo.toBalansDTO()
                 else
                     saldo.toResultaatDTO()
             }
+        return  saldoResultaatService
+            .berekenSaldoResultaatOpDatum(gebruiker, periode.periodeEindDatum, openingsBalans)
     }
 
-    fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {
+    fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long):  Periode {
         val periodeLijst = periodeRepository
             .getPeriodesVoorGebruiker(gebruiker)
             .sortedBy { it.periodeStartDatum }
@@ -85,6 +87,6 @@ class PeriodeSluitenService {
         if (periodeLijst[index].periodeStatus != Periode.PeriodeStatus.OPEN)
             throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten, de periode is niet open voor gebruiker ${gebruiker.bijnaam}")
 
-        return Pair(periodeLijst[index-1],periodeLijst[index])
+        return periodeLijst[index]
     }
 }

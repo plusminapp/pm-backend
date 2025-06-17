@@ -42,7 +42,7 @@ class SaldoResultaatService {
         val rekeningenLijst = rekeningRepository
             .findRekeningGroepenVoorGebruiker(gebruiker)
             .flatMap { it.rekeningen }
-            .filter { rekening -> resultaatRekeningGroepSoort.contains(rekening.rekeningGroep.rekeningGroepSoort) }
+//            .filter { rekening -> resultaatRekeningGroepSoort.contains(rekening.rekeningGroep.rekeningGroepSoort) }
             .filter { rekening -> rekeningIsGeldigInPeriode(rekening, gekozenPeriode) }
         logger.info("RekeningenLijst: ${rekeningenLijst.joinToString { it.naam + '/' + it.vanPeriode?.periodeStartDatum.toString() + '/' + it.totEnMetPeriode?.periodeStartDatum.toString() }} voor periodeStartDatum ${gekozenPeriode.periodeStartDatum} ")
         return rekeningenLijst
@@ -60,13 +60,13 @@ class SaldoResultaatService {
                 val dagInPeriode = if (rekening.budgetBetaalDag != null) periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, gekozenPeriode) else null
                 val wordtDezeMaandBetalingVerwacht =
                     rekening.maanden.isNullOrEmpty() || rekening.maanden!!.contains(dagInPeriode?.monthValue)
-                val isBedragBinnenVariabiliteit =
+                val isBedragBinnenVariabiliteit = if (rekening.budgetBedrag == null) true else {
                     budgetBetaling.abs() <= rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
-                        BigDecimal(100 + (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100)).setScale(2, RoundingMode.HALF_UP)
+                        BigDecimal(100 + (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
                     ) &&
                             budgetBetaling.abs() >= rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
-                                BigDecimal(100 - (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100)).setScale(2, RoundingMode.HALF_UP)
-                            )
+                                BigDecimal(100 - (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
+                            )}
                 // VasteLastenRekening is Betaald als de rekening een vaste lasten rekening is, en óf geen betaling wordt verwacht, óf de betaling binnen de budgetVariabiliteit valt
                 val isVasteLastenRekeningBetaald = isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || isBedragBinnenVariabiliteit)
 
@@ -89,7 +89,7 @@ class SaldoResultaatService {
                     rekening.rekeningGroep.budgetType,
                     rekening.naam,
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
-                    saldo?.openingsSaldo?.minus(budgetBetaling) ?: BigDecimal(0),
+                    saldo?.openingsSaldo ?: BigDecimal(0),
                     achterstand = saldo?.achterstand ?: BigDecimal(0),
                     // TODO: achterstandNu berekenen obv aflossing moet wel/niet betaald zijn
                     achterstandNu =
@@ -186,9 +186,10 @@ class SaldoResultaatService {
                 return (budgetMaandBedrag?.times(BigDecimal(dagenTotPeilDatum))?.div(BigDecimal(dagenInPeriode)))
             }
 
-            else -> {
-                throw IllegalStateException("RekeningGroep ${rekening.rekeningGroep.naam} heeft geen BudgetType")
-            }
+            else -> return BigDecimal(0)
+//                {
+//                throw IllegalStateException("RekeningGroep ${rekening.rekeningGroep.naam} heeft geen BudgetType")
+//            }
         }
     }
 
