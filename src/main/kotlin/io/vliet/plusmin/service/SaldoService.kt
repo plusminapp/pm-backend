@@ -49,16 +49,7 @@ class SaldoService {
         if (geslotenPeriodes.contains(periode.periodeStatus)) return saldoGeslotenPeriodeService.getStandOpDatum(periode)
 
         val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-        val openingsSaldi = getOpeningSaldi(openingPeriode)
-        val mutatiePeriodeOpeningLijst = if (Periode.openPeriodes.contains(periode.periodeStatus)) {
-            berekenMutatieLijstOpDatum(
-                gebruiker,
-                openingPeriode.periodeEindDatum.plusDays(1),
-                periode.periodeStartDatum.minusDays(1)
-            )
-        } else haalMutatieLijstOpDatumOp(periode)
-
-        val balansSaldiBijOpening = berekenSaldiOpDatum(openingsSaldi, mutatiePeriodeOpeningLijst)
+        val balansSaldiBijOpening = berekenBalansSaldiBijOpening(openingPeriode, periode, gebruiker)
         val mutatiePeilDatumLijst =
             berekenMutatieLijstOpDatum(gebruiker, periode.periodeStartDatum, peilDatum)
         val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening, mutatiePeilDatumLijst)
@@ -67,17 +58,17 @@ class SaldoService {
             balansSaldiBijOpening
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toBalansDTO() }
+                .map { it.toDTO() }
         val mutatiesOpDatum =
             mutatiePeilDatumLijst
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toBalansDTO() }
+                .map { it.toDTO() }
         val balansOpDatum: List<Saldo.SaldoDTO> =
             balansSaldiOpDatum
                 .filter { it.rekening.rekeningGroep.rekeningGroepSoort in balansRekeningGroepSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toBalansDTO() }
+                .map { it.toDTO() }
         val resultaatOpDatum: List<Saldo.SaldoDTO> =
             saldoResultaatService
                 .berekenSaldoResultaatOpDatum(periode.gebruiker, peilDatum, openingsBalans)
@@ -103,6 +94,24 @@ class SaldoService {
             resultaatSamenvattingOpDatumDTO = resultaatSamenvattingOpDatumDTO,
             geaggregeerdResultaatOpDatum = geaggregeerdResultaatOpDatum,
         )
+    }
+
+    fun berekenBalansSaldiBijOpening(
+        openingPeriode: Periode,
+        periode: Periode,
+        gebruiker: Gebruiker
+    ): List<Saldo> {
+        val openingsSaldi = getOpeningSaldi(openingPeriode)
+        val mutatiePeriodeOpeningLijst = if (Periode.openPeriodes.contains(periode.periodeStatus)) {
+            berekenMutatieLijstOpDatum(
+                gebruiker,
+                openingPeriode.periodeEindDatum.plusDays(1),
+                periode.periodeStartDatum.minusDays(1)
+            )
+        } else haalMutatieLijstOpDatumOp(periode)
+
+        val balansSaldiBijOpening = berekenSaldiOpDatum(openingsSaldi, mutatiePeriodeOpeningLijst)
+        return balansSaldiBijOpening
     }
 
     fun getOpeningSaldi(openingPeriode: Periode): List<Saldo> {
@@ -153,7 +162,7 @@ class SaldoService {
         val saldoLijst = openingsSaldi.map { saldo: Saldo ->
             val mutatie: BigDecimal? = mutatieLijst.find { it.rekening.naam == saldo.rekening.naam }?.openingsSaldo
             saldo.fullCopy(
-                openingsSaldo = saldo.openingsSaldo + (mutatie ?: BigDecimal(0))
+                openingsSaldo = (saldo.openingsSaldo ?: BigDecimal(0)) + (mutatie ?: BigDecimal(0))
             )
         }
         return saldoLijst

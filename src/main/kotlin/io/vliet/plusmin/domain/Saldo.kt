@@ -59,7 +59,6 @@ class Saldo(
         val achterstand: BigDecimal = BigDecimal(0),
         val budgetMaandBedrag: BigDecimal = BigDecimal(0),
         val budgetBetaling: BigDecimal = BigDecimal(0),
-//        val periode: Periode? = null,
         val achterstandNu: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
@@ -70,17 +69,21 @@ class Saldo(
         val restMaandBudget: BigDecimal? = null,
     )
 
-    fun toBalansDTO(
-//        periode: Periode? = this.periode,
-        achterstandNu: BigDecimal? = null,
-        budgetPeilDatum: String? = null,
-        budgetOpPeilDatum: BigDecimal? = null,
-        betaaldBinnenBudget: BigDecimal? = null,
-        minderDanBudget: BigDecimal? = null,
-        meerDanBudget: BigDecimal? = null,
-        meerDanMaandBudget: BigDecimal? = null,
-        restMaandBudget: BigDecimal? = null,
+    fun toDTO(
     ): SaldoDTO {
+        val achterstandNu = this.achterstand
+        val budgetPeilDatum = periode?.periodeEindDatum.toString()
+        val budgetOpPeilDatum = this.budgetMaandBedrag.abs()
+        val betaaldBinnenBudget = this.budgetBetaling.abs().min(this.budgetMaandBedrag)
+        val minderDanBudget = BigDecimal(0).max(this.budgetMaandBedrag.minus(this.budgetBetaling.abs()))
+        val meerDanMaandBudget =  BigDecimal(0).max(this.budgetBetaling.abs() - this.budgetMaandBedrag)
+        val meerDanBudget = BigDecimal(0).max(this.budgetBetaling.abs() - this.budgetMaandBedrag - meerDanMaandBudget)
+        val restMaandBudget = BigDecimal(0)
+        val openingsSaldo = if (RekeningGroep.balansRekeningGroepSoort.contains(this.rekening.rekeningGroep.rekeningGroepSoort)) {
+            this.openingsSaldo
+        } else {
+            -this.openingsSaldo
+        }
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
@@ -88,11 +91,10 @@ class Saldo(
             this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
             this.rekening.sortOrder,
-            this.openingsSaldo,
+            openingsSaldo,
             this.achterstand,
             this.budgetMaandBedrag,
             this.budgetBetaling,
-//            periode,
             achterstandNu,
             budgetPeilDatum,
             budgetOpPeilDatum,
@@ -104,40 +106,6 @@ class Saldo(
         )
     }
 
-    fun toResultaatDTO(
-//        periode: Periode? = this.periode,
-        achterstandNu: BigDecimal? = null,
-        budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
-        budgetPeilDatum: String? = null,
-        budgetOpPeilDatum: BigDecimal? = null,
-        betaaldBinnenBudget: BigDecimal? = null,
-        minderDanBudget: BigDecimal? = null,
-        meerDanBudget: BigDecimal? = null,
-        meerDanMaandBudget: BigDecimal? = null,
-        restMaandBudget: BigDecimal? = null,
-    ): SaldoDTO {
-        return SaldoDTO(
-            this.id,
-            this.rekening.rekeningGroep.naam,
-            this.rekening.rekeningGroep.rekeningGroepSoort,
-            this.rekening.rekeningGroep.budgetType,
-            this.rekening.naam,
-            this.rekening.sortOrder,
-            -this.openingsSaldo,
-            this.achterstand,
-            budgetMaandBedrag,
-            this.budgetBetaling,
-//            periode,
-            achterstandNu,
-            budgetPeilDatum,
-            budgetOpPeilDatum,
-            betaaldBinnenBudget,
-            minderDanBudget,
-            meerDanBudget,
-            meerDanMaandBudget,
-            restMaandBudget,
-        )
-    }
     data class ResultaatSamenvattingOpDatumDTO(
         val percentagePeriodeVoorbij: Long,
         val budgetMaandInkomstenBedrag: BigDecimal,

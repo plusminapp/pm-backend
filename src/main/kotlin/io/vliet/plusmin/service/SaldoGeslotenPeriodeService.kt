@@ -77,17 +77,8 @@ class SaldoGeslotenPeriodeService {
         return saldi
             .filter { RekeningGroep.balansRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .map {
-                val meerDanMaandBudget =  BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag)
-                it.toBalansDTO(
-                achterstandNu = it.achterstand,
-                budgetPeilDatum = periode.periodeEindDatum.toString(),
-                budgetOpPeilDatum = it.budgetMaandBedrag.abs(),
-                betaaldBinnenBudget = it.budgetBetaling.abs().min(it.budgetMaandBedrag),
-                minderDanBudget = BigDecimal(0).max(it.budgetMaandBedrag.minus(it.budgetBetaling.abs())),
-                meerDanBudget = BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag - meerDanMaandBudget),
-                meerDanMaandBudget = meerDanMaandBudget,
-                restMaandBudget = BigDecimal(0)
-            ) }
+                it.toDTO()
+            }
     }
 
     fun getMutaties(periode: Periode): List<Saldo.SaldoDTO> {
@@ -95,17 +86,7 @@ class SaldoGeslotenPeriodeService {
         return saldi
 //            .filter { RekeningGroep.resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .map {
-                val meerDanMaandBudget =  BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag)
-                it.toResultaatDTO(
-                    achterstandNu = it.achterstand,
-                    budgetPeilDatum = periode.periodeEindDatum.toString(),
-                    budgetOpPeilDatum = it.budgetMaandBedrag,
-                    betaaldBinnenBudget = it.budgetBetaling.abs().min(it.budgetMaandBedrag),
-                    minderDanBudget = BigDecimal(0).max(it.budgetMaandBedrag.minus(it.budgetBetaling.abs())),
-                    meerDanBudget = BigDecimal(0).max(it.budgetBetaling.abs() - it.budgetMaandBedrag - meerDanMaandBudget),
-                    meerDanMaandBudget = meerDanMaandBudget,
-                    restMaandBudget = BigDecimal(0)
-                )
+                it.toDTO()
             }
     }
 
@@ -121,7 +102,6 @@ class SaldoGeslotenPeriodeService {
             achterstandNu = saldoDTO1.achterstandNu?.plus(saldoDTO2.achterstandNu ?: BigDecimal(0)),
             budgetMaandBedrag = saldoDTO1.budgetMaandBedrag.plus(saldoDTO2.budgetMaandBedrag),
             budgetBetaling = saldoDTO1.budgetBetaling.plus(saldoDTO2.budgetBetaling),
-//            periode = saldoDTO1.periode,
             budgetPeilDatum = saldoDTO1.budgetPeilDatum ?: saldoDTO2.budgetPeilDatum,
             budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal(0)),
             betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal(0)),

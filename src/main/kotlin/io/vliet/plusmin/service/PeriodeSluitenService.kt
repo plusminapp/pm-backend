@@ -2,6 +2,8 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
+import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -16,6 +18,9 @@ import org.springframework.stereotype.Service
 class PeriodeSluitenService {
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
+
+    @Autowired
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
@@ -61,13 +66,14 @@ class PeriodeSluitenService {
 
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val  periode = checkPeriodeSluiten(gebruiker, periodeId)
-        val openingsBalans = saldoService.getOpeningSaldi(periode)
-            .map { saldo ->
-                if (RekeningGroep.balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
-                    saldo.toBalansDTO()
-                else
-                    saldo.toResultaatDTO()
-            }
+        val openingsPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val openingsBalans = saldoService.berekenBalansSaldiBijOpening(
+            openingPeriode = openingsPeriode,
+            periode = periode,
+            gebruiker = gebruiker
+        )
+            .map { saldo -> saldo.toDTO() }
+        logger.info("voorstelPeriodeSluiten: ${openingsBalans.joinToString { it.rekeningNaam + ": " + it.openingsSaldo }}")
         return  saldoResultaatService
             .berekenSaldoResultaatOpDatum(gebruiker, periode.periodeEindDatum, openingsBalans)
     }
@@ -81,8 +87,8 @@ class PeriodeSluitenService {
         if (index <= 0) {
             throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten of bestaat niet voor gebruiker ${gebruiker.bijnaam}")
         }
-        if (periodeLijst[index - 1].periodeStatus != Periode.PeriodeStatus.GESLOTEN) {
-            throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten, de vorige periode is niet gesloten voor gebruiker ${gebruiker.bijnaam}")
+        if (openPeriodes.contains(periodeLijst[index - 1].periodeStatus)) {
+            throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten, de vorige periode ${periodeLijst[index - 1].id} is niet gesloten voor gebruiker ${gebruiker.bijnaam}")
         }
         if (periodeLijst[index].periodeStatus != Periode.PeriodeStatus.OPEN)
             throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten, de periode is niet open voor gebruiker ${gebruiker.bijnaam}")

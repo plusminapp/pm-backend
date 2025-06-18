@@ -1,7 +1,6 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -54,33 +53,44 @@ class SaldoResultaatService {
                 ) // negatief voor uitgaven, positief voor inkomsten
                 val saldo = openingsBalans
                     .find { it.rekeningNaam == rekening.naam }
-                val isRekeningVasteLastOfAflossing = rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN &&
-                        rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST ||
-                        rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
-                val dagInPeriode = if (rekening.budgetBetaalDag != null) periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, gekozenPeriode) else null
+                val isRekeningVasteLastOfAflossing =
+                    rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN &&
+                            rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST ||
+                            rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
+                val dagInPeriode = if (rekening.budgetBetaalDag != null) periodeService.berekenDagInPeriode(
+                    rekening.budgetBetaalDag,
+                    gekozenPeriode
+                ) else null
                 val wordtDezeMaandBetalingVerwacht =
                     rekening.maanden.isNullOrEmpty() || rekening.maanden!!.contains(dagInPeriode?.monthValue)
                 val isBedragBinnenVariabiliteit = if (rekening.budgetBedrag == null) true else {
                     budgetBetaling.abs() <= rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
-                        BigDecimal(100 + (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
+                        BigDecimal(
+                            100 + (rekening.budgetVariabiliteit ?: 0)
+                        ).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
                     ) &&
                             budgetBetaling.abs() >= rekening.toDTO(gekozenPeriode).budgetMaandBedrag?.times(
-                                BigDecimal(100 - (rekening.budgetVariabiliteit ?: 0)).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
-                            )}
+                        BigDecimal(
+                            100 - (rekening.budgetVariabiliteit ?: 0)
+                        ).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
+                    )
+                }
                 // VasteLastenRekening is Betaald als de rekening een vaste lasten rekening is, en óf geen betaling wordt verwacht, óf de betaling binnen de budgetVariabiliteit valt
-                val isVasteLastenRekeningBetaald = isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || isBedragBinnenVariabiliteit)
+                val isVasteLastenRekeningBetaald =
+                    isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || isBedragBinnenVariabiliteit)
 
-                val budgetMaandBedrag = berekenBudgetMaandBedrag(rekening, gekozenPeriode)
-                val budgetOpPeilDatum = if (!wordtDezeMaandBetalingVerwacht) BigDecimal(0)
-                    else berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
+                val budgetMaandBedrag = if (rekening.budgetBedrag == null) BigDecimal(0)
+                else berekenBudgetMaandBedrag(rekening, gekozenPeriode)
+                val budgetOpPeilDatum = if (rekening.budgetBedrag == null || !wordtDezeMaandBetalingVerwacht) BigDecimal(0)
+                else berekenBudgetOpPeildatum(rekening, gekozenPeriode, peilDatum) ?: BigDecimal(0)
                 val meerDanMaandBudget =
-                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                    if (rekening.budgetBedrag == null || isVasteLastenRekeningBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling.abs() - budgetMaandBedrag)
                 val minderDanBudget =
-                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                    if (rekening.budgetBedrag == null || isVasteLastenRekeningBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetOpPeilDatum.minus(budgetBetaling.abs()))
                 val meerDanBudget =
-                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                    if (rekening.budgetBedrag == null || isVasteLastenRekeningBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling.abs() - budgetOpPeilDatum - meerDanMaandBudget)
                 Saldo.SaldoDTO(
                     0,
@@ -92,10 +102,9 @@ class SaldoResultaatService {
                     saldo?.openingsSaldo ?: BigDecimal(0),
                     achterstand = saldo?.achterstand ?: BigDecimal(0),
                     // TODO: achterstandNu berekenen obv aflossing moet wel/niet betaald zijn
-                    achterstandNu =
-                        ((saldo?.achterstand ?: BigDecimal(0)) + budgetOpPeilDatum + budgetBetaling).max(
-                            BigDecimal(0)
-                        ),
+                    achterstandNu = if (rekening.budgetBedrag == null) BigDecimal(0)
+                    else ((saldo?.achterstand ?: BigDecimal(0)) + budgetOpPeilDatum + budgetBetaling)
+                        .max(BigDecimal(0)),
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetPeilDatum = peilDatum.toString(),
                     budgetBetaling = budgetBetaling,
@@ -105,8 +114,8 @@ class SaldoResultaatService {
                     meerDanBudget = meerDanBudget,
                     meerDanMaandBudget = meerDanMaandBudget,
                     restMaandBudget =
-                        if (isVasteLastenRekeningBetaald) BigDecimal(0)
-                        else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
+                    if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                    else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
                 )
             }
     }
@@ -118,8 +127,11 @@ class SaldoResultaatService {
             periode.periodeEindDatum
         )
         val filteredBetalingen = betalingen.filter { it.bron.id == rekening.id || it.bestemming.id == rekening.id }
+        val factor =
+            if (RekeningGroep.betaalMethodeRekeningGroepSoort.contains(rekening.rekeningGroep.rekeningGroepSoort))
+                BigDecimal(-1) else BigDecimal(1)
         val bedrag =
-            filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == rekening.id) acc + betaling.bedrag else acc - betaling.bedrag }
+            filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == rekening.id) acc + factor * betaling.bedrag else acc - factor * betaling.bedrag }
         logger.info("Betaling voor rekening ${rekening.naam} in periode ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}: $bedrag met filteredBetalingen: ${filteredBetalingen.size}")
         return bedrag
     }
@@ -234,9 +246,9 @@ class SaldoResultaatService {
         return Saldo.ResultaatSamenvattingOpDatumDTO(
             percentagePeriodeVoorbij = percentagePeriodeVoorbij,
             budgetMaandInkomstenBedrag =
-                if (isPeriodeVoorbij)
-                    werkelijkeMaandInkomsten
-                else budgetMaandInkomsten.max(werkelijkeMaandInkomsten),
+            if (isPeriodeVoorbij)
+                werkelijkeMaandInkomsten
+            else budgetMaandInkomsten.max(werkelijkeMaandInkomsten),
             besteedTotPeilDatum = besteedTotPeilDatum,
             nogNodigNaPeilDatum = nogNodigNaPeilDatum,
             actueleBuffer = actueleBuffer
