@@ -79,7 +79,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         gebruiker: Gebruiker,
         boekingsdatum: LocalDate,
         bedrag: BigDecimal,
-        ): List<Betaling>
+    ): List<Betaling>
 
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
@@ -100,4 +100,10 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "b.boekingsdatum = :datum"
     )
     fun findLaatsteSortOrder(gebruiker: Gebruiker, datum: LocalDate): String?
+
+    @Modifying
+    @Query(
+        value = "DELETE FROM Betaling b WHERE b.gebruiker = :gebruiker AND b.boekingsdatum <= :datum"
+    )
+    fun deleteAllByGebruikerTotEnMetDatum(gebruiker: Gebruiker, datum: LocalDate)
 }

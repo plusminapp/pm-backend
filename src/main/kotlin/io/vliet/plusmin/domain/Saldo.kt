@@ -90,7 +90,7 @@ class Saldo(
             this.rekening.rekeningGroep.rekeningGroepSoort,
             this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
-            this.rekening.sortOrder,
+            1000 * this.rekening.rekeningGroep.sortOrder + this.rekening.sortOrder,
             openingsSaldo,
             this.achterstand,
             this.budgetMaandBedrag,

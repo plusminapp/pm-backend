@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -51,7 +52,7 @@ class PeriodeController {
     }
 
     @Operation(summary = "PUT sluit een periode voor hulpvrager")
-    @PutMapping("/hulpvrager/{hulpvragerId}/sluit/{periodeId}")
+    @PutMapping("/hulpvrager/{hulpvragerId}/sluiten/{periodeId}")
     fun sluitPeriodeVoorHulpvrager(
         @Valid @RequestBody saldoLijst: List<Saldo.SaldoDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
@@ -59,6 +60,26 @@ class PeriodeController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET PeriodeController.sluitPeriodesVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         return ResponseEntity.ok().body(periodeSluitenService.sluitPeriode(hulpvrager, periodeId, saldoLijst))
+    }
+
+    @Operation(summary = "POST ruim een periode op (verwijder de betalingen) voor hulpvrager")
+    @PostMapping("/hulpvrager/{hulpvragerId}/opruimen/{periodeId}")
+    fun ruimPeriodeOpVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET PeriodeController.ruimPeriodeOpVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
+        val periode = periodeRepository.getPeriodeById(periodeId)
+        if (periode == null) {
+            return ResponseEntity.badRequest().body("Periode met id $periodeId bestaat niet.")
+        }
+        try {
+            periodeSluitenService.ruimPeriodeOp(hulpvrager, periode)
+        } catch (e: Exception) {
+            logger.error("Fout bij opruimen van periode $periodeId voor hulpvrager ${hulpvrager.email}: ${e.message}")
+            return ResponseEntity.badRequest().body("Fout bij opruimen van periode: ${e.message}")
+        }
+        return ResponseEntity.ok().body("Periode $periodeId voor hulpvrager ${hulpvrager.email} is succesvol opgeruimd.")
     }
 
     @Operation(summary = "GET voorstel voor het sluiten van een periode voor hulpvrager")

@@ -117,8 +117,8 @@ class BetalingService {
             .filter { betaling: Betaling ->
                 val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
                 periode != null &&
-                        (!rekeningService.rekeningIsGeldigInPeriode(betaling.bron, periode) ||
-                                !rekeningService.rekeningIsGeldigInPeriode(betaling.bestemming, periode))
+                        (!betaling.bron.rekeningIsGeldigInPeriode(periode) ||
+                                !betaling.bestemming.rekeningIsGeldigInPeriode(periode))
             }
         return betalingenLijst
     }

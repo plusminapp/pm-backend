@@ -178,12 +178,6 @@ class RekeningService {
         return rekening
     }
 
-    fun rekeningIsGeldigInPeriode(rekening: Rekening, periode: Periode): Boolean {
-        return (rekening.vanPeriode == null || periode.periodeStartDatum >= rekening.vanPeriode.periodeStartDatum) &&
-                (rekening.totEnMetPeriode == null || periode.periodeEindDatum <= rekening.totEnMetPeriode.periodeEindDatum)
-    }
-
-
     fun findRekeningGroepenMetGeldigeRekeningen(
         gebruiker: Gebruiker,
         periode: Periode
@@ -192,7 +186,7 @@ class RekeningService {
         return rekeningGroepenLijst.map { rekeningGroep ->
             rekeningGroep.fullCopy(
                 rekeningen = rekeningGroep.rekeningen
-                    .filter { rekeningIsGeldigInPeriode(it, periode) }
+                    .filter { it.rekeningIsGeldigInPeriode( periode) }
                     .sortedBy { it.sortOrder }
             ).toDTO(periode)
         }.filter { it.rekeningen.isNotEmpty() }

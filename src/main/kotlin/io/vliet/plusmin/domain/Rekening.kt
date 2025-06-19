@@ -195,4 +195,8 @@ class Rekening(
             this.aflossing?.toDTO()
         )
     }
+    fun rekeningIsGeldigInPeriode(periode: Periode): Boolean {
+        return (this.vanPeriode == null || periode.periodeStartDatum >= this.vanPeriode.periodeStartDatum) &&
+                (this.totEnMetPeriode == null || periode.periodeEindDatum <= this.totEnMetPeriode.periodeEindDatum)
+    }
 }
