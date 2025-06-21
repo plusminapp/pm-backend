@@ -5,10 +5,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity
-@Table(
-    name = "aflossing",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
-)
+@Table(name = "aflossing")
 class Aflossing(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -55,7 +52,7 @@ class Aflossing(
             dossierNummer: String = this.dossierNummer,
             notities: String = this.notities,
 
-        ): AflossingDTO = AflossingDTO(
+            ): AflossingDTO = AflossingDTO(
             this.id,
             startDatum,
             eindDatum,

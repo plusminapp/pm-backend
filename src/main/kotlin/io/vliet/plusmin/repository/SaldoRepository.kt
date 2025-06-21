@@ -5,6 +5,7 @@ import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Saldo
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.util.*
@@ -14,6 +15,8 @@ interface SaldoRepository : JpaRepository<Saldo, Long> {
     fun findAllByPeriode(periode: Periode): List<Saldo>
     fun findOneByPeriodeAndRekening(periode: Periode, rekening: Rekening): Saldo?
     fun deleteByRekening(rekening: Rekening)
+    @Modifying
+    fun deleteByPeriode(periode: Periode)
 
     @Query(value =
             "SELECT s.* FROM saldo s " +

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "betaling",
-    uniqueConstraints = [jakarta.persistence.UniqueConstraint(columnNames = ["gebruiker", "sortOrder"])]
+    uniqueConstraints = [jakarta.persistence.UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
 )
 class Betaling(
     @Id

@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "periode",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "periodeStartDatum"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "periodeStartDatum"])]
 )
 class Periode(
     @Id

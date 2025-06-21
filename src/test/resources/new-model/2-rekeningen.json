@@ -47,6 +47,32 @@
     ]
   },
   {
+    "naam": "Aflossing",
+    "rekeningGroepSoort": "AFLOSSING",
+    "sortOrder": 500,
+    "rekeningen": [
+      {
+        "naam": "Demo aflossing",
+        "sortOrder": 500,
+        "saldo": 10200,
+        "budgetBedrag": 100,
+        "budgetBetaalDag": 3,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ],
+        "aflossing": {
+          "startDatum": "2024-01-01",
+          "eindDatum": "string",
+          "eindBedrag": 12000,
+          "dossierNummer": "dossiernummer",
+          "notities": "notities"
+        }
+      }
+    ]
+  },
+  {
     "naam": "Inkomsten",
     "rekeningGroepSoort": "INKOMSTEN",
     "rekeningGroepIcoonNaam": "inkomsten",
@@ -221,7 +247,18 @@
         "budgetBedrag": 31.49,
         "budgetBetaalDag": 28,
         "budgetVariabiliteit": 1,
-        "maanden": [1,2,3,4,5,8,9,10,11,12],
+        "maanden": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
@@ -245,7 +282,18 @@
         "budgetBedrag": 74.70,
         "budgetBetaalDag": 26,
         "budgetVariabiliteit": 1,
-        "maanden": [3,4,5,6,7,8,9,10,11,12],
+        "maanden": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"

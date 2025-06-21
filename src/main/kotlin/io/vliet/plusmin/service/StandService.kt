@@ -121,7 +121,7 @@ class StandService {
         peilDatum: LocalDate,
         saldi: List<Saldo.SaldoDTO>,
     ): Saldo.ResultaatSamenvattingOpDatumDTO {
-        logger.info("berekenRekeningSamenvatting ${saldi.joinToString { it.toString() }}")
+//        logger.info("berekenRekeningSamenvatting ${saldi.joinToString { it.toString() }}")
         val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val periodeVoorbij = peilDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val percentagePeriodeVoorbij = 100 * periodeVoorbij / periodeLengte

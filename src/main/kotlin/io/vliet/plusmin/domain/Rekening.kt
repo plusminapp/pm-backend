@@ -8,7 +8,7 @@ import java.math.BigDecimal
 @Entity
 @Table(
     name = "rekening",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["rekeningGroep_id","naam"])]
 )
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Rekening(

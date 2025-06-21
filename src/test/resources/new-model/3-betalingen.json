@@ -2509,5 +2509,59 @@
     "sortOrder": "20250610.900",
     "bron": "ASN betaalrekening",
     "bestemming": "Andere uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-06-12",
+    "bedrag": "44.65",
+    "omschrijving": "Jumbo",
+    "betalingsSoort": "UITGAVEN",
+    "sortOrder": "20250612.900",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "2025-06-16",
+    "bedrag": "12.76",
+    "omschrijving": "Albert Heijn",
+    "betalingsSoort": "UITGAVEN",
+    "sortOrder": "20250616.900",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "2025-06-17",
+    "bedrag": "13.66",
+    "omschrijving": "DEKAMARKT",
+    "betalingsSoort": "UITGAVEN",
+    "sortOrder": "20250617.900",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "2025-06-19",
+    "bedrag": "20.07",
+    "omschrijving": "Jumbo",
+    "betalingsSoort": "UITGAVEN",
+    "sortOrder": "20250619.900",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "2025-06-19",
+    "bedrag": "3.00",
+    "omschrijving": "Wijnese Veer met Tijn",
+    "betalingsSoort": "UITGAVEN",
+    "sortOrder": "20250619.890",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Andere uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-06-20",
+    "bedrag": "1000.00",
+    "omschrijving": "storten overschot",
+    "betalingsSoort": "STORTEN_SPAARREKENING",
+    "sortOrder": "20250620.900",
+    "bron": "ASN betaalrekening",
+    "bestemming": "ASN spaarrekening"
   }
 ]

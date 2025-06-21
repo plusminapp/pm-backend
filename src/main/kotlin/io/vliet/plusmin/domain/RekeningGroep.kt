@@ -7,7 +7,7 @@ import jakarta.persistence.*
 @Entity
 @Table(
     name = "rekening_groep",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "naam"])]
 )
 @JsonInclude( JsonInclude.Include.NON_EMPTY)
 class RekeningGroep(
