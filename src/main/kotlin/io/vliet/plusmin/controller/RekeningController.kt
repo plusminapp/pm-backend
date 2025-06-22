@@ -3,6 +3,7 @@ package io.vliet.plusmin.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.PeriodeRepository
+import io.vliet.plusmin.repository.RekeningGroepRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.service.RekeningService
 import org.slf4j.Logger
@@ -17,6 +18,9 @@ import kotlin.jvm.optionals.getOrElse
 class RekeningController {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
+
+    @Autowired
+    lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
     lateinit var rekeningService: RekeningService
@@ -35,7 +39,7 @@ class RekeningController {
     fun findRekeningGroepen(): List<RekeningGroep> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         logger.info("GET RekeningController.findRekeningen() voor gebruiker ${gebruiker.email}.")
-        return rekeningRepository.findRekeningGroepenVoorGebruiker(gebruiker)
+        return rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
     }
 
     @Operation(summary = "GET de geldige rekeningen in een periode")

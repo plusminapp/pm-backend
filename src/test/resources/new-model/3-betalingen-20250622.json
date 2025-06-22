@@ -1,0 +1,2885 @@
+{
+  "data": {
+    "content": [
+      {
+        "id": 902,
+        "boekingsdatum": "2025-01-22",
+        "bedrag": "5.00",
+        "omschrijving": "Signal",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250122.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 903,
+        "boekingsdatum": "2025-01-22",
+        "bedrag": "27.95",
+        "omschrijving": "Rohloff olie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250122.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 901,
+        "boekingsdatum": "2025-01-22",
+        "bedrag": "50.00",
+        "omschrijving": "OV chipkaart",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250122.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 905,
+        "boekingsdatum": "2025-01-23",
+        "bedrag": "1214.77",
+        "omschrijving": "Ruud's AOW",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250123.890",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 904,
+        "boekingsdatum": "2025-01-23",
+        "bedrag": "40.00",
+        "omschrijving": "ORSB nieuwe telefoon Bree",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250123.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 907,
+        "boekingsdatum": "2025-01-23",
+        "bedrag": "22.31",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250123.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 906,
+        "boekingsdatum": "2025-01-23",
+        "bedrag": "1591.23",
+        "omschrijving": "ASR pensioen",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250123.880",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 908,
+        "boekingsdatum": "2025-01-25",
+        "bedrag": "3.20",
+        "omschrijving": "Bankkosten",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250125.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 911,
+        "boekingsdatum": "2025-01-27",
+        "bedrag": "45.00",
+        "omschrijving": "Odido Internet",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250127.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Odido"
+      },
+      {
+        "id": 909,
+        "boekingsdatum": "2025-01-27",
+        "bedrag": "31.50",
+        "omschrijving": "GBLT",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250127.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GBLT"
+      },
+      {
+        "id": 912,
+        "boekingsdatum": "2025-01-27",
+        "bedrag": "5.00",
+        "omschrijving": "Fietsersbond",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250127.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 910,
+        "boekingsdatum": "2025-01-27",
+        "bedrag": "8.00",
+        "omschrijving": "Simyo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250127.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 913,
+        "boekingsdatum": "2025-01-28",
+        "bedrag": "8.00",
+        "omschrijving": "Vitens",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250128.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Vitens"
+      },
+      {
+        "id": 916,
+        "boekingsdatum": "2025-01-28",
+        "bedrag": "8.98",
+        "omschrijving": "Energiewacht",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250128.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Energiewacht"
+      },
+      {
+        "id": 915,
+        "boekingsdatum": "2025-01-28",
+        "bedrag": "60.00",
+        "omschrijving": "ETT-Twello",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250128.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 914,
+        "boekingsdatum": "2025-01-28",
+        "bedrag": "25.00",
+        "omschrijving": "GroenLinks",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250128.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GroenLinks Contributies"
+      },
+      {
+        "id": 917,
+        "boekingsdatum": "2025-01-29",
+        "bedrag": "4.97",
+        "omschrijving": "Kruidvat met Jeroen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250129.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 918,
+        "boekingsdatum": "2025-01-29",
+        "bedrag": "60.00",
+        "omschrijving": "Fletcher Uden diner",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250129.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 919,
+        "boekingsdatum": "2025-01-30",
+        "bedrag": "895.23",
+        "omschrijving": "Hypotheek",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250130.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Hypotheek"
+      },
+      {
+        "id": 920,
+        "boekingsdatum": "2025-01-30",
+        "bedrag": "36.90",
+        "omschrijving": "Lunch met Jeroen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250130.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 922,
+        "boekingsdatum": "2025-01-31",
+        "bedrag": "133.98",
+        "omschrijving": "vliet.io domein + hosting",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250131.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 921,
+        "boekingsdatum": "2025-01-31",
+        "bedrag": "8.68",
+        "omschrijving": "Spar Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250131.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 924,
+        "boekingsdatum": "2025-02-01",
+        "bedrag": "17.30",
+        "omschrijving": "Koffie met taart Jeroen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250201.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 923,
+        "boekingsdatum": "2025-02-01",
+        "bedrag": "40.50",
+        "omschrijving": "Fletcher Uden Veghel diner met Jeroen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250201.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 929,
+        "boekingsdatum": "2025-02-03",
+        "bedrag": "1.00",
+        "omschrijving": "Broodjes voor de lunch, bedankt",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250203.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 926,
+        "boekingsdatum": "2025-02-03",
+        "bedrag": "26.22",
+        "omschrijving": "Verzekeringen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250203.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Schadeverzekeringen"
+      },
+      {
+        "id": 927,
+        "boekingsdatum": "2025-02-03",
+        "bedrag": "685.02",
+        "omschrijving": "Philips Pensioen",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250203.880",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 928,
+        "boekingsdatum": "2025-02-03",
+        "bedrag": "276.98",
+        "omschrijving": "Brand New Day",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250203.870",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 925,
+        "boekingsdatum": "2025-02-03",
+        "bedrag": "187.50",
+        "omschrijving": "Ziektekosten verzekering",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250203.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Ziektekosten"
+      },
+      {
+        "id": 932,
+        "boekingsdatum": "2025-02-04",
+        "bedrag": "47.95",
+        "omschrijving": "Scheerspiegel",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250204.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 934,
+        "boekingsdatum": "2025-02-04",
+        "bedrag": "194.07",
+        "omschrijving": "VvE-bijdrage",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250204.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "VvE"
+      },
+      {
+        "id": 930,
+        "boekingsdatum": "2025-02-04",
+        "bedrag": "36.45",
+        "omschrijving": "Plein.NL ragers",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250204.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 931,
+        "boekingsdatum": "2025-02-04",
+        "bedrag": "54.95",
+        "omschrijving": "Garmin watch",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250204.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 933,
+        "boekingsdatum": "2025-02-04",
+        "bedrag": "63.89",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250204.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 935,
+        "boekingsdatum": "2025-02-05",
+        "bedrag": "39.95",
+        "omschrijving": "Climber Cartoon Lamp",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250205.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 936,
+        "boekingsdatum": "2025-02-06",
+        "bedrag": "75.00",
+        "omschrijving": "Greenchoice",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250206.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Greenchoice"
+      },
+      {
+        "id": 937,
+        "boekingsdatum": "2025-02-06",
+        "bedrag": "4.33",
+        "omschrijving": "Utube Jelle",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250206.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 938,
+        "boekingsdatum": "2025-02-06",
+        "bedrag": "1.00",
+        "omschrijving": "Tijn Broodjes, dank je wel",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250206.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 939,
+        "boekingsdatum": "2025-02-09",
+        "bedrag": "33.17",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250209.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 940,
+        "boekingsdatum": "2025-02-10",
+        "bedrag": "4.65",
+        "omschrijving": "NS OV-fiets",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250210.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 941,
+        "boekingsdatum": "2025-02-13",
+        "bedrag": "47.42",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250213.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 942,
+        "boekingsdatum": "2025-02-15",
+        "bedrag": "54.95",
+        "omschrijving": "WW lampje voor de hal",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250215.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 943,
+        "boekingsdatum": "2025-02-16",
+        "bedrag": "24.18",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250216.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 944,
+        "boekingsdatum": "2025-02-18",
+        "bedrag": "20.23",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250218.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 945,
+        "boekingsdatum": "2025-02-19",
+        "bedrag": "10.40",
+        "omschrijving": "De Voordeelmarkt plamuur",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250219.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 521,
+        "boekingsdatum": "2025-02-20",
+        "bedrag": "43.83",
+        "omschrijving": "bol.com",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250220.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 523,
+        "boekingsdatum": "2025-02-21",
+        "bedrag": "1591.23",
+        "omschrijving": "ASR BETCENTR",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250221.860",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 524,
+        "boekingsdatum": "2025-02-21",
+        "bedrag": "2000.00",
+        "omschrijving": "ASN Ideaalsparen",
+        "betalingsSoort": "STORTEN_SPAARREKENING",
+        "sortOrder": "20250221.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 522,
+        "boekingsdatum": "2025-02-21",
+        "bedrag": "45.29",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250221.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 525,
+        "boekingsdatum": "2025-02-23",
+        "bedrag": "15.15",
+        "omschrijving": "Eethuis Halte Assel met Jeroen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250223.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 526,
+        "boekingsdatum": "2025-02-24",
+        "bedrag": "46.44",
+        "omschrijving": "ODIDO NETHERLANDS B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250224.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Odido"
+      },
+      {
+        "id": 527,
+        "boekingsdatum": "2025-02-24",
+        "bedrag": "1214.77",
+        "omschrijving": "AOW",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250224.840",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 530,
+        "boekingsdatum": "2025-02-24",
+        "bedrag": "1.49",
+        "omschrijving": "Nietmachine",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250224.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 529,
+        "boekingsdatum": "2025-02-24",
+        "bedrag": "-7.20",
+        "omschrijving": "Jeroen retour",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250224.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 528,
+        "boekingsdatum": "2025-02-24",
+        "bedrag": "5.00",
+        "omschrijving": "Signal",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250224.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 531,
+        "boekingsdatum": "2025-02-25",
+        "bedrag": "18.25",
+        "omschrijving": "Kaldi met Hans",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250225.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 532,
+        "boekingsdatum": "2025-02-25",
+        "bedrag": "-3.75",
+        "omschrijving": "Hans Kaldi retour",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250225.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 533,
+        "boekingsdatum": "2025-02-25",
+        "bedrag": "8.69",
+        "omschrijving": "SIMYO",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250225.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 534,
+        "boekingsdatum": "2025-02-25",
+        "bedrag": "3.20",
+        "omschrijving": "Kosten gebruik betaalrekening inclusief...",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250225.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 535,
+        "boekingsdatum": "2025-02-25",
+        "bedrag": "8.00",
+        "omschrijving": "VITENS NV",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250225.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Vitens"
+      },
+      {
+        "id": 536,
+        "boekingsdatum": "2025-02-26",
+        "bedrag": "31.50",
+        "omschrijving": "GBLT",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250226.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GBLT"
+      },
+      {
+        "id": 537,
+        "boekingsdatum": "2025-02-26",
+        "bedrag": "11.69",
+        "omschrijving": "Kruidvat..",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250226.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 538,
+        "boekingsdatum": "2025-02-26",
+        "bedrag": "50.50",
+        "omschrijving": "Jumbo .",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250226.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 540,
+        "boekingsdatum": "2025-02-27",
+        "bedrag": "894.95",
+        "omschrijving": "ASR LEVVERZ",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250227.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Hypotheek"
+      },
+      {
+        "id": 539,
+        "boekingsdatum": "2025-02-27",
+        "bedrag": "5.00",
+        "omschrijving": "FIETSERSBOND",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250227.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 543,
+        "boekingsdatum": "2025-02-28",
+        "bedrag": "60.00",
+        "omschrijving": "Amnesty International",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250228.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 541,
+        "boekingsdatum": "2025-02-28",
+        "bedrag": "47.42",
+        "omschrijving": "Jumbo n3rd5",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250228.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 542,
+        "boekingsdatum": "2025-02-28",
+        "bedrag": "8.98",
+        "omschrijving": "Energiewacht Groep",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250228.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Energiewacht"
+      },
+      {
+        "id": 544,
+        "boekingsdatum": "2025-02-28",
+        "bedrag": "25.00",
+        "omschrijving": "GroenLinks Contributies",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250228.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GroenLinks Contributies"
+      },
+      {
+        "id": 545,
+        "boekingsdatum": "2025-03-01",
+        "bedrag": "306.00",
+        "omschrijving": "M.L. Leistikow",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250301.880",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 546,
+        "boekingsdatum": "2025-03-01",
+        "bedrag": "20.30",
+        "omschrijving": "ALBERT HEIJN n3rd5",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250301.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 549,
+        "boekingsdatum": "2025-03-02",
+        "bedrag": "-27.90",
+        "omschrijving": "Terug van Hans spiegeltje",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250302.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 550,
+        "boekingsdatum": "2025-03-02",
+        "bedrag": "-55.90",
+        "omschrijving": "Terug van Cees spiegeltje & CO2",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250302.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 548,
+        "boekingsdatum": "2025-03-02",
+        "bedrag": "97.75",
+        "omschrijving": "Mantel spiegeltjes & CO2",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250302.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 547,
+        "boekingsdatum": "2025-03-02",
+        "bedrag": "12.80",
+        "omschrijving": "ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250302.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 556,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "685.02",
+        "omschrijving": "Stichting Philips Pensio",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250303.780",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 557,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "276.98",
+        "omschrijving": "Brand New Day",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250303.770",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 551,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "26.22",
+        "omschrijving": "ASR SCHADEVERZEKERING",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250303.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Schadeverzekeringen"
+      },
+      {
+        "id": 552,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "20.48",
+        "omschrijving": "Jumbo .",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250303.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 553,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "108.00",
+        "omschrijving": "Eten met Rolf",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250303.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 554,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "-54.00",
+        "omschrijving": "Terugontvangen van Rolf",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250303.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 555,
+        "boekingsdatum": "2025-03-03",
+        "bedrag": "187.50",
+        "omschrijving": "ASR ZIEKTEKOSTEN",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250303.790",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Ziektekosten"
+      },
+      {
+        "id": 558,
+        "boekingsdatum": "2025-03-04",
+        "bedrag": "28.00",
+        "omschrijving": "NVVE, NL Vereniging voor eenVrijwilli.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250304.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 560,
+        "boekingsdatum": "2025-03-04",
+        "bedrag": "14.99",
+        "omschrijving": "Rakuten Kobo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250304.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 559,
+        "boekingsdatum": "2025-03-04",
+        "bedrag": "29.90",
+        "omschrijving": "bol.com",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250304.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 562,
+        "boekingsdatum": "2025-03-05",
+        "bedrag": "194.07",
+        "omschrijving": "VVE BOXBERGERWEG",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250305.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "VvE"
+      },
+      {
+        "id": 561,
+        "boekingsdatum": "2025-03-05",
+        "bedrag": "20.89",
+        "omschrijving": "Rente over positief saldo tot 01-03-25",
+        "betalingsSoort": "RENTE",
+        "sortOrder": "20250305.880",
+        "bron": "Rente",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 563,
+        "boekingsdatum": "2025-03-06",
+        "bedrag": "4.33",
+        "omschrijving": "J. van Vliet",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250306.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 564,
+        "boekingsdatum": "2025-03-06",
+        "bedrag": "75.00",
+        "omschrijving": "GREENCHOICE",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250306.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Greenchoice"
+      },
+      {
+        "id": 565,
+        "boekingsdatum": "2025-03-07",
+        "bedrag": "50.20",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250307.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 567,
+        "boekingsdatum": "2025-03-08",
+        "bedrag": "24.80",
+        "omschrijving": "Grand Cafe Audreys met Jeroen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250308.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 566,
+        "boekingsdatum": "2025-03-08",
+        "bedrag": "-10.90",
+        "omschrijving": "Teruggave van Jeroen Brummen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250308.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 568,
+        "boekingsdatum": "2025-03-08",
+        "bedrag": "54.71",
+        "omschrijving": "Jumbo ZonFieEters",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250308.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 569,
+        "boekingsdatum": "2025-03-09",
+        "bedrag": "22.50",
+        "omschrijving": "ZonFie koffie & taart",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250309.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 570,
+        "boekingsdatum": "2025-03-10",
+        "bedrag": "-11.50",
+        "omschrijving": "Koffie retour Hans",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250310.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 571,
+        "boekingsdatum": "2025-03-12",
+        "bedrag": "25.95",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250312.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 573,
+        "boekingsdatum": "2025-03-14",
+        "bedrag": "35.00",
+        "omschrijving": "Benzinegeld Driebergen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250314.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 572,
+        "boekingsdatum": "2025-03-14",
+        "bedrag": "33.33",
+        "omschrijving": "Spark etentje",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250314.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 574,
+        "boekingsdatum": "2025-03-15",
+        "bedrag": "39.38",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250315.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 576,
+        "boekingsdatum": "2025-03-16",
+        "bedrag": "20.00",
+        "omschrijving": "ZonFie DALFSEN",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250316.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 575,
+        "boekingsdatum": "2025-03-16",
+        "bedrag": "-10.00",
+        "omschrijving": "Hans Dalfsen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250316.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 578,
+        "boekingsdatum": "2025-03-18",
+        "bedrag": "5.00",
+        "omschrijving": "donatie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250318.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 577,
+        "boekingsdatum": "2025-03-18",
+        "bedrag": "169.00",
+        "omschrijving": "Kado Melanie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250318.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 581,
+        "boekingsdatum": "2025-03-19",
+        "bedrag": "17.40",
+        "omschrijving": "Reis Guido",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250319.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 579,
+        "boekingsdatum": "2025-03-19",
+        "bedrag": "37.27",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250319.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 580,
+        "boekingsdatum": "2025-03-19",
+        "bedrag": "9.90",
+        "omschrijving": "Film stikstof",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250319.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 582,
+        "boekingsdatum": "2025-03-20",
+        "bedrag": "100.00",
+        "omschrijving": "Cadeau Tijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250320.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 584,
+        "boekingsdatum": "2025-03-21",
+        "bedrag": "5.00",
+        "omschrijving": "Donatie Matrix",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250321.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 583,
+        "boekingsdatum": "2025-03-21",
+        "bedrag": "1591.23",
+        "omschrijving": "ASR BETALINGSCENTRUM BV",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250321.870",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 585,
+        "boekingsdatum": "2025-03-21",
+        "bedrag": "-17.40",
+        "omschrijving": "NS teruggave",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250321.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 589,
+        "boekingsdatum": "2025-03-23",
+        "bedrag": "74.90",
+        "omschrijving": "Fiets spullen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250323.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 590,
+        "boekingsdatum": "2025-03-23",
+        "bedrag": "10.00",
+        "omschrijving": "Apple Services/buienradar",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250323.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 587,
+        "boekingsdatum": "2025-03-23",
+        "bedrag": "13.33",
+        "omschrijving": "ZonFie Brummen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250323.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 586,
+        "boekingsdatum": "2025-03-23",
+        "bedrag": "88.50",
+        "omschrijving": "Fietsbanden Santos",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250323.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 588,
+        "boekingsdatum": "2025-03-23",
+        "bedrag": "33.42",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250323.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 593,
+        "boekingsdatum": "2025-03-24",
+        "bedrag": "1214.77",
+        "omschrijving": "Sociale Verzekeringsbank",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250324.850",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 592,
+        "boekingsdatum": "2025-03-24",
+        "bedrag": "1250.00",
+        "omschrijving": "ASN Ideaalsparen",
+        "betalingsSoort": "STORTEN_SPAARREKENING",
+        "sortOrder": "20250324.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 591,
+        "boekingsdatum": "2025-03-24",
+        "bedrag": "-20.00",
+        "omschrijving": "BELASTINGDIENST",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250324.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 595,
+        "boekingsdatum": "2025-03-25",
+        "bedrag": "8.00",
+        "omschrijving": "VITENS NV",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250325.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Vitens"
+      },
+      {
+        "id": 596,
+        "boekingsdatum": "2025-03-25",
+        "bedrag": "2.29",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250325.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 597,
+        "boekingsdatum": "2025-03-25",
+        "bedrag": "238.39",
+        "omschrijving": "ASR ZIEKTEKOSTEN eigen risico",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250325.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 598,
+        "boekingsdatum": "2025-03-25",
+        "bedrag": "3.20",
+        "omschrijving": "Kosten gebruik betaalrekening",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250325.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 594,
+        "boekingsdatum": "2025-03-25",
+        "bedrag": "74.70",
+        "omschrijving": "Reg.BelastingSamenwerking",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250325.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Regionale belasting"
+      },
+      {
+        "id": 601,
+        "boekingsdatum": "2025-03-26",
+        "bedrag": "31.49",
+        "omschrijving": "GBLT",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250326.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GBLT"
+      },
+      {
+        "id": 602,
+        "boekingsdatum": "2025-03-26",
+        "bedrag": "46.44",
+        "omschrijving": "ODIDO NETHERLANDS B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250326.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Odido"
+      },
+      {
+        "id": 599,
+        "boekingsdatum": "2025-03-26",
+        "bedrag": "8.00",
+        "omschrijving": "SIMYO",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250326.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 600,
+        "boekingsdatum": "2025-03-26",
+        "bedrag": "38.40",
+        "omschrijving": "ORSB Jazz",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250326.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 603,
+        "boekingsdatum": "2025-03-27",
+        "bedrag": "39.26",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250327.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 604,
+        "boekingsdatum": "2025-03-27",
+        "bedrag": "690.06",
+        "omschrijving": "Ubiquiti Dream Router",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250327.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 605,
+        "boekingsdatum": "2025-03-27",
+        "bedrag": "5.00",
+        "omschrijving": "FIETSERSBOND",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250327.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 606,
+        "boekingsdatum": "2025-03-28",
+        "bedrag": "8.98",
+        "omschrijving": "Energiewacht B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250328.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Energiewacht"
+      },
+      {
+        "id": 607,
+        "boekingsdatum": "2025-03-28",
+        "bedrag": "894.95",
+        "omschrijving": "Hypotheek",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250328.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Hypotheek"
+      },
+      {
+        "id": 608,
+        "boekingsdatum": "2025-03-28",
+        "bedrag": "8.48",
+        "omschrijving": "Copilot",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250328.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 609,
+        "boekingsdatum": "2025-03-28",
+        "bedrag": "25.00",
+        "omschrijving": "GroenLinks Contributies",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250328.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GroenLinks Contributies"
+      },
+      {
+        "id": 610,
+        "boekingsdatum": "2025-03-29",
+        "bedrag": "9.57",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250329.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 611,
+        "boekingsdatum": "2025-03-30",
+        "bedrag": "-10.70",
+        "omschrijving": "H KONING ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250330.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 612,
+        "boekingsdatum": "2025-03-30",
+        "bedrag": "32.20",
+        "omschrijving": "de Vossenberg ZonFie.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250330.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 613,
+        "boekingsdatum": "2025-03-30",
+        "bedrag": "8.99",
+        "omschrijving": "Netflix.com",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250330.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 614,
+        "boekingsdatum": "2025-03-30",
+        "bedrag": "-10.70",
+        "omschrijving": "ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250330.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 617,
+        "boekingsdatum": "2025-04-01",
+        "bedrag": "306.00",
+        "omschrijving": "M.L. Leistikow",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250401.840",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 615,
+        "boekingsdatum": "2025-04-01",
+        "bedrag": "276.98",
+        "omschrijving": "Brand New Day",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250401.860",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 616,
+        "boekingsdatum": "2025-04-01",
+        "bedrag": "703.82",
+        "omschrijving": "Stichting Philips Pensio",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250401.850",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 618,
+        "boekingsdatum": "2025-04-01",
+        "bedrag": "26.22",
+        "omschrijving": "ASR SCHADEVERZEKERING",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250401.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Schadeverzekeringen"
+      },
+      {
+        "id": 622,
+        "boekingsdatum": "2025-04-02",
+        "bedrag": "187.50",
+        "omschrijving": "ASR ZIEKTEKOSTEN",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250402.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Ziektekosten"
+      },
+      {
+        "id": 621,
+        "boekingsdatum": "2025-04-02",
+        "bedrag": "26.89",
+        "omschrijving": "Jumbo Deventer",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250402.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 619,
+        "boekingsdatum": "2025-04-02",
+        "bedrag": "1.49",
+        "omschrijving": "Vaas",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250402.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 620,
+        "boekingsdatum": "2025-04-02",
+        "bedrag": "3.50",
+        "omschrijving": "Handschoen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250402.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 623,
+        "boekingsdatum": "2025-04-03",
+        "bedrag": "194.07",
+        "omschrijving": "VVE BOXBERGERWEG 109 FH",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250403.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "VvE"
+      },
+      {
+        "id": 624,
+        "boekingsdatum": "2025-04-04",
+        "bedrag": "129.99",
+        "omschrijving": "FUTURUMSHOP.NL kado Sander",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250404.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 625,
+        "boekingsdatum": "2025-04-04",
+        "bedrag": "46.14",
+        "omschrijving": "KARWEI netwerk spullen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250404.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 626,
+        "boekingsdatum": "2025-04-05",
+        "bedrag": "32.68",
+        "omschrijving": "Jumbo Deventer",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250405.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 627,
+        "boekingsdatum": "2025-04-05",
+        "bedrag": "25.75",
+        "omschrijving": "rente",
+        "betalingsSoort": "RENTE",
+        "sortOrder": "20250405.870",
+        "bron": "Rente",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 633,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "-9.80",
+        "omschrijving": "H KONING zonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.780",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 628,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "6.80",
+        "omschrijving": "ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 629,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "4.33",
+        "omschrijving": "J. van Vliet utube",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 630,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "29.00",
+        "omschrijving": "Kampong Distelheide",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 631,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "139.42",
+        "omschrijving": "Xtorm powerbank",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 632,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "47.55",
+        "omschrijving": "Staatsbosbeheer kampeerpas",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.790",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 634,
+        "boekingsdatum": "2025-04-06",
+        "bedrag": "12.80",
+        "omschrijving": "ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250406.770",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 635,
+        "boekingsdatum": "2025-04-07",
+        "bedrag": "4.97",
+        "omschrijving": "Cadeauverpakking",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250407.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 636,
+        "boekingsdatum": "2025-04-07",
+        "bedrag": "75.00",
+        "omschrijving": "GREENCHOICE",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250407.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Greenchoice"
+      },
+      {
+        "id": 637,
+        "boekingsdatum": "2025-04-09",
+        "bedrag": "6.58",
+        "omschrijving": "Jumbo Deventer",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250409.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 638,
+        "boekingsdatum": "2025-04-10",
+        "bedrag": "392.42",
+        "omschrijving": "Steven,s bike service Canyon",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250410.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 639,
+        "boekingsdatum": "2025-04-10",
+        "bedrag": "41.74",
+        "omschrijving": "Jumbo Deventer .",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250410.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 640,
+        "boekingsdatum": "2025-04-11",
+        "bedrag": "28.98",
+        "omschrijving": "HBM Machines reparatie ventilator",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250411.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 641,
+        "boekingsdatum": "2025-04-14",
+        "bedrag": "16.37",
+        "omschrijving": "Jumbo Deventer",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250414.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 642,
+        "boekingsdatum": "2025-04-16",
+        "bedrag": "5.99",
+        "omschrijving": "Jumbo Deventer .",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250416.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 644,
+        "boekingsdatum": "2025-04-18",
+        "bedrag": "134.16",
+        "omschrijving": "Koffie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250418.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 643,
+        "boekingsdatum": "2025-04-18",
+        "bedrag": "46.32",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250418.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 645,
+        "boekingsdatum": "2025-04-19",
+        "bedrag": "3.69",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250419.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 646,
+        "boekingsdatum": "2025-04-21",
+        "bedrag": "15.00",
+        "omschrijving": "ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250421.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 648,
+        "boekingsdatum": "2025-04-22",
+        "bedrag": "32.57",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250422.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 647,
+        "boekingsdatum": "2025-04-22",
+        "bedrag": "71.00",
+        "omschrijving": "Kappert GDL uitje",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250422.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 651,
+        "boekingsdatum": "2025-04-23",
+        "bedrag": "1214.77",
+        "omschrijving": "AOW",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250423.820",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 652,
+        "boekingsdatum": "2025-04-23",
+        "bedrag": "9.84",
+        "omschrijving": "SIMYO",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250423.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 653,
+        "boekingsdatum": "2025-04-23",
+        "bedrag": "248.03",
+        "omschrijving": "Steven Cadenz",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250423.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 654,
+        "boekingsdatum": "2025-04-23",
+        "bedrag": "1591.23",
+        "omschrijving": "ASR BETALINGSCENTRUM BV",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250423.790",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 649,
+        "boekingsdatum": "2025-04-23",
+        "bedrag": "306.00",
+        "omschrijving": "Verjaardag Mary Lou",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250423.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 650,
+        "boekingsdatum": "2025-04-23",
+        "bedrag": "46.44",
+        "omschrijving": "ODIDO NETHERLANDS B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250423.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Odido"
+      },
+      {
+        "id": 659,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "3.20",
+        "omschrijving": "Kosten gebruik betaalrekening",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.790",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 655,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "8.98",
+        "omschrijving": "Energiewacht B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Energiewacht"
+      },
+      {
+        "id": 656,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "5.00",
+        "omschrijving": "THE MATRIX.ORG FOUNDATION C.I.C",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 657,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "5.00",
+        "omschrijving": "FIETSERSBOND",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 661,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "8.00",
+        "omschrijving": "VITENS NV",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.770",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Vitens"
+      },
+      {
+        "id": 660,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "74.70",
+        "omschrijving": "Reg.BelastingSamenwerking",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.780",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Regionale belasting"
+      },
+      {
+        "id": 658,
+        "boekingsdatum": "2025-04-25",
+        "bedrag": "55.00",
+        "omschrijving": "ASR Eigen risico",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250425.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 662,
+        "boekingsdatum": "2025-04-26",
+        "bedrag": "29.32",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250426.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 664,
+        "boekingsdatum": "2025-04-28",
+        "bedrag": "9.03",
+        "omschrijving": "Copilot",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250428.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 663,
+        "boekingsdatum": "2025-04-28",
+        "bedrag": "31.50",
+        "omschrijving": "GBLT",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250428.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GBLT"
+      },
+      {
+        "id": 665,
+        "boekingsdatum": "2025-04-28",
+        "bedrag": "25.00",
+        "omschrijving": "GroenLinks Contributies",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250428.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GroenLinks Contributies"
+      },
+      {
+        "id": 667,
+        "boekingsdatum": "2025-04-29",
+        "bedrag": "14.33",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250429.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 666,
+        "boekingsdatum": "2025-04-29",
+        "bedrag": "894.95",
+        "omschrijving": "ASR LEVVERZ",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250429.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Hypotheek"
+      },
+      {
+        "id": 668,
+        "boekingsdatum": "2025-04-29",
+        "bedrag": "50.00",
+        "omschrijving": "TLS BV inz. OV-Chipkaart",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250429.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 670,
+        "boekingsdatum": "2025-04-30",
+        "bedrag": "42.54",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250430.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 669,
+        "boekingsdatum": "2025-04-30",
+        "bedrag": "257.40",
+        "omschrijving": "Transavia",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250430.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 674,
+        "boekingsdatum": "2025-05-01",
+        "bedrag": "306.00",
+        "omschrijving": "M.L. Leistikow",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250501.820",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 675,
+        "boekingsdatum": "2025-05-01",
+        "bedrag": "4.00",
+        "omschrijving": "Pont",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250501.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 671,
+        "boekingsdatum": "2025-05-01",
+        "bedrag": "6.00",
+        "omschrijving": "De Kribbe Horeca BV.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250501.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 672,
+        "boekingsdatum": "2025-05-01",
+        "bedrag": "2.78",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250501.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 673,
+        "boekingsdatum": "2025-05-01",
+        "bedrag": "12.00",
+        "omschrijving": "Speelgoedmuseum met Tijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250501.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 681,
+        "boekingsdatum": "2025-05-02",
+        "bedrag": "187.50",
+        "omschrijving": "ASR ZIEKTEKOSTEN",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250502.790",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Ziektekosten"
+      },
+      {
+        "id": 676,
+        "boekingsdatum": "2025-05-02",
+        "bedrag": "39.10",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250502.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 677,
+        "boekingsdatum": "2025-05-02",
+        "bedrag": "276.98",
+        "omschrijving": "Brand New Day",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250502.830",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 678,
+        "boekingsdatum": "2025-05-02",
+        "bedrag": "8.00",
+        "omschrijving": "IJsje met Tijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250502.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 679,
+        "boekingsdatum": "2025-05-02",
+        "bedrag": "703.82",
+        "omschrijving": "Stichting Philips Pensio",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250502.810",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 680,
+        "boekingsdatum": "2025-05-02",
+        "bedrag": "26.22",
+        "omschrijving": "ASR SCHADEVERZEKERING",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250502.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Schadeverzekeringen"
+      },
+      {
+        "id": 682,
+        "boekingsdatum": "2025-05-03",
+        "bedrag": "11.70",
+        "omschrijving": "Koning via Tikkie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250503.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 683,
+        "boekingsdatum": "2025-05-04",
+        "bedrag": "32.62",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250504.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 684,
+        "boekingsdatum": "2025-05-04",
+        "bedrag": "8.70",
+        "omschrijving": "Frites bij Hans",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250504.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 686,
+        "boekingsdatum": "2025-05-05",
+        "bedrag": "23.29",
+        "omschrijving": "Rente over positief saldo tot 01-05-25",
+        "betalingsSoort": "RENTE",
+        "sortOrder": "20250505.860",
+        "bron": "Rente",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 685,
+        "boekingsdatum": "2025-05-05",
+        "bedrag": "194.07",
+        "omschrijving": "VvE",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250505.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "VvE"
+      },
+      {
+        "id": 687,
+        "boekingsdatum": "2025-05-05",
+        "bedrag": "5.54",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250505.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 689,
+        "boekingsdatum": "2025-05-06",
+        "bedrag": "4.33",
+        "omschrijving": "J. van Vliet YouTube",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250506.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 688,
+        "boekingsdatum": "2025-05-06",
+        "bedrag": "75.00",
+        "omschrijving": "GREENCHOICE",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250506.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Greenchoice"
+      },
+      {
+        "id": 690,
+        "boekingsdatum": "2025-05-06",
+        "bedrag": "12.98",
+        "omschrijving": "Gordijnen",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250506.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 691,
+        "boekingsdatum": "2025-05-08",
+        "bedrag": "4.65",
+        "omschrijving": "OV fiets",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250508.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 692,
+        "boekingsdatum": "2025-05-09",
+        "bedrag": "32.12",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250509.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 696,
+        "boekingsdatum": "2025-05-11",
+        "bedrag": "-11.59",
+        "omschrijving": "Cees ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250511.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 693,
+        "boekingsdatum": "2025-05-11",
+        "bedrag": "-11.59",
+        "omschrijving": "H KONING ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250511.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 694,
+        "boekingsdatum": "2025-05-11",
+        "bedrag": "29.80",
+        "omschrijving": "TALAMINI ijsjes",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250511.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 695,
+        "boekingsdatum": "2025-05-11",
+        "bedrag": "34.75",
+        "omschrijving": "ZonFie Vorden",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250511.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 697,
+        "boekingsdatum": "2025-05-12",
+        "bedrag": "72.50",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250512.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 698,
+        "boekingsdatum": "2025-05-12",
+        "bedrag": "4.98",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250512.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 701,
+        "boekingsdatum": "2025-05-13",
+        "bedrag": "216.80",
+        "omschrijving": "Polarsteps",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250513.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 699,
+        "boekingsdatum": "2025-05-13",
+        "bedrag": "-36.13",
+        "omschrijving": "Sjaak polarsteps",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250513.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 700,
+        "boekingsdatum": "2025-05-13",
+        "bedrag": "-36.13",
+        "omschrijving": "Jeanne Polarsteps",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250513.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 702,
+        "boekingsdatum": "2025-05-15",
+        "bedrag": "33.50",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250515.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 703,
+        "boekingsdatum": "2025-05-16",
+        "bedrag": "-108.40",
+        "omschrijving": "Polarsteps fotoboek",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250516.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 704,
+        "boekingsdatum": "2025-05-18",
+        "bedrag": "6.75",
+        "omschrijving": "ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250518.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 705,
+        "boekingsdatum": "2025-05-20",
+        "bedrag": "8.95",
+        "omschrijving": "Gas tonnetje Bever",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250520.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 706,
+        "boekingsdatum": "2025-05-20",
+        "bedrag": "17.39",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250520.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 710,
+        "boekingsdatum": "2025-05-22",
+        "bedrag": "135.00",
+        "omschrijving": "De Locomotief uit eten",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250522.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 707,
+        "boekingsdatum": "2025-05-22",
+        "bedrag": "1774.22",
+        "omschrijving": "Sociale Verzekeringsbank",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250522.860",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 708,
+        "boekingsdatum": "2025-05-22",
+        "bedrag": "5.00",
+        "omschrijving": "THE MATRIX",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250522.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 709,
+        "boekingsdatum": "2025-05-22",
+        "bedrag": "1591.23",
+        "omschrijving": "ASR pensioen",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250522.840",
+        "bron": "AOW+ASR",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 711,
+        "boekingsdatum": "2025-05-23",
+        "bedrag": "3750.00",
+        "omschrijving": "ASN Ideaalsparen",
+        "betalingsSoort": "STORTEN_SPAARREKENING",
+        "sortOrder": "20250523.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 714,
+        "boekingsdatum": "2025-05-23",
+        "bedrag": "6.00",
+        "omschrijving": "BROODS Zeddam lunch",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250523.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 713,
+        "boekingsdatum": "2025-05-23",
+        "bedrag": "5.00",
+        "omschrijving": "VEER MILLINGEN",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250523.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 712,
+        "boekingsdatum": "2025-05-23",
+        "bedrag": "3192.00",
+        "omschrijving": "BELASTINGDIENST teruggave",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250523.850",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 716,
+        "boekingsdatum": "2025-05-24",
+        "bedrag": "23.11",
+        "omschrijving": "Bakk.Heijerman ontbijt",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250524.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 717,
+        "boekingsdatum": "2025-05-24",
+        "bedrag": "-72.60",
+        "omschrijving": "Betaalverzoek terug van Hans",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250524.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 715,
+        "boekingsdatum": "2025-05-24",
+        "bedrag": "11.22",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250524.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 718,
+        "boekingsdatum": "2025-05-25",
+        "bedrag": "3.65",
+        "omschrijving": "Kosten gebruik betaalrekening",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250525.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 719,
+        "boekingsdatum": "2025-05-25",
+        "bedrag": "1000.00",
+        "omschrijving": "ASN Ideaalsparen",
+        "betalingsSoort": "STORTEN_SPAARREKENING",
+        "sortOrder": "20250525.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 725,
+        "boekingsdatum": "2025-05-26",
+        "bedrag": "8.00",
+        "omschrijving": "VITENS NV",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250526.790",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Vitens"
+      },
+      {
+        "id": 724,
+        "boekingsdatum": "2025-05-26",
+        "bedrag": "46.44",
+        "omschrijving": "ODIDO NETHERLANDS B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250526.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Odido"
+      },
+      {
+        "id": 720,
+        "boekingsdatum": "2025-05-26",
+        "bedrag": "31.49",
+        "omschrijving": "GBLT",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250526.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GBLT"
+      },
+      {
+        "id": 721,
+        "boekingsdatum": "2025-05-26",
+        "bedrag": "31.50",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250526.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 722,
+        "boekingsdatum": "2025-05-26",
+        "bedrag": "74.70",
+        "omschrijving": "Reg.BelastingSamenwerking",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250526.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Regionale belasting"
+      },
+      {
+        "id": 723,
+        "boekingsdatum": "2025-05-26",
+        "bedrag": "61.50",
+        "omschrijving": "LastPass, copilot",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250526.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 726,
+        "boekingsdatum": "2025-05-27",
+        "bedrag": "9.84",
+        "omschrijving": "SIMYO",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250527.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 727,
+        "boekingsdatum": "2025-05-27",
+        "bedrag": "5.00",
+        "omschrijving": "FIETSERSBOND",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250527.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 728,
+        "boekingsdatum": "2025-05-28",
+        "bedrag": "240.00",
+        "omschrijving": "Etentje met Damian",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250528.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 729,
+        "boekingsdatum": "2025-05-28",
+        "bedrag": "25.00",
+        "omschrijving": "GroenLinks Contributies",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250528.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "GroenLinks Contributies"
+      },
+      {
+        "id": 731,
+        "boekingsdatum": "2025-05-29",
+        "bedrag": "894.95",
+        "omschrijving": "Hypotheek",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250529.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Hypotheek"
+      },
+      {
+        "id": 730,
+        "boekingsdatum": "2025-05-29",
+        "bedrag": "8.98",
+        "omschrijving": "Energiewacht B.V.",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250529.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Energiewacht"
+      },
+      {
+        "id": 732,
+        "boekingsdatum": "2025-05-29",
+        "bedrag": "28.35",
+        "omschrijving": "McDonald’s op de heenreis",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250529.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 733,
+        "boekingsdatum": "2025-05-31",
+        "bedrag": "41.60",
+        "omschrijving": "IJsjes Oud-Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250531.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 734,
+        "boekingsdatum": "2025-06-01",
+        "bedrag": "306.00",
+        "omschrijving": "M.L. Leistikow",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250601.890",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 738,
+        "boekingsdatum": "2025-06-02",
+        "bedrag": "703.82",
+        "omschrijving": "Stichting Philips Pensio",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250602.810",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 740,
+        "boekingsdatum": "2025-06-02",
+        "bedrag": "26.22",
+        "omschrijving": "ASR SCHADEVERZEKERING",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250602.790",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Schadeverzekeringen"
+      },
+      {
+        "id": 739,
+        "boekingsdatum": "2025-06-02",
+        "bedrag": "40.57",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250602.800",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 737,
+        "boekingsdatum": "2025-06-02",
+        "bedrag": "276.98",
+        "omschrijving": "Brand New Day",
+        "betalingsSoort": "INKOMSTEN",
+        "sortOrder": "20250602.820",
+        "bron": "Philips+BND",
+        "bestemming": "ASN betaalrekening"
+      },
+      {
+        "id": 736,
+        "boekingsdatum": "2025-06-02",
+        "bedrag": "87.33",
+        "omschrijving": "brandstof Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250602.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 735,
+        "boekingsdatum": "2025-06-02",
+        "bedrag": "187.50",
+        "omschrijving": "ASR ZIEKTEKOSTEN",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250602.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Ziektekosten"
+      },
+      {
+        "id": 745,
+        "boekingsdatum": "2025-06-03",
+        "bedrag": "297.42",
+        "omschrijving": "Melanie Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250603.810",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 741,
+        "boekingsdatum": "2025-06-03",
+        "bedrag": "-120.72",
+        "omschrijving": "Steven Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250603.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 742,
+        "boekingsdatum": "2025-06-03",
+        "bedrag": "-48.26",
+        "omschrijving": "Jelle Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250603.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 743,
+        "boekingsdatum": "2025-06-03",
+        "bedrag": "194.07",
+        "omschrijving": "VvE",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250603.830",
+        "bron": "ASN betaalrekening",
+        "bestemming": "VvE"
+      },
+      {
+        "id": 744,
+        "boekingsdatum": "2025-06-03",
+        "bedrag": "-124.75",
+        "omschrijving": "Sjaak Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250603.820",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 748,
+        "boekingsdatum": "2025-06-04",
+        "bedrag": "-160.96",
+        "omschrijving": "Jeanne Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250604.850",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 746,
+        "boekingsdatum": "2025-06-04",
+        "bedrag": "293.50",
+        "omschrijving": "Guido Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250604.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 747,
+        "boekingsdatum": "2025-06-04",
+        "bedrag": "-40.24",
+        "omschrijving": "Heleen Oud Heverlee",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250604.860",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 749,
+        "boekingsdatum": "2025-06-05",
+        "bedrag": "25.81",
+        "omschrijving": "Rente over positief saldo tot 01-06-25",
+        "betalingsSoort": "RENTE",
+        "sortOrder": "20250605.890",
+        "bron": "Rente",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 751,
+        "boekingsdatum": "2025-06-06",
+        "bedrag": "4.33",
+        "omschrijving": "YouTube via Jelle",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250606.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 750,
+        "boekingsdatum": "2025-06-06",
+        "bedrag": "75.00",
+        "omschrijving": "Greenchoice",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250606.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Greenchoice"
+      },
+      {
+        "id": 752,
+        "boekingsdatum": "2025-06-08",
+        "bedrag": "62.27",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250608.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 753,
+        "boekingsdatum": "2025-06-09",
+        "bedrag": "5.00",
+        "omschrijving": "Signal Technology Foundation",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250609.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 754,
+        "boekingsdatum": "2025-06-10",
+        "bedrag": "16.71",
+        "omschrijving": "Oud Heverlee Duncan",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250610.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 755,
+        "boekingsdatum": "2025-06-12",
+        "bedrag": "44.65",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250612.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 756,
+        "boekingsdatum": "2025-06-16",
+        "bedrag": "12.76",
+        "omschrijving": "Albert Heijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250616.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 757,
+        "boekingsdatum": "2025-06-17",
+        "bedrag": "13.66",
+        "omschrijving": "DEKAMARKT",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250617.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 946,
+        "boekingsdatum": "2025-06-19",
+        "bedrag": "3.00",
+        "omschrijving": "Wijnese Veer met Tijn",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250619.870",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      },
+      {
+        "id": 758,
+        "boekingsdatum": "2025-06-19",
+        "bedrag": "20.07",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250619.880",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 874,
+        "boekingsdatum": "2025-06-20",
+        "bedrag": "1000.00",
+        "omschrijving": "storten overschot",
+        "betalingsSoort": "STORTEN_SPAARREKENING",
+        "sortOrder": "20250620.890",
+        "bron": "ASN betaalrekening",
+        "bestemming": "ASN spaarrekening"
+      },
+      {
+        "id": 1073,
+        "boekingsdatum": "2025-06-21",
+        "bedrag": "40.80",
+        "omschrijving": "Jumbo",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250621.840",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Boodschappen"
+      },
+      {
+        "id": 1074,
+        "boekingsdatum": "2025-06-22",
+        "bedrag": "11.50",
+        "omschrijving": "Tikkie ZonFie",
+        "betalingsSoort": "UITGAVEN",
+        "sortOrder": "20250622.900",
+        "bron": "ASN betaalrekening",
+        "bestemming": "Andere uitgaven"
+      }
+    ],
+    "page": {
+      "size": 500,
+      "number": 0,
+      "totalElements": 287,
+      "totalPages": 1
+    }
+  },
+  "gebruikersId": 1,
+  "gebruikersEmail": "ruud@vliet.io",
+  "gebruikersBijnaam": "Ruud"
+}

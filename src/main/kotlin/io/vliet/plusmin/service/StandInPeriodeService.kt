@@ -2,8 +2,8 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.PeriodeRepository
+import io.vliet.plusmin.repository.RekeningGroepRepository
 import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ import java.time.LocalDate
 @Service
 class StandInPeriodeService {
     @Autowired
-    lateinit var rekeningRepository: RekeningRepository
+    lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
@@ -43,7 +43,7 @@ class StandInPeriodeService {
         val openingsSaldi =
             berekenBeginSaldiVanPeriode(laatstGeslotenOfOpgeruimdePeriode, periode, gebruiker).map { it.toDTO() }
 
-        val rekeningenLijst = rekeningRepository
+        val rekeningenLijst = rekeningGroepRepository
             .findRekeningGroepenVoorGebruiker(gebruiker)
             .flatMap { it.rekeningen }
             .filter { rekening -> rekening.rekeningIsGeldigInPeriode(periode) }
@@ -80,7 +80,7 @@ class StandInPeriodeService {
                     )
                 }
                 // VasteLastenRekening is Betaald als de rekening een vaste lasten rekening is, en óf geen betaling wordt verwacht, óf de betaling binnen de budgetVariabiliteit valt
-                val isVasteLastenRekeningBetaald =
+                val isVasteLastOfAflossingBetaald =
                     isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || isBedragBinnenVariabiliteit)
 
                 val budgetMaandBedrag =
@@ -91,28 +91,36 @@ class StandInPeriodeService {
                     if (rekening.budgetBedrag == null || !wordtDezeMaandBetalingVerwacht) BigDecimal(0)
                     else berekenBudgetOpPeildatum(rekening, periode, peilDatum) ?: BigDecimal(0)
                 val meerDanMaandBudget =
-                    if (rekening.budgetBedrag == null || isVasteLastenRekeningBetaald) BigDecimal(0)
+                    if (rekening.budgetBedrag == null || isVasteLastOfAflossingBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling.abs() - budgetMaandBedrag)
                 val minderDanBudget =
-                    if (rekening.budgetBedrag == null || isVasteLastenRekeningBetaald) BigDecimal(0)
+                    if (rekening.budgetBedrag == null || isVasteLastOfAflossingBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetOpPeilDatum.minus(budgetBetaling.abs()))
                 val meerDanBudget =
-                    if (rekening.budgetBedrag == null || isVasteLastenRekeningBetaald) BigDecimal(0)
+                    if (rekening.budgetBedrag == null || isVasteLastOfAflossingBetaald) BigDecimal(0)
                     else BigDecimal(0).max(budgetBetaling.abs() - budgetOpPeilDatum - meerDanMaandBudget)
+                val achterstandNu =
+                    if (rekening.budgetBedrag == null) BigDecimal(0)
+                    else ((saldo?.achterstand ?: BigDecimal(0)) - budgetOpPeilDatum - budgetBetaling)
+                        .min(BigDecimal(0))
+                logger.info("achterstandNu ${rekening.naam} saldo?.achterstand ${saldo?.achterstand}" +
+                        "met budgetBedrag ${rekening.budgetBedrag}, " +
+                        "budgetBetaling $budgetBetaling, budgetOpPeilDatum $budgetOpPeilDatum, " +
+                        "achterstandNu $achterstandNu")
                 Saldo.SaldoDTO(
                     0,
                     rekening.rekeningGroep.naam,
                     rekening.rekeningGroep.rekeningGroepSoort,
                     rekening.rekeningGroep.budgetType,
                     rekening.naam,
+                    aflossing = rekening.aflossing?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     saldo?.openingsSaldo ?: BigDecimal(0),
                     achterstand = saldo?.achterstand ?: BigDecimal(0),
                     // TODO: achterstandNu berekenen obv aflossing moet wel/niet betaald zijn
-                    achterstandNu = if (rekening.budgetBedrag == null) BigDecimal(0)
-                    else ((saldo?.achterstand ?: BigDecimal(0)) + budgetOpPeilDatum + budgetBetaling)
-                        .max(BigDecimal(0)),
+                    achterstandNu = achterstandNu,
                     budgetMaandBedrag = budgetMaandBedrag,
+                    budgetBetaalDag = rekening.budgetBetaalDag,
                     budgetPeilDatum = peilDatum.toString(),
                     budgetBetaling = budgetBetaling,
                     budgetOpPeilDatum = budgetOpPeilDatum,
@@ -121,7 +129,7 @@ class StandInPeriodeService {
                     meerDanBudget = meerDanBudget,
                     meerDanMaandBudget = meerDanMaandBudget,
                     restMaandBudget =
-                        if (isVasteLastenRekeningBetaald) BigDecimal(0)
+                        if (isVasteLastOfAflossingBetaald) BigDecimal(0)
                         else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
                 )
             }
@@ -151,7 +159,7 @@ class StandInPeriodeService {
                 ?.div(BigDecimal(7))
 
             Rekening.BudgetPeriodiciteit.MAAND -> rekening.budgetBedrag
-            null -> BigDecimal(0)
+            null -> rekening.budgetBedrag
         }?.setScale(2, RoundingMode.HALF_UP) ?: BigDecimal(0)
     }
 
@@ -227,7 +235,7 @@ class StandInPeriodeService {
     }
 
     fun berekenMutatieLijstTussenDatums(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
-        val rekeningGroepLijst = rekeningRepository.findRekeningGroepenVoorGebruiker(gebruiker)
+        val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->

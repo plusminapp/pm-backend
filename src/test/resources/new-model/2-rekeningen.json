@@ -54,20 +54,37 @@
       {
         "naam": "Demo aflossing",
         "sortOrder": 500,
-        "saldo": 10200,
+        "saldo": 1400,
         "budgetBedrag": 100,
-        "budgetBetaalDag": 3,
+        "budgetBetaalDag": 26,
         "betaalMethoden": [
           {
             "naam": "ASN betaalrekening"
           }
         ],
         "aflossing": {
-          "startDatum": "2024-01-01",
-          "eindDatum": "string",
-          "eindBedrag": 12000,
-          "dossierNummer": "dossiernummer",
-          "notities": "notities"
+          "startDatum": "2025-01-01",
+          "eindBedrag": 2000,
+          "dossierNummer": "dossiernummer1",
+          "notities": "notities1"
+        }
+      },
+      {
+        "naam": "Andere aflossing",
+        "sortOrder": 600,
+        "saldo": 500,
+        "budgetBedrag": 50,
+        "budgetBetaalDag": 28,
+        "betaalMethoden": [
+          {
+            "naam": "ASN betaalrekening"
+          }
+        ],
+        "aflossing": {
+          "startDatum": "2025-02-01",
+          "eindBedrag": 1200,
+          "dossierNummer": "dossiernummer2",
+          "notities": "notities2"
         }
       }
     ]

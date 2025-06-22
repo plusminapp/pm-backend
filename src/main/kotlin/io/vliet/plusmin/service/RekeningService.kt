@@ -46,7 +46,7 @@ class RekeningService {
 
     fun save(gebruiker: Gebruiker, rekeningGroepDTO: RekeningGroep.RekeningGroepDTO): RekeningGroep {
         val rekeningGroep = rekeningGroepRepository
-            .findRekeningGroepVoorGebruiker(gebruiker, rekeningGroepDTO.naam)
+            .findRekeningGroepOpNaam(gebruiker, rekeningGroepDTO.naam)
             .getOrNull() ?: RekeningGroep(
             naam = rekeningGroepDTO.naam,
             gebruiker = gebruiker,
@@ -91,7 +91,6 @@ class RekeningService {
                         Aflossing(
                             0,
                             LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            LocalDate.parse(rekeningDTO.aflossing.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                             BigDecimal(rekeningDTO.aflossing.eindBedrag),
                             rekeningDTO.aflossing.dossierNummer,
                             rekeningDTO.aflossing.notities
@@ -99,9 +98,8 @@ class RekeningService {
                     )
                 } else {
                     aflossingRepository.save(
-                        rekeningOpt.aflossing!!.fullCopy(
+                        rekeningOpt.aflossing.fullCopy(
                             LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            LocalDate.parse(rekeningDTO.aflossing.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                             BigDecimal(rekeningDTO.aflossing.eindBedrag),
                             rekeningDTO.aflossing.dossierNummer,
                             rekeningDTO.aflossing.notities
@@ -132,7 +130,6 @@ class RekeningService {
                     Aflossing(
                         0,
                         LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                        LocalDate.parse(rekeningDTO.aflossing.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                         BigDecimal(rekeningDTO.aflossing.eindBedrag),
                         rekeningDTO.aflossing.dossierNummer,
                         rekeningDTO.aflossing.notities
@@ -170,7 +167,7 @@ class RekeningService {
                     openingsSaldo = rekeningDTO.saldo ?: BigDecimal(0),
                     periode = periode,
                     achterstand = BigDecimal(0),
-                    budgetMaandBedrag = BigDecimal(0),
+                    budgetMaandBedrag = rekeningDTO.budgetBedrag ?: BigDecimal(0),
                     budgetBetaling = BigDecimal(0)
                 )
             )

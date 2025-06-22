@@ -16,7 +16,6 @@ class Aflossing(
     )
     val id: Long = 0,
     val startDatum: LocalDate,
-    val eindDatum: LocalDate,
     val eindBedrag: BigDecimal,
     val dossierNummer: String,
     @Column(columnDefinition = "TEXT")
@@ -24,14 +23,12 @@ class Aflossing(
 ) {
     fun fullCopy(
         startDatum: LocalDate = this.startDatum,
-        eindDatum: LocalDate = this.eindDatum,
         eindBedrag: BigDecimal = this.eindBedrag,
         dossierNummer: String = this.dossierNummer,
         notities: String = this.notities,
     ) = Aflossing(
         this.id,
         startDatum,
-        eindDatum,
         eindBedrag,
         dossierNummer,
         notities
@@ -40,14 +37,12 @@ class Aflossing(
     data class AflossingDTO(
         val id: Long = 0,
         val startDatum: String,
-        val eindDatum: String,
         val eindBedrag: String,
         val dossierNummer: String,
         val notities: String,
     ) {
         fun fullCopy(
             startDatum: String = this.startDatum,
-            eindDatum: String = this.eindDatum,
             eindBedrag: String = this.eindBedrag,
             dossierNummer: String = this.dossierNummer,
             notities: String = this.notities,
@@ -55,7 +50,6 @@ class Aflossing(
             ): AflossingDTO = AflossingDTO(
             this.id,
             startDatum,
-            eindDatum,
             eindBedrag,
             dossierNummer,
             notities,
@@ -63,11 +57,11 @@ class Aflossing(
     }
 
     fun toDTO(
+        saldo: BigDecimal? = null
     ): AflossingDTO {
         return AflossingDTO(
             this.id,
             this.startDatum.toString(),
-            this.eindDatum.toString(),
             this.eindBedrag.toString(),
             this.dossierNummer,
             this.notities,

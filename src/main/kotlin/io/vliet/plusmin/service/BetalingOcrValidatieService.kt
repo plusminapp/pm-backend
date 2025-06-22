@@ -58,13 +58,12 @@ class BetalingvalidatieService {
         return Betaling.BetalingValidatieWrapper(
             laatsteBetalingDatum,
             Saldo.SaldoDTO(
-                0,
-                rekening.rekeningGroep.naam,
-                rekening.rekeningGroep.rekeningGroepSoort,
-                rekening.rekeningGroep.budgetType,
-                rekening.naam,
-                rekening.sortOrder,
-                saldoOpDatum
+                rekeningGroepNaam = rekening.rekeningGroep.naam,
+                rekeningGroepSoort = rekening.rekeningGroep.rekeningGroepSoort,
+                budgetType = rekening.rekeningGroep.budgetType,
+                rekeningNaam = rekening.naam,
+                sortOrder = rekening.sortOrder,
+                openingsSaldo = saldoOpDatum
             ),
             validatedBetalingen,
         )
