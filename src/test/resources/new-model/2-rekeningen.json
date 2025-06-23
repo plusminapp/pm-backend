@@ -94,7 +94,7 @@
     "rekeningGroepSoort": "INKOMSTEN",
     "rekeningGroepIcoonNaam": "inkomsten",
     "sortOrder": 100,
-    "budgetType": "VAST",
+    "budgetType": "INKOMSTEN",
     "rekeningen": [
       {
         "naam": "Philips+BND",

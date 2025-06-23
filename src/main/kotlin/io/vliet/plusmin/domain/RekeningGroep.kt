@@ -104,7 +104,7 @@ class RekeningGroep(
     }
 
     enum class BudgetType {
-        VAST, CONTINU
+        INKOMSTEN, VAST, CONTINU
     }
 
     data class RekeningGroepDTO(

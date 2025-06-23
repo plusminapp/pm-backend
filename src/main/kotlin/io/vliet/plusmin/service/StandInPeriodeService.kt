@@ -58,9 +58,7 @@ class StandInPeriodeService {
                 val saldo = openingsSaldi
                     .find { it.rekeningNaam == rekening.naam }
                 val isRekeningVasteLastOfAflossing =
-                    rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN &&
-                            rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST ||
-                            rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
+                    rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST
                 val dagInPeriode = if (rekening.budgetBetaalDag != null) periodeService.berekenDagInPeriode(
                     rekening.budgetBetaalDag,
                     periode
@@ -165,7 +163,7 @@ class StandInPeriodeService {
 
     fun berekenBudgetOpPeildatum(rekening: Rekening, gekozenPeriode: Periode, peilDatum: LocalDate): BigDecimal? {
         when (rekening.rekeningGroep.budgetType) {
-            RekeningGroep.BudgetType.VAST -> {
+            RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
                 if (rekening.budgetBetaalDag == null) {
                     throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
                 }
