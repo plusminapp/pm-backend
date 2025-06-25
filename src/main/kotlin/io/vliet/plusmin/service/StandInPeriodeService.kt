@@ -51,36 +51,30 @@ class StandInPeriodeService {
         return rekeningenLijst
             .sortedBy { it.sortOrder }
             .map { rekening ->
-                val budgetBetaling = getBetalingVoorRekeningInPeriode(
-                    rekening,
-                    periode
-                ) // negatief voor uitgaven, positief voor inkomsten
-                val saldo = openingsSaldi
-                    .find { it.rekeningNaam == rekening.naam }
-                val isRekeningVasteLastOfAflossing =
-                    rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST
-                val dagInPeriode = if (rekening.budgetBetaalDag != null) periodeService.berekenDagInPeriode(
-                    rekening.budgetBetaalDag,
-                    periode
-                ) else null
+                // negatief voor uitgaven, positief voor inkomsten
+                val budgetBetaling = getBetalingVoorRekeningInPeriode(rekening, periode)
+                val saldo = openingsSaldi.find { it.rekeningNaam == rekening.naam }
+                val isRekeningVasteLastOfAflossing = rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST
+                val budgetBetaalDagInPeriode = if (rekening.budgetBetaalDag != null)
+                    periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, periode)
+                else null
                 val wordtDezeMaandBetalingVerwacht =
-                    rekening.maanden.isNullOrEmpty() || rekening.maanden!!.contains(dagInPeriode?.monthValue)
+                    rekening.maanden.isNullOrEmpty() || rekening.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)
                 val isBedragBinnenVariabiliteit = if (rekening.budgetBedrag == null) true else {
                     budgetBetaling.abs() <= rekening.toDTO(periode).budgetMaandBedrag?.times(
                         BigDecimal(
                             100 + (rekening.budgetVariabiliteit ?: 0)
-                        ).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
+                        ).divide(BigDecimal(100))
                     ) &&
                             budgetBetaling.abs() >= rekening.toDTO(periode).budgetMaandBedrag?.times(
                         BigDecimal(
                             100 - (rekening.budgetVariabiliteit ?: 0)
-                        ).divide(BigDecimal(100))//.setScale(2, RoundingMode.HALF_UP)
+                        ).divide(BigDecimal(100))
                     )
                 }
                 // VasteLastenRekening is Betaald als de rekening een vaste lasten rekening is, en óf geen betaling wordt verwacht, óf de betaling binnen de budgetVariabiliteit valt
                 val isVasteLastOfAflossingBetaald =
                     isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || isBedragBinnenVariabiliteit)
-
                 val budgetMaandBedrag =
                     if (rekening.budgetBedrag == null || !wordtDezeMaandBetalingVerwacht) BigDecimal(0)
                     else if (isBedragBinnenVariabiliteit) budgetBetaling.abs()
@@ -101,10 +95,12 @@ class StandInPeriodeService {
                     if (rekening.budgetBedrag == null) BigDecimal(0)
                     else ((saldo?.achterstand ?: BigDecimal(0)) - budgetOpPeilDatum - budgetBetaling)
                         .min(BigDecimal(0))
-                logger.info("achterstandNu ${rekening.naam} saldo?.achterstand ${saldo?.achterstand}" +
-                        "met budgetBedrag ${rekening.budgetBedrag}, " +
-                        "budgetBetaling $budgetBetaling, budgetOpPeilDatum $budgetOpPeilDatum, " +
-                        "achterstandNu $achterstandNu")
+                logger.info(
+                    "achterstandNu ${rekening.naam} saldo?.achterstand ${saldo?.achterstand}" +
+                            "met budgetBedrag ${rekening.budgetBedrag}, " +
+                            "budgetBetaling $budgetBetaling, budgetOpPeilDatum $budgetOpPeilDatum, " +
+                            "achterstandNu $achterstandNu"
+                )
                 Saldo.SaldoDTO(
                     0,
                     rekening.rekeningGroep.naam,
@@ -127,8 +123,8 @@ class StandInPeriodeService {
                     meerDanBudget = meerDanBudget,
                     meerDanMaandBudget = meerDanMaandBudget,
                     restMaandBudget =
-                        if (isVasteLastOfAflossingBetaald) BigDecimal(0)
-                        else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
+                    if (isVasteLastOfAflossingBetaald) BigDecimal(0)
+                    else BigDecimal(0).max(budgetMaandBedrag - budgetBetaling.abs() - minderDanBudget),
                 )
             }
     }
