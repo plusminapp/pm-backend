@@ -164,11 +164,11 @@ class RekeningService {
                 Saldo(
                     id = 0,
                     rekening = rekening,
-                    openingsSaldo = rekeningDTO.saldo ?: BigDecimal(0),
+                    openingsSaldo = rekeningDTO.saldo ?: BigDecimal.ZERO,
                     periode = periode,
-                    achterstand = BigDecimal(0),
-                    budgetMaandBedrag = rekeningDTO.budgetBedrag ?: BigDecimal(0),
-                    budgetBetaling = BigDecimal(0)
+                    achterstand = BigDecimal.ZERO,
+                    budgetMaandBedrag = rekeningDTO.budgetBedrag ?: BigDecimal.ZERO,
+                    budgetBetaling = BigDecimal.ZERO
                 )
             )
         }

@@ -39,6 +39,16 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
                 "ORDER BY p.periodeStartDatum DESC LIMIT 1"
     )
     fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode?
+
+    @Query(
+        value = "SELECT p FROM Periode p  " +
+                "WHERE p.periodeStartDatum >= :start " +
+                "AND p.periodeEindDatum <= :eind " +
+                "AND p.gebruiker = :gebruiker " +
+                "ORDER BY p.periodeStartDatum ASC"
+    )
+    fun getPeriodesTussenDatums(gebruiker: Gebruiker, start: LocalDate, eind: LocalDate): List<Periode>
+
     fun getPeriodeById(periodeId: Long): Periode?
 }
 

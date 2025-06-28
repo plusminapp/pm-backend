@@ -38,7 +38,7 @@ class PeriodeUpdateService {
             sluitPeriodeIntern(
                 gebruiker,
                 periode,
-                standInPeriodeService.berekenStandInPeriode(gebruiker, periode.periodeEindDatum, periode)
+                standInPeriodeService.berekenStandInPeriode(gebruiker, periode.periodeEindDatum, periode, true)
             )
         else {
             sluitPeriodeIntern(gebruiker, periode, saldoLijst)
@@ -75,7 +75,7 @@ class PeriodeUpdateService {
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         return standInPeriodeService
-            .berekenStandInPeriode(gebruiker, periode.periodeEindDatum, periode)
+            .berekenStandInPeriode(gebruiker, periode.periodeEindDatum, periode, true)
     }
 
     fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {

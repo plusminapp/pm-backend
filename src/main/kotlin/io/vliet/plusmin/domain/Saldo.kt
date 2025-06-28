@@ -27,11 +27,11 @@ class Saldo(
     @JsonIgnore
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,                                       // bevat de betaaldag en de rekeningGroep
-    val openingsSaldo: BigDecimal = BigDecimal(0),           //saldo aan het begin van de periode
-    val achterstand: BigDecimal = BigDecimal(0),            // achterstand aan het begin van de periode
-    val budgetMaandBedrag: BigDecimal = BigDecimal(0),      // verwachte bedrag per maand
-    val budgetBetaling: BigDecimal = BigDecimal(0),         // betaling deze periode
-    val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal(0),         // betaling deze periode
+    val openingsSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
+    val achterstand: BigDecimal = BigDecimal.ZERO,            // achterstand aan het begin van de periode
+    val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,      // verwachte bedrag per maand
+    val budgetBetaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
+    val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
     val budgetVariabiliteit: Int? = null,                        // variabiliteit als percentage van budgetMaandBedrag
     @ManyToOne
     @JsonIgnore
@@ -68,15 +68,19 @@ class Saldo(
         val rekeningNaam: String,
         val aflossing: Aflossing.AflossingDTO? = null,
         val sortOrder: Int = 0,
-        val openingsSaldo: BigDecimal = BigDecimal(0),
-        val achterstand: BigDecimal = BigDecimal(0),
-        val budgetMaandBedrag: BigDecimal = BigDecimal(0),
+        val openingsSaldo: BigDecimal = BigDecimal.ZERO,
+        val achterstand: BigDecimal = BigDecimal.ZERO,
+        val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,
         val budgetBetaalDag: Int? = null,
-        val budgetBetaling: BigDecimal = BigDecimal(0),
-        val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal(0),
+        val budgetBetaling: BigDecimal = BigDecimal.ZERO,
+        val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal.ZERO,
         val achterstandNu: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
+        // invarianten:
+        // * budgetMaandBedrag = eerderDanBudget + betaaldBinnenBudget + minderDanBudget + restMaandBudget
+        // * budgetOpPeilDatum = budgetBetaling - meerDanBudget - meerDanMaandBudget
+        val eerderDanBudget: BigDecimal? = null,
         val betaaldBinnenBudget: BigDecimal? = null,
         val minderDanBudget: BigDecimal? = null,
         val meerDanBudget: BigDecimal? = null,
@@ -86,14 +90,15 @@ class Saldo(
 
     fun toDTO(
     ): SaldoDTO {
-        val achterstandNu = this.achterstand
+        // Saldo -> SaldoDTO kan alleen voor gesloten (= voorbij) periodes
+        val achterstandNu = this.achterstand + this.budgetBetaling.abs() - this.budgetMaandBedrag
         val budgetPeilDatum = periode?.periodeEindDatum.toString()
         val budgetOpPeilDatum = this.budgetMaandBedrag.abs()
         val betaaldBinnenBudget = this.budgetBetaling.abs().min(this.budgetMaandBedrag)
-        val minderDanBudget = BigDecimal(0).max(this.budgetMaandBedrag.minus(this.budgetBetaling.abs()))
-        val meerDanMaandBudget = BigDecimal(0).max(this.budgetBetaling.abs() - this.budgetMaandBedrag)
-        val meerDanBudget = BigDecimal(0).max(this.budgetBetaling.abs() - this.budgetMaandBedrag - meerDanMaandBudget)
-        val restMaandBudget = BigDecimal(0)
+        val minderDanBudget = BigDecimal.ZERO.max(this.budgetMaandBedrag.minus(this.budgetBetaling.abs()))
+        val meerDanMaandBudget = BigDecimal.ZERO.max(this.budgetBetaling.abs() - this.budgetMaandBedrag)
+        val meerDanBudget = BigDecimal.ZERO.max(this.budgetBetaling.abs() - this.budgetMaandBedrag - meerDanMaandBudget)
+        val restMaandBudget = BigDecimal.ZERO
         val openingsSaldo =
             if (RekeningGroep.balansRekeningGroepSoort.contains(this.rekening.rekeningGroep.rekeningGroepSoort)) {
                 this.openingsSaldo

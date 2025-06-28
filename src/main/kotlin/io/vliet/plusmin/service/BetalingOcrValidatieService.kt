@@ -70,8 +70,8 @@ class BetalingvalidatieService {
     }
 
     fun berekenMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
-        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal(0) +
-                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
+        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO +
+                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal.ZERO
     }
 
     fun valideerOcrBetaling(gebruiker: Gebruiker, betaling: Betalingvalidatie): Betalingvalidatie {

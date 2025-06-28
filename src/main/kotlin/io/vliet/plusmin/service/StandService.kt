@@ -73,7 +73,6 @@ class StandService {
                 standInPeriodeService
                     .berekenStandInPeriode(periode.gebruiker, peilDatum, periode)
             }
-        logger.info("resultaatOpDatum: ${standOpDatum.joinToString { "${it.rekeningGroepNaam} -> ${it.budgetBetaling}" }}")
         val geaggregeerdeStandOpDatum = standOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> add(acc, budgetDTO) } }
@@ -95,6 +94,10 @@ class StandService {
     }
 
     fun add(saldoDTO1: Saldo.SaldoDTO, saldoDTO2: Saldo.SaldoDTO): Saldo.SaldoDTO {
+//        if (saldoDTO1.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING) {
+//            logger.info("SaldoDTO.add 1: ${saldoDTO1.rekeningGroepNaam} ${saldoDTO1.budgetPeilDatum}: ${saldoDTO1.achterstand}, ${saldoDTO1.achterstandNu} - ${saldoDTO2.achterstand}, ${saldoDTO2.achterstandNu}")
+//            logger.info("SaldoDTO.add 2: ${saldoDTO1.rekeningGroepNaam} ${saldoDTO1.budgetPeilDatum}: ${saldoDTO1.minderDanBudget}, ${saldoDTO1.meerDanMaandBudget} - ${saldoDTO2.minderDanBudget}, ${saldoDTO2.meerDanMaandBudget}")
+//        }
         return Saldo.SaldoDTO(
             id = 0,
             rekeningGroepNaam = saldoDTO1.rekeningGroepNaam,
@@ -103,16 +106,22 @@ class StandService {
             rekeningNaam = "",
             sortOrder = saldoDTO1.sortOrder,
             openingsSaldo = saldoDTO1.openingsSaldo.plus(saldoDTO2.openingsSaldo),
-            achterstandNu = saldoDTO1.achterstandNu?.plus(saldoDTO2.achterstandNu ?: BigDecimal(0)),
+            achterstand = if (saldoDTO1.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING)
+                saldoDTO1.achterstand.plus(saldoDTO2.achterstand)
+            else BigDecimal.ZERO,
+            achterstandNu = if (saldoDTO1.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING)
+                (saldoDTO1.achterstandNu ?: BigDecimal.ZERO).plus(saldoDTO2.achterstandNu ?: BigDecimal.ZERO)
+            else BigDecimal.ZERO,
             budgetMaandBedrag = saldoDTO1.budgetMaandBedrag.plus(saldoDTO2.budgetMaandBedrag),
             budgetBetaling = saldoDTO1.budgetBetaling.plus(saldoDTO2.budgetBetaling),
             budgetPeilDatum = saldoDTO1.budgetPeilDatum ?: saldoDTO2.budgetPeilDatum,
-            budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal(0)),
-            betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal(0)),
-            minderDanBudget = saldoDTO1.minderDanBudget?.plus(saldoDTO2.minderDanBudget ?: BigDecimal(0)),
-            meerDanBudget = saldoDTO1.meerDanBudget?.plus(saldoDTO2.meerDanBudget ?: BigDecimal(0)),
-            meerDanMaandBudget = saldoDTO1.meerDanMaandBudget?.plus(saldoDTO2.meerDanMaandBudget ?: BigDecimal(0)),
-            restMaandBudget = saldoDTO1.restMaandBudget?.plus(saldoDTO2.restMaandBudget ?: BigDecimal(0))
+            budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal.ZERO),
+            eerderDanBudget = saldoDTO1.eerderDanBudget?.plus(saldoDTO2.eerderDanBudget ?: BigDecimal.ZERO),
+            betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal.ZERO),
+            minderDanBudget = saldoDTO1.minderDanBudget?.plus(saldoDTO2.minderDanBudget ?: BigDecimal.ZERO),
+            meerDanBudget = saldoDTO1.meerDanBudget?.plus(saldoDTO2.meerDanBudget ?: BigDecimal.ZERO),
+            meerDanMaandBudget = saldoDTO1.meerDanMaandBudget?.plus(saldoDTO2.meerDanMaandBudget ?: BigDecimal.ZERO),
+            restMaandBudget = saldoDTO1.restMaandBudget?.plus(saldoDTO2.restMaandBudget ?: BigDecimal.ZERO)
         )
     }
 
@@ -130,24 +139,24 @@ class StandService {
             .filter {
                 it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN
             }
-            .fold(BigDecimal(0)) { acc, saldoDTO -> acc + (saldoDTO.budgetMaandBedrag) }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetMaandBedrag) }
         val werkelijkeMaandInkomsten = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
-            .fold(BigDecimal(0)) { acc, saldoDTO -> acc + (saldoDTO.budgetBetaling) }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetBetaling) }
         val maandInkomstenBedrag = budgetMaandInkomsten.max(werkelijkeMaandInkomsten)
         logger.info("budgetMaandInkomsten: $budgetMaandInkomsten, werkelijkeMaandInkomsten: $werkelijkeMaandInkomsten, maandInkomstenBedrag: $maandInkomstenBedrag")
 
         val besteedTotPeilDatum = saldi
-            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN }
-            .fold(BigDecimal(0)) { acc, saldoDTO -> acc - (saldoDTO.budgetBetaling) }
+            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN || it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc - (saldoDTO.budgetBetaling) }
 
-        val nogNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal(0) else {
+        val nogNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal.ZERO else {
             saldi
-                .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN }
-                .fold(BigDecimal(0)) { acc, saldoDTO ->
+                .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN || it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING }
+                .fold(BigDecimal.ZERO) { acc, saldoDTO ->
                     val restMaandRekening = if (saldoDTO.budgetType == RekeningGroep.BudgetType.CONTINU)
-                        (saldoDTO.budgetMaandBedrag) - (saldoDTO.betaaldBinnenBudget ?: BigDecimal(0))
-                    else (saldoDTO.restMaandBudget ?: BigDecimal(0)) + (saldoDTO.minderDanBudget ?: BigDecimal(0))
+                        (saldoDTO.budgetMaandBedrag) - (saldoDTO.betaaldBinnenBudget ?: BigDecimal.ZERO)
+                    else (saldoDTO.restMaandBudget ?: BigDecimal.ZERO) + (saldoDTO.minderDanBudget ?: BigDecimal.ZERO) + (saldoDTO.achterstandNu ?: BigDecimal.ZERO).abs()
                     logger.info("RekeningNodigNaPeilDatum: ${saldoDTO.rekeningGroepNaam} $restMaandRekening")
                     acc + restMaandRekening
                 }
