@@ -18,7 +18,7 @@
   {
     "boekingsdatum": "2025-01-23",
     "bedrag": "678.00",
-    "omschrijving": "Ruud's AOW",
+    "omschrijving": "Toeslagen",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Toeslagen",
     "bestemming": "Alex' betaalrekening"
@@ -34,7 +34,7 @@
   {
     "boekingsdatum": "2025-01-23",
     "bedrag": "1345.00",
-    "omschrijving": "Ruud's AOW",
+    "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Salaris",
     "bestemming": "Alex' betaalrekening"

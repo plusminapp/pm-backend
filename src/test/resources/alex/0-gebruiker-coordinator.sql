@@ -1,5 +1,6 @@
 -- Geef de 1ste gebruiker de rol ROLE_COORDINATOR om andere gebruikers toe te kunnen voegen
 -- de (1ste) gebruiker wordt automatisch (zonder rol) aangemaakt bij het inloggen door die gebruiker
+
 -- Selecteer het eerste record uit de gebruiker-tabel (op volgorde van id)
 WITH eerste_gebruiker AS (
   SELECT id
