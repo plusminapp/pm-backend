@@ -35,7 +35,8 @@ class GebruikerService {
         val gebruiker =
             if (gebruikerOpt != null) {
                 gebruikerRepository.save(
-                    gebruikerOpt.fullCopy( // periodeDag nog: kan nog gewijzigd moeten worden (zie verderop)
+                    gebruikerOpt.fullCopy(
+                        // periodeDag nog: kan nog gewijzigd moeten worden (zie verderop)
                         bijnaam = gebruikerDTO.bijnaam,
                         roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                         vrijwilliger = vrijwilliger,
@@ -64,16 +65,16 @@ class GebruikerService {
                 }
             }
         } else {
-            periodeService.creeerInitielePeriode(gebruiker, LocalDate.now())
-        }
-
-//        val initielePeriodeStartDatum: LocalDate = if (gebruikerDTO.periodes.size > 0) {
-//            LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
-//        } else {
-//            periodeService.berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first
+//            periodeService.creeerInitielePeriode(gebruiker, LocalDate.now())
 //        }
-//        logger.warn("initielePeriodeStartDatum $initielePeriodeStartDatum")
-//        periodeService.creeerInitielePeriode(gebruiker, initielePeriodeStartDatum)
+
+        val initielePeriodeStartDatum: LocalDate = if (!gebruikerDTO.periodes.isNullOrEmpty()) {
+            LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
+        } else {
+            periodeService.berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first
+        }
+        periodeService.creeerInitielePeriode(gebruiker, initielePeriodeStartDatum)
+    }
         return gebruiker
     }
 }

@@ -96,7 +96,7 @@ class PeriodeService {
                     gebruiker,
                     periodeStartDatum.minusDays(1),
                     periodeStartDatum.minusDays(1),
-                    Periode.PeriodeStatus.GESLOTEN
+                    Periode.PeriodeStatus.OPGERUIMD
                 )
             )
             if (initielePeriode.periodeEindDatum < LocalDate.now()) {

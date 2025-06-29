@@ -130,7 +130,7 @@ class StandInPeriodeService {
                     budgetBetaling = budgetBetaling,
                     budgetOpPeilDatum = budgetOpPeilDatum,
                     eerderDanBudget =
-                        if (budgetBetaalDagInPeriode != null && peilDatum.isBefore(budgetBetaalDagInPeriode))
+                        if (budgetBetaalDagInPeriode != null && !peilDatum.isAfter(budgetBetaalDagInPeriode))
                             budgetMaandBedrag.min(budgetBetaling.abs()) else BigDecimal.ZERO,
                     betaaldBinnenBudget = betaaldBinnenBudget,
                     minderDanBudget = minderDanBudget,
@@ -182,7 +182,7 @@ class StandInPeriodeService {
                 if (betaaldagInPeriode == null) {
                     throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
                 }
-                return if (!betaaldagInPeriode.isBefore(peilDatum)) BigDecimal.ZERO else rekening.budgetBedrag
+                return if (peilDatum.isAfter(betaaldagInPeriode)) rekening.budgetBedrag else BigDecimal.ZERO
             }
 
             RekeningGroep.BudgetType.CONTINU -> {

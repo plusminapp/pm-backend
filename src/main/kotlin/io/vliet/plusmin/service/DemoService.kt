@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.lang.Integer.parseInt
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @Service
 class DemoService {
+    @Autowired
+    lateinit var demoRepository: DemoRepository
+
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
@@ -22,42 +23,39 @@ class DemoService {
     lateinit var betalingService: BetalingService
 
     @Autowired
-    lateinit var gebruikerRepository: GebruikerRepository
-
-    @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    fun configureerDemoBetalingen(gebruiker: Gebruiker) {
+        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
+        val bronPeriode = periodes
+            .filter { it.periodeStartDatum != it.periodeEindDatum }
+            .sortedBy { it.periodeStartDatum }[0]
+        val demo = demoRepository.findByGebruiker(gebruiker)
+        if (demo != null) {
+            demoRepository.save(demo.fullCopy(bronPeriode = bronPeriode))
+        } else {
+            demoRepository.save(Demo(gebruiker = gebruiker, bronPeriode = bronPeriode))
+        }
+        periodes.filter { it.periodeStartDatum > bronPeriode.periodeStartDatum }
+            .forEach { doelPeriode ->
+                logger.info("Kopieer betalingen van ${bronPeriode.periodeStartDatum} naar ${doelPeriode.periodeStartDatum} voor ${gebruiker.bijnaam}")
+                kopieerPeriodeBetalingen(gebruiker, bronPeriode, doelPeriode)
+            }
+    }
+
     @Scheduled(cron = "0 1 2 * * *")
-//    @Scheduled(cron = "0 * * * * *")
     fun nachtelijkeUpdate() {
-        val parameters = listOf(
-            Pair(54933L, 54935L), // Bernhard
-            Pair(54936L, 54938L), // Ursula
-            Pair(54939L, 54942L), // Alex
-            Pair(54945L, 54947L), // Abel
-        )
-        parameters.forEach { (gebruikerId, bronPeriodeId) ->
-            val gebruiker = gebruikerRepository.findById(gebruikerId)
-                .orElseGet { throw IllegalStateException("Gebruiker $gebruikerId bestaat niet.") }
-            logger.info("Nachtelijke update voor ${gebruiker.bijnaam} van periode $bronPeriodeId.")
-            val bronPeriode = periodeRepository.findById(bronPeriodeId)
-                .orElseGet { throw IllegalStateException("Periode $bronPeriodeId bestaat niet.") }
-            val doelPeriode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, LocalDate.now())
-                ?: throw IllegalStateException("Geen huidige periode voor ${gebruiker.bijnaam}.")
-            kopieerPeriodeBetalingen(gebruiker, bronPeriode.id, doelPeriode.id)
+        val parameters = demoRepository.findAll()
+        parameters.forEach { demo ->
+            val doelPeriode = periodeRepository.getPeriodeGebruikerEnDatum(demo.gebruiker.id, LocalDate.now())
+                ?: throw IllegalStateException("Geen huidige periode voor ${demo.gebruiker.bijnaam}.")
+            kopieerPeriodeBetalingen(demo.gebruiker, demo.bronPeriode, doelPeriode)
         }
     }
 
-    fun kopieerPeriodeBetalingen(gebruiker: Gebruiker, bronPeriodeId: Long, doelPeriodeId: Long): List<BetalingDTO> {
-        val bronPeriode = periodeRepository.findById(bronPeriodeId)
-            .orElseGet { throw IllegalStateException("Periode $bronPeriodeId bestaat niet.") }
-        val doelPeriode = periodeRepository.findById(doelPeriodeId)
-            .orElseGet { throw IllegalStateException("Periode $doelPeriodeId bestaat niet.") }
-        if (bronPeriode.gebruiker.id != gebruiker.id || doelPeriode.gebruiker.id != gebruiker.id) {
-            throw IllegalStateException("Periode $bronPeriodeId of $doelPeriodeId is niet van ${gebruiker.bijnaam}.")
-        }
+    fun kopieerPeriodeBetalingen(gebruiker: Gebruiker, bronPeriode: Periode, doelPeriode: Periode): List<BetalingDTO> {
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(
             gebruiker,
             bronPeriode.periodeStartDatum,
@@ -65,10 +63,12 @@ class DemoService {
         )
         val vandaag = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
         val betalingenDoelPeriode = betalingen.map { betaling ->
+            val boekingsdatum = shiftDatumNaarPeriodeMetZelfdeDag(betaling.boekingsdatum, doelPeriode)
+            val wordtDezeMaandBetalingVerwacht =
+                (betaling.bron.maanden.isNullOrEmpty() || betaling.bron.maanden!!.contains(boekingsdatum.monthValue)) &&
+                        (betaling.bestemming.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(boekingsdatum.monthValue));
             val betalingDTO = BetalingDTO(
-                boekingsdatum = shiftDatumNaarPeriodeMetZelfdeDag(betaling.boekingsdatum, doelPeriode).format(
-                    DateTimeFormatter.ISO_LOCAL_DATE
-                ),
+                boekingsdatum = boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 bedrag = betaling.bedrag.toString(),
                 omschrijving = betaling.omschrijving,
                 sortOrder = betaling.sortOrder,
@@ -76,10 +76,10 @@ class DemoService {
                 bestemming = betaling.bestemming.naam,
                 betalingsSoort = betaling.betalingsSoort.toString(),
             )
-            if (betalingDTO.boekingsdatum <= vandaag) {
+            if (wordtDezeMaandBetalingVerwacht && betalingDTO.boekingsdatum <= vandaag) {
                 betalingService.creeerBetaling(gebruiker, betalingDTO)
             } else {
-                logger.info("Betaling op ${betalingDTO.boekingsdatum} nog niet gekopieerd: ${betalingDTO.omschrijving}")
+                logger.info("Betaling op ${betalingDTO.boekingsdatum} ${if (!wordtDezeMaandBetalingVerwacht) "nog" else ""} niet gekopieerd: ${betalingDTO.omschrijving}")
                 betalingDTO
             }
         }

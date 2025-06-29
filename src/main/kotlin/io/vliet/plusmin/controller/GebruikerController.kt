@@ -66,7 +66,7 @@ class GebruikerController {
     @PostMapping("")
     fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> {
         val gebruiker = getJwtGebruiker()
-        val nieuweGebruikers = gebruikerList.map { it.email }.joinToString(", ")
+        val nieuweGebruikers = gebruikerList.joinToString(", ") { it.email }
         logger.info(
             "POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: $nieuweGebruikers")
         if (!gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
@@ -110,7 +110,6 @@ class GebruikerController {
     }
     fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
         val periodes: List<Periode> = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
-//        val aflossingen: List<Aflossing> = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
         return GebruikerDTO(
             gebruiker.id,
             gebruiker.email,
@@ -119,8 +118,7 @@ class GebruikerController {
             gebruiker.roles.map { it.toString() },
             gebruiker.vrijwilliger?.email ?: "",
             gebruiker.vrijwilliger?.bijnaam ?: "",
-            periodes= periodes.map { it.toDTO() },
-//            aflossingen = aflossingen.map { it.toSamenvattingDTO() }
+            periodes = periodes.map { it.toDTO() }
         )
     }
 }

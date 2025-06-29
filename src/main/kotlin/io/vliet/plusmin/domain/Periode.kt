@@ -43,9 +43,9 @@ class Periode(
     data class PeriodeDTO(
         val id: Long = 0,
         val periodeStartDatum: String,
-        val periodeEindDatum: String,
-        val periodeStatus: PeriodeStatus,
-        var saldoLijst: List<Saldo.SaldoDTO> = emptyList()
+        val periodeEindDatum: String? = LocalDate.parse(periodeStartDatum).plusMonths(1).minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
+        val periodeStatus: PeriodeStatus? = PeriodeStatus.OPGERUIMD,
+        var saldoLijst: List<Saldo.SaldoDTO>? = emptyList()
     )
 
     fun toDTO(): PeriodeDTO {

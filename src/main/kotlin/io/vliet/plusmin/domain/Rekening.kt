@@ -197,6 +197,7 @@ class Rekening(
     }
     fun rekeningIsGeldigInPeriode(periode: Periode): Boolean {
         return (this.vanPeriode == null || periode.periodeStartDatum >= this.vanPeriode.periodeStartDatum) &&
-                (this.totEnMetPeriode == null || periode.periodeEindDatum <= this.totEnMetPeriode.periodeEindDatum)
+                (this.totEnMetPeriode == null || periode.periodeEindDatum <= this.totEnMetPeriode.periodeEindDatum) &&
+                (periode.periodeStartDatum != periode.periodeEindDatum)
     }
 }

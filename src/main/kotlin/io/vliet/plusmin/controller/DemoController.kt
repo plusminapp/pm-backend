@@ -1,7 +1,5 @@
 package io.vliet.plusmin.controller
 
-//import io.vliet.plusmin.service.Camt053Service
-import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.service.DemoService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,16 +30,30 @@ class DemoController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage)
     }
 
-    @PutMapping("/hulpvrager/{hulpvragerId}/kopieerPeriode/{bronPeriodeId}/naar/{doelPeriodeId}")
-    fun kopieerPeriode(
+    @PutMapping("/hulpvrager/{hulpvragerId}/configureer")
+    fun configureerPeriode(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @PathVariable("bronPeriodeId") bronPeriodeId: Long,
-        @PathVariable("doelPeriodeId") doelPeriodeId: Long,
-    ): ResponseEntity<List<BetalingDTO>> {
+    ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT DemoController.kopieerPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(demoService.kopieerPeriodeBetalingen(hulpvrager, bronPeriodeId, doelPeriodeId))
-    }
+        logger.info("PUT DemoController.configureerPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        try {
+            demoService.configureerDemoBetalingen(hulpvrager)
+        } catch (e: Exception) {
+            logger.error("Fout bij demo configuratie voor hulpvrager ${hulpvrager.email}: ${e.message}")
+            return ResponseEntity.badRequest().body("Fout bij demo configuratie : ${e.message}")
+        }
+        return ResponseEntity.ok().body("Demo voor hulpvrager ${hulpvrager.email} is succesvol geconfigureerd.")    }
+
+//    @PutMapping("/hulpvrager/{hulpvragerId}/kopieerPeriode/{bronPeriodeId}/naar/{doelPeriodeId}")
+//    fun kopieerPeriode(
+//        @PathVariable("hulpvragerId") hulpvragerId: Long,
+//        @PathVariable("bronPeriodeId") bronPeriodeId: Long,
+//        @PathVariable("doelPeriodeId") doelPeriodeId: Long,
+//    ): ResponseEntity<List<BetalingDTO>> {
+//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+//        logger.info("PUT DemoController.kopieerPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
+//        return ResponseEntity.ok().body(demoService.kopieerPeriodeBetalingen(hulpvrager, bronPeriodeId, doelPeriodeId))
+//    }
 
     @DeleteMapping("/hulpvrager/{hulpvragerId}/verwijderVanPeriode/{periodeId}")
     fun deleteBetalingenInPeriode(
