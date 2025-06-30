@@ -57,6 +57,7 @@
         "naam": "Demo aflossing",
         "sortOrder": 500,
         "saldo": -1400,
+        "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 100,
         "budgetBetaalDag": 26,
         "betaalMethoden": [
@@ -75,6 +76,7 @@
         "naam": "Andere aflossing",
         "sortOrder": 600,
         "saldo": -500,
+        "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 50,
         "budgetBetaalDag": 28,
         "betaalMethoden": [
