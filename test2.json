@@ -1,0 +1,718 @@
+{
+  "resultaatOpDatum": [
+    {
+      "id": 2747,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "Greenchoice",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "175.00",
+        "parsedValue": 175
+      },
+      "budgetBetaalDag": 8,
+      "budgetBetaling": {
+        "source": "-175.00",
+        "parsedValue": -175
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "-175.00",
+        "parsedValue": -175
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "175.00",
+        "parsedValue": 175
+      },
+      "eerderDanBudget": {
+        "source": "175.00",
+        "parsedValue": 175
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2748,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "VvE",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": 120.07,
+      "budgetBetaalDag": 8,
+      "budgetBetaling": -120.07,
+      "oorspronkelijkeBudgetBetaling": -120.07,
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": 120.07,
+      "eerderDanBudget": 120.07,
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2749,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "Ziektekosten",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "187.50",
+        "parsedValue": 187.5
+      },
+      "budgetBetaalDag": 3,
+      "budgetBetaling": {
+        "source": "-187.50",
+        "parsedValue": -187.5
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "-187.50",
+        "parsedValue": -187.5
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "187.50",
+        "parsedValue": 187.5
+      },
+      "eerderDanBudget": {
+        "source": "187.50",
+        "parsedValue": 187.5
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2750,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "Schadeverzekeringen",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": 26.22,
+      "budgetBetaalDag": 1,
+      "budgetBetaling": -26.22,
+      "oorspronkelijkeBudgetBetaling": -26.22,
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": 26.22,
+      "eerderDanBudget": 26.22,
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2751,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "Huur",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": 541.95,
+      "budgetBetaalDag": 28,
+      "budgetBetaling": -541.95,
+      "oorspronkelijkeBudgetBetaling": -541.95,
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": 541.95,
+      "eerderDanBudget": 541.95,
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2752,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "GBLT",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": 31.49,
+      "budgetBetaalDag": 28,
+      "budgetBetaling": -31.49,
+      "oorspronkelijkeBudgetBetaling": -31.49,
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": 31.49,
+      "eerderDanBudget": 31.49,
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2753,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "Regionale belasting",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "74.70",
+        "parsedValue": 74.7
+      },
+      "budgetBetaalDag": 26,
+      "budgetBetaling": {
+        "source": "-74.70",
+        "parsedValue": -74.7
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "-74.70",
+        "parsedValue": -74.7
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "74.70",
+        "parsedValue": 74.7
+      },
+      "eerderDanBudget": {
+        "source": "74.70",
+        "parsedValue": 74.7
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2754,
+      "rekeningGroepNaam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "VAST",
+      "rekeningNaam": "Vitens",
+      "sortOrder": 120000,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "8.00",
+        "parsedValue": 8
+      },
+      "budgetBetaalDag": 26,
+      "budgetBetaling": {
+        "source": "-8.00",
+        "parsedValue": -8
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "-8.00",
+        "parsedValue": -8
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "8.00",
+        "parsedValue": 8
+      },
+      "eerderDanBudget": {
+        "source": "8.00",
+        "parsedValue": 8
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2755,
+      "rekeningGroepNaam": "Betaalrekening",
+      "rekeningGroepSoort": "BETAALREKENING",
+      "rekeningNaam": "Alex' betaalrekening",
+      "sortOrder": 100100,
+      "openingsSaldo": {
+        "source": "500.00",
+        "parsedValue": 500
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetBetaling": 144.43,
+      "oorspronkelijkeBudgetBetaling": 144.43,
+      "achterstandNu": 144.43,
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "eerderDanBudget": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 144.43,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2756,
+      "rekeningGroepNaam": "Inkomsten",
+      "rekeningGroepSoort": "INKOMSTEN",
+      "budgetType": "INKOMSTEN",
+      "rekeningNaam": "Toeslagen",
+      "sortOrder": 100100,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "678.00",
+        "parsedValue": 678
+      },
+      "budgetBetaalDag": 24,
+      "budgetBetaling": {
+        "source": "678.00",
+        "parsedValue": 678
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "678.00",
+        "parsedValue": 678
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "678.00",
+        "parsedValue": 678
+      },
+      "eerderDanBudget": {
+        "source": "678.00",
+        "parsedValue": 678
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2757,
+      "rekeningGroepNaam": "Inkomsten",
+      "rekeningGroepSoort": "INKOMSTEN",
+      "budgetType": "INKOMSTEN",
+      "rekeningNaam": "Salaris",
+      "sortOrder": 100100,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "1345.00",
+        "parsedValue": 1345
+      },
+      "budgetBetaalDag": 24,
+      "budgetBetaling": {
+        "source": "1345.00",
+        "parsedValue": 1345
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "1345.00",
+        "parsedValue": 1345
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "1345.00",
+        "parsedValue": 1345
+      },
+      "eerderDanBudget": {
+        "source": "1345.00",
+        "parsedValue": 1345
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2758,
+      "rekeningGroepNaam": "Leefgeld",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "CONTINU",
+      "rekeningNaam": "Boodschappen",
+      "sortOrder": 110110,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": 376.43,
+      "budgetBetaling": -330.09,
+      "oorspronkelijkeBudgetBetaling": -330.09,
+      "achterstandNu": -46.34,
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": 376.43,
+      "eerderDanBudget": 330.09,
+      "betaaldBinnenBudget": 46.34,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2759,
+      "rekeningGroepNaam": "Leefgeld",
+      "rekeningGroepSoort": "UITGAVEN",
+      "budgetType": "CONTINU",
+      "rekeningNaam": "Andere uitgaven",
+      "sortOrder": 110120,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "250.00",
+        "parsedValue": 250
+      },
+      "budgetBetaling": -233.55,
+      "oorspronkelijkeBudgetBetaling": -233.55,
+      "achterstandNu": -16.45,
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "250.00",
+        "parsedValue": 250
+      },
+      "eerderDanBudget": 233.55,
+      "betaaldBinnenBudget": 16.45,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2760,
+      "rekeningGroepNaam": "Creditcard",
+      "rekeningGroepSoort": "CREDITCARD",
+      "rekeningNaam": "Visa Creditcard",
+      "sortOrder": 200200,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetBetaling": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "eerderDanBudget": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2761,
+      "rekeningGroepNaam": "Inkomsten",
+      "rekeningGroepSoort": "INKOMSTEN",
+      "budgetType": "INKOMSTEN",
+      "rekeningNaam": "Rente",
+      "sortOrder": 100200,
+      "openingsSaldo": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "5.00",
+        "parsedValue": 5
+      },
+      "budgetBetaalDag": 5,
+      "budgetBetaling": 5.25,
+      "oorspronkelijkeBudgetBetaling": 5.25,
+      "achterstandNu": 0.25,
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "5.00",
+        "parsedValue": 5
+      },
+      "eerderDanBudget": {
+        "source": "5.00",
+        "parsedValue": 5
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0.25,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2762,
+      "rekeningGroepNaam": "Spaarrekening",
+      "rekeningGroepSoort": "SPAARREKENING",
+      "rekeningNaam": "Alex' spaarrekening",
+      "sortOrder": 300300,
+      "openingsSaldo": 116.18,
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetBetaling": 5.25,
+      "oorspronkelijkeBudgetBetaling": 5.25,
+      "achterstandNu": 5.25,
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "eerderDanBudget": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 5.25,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2763,
+      "rekeningGroepNaam": "Aflossing",
+      "rekeningGroepSoort": "AFLOSSING",
+      "budgetType": "VAST",
+      "rekeningNaam": "Demo aflossing",
+      "aflossing": {
+        "id": 1993,
+        "startDatum": "2025-01-01",
+        "eindBedrag": "2000.00",
+        "dossierNummer": "dossiernummer1",
+        "notities": "notities1"
+      },
+      "sortOrder": 500500,
+      "openingsSaldo": {
+        "source": "-2000.00",
+        "parsedValue": -2000
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "100.00",
+        "parsedValue": 100
+      },
+      "budgetBetaalDag": 26,
+      "budgetBetaling": {
+        "source": "-100.00",
+        "parsedValue": -100
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "-100.00",
+        "parsedValue": -100
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "100.00",
+        "parsedValue": 100
+      },
+      "eerderDanBudget": {
+        "source": "100.00",
+        "parsedValue": 100
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    },
+    {
+      "id": 2764,
+      "rekeningGroepNaam": "Aflossing",
+      "rekeningGroepSoort": "AFLOSSING",
+      "budgetType": "VAST",
+      "rekeningNaam": "Andere aflossing",
+      "aflossing": {
+        "id": 1996,
+        "startDatum": "2025-02-01",
+        "eindBedrag": "1200.00",
+        "dossierNummer": "dossiernummer2",
+        "notities": "notities2"
+      },
+      "sortOrder": 500600,
+      "openingsSaldo": {
+        "source": "-1200.00",
+        "parsedValue": -1200
+      },
+      "achterstand": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetMaandBedrag": {
+        "source": "50.00",
+        "parsedValue": 50
+      },
+      "budgetBetaalDag": 28,
+      "budgetBetaling": {
+        "source": "-50.00",
+        "parsedValue": -50
+      },
+      "oorspronkelijkeBudgetBetaling": {
+        "source": "-50.00",
+        "parsedValue": -50
+      },
+      "achterstandNu": {
+        "source": "0.00",
+        "parsedValue": 0
+      },
+      "budgetPeilDatum": "2025-02-19",
+      "budgetOpPeilDatum": {
+        "source": "50.00",
+        "parsedValue": 50
+      },
+      "eerderDanBudget": {
+        "source": "50.00",
+        "parsedValue": 50
+      },
+      "betaaldBinnenBudget": 0,
+      "minderDanBudget": 0,
+      "meerDanBudget": 0,
+      "meerDanMaandBudget": 0
+    }
+  ]
+}

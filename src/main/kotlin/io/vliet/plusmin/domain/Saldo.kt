@@ -103,7 +103,7 @@ class Saldo(
             if (RekeningGroep.balansRekeningGroepSoort.contains(this.rekening.rekeningGroep.rekeningGroepSoort)) {
                 this.openingsSaldo
             } else {
-                -this.openingsSaldo
+                BigDecimal(0)
             }
         return SaldoDTO(
             this.id,
@@ -122,6 +122,7 @@ class Saldo(
             achterstandNu,
             budgetPeilDatum,
             budgetOpPeilDatum,
+            BigDecimal(0),
             betaaldBinnenBudget,
             minderDanBudget,
             meerDanBudget,

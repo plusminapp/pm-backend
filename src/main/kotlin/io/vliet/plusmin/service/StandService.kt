@@ -70,8 +70,7 @@ class StandService {
                     .findAllByPeriode(periode)
                     .map { it.toDTO() }
             } else {
-                standInPeriodeService
-                    .berekenStandInPeriode(periode.gebruiker, peilDatum, periode)
+                standInPeriodeService.berekenStandInPeriode(periode.gebruiker, peilDatum, periode)
             }
         val geaggregeerdeStandOpDatum = standOpDatum
             .groupBy { it.rekeningGroepNaam }
