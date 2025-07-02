@@ -3,6 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
+import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -12,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 
 @Service
 class PeriodeUpdateService {
@@ -33,14 +35,44 @@ class PeriodeUpdateService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun sluitPeriode(gebruiker: Gebruiker, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
-        val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
-        if (saldoLijst.isEmpty())
-            sluitPeriodeIntern(
+        val (vorigePeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+        if (saldoLijst.isEmpty()) {
+            val eindSaldiVanVorigeGeslotenPeriode = saldoRepository.findAllByPeriode(vorigePeriode)
+            val betalingenTussenBasisEnPeilPeriode = standInPeriodeService.berekenMutatieLijstTussenDatums(
                 gebruiker,
-                periode,
-                standInPeriodeService.berekenStandInPeriode(gebruiker, periode.periodeEindDatum, periode, true)
+                periode.periodeStartDatum,
+                periode.periodeEindDatum
             )
-        else {
+            val nieuweSaldiLijst = eindSaldiVanVorigeGeslotenPeriode.map { saldo ->
+                val budgetMaandBedrag =
+                    if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
+                    else standInPeriodeService.berekenBudgetMaandBedrag(saldo.rekening, periode)
+                val budgetBetaling = betalingenTussenBasisEnPeilPeriode
+                    .filter { it.rekening.naam == saldo.rekening.naam }
+                    .sumOf { it.budgetBetaling }
+                saldo.fullCopy(
+                    openingsSaldo = saldo.openingsSaldo + budgetBetaling,
+                    budgetMaandBedrag = budgetMaandBedrag,
+                    budgetBetaling = budgetBetaling,
+                    oorspronkelijkeBudgetBetaling = budgetBetaling,
+                    budgetVariabiliteit = saldo.rekening.budgetVariabiliteit,
+                    periode = periode
+                )
+            }
+            logger.info("sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
+                eindSaldiVanVorigeGeslotenPeriode
+                    .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+                    .joinToString { it.rekening.naam + " OS" + it.openingsSaldo + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
+            }"
+            )
+            logger.info("sluitperiode: nieuweSaldiLijst: ${
+                nieuweSaldiLijst
+                    .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+                    .joinToString { it.rekening.naam + " OS:" + it.openingsSaldo + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
+            }"
+            )
+            sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst.map { it.toDTO() })
+        } else {
             sluitPeriodeIntern(gebruiker, periode, saldoLijst)
         }
     }
@@ -75,7 +107,7 @@ class PeriodeUpdateService {
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         return standInPeriodeService
-            .berekenStandInPeriode(gebruiker, periode.periodeEindDatum, periode, true)
+            .berekenStandInPeriode(periode.periodeEindDatum, periode, true)
     }
 
     fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {

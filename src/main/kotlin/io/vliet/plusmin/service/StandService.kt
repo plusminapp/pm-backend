@@ -70,11 +70,11 @@ class StandService {
                     .findAllByPeriode(periode)
                     .map { it.toDTO() }
             } else {
-                standInPeriodeService.berekenStandInPeriode(periode.gebruiker, peilDatum, periode)
+                standInPeriodeService.berekenStandInPeriode(peilDatum, periode)
             }
         val geaggregeerdeStandOpDatum = standOpDatum
             .groupBy { it.rekeningGroepNaam }
-            .mapValues { it.value.reduce { acc, budgetDTO -> add(acc, budgetDTO) } }
+            .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }
             .values.toList()
         val standSamenvattingOpDatumDTO =
             berekenResultaatSamenvatting(
@@ -92,7 +92,7 @@ class StandService {
         )
     }
 
-    fun add(saldoDTO1: Saldo.SaldoDTO, saldoDTO2: Saldo.SaldoDTO): Saldo.SaldoDTO {
+    fun fullAdd(saldoDTO1: Saldo.SaldoDTO, saldoDTO2: Saldo.SaldoDTO): Saldo.SaldoDTO {
 //        if (saldoDTO1.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING) {
 //            logger.info("SaldoDTO.add 1: ${saldoDTO1.rekeningGroepNaam} ${saldoDTO1.budgetPeilDatum}: ${saldoDTO1.achterstand}, ${saldoDTO1.achterstandNu} - ${saldoDTO2.achterstand}, ${saldoDTO2.achterstandNu}")
 //            logger.info("SaldoDTO.add 2: ${saldoDTO1.rekeningGroepNaam} ${saldoDTO1.budgetPeilDatum}: ${saldoDTO1.minderDanBudget}, ${saldoDTO1.meerDanMaandBudget} - ${saldoDTO2.minderDanBudget}, ${saldoDTO2.meerDanMaandBudget}")
