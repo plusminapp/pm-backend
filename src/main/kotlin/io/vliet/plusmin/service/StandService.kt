@@ -68,6 +68,7 @@ class StandService {
             if (geslotenPeriodes.contains(periode.periodeStatus)) {
                 saldoRepository
                     .findAllByPeriode(periode)
+                    .filter { it.rekening.rekeningIsGeldigInPeriode(periode) }
                     .map { it.toDTO() }
             } else {
                 standInPeriodeService.berekenStandInPeriode(peilDatum, periode)

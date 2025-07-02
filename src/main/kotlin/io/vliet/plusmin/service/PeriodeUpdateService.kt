@@ -43,15 +43,24 @@ class PeriodeUpdateService {
                 periode.periodeStartDatum,
                 periode.periodeEindDatum
             )
+            logger.info("sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
+                eindSaldiVanVorigeGeslotenPeriode
+                    .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+                    .joinToString { it.rekening.naam + " OS" + it.openingsSaldo + " A" + it.achterstand + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
+            }"
+            )
             val nieuweSaldiLijst = eindSaldiVanVorigeGeslotenPeriode.map { saldo ->
-                val budgetMaandBedrag =
-                    if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
-                    else standInPeriodeService.berekenBudgetMaandBedrag(saldo.rekening, periode)
                 val budgetBetaling = betalingenTussenBasisEnPeilPeriode
                     .filter { it.rekening.naam == saldo.rekening.naam }
                     .sumOf { it.budgetBetaling }
+                val budgetMaandBedrag =
+                    if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
+                    else saldo.rekening.toDTO(periode, budgetBetaling).budgetMaandBedrag ?: BigDecimal.ZERO
+                val achterstand = saldo.achterstand + saldo.budgetBetaling - budgetMaandBedrag
+
                 saldo.fullCopy(
-                    openingsSaldo = saldo.openingsSaldo + budgetBetaling,
+                    openingsSaldo = saldo.openingsSaldo + saldo.budgetBetaling,
+                    achterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetBetaling = budgetBetaling,
                     oorspronkelijkeBudgetBetaling = budgetBetaling,
@@ -59,16 +68,10 @@ class PeriodeUpdateService {
                     periode = periode
                 )
             }
-            logger.info("sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
-                eindSaldiVanVorigeGeslotenPeriode
-                    .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-                    .joinToString { it.rekening.naam + " OS" + it.openingsSaldo + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
-            }"
-            )
             logger.info("sluitperiode: nieuweSaldiLijst: ${
                 nieuweSaldiLijst
                     .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-                    .joinToString { it.rekening.naam + " OS:" + it.openingsSaldo + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
+                    .joinToString { it.rekening.naam + " OS:" + it.openingsSaldo + " A" + it.achterstand + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
             }"
             )
             sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst.map { it.toDTO() })

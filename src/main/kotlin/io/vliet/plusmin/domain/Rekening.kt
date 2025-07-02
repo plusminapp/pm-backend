@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.math.BigDecimal
+import java.time.LocalDate
 
 @Entity
 @Table(
     name = "rekening",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["rekeningGroep_id","naam"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["rekeningGroep_id", "naam"])]
 )
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class Rekening(
@@ -164,18 +165,40 @@ class Rekening(
 
     fun toDTO(
         periode: Periode? = null,
+        betaling: BigDecimal? = null
     ): RekeningDTO {
-        val budgetMaandBedrag = if (periode != null && budgetBedrag != null) {
-            if (budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
-                val periodeLengte = periode.periodeEindDatum.dayOfYear - periode.periodeStartDatum.dayOfYear + 1
-                (budgetBedrag.times(BigDecimal(periodeLengte)).div(BigDecimal(7))).setScale(
-                    2,
-                    java.math.RoundingMode.HALF_UP
-                )
-            } else {
-                budgetBedrag
+        val budgetMaandBedrag =
+            if (periode == null || !this.rekeningIsGeldigInPeriode(periode) || this.budgetBedrag == null)
+                BigDecimal.ZERO
+            else {
+                if (this.budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
+                    val periodeLengte = periode.periodeEindDatum.dayOfYear - periode.periodeStartDatum.dayOfYear + 1
+                    (this.budgetBedrag.times(BigDecimal(periodeLengte))
+                        .div(BigDecimal(7)))
+                        .setScale(2, java.math.RoundingMode.HALF_UP)
+                } else if (betaling == null) {
+                    this.budgetBedrag
+                } else {
+                    val budgetBetaalDagInPeriode = if (this.budgetBetaalDag != null)
+                        berekenDagInPeriode(this.budgetBetaalDag, periode)
+                    else null
+                    if (this.maanden.isNullOrEmpty() || this.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)) {
+                        // er wordt een betaling verwacht in deze periode
+                        val isBedragBinnenVariabiliteit =
+                            betaling.abs() <= this.budgetBedrag.times(
+                                BigDecimal(
+                                    100 + (this.budgetVariabiliteit ?: 0)
+                                ).divide(BigDecimal(100))
+                            ) &&
+                                    betaling.abs() >= this.budgetBedrag.times(
+                                BigDecimal(
+                                    100 - (this.budgetVariabiliteit ?: 0)
+                                ).divide(BigDecimal(100))
+                            )
+                        if (isBedragBinnenVariabiliteit) betaling.abs() else this.budgetBedrag
+                    } else BigDecimal.ZERO
+                }
             }
-        } else null
         return RekeningDTO(
             this.id,
             this.naam,
@@ -190,14 +213,27 @@ class Rekening(
             this.budgetVariabiliteit,
             this.maanden,
             this.budgetBetaalDag,
-            this.betaalMethoden.map { it.toDTO(periode) },
+            this.betaalMethoden.map { it.toDTO() },
             budgetMaandBedrag,
             this.aflossing?.toDTO()
         )
     }
+
     fun rekeningIsGeldigInPeriode(periode: Periode): Boolean {
         return (this.vanPeriode == null || periode.periodeStartDatum >= this.vanPeriode.periodeStartDatum) &&
                 (this.totEnMetPeriode == null || periode.periodeEindDatum <= this.totEnMetPeriode.periodeEindDatum) &&
                 (periode.periodeStartDatum != periode.periodeEindDatum)
     }
+
+    fun berekenDagInPeriode(dagInMaand: Int, periode: Periode): LocalDate {
+        val jaar = periode.periodeStartDatum.year
+        val maand = periode.periodeStartDatum.monthValue
+        val periodeStartDag = periode.periodeStartDatum.dayOfMonth
+        return if (dagInMaand < periodeStartDag) {
+            LocalDate.of(jaar, maand, dagInMaand).plusMonths(1)
+        } else {
+            LocalDate.of(jaar, maand, dagInMaand)
+        }
+    }
+
 }
