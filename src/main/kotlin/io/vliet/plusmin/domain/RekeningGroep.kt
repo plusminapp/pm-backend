@@ -54,6 +54,7 @@ class RekeningGroep(
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
         )
+
         val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
             Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,

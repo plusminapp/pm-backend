@@ -74,7 +74,7 @@ class Saldo(
         val budgetBetaalDag: Int? = null,
         val budgetBetaling: BigDecimal = BigDecimal.ZERO,
         val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal.ZERO,
-        val achterstandNu: BigDecimal? = null,
+        val achterstandOpPeildatum: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
         // invarianten:
@@ -91,7 +91,7 @@ class Saldo(
     fun toDTO(
     ): SaldoDTO {
         // Saldo -> SaldoDTO kan alleen voor gesloten (= voorbij) periodes
-        val achterstandNu = this.achterstand + this.budgetBetaling.abs() - this.budgetMaandBedrag
+        val achterstandOpPeildatum = this.achterstand + this.budgetBetaling.abs() - this.budgetMaandBedrag
         val budgetPeilDatum = periode?.periodeEindDatum.toString()
         val budgetOpPeilDatum = this.budgetMaandBedrag.abs()
         val betaaldBinnenBudget = this.budgetBetaling.abs().min(this.budgetMaandBedrag)
@@ -119,7 +119,7 @@ class Saldo(
             this.rekening.budgetBetaalDag,
             this.budgetBetaling,
             this.oorspronkelijkeBudgetBetaling,
-            achterstandNu,
+            achterstandOpPeildatum,
             budgetPeilDatum,
             budgetOpPeilDatum,
             BigDecimal(0),

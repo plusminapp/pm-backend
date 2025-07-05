@@ -61,7 +61,7 @@ class StandInPeriodeService {
         val eindSaldiVanBasisPeriode = saldoRepository.findAllByPeriode(basisPeriode)
         val betalingenTussenBasisEnPeilPeriode = berekenMutatieLijstTussenDatums(
             gebruiker,
-            basisPeriode.periodeEindDatum.plusDays(1),
+            basisPeriode.periodeStartDatum,
             peilPeriode.periodeStartDatum.minusDays(1)
         )
         logger.info(
@@ -108,7 +108,7 @@ class StandInPeriodeService {
                 // VasteLastenRekening is Betaald als de rekening een vaste lasten rekening is, en óf geen betaling wordt verwacht, óf de betaling binnen de budgetVariabiliteit valt
                 val budgetMaandBedrag =
                     if (rekening.budgetBedrag == null || !wordtDezeMaandBetalingVerwacht) BigDecimal.ZERO
-                    else rekening.toDTO(peilPeriode, budgetBetaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
+                    else -saldo.achterstand + (rekening.toDTO(peilPeriode, budgetBetaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO)
                 val isVasteLastOfAflossingBetaald =
                     isRekeningVasteLastOfAflossing && (!wordtDezeMaandBetalingVerwacht || budgetBetaling.abs() == budgetMaandBedrag)
                 val budgetOpPeilDatum =
@@ -121,11 +121,11 @@ class StandInPeriodeService {
                                 budgetBetaalDagInPeriode,
                                 peilDatum
                             ) ?: BigDecimal.ZERO)
-                val achterstandNu =
-                    if (rekening.rekeningGroep.rekeningGroepSoort != RekeningGroep.RekeningGroepSoort.AFLOSSING) BigDecimal.ZERO
+                val achterstandOpPeildatum =
+                    if (rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.VAST) BigDecimal.ZERO
                     else (achterstand + budgetBetaling.abs()).min(BigDecimal.ZERO)
                 if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING)
-                    logger.info("berekenStandInPeriode: ${rekening.naam} basisPeriode: $basisPeriode, peilPeriode: $peilPeriode, peilDatum: $peilDatum, budgetBetaling: $budgetBetaling, achterstand: $achterstand, budgetMaandBedrag: $budgetMaandBedrag, budgetOpPeilDatum: $budgetOpPeilDatum, achterstandNu: $achterstandNu")
+                    logger.info("berekenStandInPeriode: ${rekening.naam} basisPeriode: $basisPeriode, peilPeriode: $peilPeriode, peilDatum: $peilDatum, budgetBetaling: $budgetBetaling, achterstand: $achterstand, budgetMaandBedrag: $budgetMaandBedrag, budgetOpPeilDatum: $budgetOpPeilDatum, achterstandOpPeildatum: $achterstandOpPeildatum")
                 val betaaldBinnenBudget = (achterstand.abs() + budgetOpPeilDatum).min(budgetBetaling.abs())
                 val meerDanMaandBudget =
                     if (rekening.budgetBedrag == null || isVasteLastOfAflossingBetaald) BigDecimal.ZERO
@@ -135,7 +135,7 @@ class StandInPeriodeService {
                     else BigDecimal.ZERO.max(
                         budgetOpPeilDatum
                             .minus(budgetBetaling.abs())
-                            .minus(achterstandNu.abs())
+                            .minus(achterstandOpPeildatum.abs())
                     )
                 val meerDanBudget =
                     if (rekening.budgetBedrag == null || isVasteLastOfAflossingBetaald) BigDecimal.ZERO
@@ -150,7 +150,7 @@ class StandInPeriodeService {
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     openingsSaldo,
                     achterstand = achterstand,
-                    achterstandNu = achterstandNu,
+                    achterstandOpPeildatum = achterstandOpPeildatum,
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetBetaalDag = rekening.budgetBetaalDag,
                     budgetPeilDatum = peilDatum.toString(),
