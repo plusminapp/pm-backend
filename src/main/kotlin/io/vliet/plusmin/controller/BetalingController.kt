@@ -159,7 +159,7 @@ class BetalingController {
     ): ResponseEntity<LocalDate?> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingRepository.findLaatsteBetalingDatumBijGebruiker(hulpvrager))
+        return ResponseEntity.ok().body(betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager))
     }
 
     @PutMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")

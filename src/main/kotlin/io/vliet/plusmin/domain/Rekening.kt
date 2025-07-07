@@ -185,16 +185,7 @@ class Rekening(
                     if (this.maanden.isNullOrEmpty() || this.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)) {
                         // er wordt een betaling verwacht in deze periode
                         val isBedragBinnenVariabiliteit =
-                            betaling.abs() <= this.budgetBedrag.times(
-                                BigDecimal(
-                                    100 + (this.budgetVariabiliteit ?: 0)
-                                ).divide(BigDecimal(100))
-                            ) &&
-                                    betaling.abs() >= this.budgetBedrag.times(
-                                BigDecimal(
-                                    100 - (this.budgetVariabiliteit ?: 0)
-                                ).divide(BigDecimal(100))
-                            )
+                            isBedragBinnenVariabiliteit(betaling)
                         if (isBedragBinnenVariabiliteit) betaling.abs() else this.budgetBedrag
                     } else BigDecimal.ZERO
                 }
@@ -225,6 +216,13 @@ class Rekening(
                 (periode.periodeStartDatum != periode.periodeEindDatum)
     }
 
+    fun rekeningVerwachtBetalingInPeriode(periode: Periode): Boolean {
+        if (this.budgetBetaalDag == null || this.maanden.isNullOrEmpty())
+            return true
+        val betaaldagInPeriode = berekenDagInPeriode(this.budgetBetaalDag, periode)
+        return this.maanden!!.contains(betaaldagInPeriode.monthValue)
+    }
+
     fun berekenDagInPeriode(dagInMaand: Int, periode: Periode): LocalDate {
         val jaar = periode.periodeStartDatum.year
         val maand = periode.periodeStartDatum.monthValue
@@ -236,4 +234,20 @@ class Rekening(
         }
     }
 
+    fun isBedragBinnenVariabiliteit(
+        betaling: BigDecimal
+    ): Boolean {
+        return if (this.budgetBedrag == null) {
+            true
+        } else betaling.abs() <= this.budgetBedrag.times(
+            BigDecimal(
+                100 + (this.budgetVariabiliteit ?: 0)
+            ).divide(BigDecimal(100))
+        ) &&
+                betaling.abs() >= this.budgetBedrag.times(
+            BigDecimal(
+                100 - (this.budgetVariabiliteit ?: 0)
+            ).divide(BigDecimal(100))
+        )
+    }
 }

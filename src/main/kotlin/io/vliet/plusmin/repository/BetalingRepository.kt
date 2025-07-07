@@ -92,7 +92,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
                 "WHERE b.gebruiker = :gebruiker"
     )
-    fun findLaatsteBetalingDatumBijGebruiker(gebruiker: Gebruiker): LocalDate?
+    fun findDatumLaatsteBetalingBijGebruiker(gebruiker: Gebruiker): LocalDate?
 
     @Query(
         value = "SELECT MIN(b.sortOrder) FROM Betaling b " +

@@ -74,13 +74,12 @@ class Saldo(
         val budgetBetaalDag: Int? = null,
         val budgetBetaling: BigDecimal = BigDecimal.ZERO,
         val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal.ZERO,
-        val achterstandOpPeildatum: BigDecimal? = null,
+        val achterstandOpPeilDatum: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
         // invarianten:
-        // * budgetMaandBedrag = eerderDanBudget + betaaldBinnenBudget + minderDanBudget + restMaandBudget
+        // * budgetMaandBedrag = betaaldBinnenBudget + minderDanBudget + restMaandBudget
         // * budgetOpPeilDatum = budgetBetaling - meerDanBudget - meerDanMaandBudget
-        val eerderDanBudget: BigDecimal? = null,
         val betaaldBinnenBudget: BigDecimal? = null,
         val minderDanBudget: BigDecimal? = null,
         val meerDanBudget: BigDecimal? = null,
@@ -90,21 +89,16 @@ class Saldo(
 
     fun toDTO(
     ): SaldoDTO {
-        // Saldo -> SaldoDTO kan alleen voor gesloten (= voorbij) periodes
-        val achterstandOpPeildatum = this.achterstand + this.budgetBetaling.abs() - this.budgetMaandBedrag
+        // Saldo -> SaldoDTO kan alleen voor periodes die zijn afgelopen
+        val achterstandOpPeilDatum = this.achterstand + this.budgetBetaling.abs() - this.budgetMaandBedrag
         val budgetPeilDatum = periode?.periodeEindDatum.toString()
         val budgetOpPeilDatum = this.budgetMaandBedrag.abs()
         val betaaldBinnenBudget = this.budgetBetaling.abs().min(this.budgetMaandBedrag)
-        val minderDanBudget = BigDecimal.ZERO.max(this.budgetMaandBedrag.minus(this.budgetBetaling.abs()))
-        val meerDanMaandBudget = BigDecimal.ZERO.max(this.budgetBetaling.abs() - this.budgetMaandBedrag)
-        val meerDanBudget = BigDecimal.ZERO.max(this.budgetBetaling.abs() - this.budgetMaandBedrag - meerDanMaandBudget)
+        val minderDanBudget = BigDecimal.ZERO
+        val meerDanMaandBudget = BigDecimal.ZERO
+        val meerDanBudget = BigDecimal.ZERO
         val restMaandBudget = BigDecimal.ZERO
-        val openingsSaldo =
-            if (RekeningGroep.balansRekeningGroepSoort.contains(this.rekening.rekeningGroep.rekeningGroepSoort)) {
-                this.openingsSaldo
-            } else {
-                BigDecimal(0)
-            }
+        val openingsSaldo = this.openingsSaldo
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
@@ -119,10 +113,9 @@ class Saldo(
             this.rekening.budgetBetaalDag,
             this.budgetBetaling,
             this.oorspronkelijkeBudgetBetaling,
-            achterstandOpPeildatum,
+            achterstandOpPeilDatum,
             budgetPeilDatum,
             budgetOpPeilDatum,
-            BigDecimal(0),
             betaaldBinnenBudget,
             minderDanBudget,
             meerDanBudget,

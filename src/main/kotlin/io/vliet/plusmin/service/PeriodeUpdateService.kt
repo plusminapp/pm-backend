@@ -40,7 +40,7 @@ class PeriodeUpdateService {
         val (basisPeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         if (saldoLijst.isEmpty()) {
             val eindSaldiVanVorigeGeslotenPeriode = saldoRepository.findAllByPeriode(basisPeriode)
-            val betalingenTussenBasisEnPeilPeriode = standInPeriodeService.berekenMutatieLijstTussenDatums(
+            val betalingenGedurendePeilPeriode = standInPeriodeService.berekenMutatieLijstTussenDatums(
                 gebruiker,
                 periode.periodeStartDatum,
                 periode.periodeEindDatum
@@ -48,27 +48,30 @@ class PeriodeUpdateService {
             logger.info(
                 "sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
                     eindSaldiVanVorigeGeslotenPeriode
-                        .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-                        .joinToString { it.rekening.naam + " OS" + it.openingsSaldo + " A" + it.achterstand + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
+                        .filter { it.rekening.naam == "Greenchoice" }
+                        .joinToString { it.rekening.naam + " | OS: " + it.openingsSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.budgetBetaling }
                 }"
             )
             val nieuweSaldiLijst = eindSaldiVanVorigeGeslotenPeriode.map { saldo ->
-                val budgetBetaling = betalingenTussenBasisEnPeilPeriode
+                val budgetBetaling = betalingenGedurendePeilPeriode
                     .filter { it.rekening.naam == saldo.rekening.naam }
                     .sumOf { it.budgetBetaling }
                 val budgetMaandBedrag =
                     if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
-                    else -saldo.achterstand + (saldo.rekening.toDTO(periode, budgetBetaling).budgetMaandBedrag ?: BigDecimal.ZERO)
+                    else saldo.rekening.toDTO(periode, budgetBetaling).budgetMaandBedrag ?: BigDecimal.ZERO
+                val openingsSaldo =
+                    if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
+                        saldo.openingsSaldo + saldo.budgetBetaling
+                    else BigDecimal.ZERO
                 val achterstand =
                     if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                        saldo.budgetBetaling - budgetMaandBedrag
+                        (saldo.budgetBetaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
                     else BigDecimal.ZERO
 
+                if (saldo.rekening.naam == "Greenchoice")
+                    logger.info("BLAAT: ${saldo.rekening.naam} BBT ${(saldo.budgetBetaling)}, BMB ${budgetMaandBedrag}, A1 ${saldo.achterstand.abs()}, OS ${openingsSaldo}, A2 ${achterstand}")
                 saldo.fullCopy(
-                    openingsSaldo =
-                        if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
-                            saldo.openingsSaldo + saldo.budgetBetaling
-                        else BigDecimal.ZERO,
+                    openingsSaldo = openingsSaldo,
                     achterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetBetaling = budgetBetaling,
@@ -80,8 +83,8 @@ class PeriodeUpdateService {
             logger.info(
                 "sluitperiode: nieuweSaldiLijst: ${
                     nieuweSaldiLijst
-                        .filter { !resultaatRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-                        .joinToString { it.rekening.naam + " OS:" + it.openingsSaldo + " A" + it.achterstand + " BMB" + it.budgetMaandBedrag + " BBt" + it.budgetBetaling }
+                        .filter { it.rekening.naam == "Greenchoice" }
+                        .joinToString { it.rekening.naam + " | OS: " + it.openingsSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.budgetBetaling }
                 }"
             )
             sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst.map { it.toDTO() })

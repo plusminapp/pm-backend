@@ -1,11 +1,11 @@
 [
   {
-    "email": "<email van de hulpvrager>",
+    "email": "ruud.van.vliet@ett-twello.nl",
     "bijnaam": "Alex",
     "roles": [
       "ROLE_HULPVRAGER"
     ],
-    "vrijwilligerEmail": "email van de vrijwilliger",
+    "vrijwilligerEmail": "ruud@vliet.io",
     "periodes": [
       {
         "periodeStartDatum": "2025-01-20"

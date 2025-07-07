@@ -28,7 +28,7 @@
         "source": "-175.00",
         "parsedValue": -175
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -65,7 +65,7 @@
       "budgetBetaalDag": 8,
       "budgetBetaling": -120.07,
       "oorspronkelijkeBudgetBetaling": -120.07,
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -105,7 +105,7 @@
         "source": "-187.50",
         "parsedValue": -187.5
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -142,7 +142,7 @@
       "budgetBetaalDag": 1,
       "budgetBetaling": -26.22,
       "oorspronkelijkeBudgetBetaling": -26.22,
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -173,7 +173,7 @@
       "budgetBetaalDag": 28,
       "budgetBetaling": -541.95,
       "oorspronkelijkeBudgetBetaling": -541.95,
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -204,7 +204,7 @@
       "budgetBetaalDag": 28,
       "budgetBetaling": -31.49,
       "oorspronkelijkeBudgetBetaling": -31.49,
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -244,7 +244,7 @@
         "source": "-74.70",
         "parsedValue": -74.7
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -290,7 +290,7 @@
         "source": "-8.00",
         "parsedValue": -8
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -328,7 +328,7 @@
       },
       "budgetBetaling": 144.43,
       "oorspronkelijkeBudgetBetaling": 144.43,
-      "achterstandOpPeildatum": 144.43,
+      "achterstandOpPeilDatum": 144.43,
       "budgetPeilDatum": "2025-02-19",
       "budgetOpPeilDatum": {
         "source": "0.00",
@@ -371,7 +371,7 @@
         "source": "678.00",
         "parsedValue": 678
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -417,7 +417,7 @@
         "source": "1345.00",
         "parsedValue": 1345
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -453,7 +453,7 @@
       "budgetMaandBedrag": 376.43,
       "budgetBetaling": -330.09,
       "oorspronkelijkeBudgetBetaling": -330.09,
-      "achterstandOpPeildatum": -46.34,
+      "achterstandOpPeilDatum": -46.34,
       "budgetPeilDatum": "2025-02-19",
       "budgetOpPeilDatum": 376.43,
       "eerderDanBudget": 330.09,
@@ -483,7 +483,7 @@
       },
       "budgetBetaling": -233.55,
       "oorspronkelijkeBudgetBetaling": -233.55,
-      "achterstandOpPeildatum": -16.45,
+      "achterstandOpPeilDatum": -16.45,
       "budgetPeilDatum": "2025-02-19",
       "budgetOpPeilDatum": {
         "source": "250.00",
@@ -521,7 +521,7 @@
         "source": "0.00",
         "parsedValue": 0
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -561,7 +561,7 @@
       "budgetBetaalDag": 5,
       "budgetBetaling": 5.25,
       "oorspronkelijkeBudgetBetaling": 5.25,
-      "achterstandOpPeildatum": 0.25,
+      "achterstandOpPeilDatum": 0.25,
       "budgetPeilDatum": "2025-02-19",
       "budgetOpPeilDatum": {
         "source": "5.00",
@@ -593,7 +593,7 @@
       },
       "budgetBetaling": 5.25,
       "oorspronkelijkeBudgetBetaling": 5.25,
-      "achterstandOpPeildatum": 5.25,
+      "achterstandOpPeilDatum": 5.25,
       "budgetPeilDatum": "2025-02-19",
       "budgetOpPeilDatum": {
         "source": "0.00",
@@ -643,7 +643,7 @@
         "source": "-100.00",
         "parsedValue": -100
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
@@ -696,7 +696,7 @@
         "source": "-50.00",
         "parsedValue": -50
       },
-      "achterstandOpPeildatum": {
+      "achterstandOpPeilDatum": {
         "source": "0.00",
         "parsedValue": 0
       },
