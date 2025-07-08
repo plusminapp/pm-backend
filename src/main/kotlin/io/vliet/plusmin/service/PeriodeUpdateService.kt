@@ -68,8 +68,6 @@ class PeriodeUpdateService {
                         (saldo.budgetBetaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
                     else BigDecimal.ZERO
 
-                if (saldo.rekening.naam == "Greenchoice")
-                    logger.info("BLAAT: ${saldo.rekening.naam} BBT ${(saldo.budgetBetaling)}, BMB ${budgetMaandBedrag}, A1 ${saldo.achterstand.abs()}, OS ${openingsSaldo}, A2 ${achterstand}")
                 saldo.fullCopy(
                     openingsSaldo = openingsSaldo,
                     achterstand = achterstand,
@@ -80,13 +78,6 @@ class PeriodeUpdateService {
                     periode = periode
                 )
             }
-            logger.info(
-                "sluitperiode: nieuweSaldiLijst: ${
-                    nieuweSaldiLijst
-                        .filter { it.rekening.naam == "Greenchoice" }
-                        .joinToString { it.rekening.naam + " | OS: " + it.openingsSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.budgetBetaling }
-                }"
-            )
             sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst.map { it.toDTO() })
         } else {
             sluitPeriodeIntern(gebruiker, periode, saldoLijst)
