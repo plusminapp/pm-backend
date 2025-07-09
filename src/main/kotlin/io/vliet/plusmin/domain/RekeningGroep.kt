@@ -46,7 +46,7 @@ class RekeningGroep(
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
             RekeningGroepSoort.AFLOSSING,
-            RekeningGroepSoort.RESERVERING
+            RekeningGroepSoort.SPAARTEGOED
         )
         val betaalMethodeRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
@@ -60,8 +60,8 @@ class RekeningGroep(
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
             Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
-            Betaling.BetalingsSoort.TOEVOEGEN_RESERVERING to RekeningGroepSoort.RESERVERING,
-            Betaling.BetalingsSoort.BESTEDEN_RESERVERING to RekeningGroepSoort.RESERVERING,
+//            Betaling.BetalingsSoort.TOEVOEGEN_SPAARTEGOED to RekeningGroepSoort.SPAARTEGOED,
+            Betaling.BetalingsSoort.BESTEDEN_SPAARTEGOED to RekeningGroepSoort.SPAARTEGOED,
             Betaling.BetalingsSoort.OPNEMEN_SPAARREKENING to RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.STORTEN_SPAARREKENING to  RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
@@ -99,7 +99,7 @@ class RekeningGroep(
     )
 
     enum class RekeningGroepSoort {
-        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, RESERVERING,
+        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, SPAARTEGOED,
         INKOMSTEN, UITGAVEN
     }
 

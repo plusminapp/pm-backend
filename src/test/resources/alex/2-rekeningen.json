@@ -42,7 +42,44 @@
           {
             "naam": "Alex' betaalrekening"
           }
-        ]
+        ],
+        "spaartegoed": {
+          "startDatum": "2025-07-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 1ste"
+        }
+      },
+      {
+        "naam": "Alex' tweede spaarrekening",
+        "bankNaam": "ASN",
+        "sortOrder": 400,
+        "saldo": 200,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2025-07-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 2de"
+        }
+      },
+      {
+        "naam": "Alex' derde spaarrekening",
+        "bankNaam": "ASN",
+        "sortOrder": 500,
+        "saldo": 50,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2025-07-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 3de"
+        }
       }
     ]
   },
@@ -68,7 +105,7 @@
         "aflossing": {
           "startDatum": "2025-01-01",
           "eindBedrag": 2000,
-          "dossierNummer": "dossiernummer1",
+          "dossierNummer": "dossiernummer10",
           "notities": "notities1"
         }
       },

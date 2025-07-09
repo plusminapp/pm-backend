@@ -10,6 +10,7 @@ import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
+import io.vliet.plusmin.repository.SpaartegoedRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,6 +29,9 @@ class RekeningService {
     lateinit var aflossingRepository: AflossingRepository
 
     @Autowired
+    lateinit var spaartegoedRepository: SpaartegoedRepository
+
+    @Autowired
     lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
@@ -39,9 +43,9 @@ class RekeningService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun saveAll(gebruiker: Gebruiker, rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>): Set<RekeningGroep> {
-        val rekeningGroepLijst = rekeningGroepLijst
+        val rekeningGroepen = rekeningGroepLijst
             .map { rekeningGroepDTO -> save(gebruiker, rekeningGroepDTO) }
-        return rekeningGroepLijst.toSet()
+        return rekeningGroepen.toSet()
     }
 
     fun save(gebruiker: Gebruiker, rekeningGroepDTO: RekeningGroep.RekeningGroepDTO): RekeningGroep {
@@ -107,6 +111,26 @@ class RekeningService {
                     )
                 }
             } else null
+            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARTEGOED) {
+                if (rekeningOpt.spaartegoed == null) {
+                    spaartegoedRepository.save(
+                        Spaartegoed(
+                            0,
+                            LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag),
+                            rekeningDTO.spaartegoed.notities
+                        )
+                    )
+                } else {
+                    spaartegoedRepository.save(
+                        rekeningOpt.spaartegoed.fullCopy(
+                            LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag),
+                            rekeningDTO.spaartegoed.notities
+                        )
+                    )
+                }
+            } else null
             rekeningRepository.save(
                 rekeningOpt.fullCopy(
                     rekeningGroep = rekeningGroep,
@@ -121,6 +145,7 @@ class RekeningService {
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing ?: rekeningOpt.aflossing,
+                    spaartegoed = spaartegoed ?: rekeningOpt.spaartegoed,
                 )
             )
         } else {
@@ -133,6 +158,17 @@ class RekeningService {
                         BigDecimal(rekeningDTO.aflossing.eindBedrag),
                         rekeningDTO.aflossing.dossierNummer,
                         rekeningDTO.aflossing.notities
+                    )
+                )
+            } else null
+
+            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARTEGOED) {
+                spaartegoedRepository.save(
+                    Spaartegoed(
+                        0,
+                        LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                        BigDecimal(rekeningDTO.spaartegoed.eindBedrag),
+                        rekeningDTO.spaartegoed.notities
                     )
                 )
             } else null
@@ -152,6 +188,7 @@ class RekeningService {
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing,
+                    spaartegoed = spaartegoed,
                 )
             )
 

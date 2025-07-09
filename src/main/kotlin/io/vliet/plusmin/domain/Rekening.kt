@@ -52,6 +52,9 @@ class Rekening(
     @OneToOne(optional = true)
     @JoinColumn(name = "aflossing_id", nullable = true)
     val aflossing: Aflossing? = null,
+    @OneToOne(optional = true)
+    @JoinColumn(name = "spaartegoed_id", nullable = true)
+    val spaartegoed: Spaartegoed? = null,
 ) {
     companion object {
         val sortableFields = setOf("id", "naam")
@@ -71,6 +74,7 @@ class Rekening(
         budgetBetaalDag: Int? = this.budgetBetaalDag,
         betaalMethoden: List<Rekening> = this.betaalMethoden,
         aflossing: Aflossing? = this.aflossing,
+        spaartegoed: Spaartegoed? = this.spaartegoed,
     ) = Rekening(
         this.id,
         naam,
@@ -85,7 +89,8 @@ class Rekening(
         budgetPeriodiciteit,
         budgetBetaalDag,
         betaalMethoden,
-        aflossing
+        aflossing,
+        spaartegoed
     )
 
     fun fromDTO(
@@ -128,6 +133,7 @@ class Rekening(
         val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
+        val spaartegoed: Spaartegoed.SpaartegoeDTO? = null,
     ) {
         fun fullCopy(
             naam: String = this.naam,
@@ -143,6 +149,7 @@ class Rekening(
             betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             aflossing: Aflossing.AflossingDTO? = this.aflossing,
+            spaartegoed: Spaartegoed.SpaartegoeDTO? = this.spaartegoed,
         ) = RekeningDTO(
             this.id,
             naam,
@@ -159,7 +166,8 @@ class Rekening(
             budgetBetaalDag,
             betaalMethoden,
             budgetMaandBedrag,
-            aflossing
+            aflossing,
+            spaartegoed
         )
     }
 
@@ -206,7 +214,8 @@ class Rekening(
             this.budgetBetaalDag,
             this.betaalMethoden.map { it.toDTO() },
             budgetMaandBedrag,
-            this.aflossing?.toDTO()
+            this.aflossing?.toDTO(),
+            this.spaartegoed?.toDTO()
         )
     }
 

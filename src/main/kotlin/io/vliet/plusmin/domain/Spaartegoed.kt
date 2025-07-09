@@ -5,8 +5,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity
-@Table(name = "aflossing")
-class Aflossing(
+@Table(name = "spaartegoed")
+class Spaartegoed(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
@@ -17,53 +17,46 @@ class Aflossing(
     val id: Long = 0,
     val startDatum: LocalDate,
     val eindBedrag: BigDecimal,
-    val dossierNummer: String,
     @Column(columnDefinition = "TEXT")
     val notities: String
 ) {
     fun fullCopy(
         startDatum: LocalDate = this.startDatum,
         eindBedrag: BigDecimal = this.eindBedrag,
-        dossierNummer: String = this.dossierNummer,
         notities: String = this.notities,
-    ) = Aflossing(
+    ) = Spaartegoed(
         this.id,
         startDatum,
         eindBedrag,
-        dossierNummer,
         notities
     )
 
-    data class AflossingDTO(
+    data class SpaartegoeDTO(
         val id: Long = 0,
         val startDatum: String,
         val eindBedrag: String,
-        val dossierNummer: String,
         val notities: String,
     ) {
         fun fullCopy(
             startDatum: String = this.startDatum,
             eindBedrag: String = this.eindBedrag,
-            dossierNummer: String = this.dossierNummer,
             notities: String = this.notities,
 
-            ): AflossingDTO = AflossingDTO(
+            ): SpaartegoeDTO = SpaartegoeDTO(
             this.id,
             startDatum,
             eindBedrag,
-            dossierNummer,
             notities,
         )
     }
 
     fun toDTO(
         saldo: BigDecimal? = null
-    ): AflossingDTO {
-        return AflossingDTO(
+    ): SpaartegoeDTO {
+        return SpaartegoeDTO(
             this.id,
             this.startDatum.toString(),
             this.eindBedrag.toString(),
-            this.dossierNummer,
             this.notities,
         )
     }
