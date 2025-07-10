@@ -44,7 +44,7 @@ class Betaling(
         val bestemmingBetalingsSoorten = listOf<BetalingsSoort>(
             BetalingsSoort.INKOMSTEN,
             BetalingsSoort.STORTEN_CONTANT,
-            BetalingsSoort.OPNEMEN_SPAARREKENING,
+            BetalingsSoort.OPNEMEN,
         )
     }
 
@@ -125,11 +125,9 @@ class Betaling(
         UITGAVEN("Uitgaven"),
         LENEN("lenen"),
         AFLOSSEN("aflossen"),
-//        TOEVOEGEN_SPAARTEGOED("toevoegen_spaartegoed"),
-        BESTEDEN_SPAARTEGOED("besteden_spaartegoed"),
         INCASSO_CREDITCARD("incasso_creditcard"),
-        OPNEMEN_SPAARREKENING("opnemen_spaarrekening"),
-        STORTEN_SPAARREKENING("storten_spaarrekening"),
+        OPNEMEN("opnemen"),
+        SPAREN("sparen"),
         OPNEMEN_CONTANT("opnemen_contant"),
         STORTEN_CONTANT("storten_contant")
     }

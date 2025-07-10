@@ -31,13 +31,18 @@
   {
     "naam": "Spaarrekening",
     "rekeningGroepSoort": "SPAARREKENING",
+    "budgetType": "SPAREN",
+    "rekeningGroepIcoonNaam": "spaartegoed",
     "sortOrder": 300,
     "rekeningen": [
       {
-        "naam": "Alex' spaarrekening",
+        "naam": "Vrij spaargeld",
         "bankNaam": "ASN",
-        "sortOrder": 300,
+        "sortOrder": 1300,
         "saldo": 116.18,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 26,
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -50,10 +55,13 @@
         }
       },
       {
-        "naam": "Alex' tweede spaarrekening",
+        "naam": "Kleding",
         "bankNaam": "ASN",
-        "sortOrder": 400,
+        "sortOrder": 1400,
         "saldo": 200,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 26,
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -61,15 +69,17 @@
         ],
         "spaartegoed": {
           "startDatum": "2025-07-01",
-          "eindBedrag": 2000,
-          "notities": "notities bij 2de"
+          "notities": "notities bij Kleding"
         }
       },
       {
-        "naam": "Alex' derde spaarrekening",
+        "naam": "Nieuwe wasmachine",
         "bankNaam": "ASN",
-        "sortOrder": 500,
+        "sortOrder": 1500,
         "saldo": 50,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "budgetBetaalDag": 26,
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -142,7 +152,7 @@
         "sortOrder": 100,
         "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 1345,
+        "budgetBedrag": 1445,
         "budgetBetaalDag": 24,
         "betaalMethoden": [
           {
@@ -246,7 +256,7 @@
       {
         "naam": "Ziektekosten",
         "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 187.50,
+        "budgetBedrag": 147.50,
         "budgetBetaalDag": 3,
         "betaalMethoden": [
           {

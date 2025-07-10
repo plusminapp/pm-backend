@@ -74,7 +74,7 @@ class StandInPeriodeService {
 
                 val budgetOpPeilDatum =
                     when (rekening.rekeningGroep.budgetType) {
-                        RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
+                        RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.SPAREN, RekeningGroep.BudgetType.INKOMSTEN -> {
                             if (betaaldagInPeriode == null) {
                                 throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
                             }
@@ -108,6 +108,7 @@ class StandInPeriodeService {
                     rekening.rekeningGroep.budgetType,
                     rekening.naam,
                     aflossing = rekening.aflossing?.toDTO(),
+                    spaartegoed = rekening.spaartegoed?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     openingsSaldo,
                     achterstand = achterstand,
@@ -200,13 +201,13 @@ class StandInPeriodeService {
                             && basisPeriodeSaldo.rekening.rekeningVerwachtBetalingInPeriode(it)
                 }
             val budgetMaandBedrag = basisPeriodeSaldo.rekening.toDTO(peilPeriode).budgetMaandBedrag ?: BigDecimal.ZERO
-            val achterstand =
-                if (basisPeriodeSaldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                    (basisPeriodeSaldo.achterstand
-                            - (BigDecimal(aantalGeldigePeriodes) * budgetMaandBedrag)
-                            + basisPeriodeSaldo.budgetBetaling + budgetBetaling
-                            ).min(BigDecimal.ZERO)
-                else BigDecimal.ZERO
+            val achterstand = BigDecimal.ZERO
+//                if (basisPeriodeSaldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
+//                    (basisPeriodeSaldo.achterstand
+//                            - (BigDecimal(aantalGeldigePeriodes) * budgetMaandBedrag)
+//                            + basisPeriodeSaldo.budgetBetaling + budgetBetaling
+//                            ).min(BigDecimal.ZERO)
+//                else BigDecimal.ZERO
             basisPeriodeSaldo.fullCopy(
                 openingsSaldo = openingsSaldo,
                 achterstand = achterstand,

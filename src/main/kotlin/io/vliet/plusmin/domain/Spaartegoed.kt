@@ -1,6 +1,7 @@
 package io.vliet.plusmin.domain
 
 import jakarta.persistence.*
+import com.fasterxml.jackson.annotation.JsonInclude
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -16,13 +17,13 @@ class Spaartegoed(
     )
     val id: Long = 0,
     val startDatum: LocalDate,
-    val eindBedrag: BigDecimal,
+    val eindBedrag: BigDecimal?,
     @Column(columnDefinition = "TEXT")
     val notities: String
 ) {
     fun fullCopy(
         startDatum: LocalDate = this.startDatum,
-        eindBedrag: BigDecimal = this.eindBedrag,
+        eindBedrag: BigDecimal? = this.eindBedrag,
         notities: String = this.notities,
     ) = Spaartegoed(
         this.id,
@@ -31,15 +32,16 @@ class Spaartegoed(
         notities
     )
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     data class SpaartegoeDTO(
         val id: Long = 0,
         val startDatum: String,
-        val eindBedrag: String,
+        val eindBedrag: String?,
         val notities: String,
     ) {
         fun fullCopy(
             startDatum: String = this.startDatum,
-            eindBedrag: String = this.eindBedrag,
+            eindBedrag: String? = this.eindBedrag,
             notities: String = this.notities,
 
             ): SpaartegoeDTO = SpaartegoeDTO(
@@ -56,7 +58,7 @@ class Spaartegoed(
         return SpaartegoeDTO(
             this.id,
             this.startDatum.toString(),
-            this.eindBedrag.toString(),
+            this.eindBedrag?.toString(),
             this.notities,
         )
     }

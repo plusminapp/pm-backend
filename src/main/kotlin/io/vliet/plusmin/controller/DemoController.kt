@@ -1,5 +1,6 @@
 package io.vliet.plusmin.controller
 
+import io.vliet.plusmin.repository.DemoRepository
 import io.vliet.plusmin.service.DemoService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,6 +15,9 @@ class DemoController {
 
     @Autowired
     lateinit var demoService: DemoService
+
+    @Autowired
+    lateinit var demoRepository: DemoRepository
 
     @Autowired
     lateinit var gebruikerController: GebruikerController
@@ -64,5 +68,20 @@ class DemoController {
         logger.info("DELETE DemoController.deleteBetalingenInPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
         demoService.deleteBetalingenInPeriode(hulpvrager, periodeId)
         return ResponseEntity.ok().body("Betalingen verwijderd.")
+    }
+
+    @PutMapping("/hulpvrager/{hulpvragerId}/reset")
+    fun resetGebruikerData(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<String> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("PUT DemoController.resetGebruikerData voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        try {
+            demoRepository.resetGebruikerData(hulpvrager.id)
+        } catch (e: Exception) {
+            logger.error("Fout bij reset gebruiker data voor ${hulpvrager.email}: ${e.message}")
+            return ResponseEntity.badRequest().body("Fout bij reset gebruiker data : ${e.message}")
+        }
+        return ResponseEntity.ok().body("Gebruiker data voor ${hulpvrager.email} is succesvol gereset.")
     }
 }

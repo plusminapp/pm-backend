@@ -33,7 +33,7 @@
   },
   {
     "boekingsdatum": "2025-01-23",
-    "bedrag": "1345.00",
+    "bedrag": "1445.00",
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Salaris",
@@ -137,7 +137,7 @@
   },
   {
     "boekingsdatum": "2025-02-03",
-    "bedrag": "187.50",
+    "bedrag": "147.50",
     "omschrijving": "Ziektekosten verzekering",
     "betalingsSoort": "UITGAVEN",
     "bron": "Alex' betaalrekening",
@@ -264,12 +264,36 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-19",
+    "boekingsdatum": "2025-02-03",
     "bedrag": "5.25",
     "omschrijving": "Rente",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Rente",
-    "bestemming": "Alex' spaarrekening"
+    "bestemming": "Vrij spaargeld"
+  },
+  {
+    "boekingsdatum": "2025-01-26",
+    "bedrag": "25",
+    "omschrijving": "Storting vrij spaartegoed",
+    "betalingsSoort": "SPAREN",
+    "bron": "Alex' betaalrekening",
+    "bestemming": "Vrij spaargeld"
+  },
+  {
+    "boekingsdatum": "2025-01-26",
+    "bedrag": "25",
+    "omschrijving": "Storting kleedgeld",
+    "betalingsSoort": "SPAREN",
+    "bron": "Alex' betaalrekening",
+    "bestemming": "Kleding"
+  },
+  {
+    "boekingsdatum": "2025-01-26",
+    "bedrag": "50",
+    "omschrijving": "Storting wasmachine",
+    "betalingsSoort": "SPAREN",
+    "bron": "Alex' betaalrekening",
+    "bestemming": "Nieuwe wasmachine"
   },
   {
     "boekingsdatum": "2025-02-19",

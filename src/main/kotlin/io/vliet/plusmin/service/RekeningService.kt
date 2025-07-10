@@ -61,17 +61,19 @@ class RekeningService {
                 rekeningGroepDTO.budgetType
             ) else null,
             rekeningen = emptyList(),
+        )
+        val savedRekeningGroep = rekeningGroepRepository.save(
+            rekeningGroep.fullCopy(
+                naam = rekeningGroepDTO.naam,
+                gebruiker = gebruiker,
+                rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningGroepDTO.rekeningGroepSoort),
+                rekeningGroepIcoonNaam = rekeningGroepDTO.rekeningGroepIcoonNaam,
+                sortOrder = rekeningGroepDTO.sortOrder,
+                budgetType = if (rekeningGroepDTO.budgetType !== null) enumValueOf<RekeningGroep.BudgetType>(
+                    rekeningGroepDTO.budgetType
+                ) else null,
             )
-        val savedRekeningGroep = rekeningGroepRepository.save(rekeningGroep.fullCopy(
-            naam = rekeningGroepDTO.naam,
-            gebruiker = gebruiker,
-            rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningGroepDTO.rekeningGroepSoort),
-            rekeningGroepIcoonNaam = rekeningGroepDTO.rekeningGroepIcoonNaam,
-            sortOrder = rekeningGroepDTO.sortOrder,
-            budgetType = if (rekeningGroepDTO.budgetType !== null) enumValueOf<RekeningGroep.BudgetType>(
-                rekeningGroepDTO.budgetType
-            ) else null,
-        ))
+        )
         val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
@@ -111,13 +113,14 @@ class RekeningService {
                     )
                 }
             } else null
-            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARTEGOED) {
+            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING) {
                 if (rekeningOpt.spaartegoed == null) {
                     spaartegoedRepository.save(
                         Spaartegoed(
                             0,
                             LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag),
+                            if (rekeningDTO.spaartegoed.eindBedrag != null)
+                                BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
                             rekeningDTO.spaartegoed.notities
                         )
                     )
@@ -125,7 +128,8 @@ class RekeningService {
                     spaartegoedRepository.save(
                         rekeningOpt.spaartegoed.fullCopy(
                             LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag),
+                            if (rekeningDTO.spaartegoed.eindBedrag != null)
+                                BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
                             rekeningDTO.spaartegoed.notities
                         )
                     )
@@ -162,12 +166,13 @@ class RekeningService {
                 )
             } else null
 
-            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARTEGOED) {
+            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING) {
                 spaartegoedRepository.save(
                     Spaartegoed(
                         0,
                         LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                        BigDecimal(rekeningDTO.spaartegoed.eindBedrag),
+                        if (rekeningDTO.spaartegoed.eindBedrag != null)
+                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
                         rekeningDTO.spaartegoed.notities
                     )
                 )
@@ -220,7 +225,7 @@ class RekeningService {
         return rekeningGroepenLijst.map { rekeningGroep ->
             rekeningGroep.fullCopy(
                 rekeningen = rekeningGroep.rekeningen
-                    .filter { it.rekeningIsGeldigInPeriode( periode) }
+                    .filter { it.rekeningIsGeldigInPeriode(periode) }
                     .sortedBy { it.sortOrder }
             ).toDTO(periode)
         }.filter { it.rekeningen.isNotEmpty() }

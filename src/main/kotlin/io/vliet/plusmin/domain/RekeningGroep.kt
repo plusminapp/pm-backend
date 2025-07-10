@@ -46,7 +46,6 @@ class RekeningGroep(
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
             RekeningGroepSoort.AFLOSSING,
-            RekeningGroepSoort.SPAARTEGOED
         )
         val betaalMethodeRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
@@ -60,10 +59,8 @@ class RekeningGroep(
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
             Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
-//            Betaling.BetalingsSoort.TOEVOEGEN_SPAARTEGOED to RekeningGroepSoort.SPAARTEGOED,
-            Betaling.BetalingsSoort.BESTEDEN_SPAARTEGOED to RekeningGroepSoort.SPAARTEGOED,
-            Betaling.BetalingsSoort.OPNEMEN_SPAARREKENING to RekeningGroepSoort.SPAARREKENING,
-            Betaling.BetalingsSoort.STORTEN_SPAARREKENING to  RekeningGroepSoort.SPAARREKENING,
+            Betaling.BetalingsSoort.SPAREN to  RekeningGroepSoort.SPAARREKENING,
+            Betaling.BetalingsSoort.OPNEMEN to  RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
             Betaling.BetalingsSoort.STORTEN_CONTANT to RekeningGroepSoort.CONTANT,
             )
@@ -104,7 +101,7 @@ class RekeningGroep(
     }
 
     enum class BudgetType {
-        INKOMSTEN, VAST, CONTINU
+        INKOMSTEN, VAST, CONTINU, SPAREN
     }
 
     data class RekeningGroepDTO(

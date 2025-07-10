@@ -63,10 +63,10 @@ class PeriodeUpdateService {
                     if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
                         saldo.openingsSaldo + saldo.budgetBetaling
                     else BigDecimal.ZERO
-                val achterstand =
-                    if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                        (saldo.budgetBetaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
-                    else BigDecimal.ZERO
+                val achterstand = BigDecimal.ZERO
+//                    if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
+//                        (saldo.budgetBetaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
+//                    else BigDecimal.ZERO
 
                 saldo.fullCopy(
                     openingsSaldo = openingsSaldo,
