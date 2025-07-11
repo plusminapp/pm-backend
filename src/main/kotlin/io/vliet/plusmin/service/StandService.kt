@@ -148,7 +148,11 @@ class StandService {
         val besteedTotPeilDatum = saldi
             .filter {
                 it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN ||
-                        it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING ||
+                        it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
+            }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetBetaling) }
+        val gespaardTotPeilDatum = saldi
+            .filter {
                         it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING
             }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetBetaling) }
@@ -174,6 +178,7 @@ class StandService {
                     werkelijkeMaandInkomsten
                 else budgetMaandInkomsten.max(werkelijkeMaandInkomsten),
             besteedTotPeilDatum = besteedTotPeilDatum,
+            gespaardTotPeilDatum = gespaardTotPeilDatum,
             nogNodigNaPeilDatum = nogNodigNaPeilDatum,
             actueleBuffer = actueleBuffer
         )

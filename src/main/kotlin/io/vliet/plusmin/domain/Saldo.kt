@@ -130,6 +130,7 @@ class Saldo(
         val percentagePeriodeVoorbij: Long,
         val budgetMaandInkomstenBedrag: BigDecimal,
         val besteedTotPeilDatum: BigDecimal,
+        val gespaardTotPeilDatum: BigDecimal,
         val nogNodigNaPeilDatum: BigDecimal,
         val actueleBuffer: BigDecimal,
     )
