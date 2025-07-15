@@ -127,6 +127,7 @@ class Betaling(
         AFLOSSEN("aflossen"),
         INCASSO_CREDITCARD("incasso_creditcard"),
         OPNEMEN("opnemen"),
+        BESTEDEN("besteden"),
         SPAREN("sparen"),
         OPNEMEN_CONTANT("opnemen_contant"),
         STORTEN_CONTANT("storten_contant")

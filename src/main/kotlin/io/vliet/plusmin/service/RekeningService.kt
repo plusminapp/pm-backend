@@ -231,7 +231,7 @@ class RekeningService {
         }.filter { it.rekeningen.isNotEmpty() }
     }
 
-    fun rekeningenPerBetalingsSoort(
+    fun rekeningGroepenPerBetalingsSoort(
         rekeningGroepen: List<RekeningGroep.RekeningGroepDTO>
     ): List<RekeningGroep.RekeningGroepPerBetalingsSoort> {
         return RekeningGroep.betaalSoort2RekeningGroepSoort.map { (betalingsSoort, rekeningGroepSoort) ->

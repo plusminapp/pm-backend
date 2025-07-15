@@ -53,7 +53,7 @@ class RekeningController {
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
         val rekeningGroepLijst = rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
-        return ResponseEntity.ok().body(rekeningService.rekeningenPerBetalingsSoort(rekeningGroepLijst))
+        return ResponseEntity.ok().body(rekeningService.rekeningGroepenPerBetalingsSoort(rekeningGroepLijst))
     }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
