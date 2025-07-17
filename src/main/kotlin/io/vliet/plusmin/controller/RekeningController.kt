@@ -5,6 +5,7 @@ import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import io.vliet.plusmin.repository.RekeningRepository
+import io.vliet.plusmin.service.RekeningCashflowService
 import io.vliet.plusmin.service.RekeningService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,6 +25,9 @@ class RekeningController {
 
     @Autowired
     lateinit var rekeningService: RekeningService
+
+    @Autowired
+    lateinit var rekeningCashflowService: RekeningCashflowService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -52,8 +56,20 @@ class RekeningController {
         logger.info("GET RekeningController.getAlleRekeningenPerBetalingsSoortVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        val rekeningGroepLijst = rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
-        return ResponseEntity.ok().body(rekeningService.rekeningGroepenPerBetalingsSoort(rekeningGroepLijst))
+        return ResponseEntity.ok().body(rekeningService.rekeningGroepenPerBetalingsSoort(hulpvrager, periode))
+    }
+
+    @Operation(summary = "GET de geldige rekeningen in een periode")
+    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}/cashflow")
+    fun getCashflowVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET RekeningController.getCashflowVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val periode = periodeRepository.findById(periodeId)
+            .getOrElse { return ResponseEntity.notFound().build() }
+        return ResponseEntity.ok().body(rekeningCashflowService.getCashflowVoorHulpvrager(hulpvrager, periode))
     }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
