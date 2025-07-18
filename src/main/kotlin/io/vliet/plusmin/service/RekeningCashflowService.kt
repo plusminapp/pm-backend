@@ -65,17 +65,13 @@ class RekeningCashflowService {
                 val uitgaven =
                     if (date > laatsteBetaling) continueBudgetUitgaven + vasteBudgetUitgaven(rekeningGroepen, date)
                     else uitgaven(betalingenInPeriode, date)
+                val saldo = accSaldo + inkomsten + uitgaven
                 val nieuwSaldo =
-                    if (date <= laatsteBetaling) accSaldo + inkomsten + uitgaven
-                    else null
+                    if (date <= laatsteBetaling) saldo else null
                 val nieuwePrognose =
-                    if (date >= laatsteBetaling) accSaldo + inkomsten + uitgaven
-                    else null
+                    if (date >= laatsteBetaling) saldo else null
                 val cashFlow = CashFlow(date, inkomsten, uitgaven, nieuwSaldo, nieuwePrognose)
-                Pair(
-                    (nieuwSaldo ?: BigDecimal(0)).plus(nieuwePrognose ?: BigDecimal(0)),
-                    accList + cashFlow
-                )
+                Pair(saldo, accList + cashFlow)
             }.second
         return cashflow.toList()
     }
