@@ -58,7 +58,6 @@ class RekeningGroep(
             Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
-            Betaling.BetalingsSoort.BESTEDEN to RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
             Betaling.BetalingsSoort.SPAREN to  RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.OPNEMEN to  RekeningGroepSoort.SPAARREKENING,
@@ -97,8 +96,9 @@ class RekeningGroep(
     )
 
     enum class RekeningGroepSoort {
-        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, SPAARTEGOED,
-        INKOMSTEN, UITGAVEN
+        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD,
+        INKOMSTEN, UITGAVEN, AFLOSSING,
+        RESERVERING_BUFFER
     }
 
     enum class BudgetType {

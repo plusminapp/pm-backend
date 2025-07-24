@@ -128,8 +128,8 @@ class BetalingController {
 
   @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweBetalingVoorHulpvrager(
-      @Valid @RequestBody betalingDTO: BetalingDTO,
       @PathVariable("hulpvragerId") hulpvragerId: Long,
+      @Valid @RequestBody betalingDTO: BetalingDTO,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
@@ -139,8 +139,8 @@ class BetalingController {
 
     @PutMapping("/{betalingId}")
     fun wijzigBetaling(
-        @Valid @RequestBody betalingDTO: BetalingDTO,
         @PathVariable("betalingId") betalingId: Long,
+        @Valid @RequestBody betalingDTO: BetalingDTO,
     ): ResponseEntity<Any> {
         val betalingOpt = betalingRepository.findById(betalingId)
         if (betalingOpt.isEmpty) {
@@ -150,7 +150,7 @@ class BetalingController {
         val betaling = betalingOpt.get()
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
         logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
+        return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO, betaling.reservering).toDTO())
     }
 
     @GetMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")

@@ -31,6 +31,9 @@ class Betaling(
     @Enumerated(EnumType.STRING)
     val betalingsSoort: BetalingsSoort,
     val sortOrder: String,
+    @OneToOne(optional = true)
+    @JoinColumn(name = "reservering_id", nullable = true)
+    val reservering: Reservering? = null,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening,
@@ -46,6 +49,11 @@ class Betaling(
             BetalingsSoort.STORTEN_CONTANT,
             BetalingsSoort.OPNEMEN,
         )
+        val reserveringBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.INKOMSTEN,
+            BetalingsSoort.UITGAVEN,
+            BetalingsSoort.AFLOSSEN,
+        )
     }
 
     fun fullCopy(
@@ -55,6 +63,7 @@ class Betaling(
         omschrijving: String = this.omschrijving,
         betalingsSoort: BetalingsSoort = this.betalingsSoort,
         sortOrder: String = this.sortOrder,
+        reservering: Reservering? = this.reservering,
         bron: Rekening = this.bron,
         bestemming: Rekening = this.bestemming,
     ) = Betaling(
@@ -65,6 +74,7 @@ class Betaling(
         omschrijving,
         betalingsSoort,
         sortOrder,
+        reservering,
         bron,
         bestemming,
     )
@@ -123,11 +133,9 @@ class Betaling(
         INKOMSTEN("Inkomsten"),
         RENTE("Rente"),
         UITGAVEN("Uitgaven"),
-        LENEN("lenen"),
         AFLOSSEN("aflossen"),
         INCASSO_CREDITCARD("incasso_creditcard"),
         OPNEMEN("opnemen"),
-        BESTEDEN("besteden"),
         SPAREN("sparen"),
         OPNEMEN_CONTANT("opnemen_contant"),
         STORTEN_CONTANT("storten_contant")

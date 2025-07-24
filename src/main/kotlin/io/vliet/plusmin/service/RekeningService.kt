@@ -138,7 +138,7 @@ class RekeningService {
             rekeningRepository.save(
                 rekeningOpt.fullCopy(
                     rekeningGroep = rekeningGroep,
-                    sortOrder = rekeningDTO.sortOrder,
+                    sortOrder = rekeningDTO.sortOrder ?: 0,
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
@@ -166,23 +166,23 @@ class RekeningService {
                 )
             } else null
 
-            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING) {
-                spaartegoedRepository.save(
-                    Spaartegoed(
-                        0,
-                        LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                        if (rekeningDTO.spaartegoed.eindBedrag != null)
-                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
-                        rekeningDTO.spaartegoed.notities
-                    )
-                )
-            } else null
+//            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING) {
+//                spaartegoedRepository.save(
+//                    Spaartegoed(
+//                        0,
+//                        LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+//                        if (rekeningDTO.spaartegoed.eindBedrag != null)
+//                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
+//                        rekeningDTO.spaartegoed.notities
+//                    )
+//                )
+//            } else null
 
             val savedRekening = rekeningRepository.save(
                 Rekening(
                     naam = rekeningDTO.naam,
                     rekeningGroep = rekeningGroep,
-                    sortOrder = rekeningDTO.sortOrder,
+                    sortOrder = rekeningDTO.sortOrder ?: 0,
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
@@ -193,7 +193,7 @@ class RekeningService {
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing,
-                    spaartegoed = spaartegoed,
+                    spaartegoed = null,
                 )
             )
 

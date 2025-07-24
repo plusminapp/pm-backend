@@ -2,12 +2,15 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.Role
+import io.vliet.plusmin.domain.Rekening
+import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Service
@@ -17,6 +20,9 @@ class GebruikerService {
 
     @Autowired
     lateinit var periodeService: PeriodeService
+
+    @Autowired
+    lateinit var rekeningService: RekeningService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -65,16 +71,26 @@ class GebruikerService {
                 }
             }
         } else {
-//            periodeService.creeerInitielePeriode(gebruiker, LocalDate.now())
-//        }
-
-        val initielePeriodeStartDatum: LocalDate = if (!gebruikerDTO.periodes.isNullOrEmpty()) {
-            LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
-        } else {
-            periodeService.berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first
+            val initielePeriodeStartDatum: LocalDate = if (!gebruikerDTO.periodes.isNullOrEmpty()) {
+                LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
+            } else {
+                periodeService.berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first
+            }
+            periodeService.creeerInitielePeriode(gebruiker, initielePeriodeStartDatum)
+            val rekeningGroepDTO = RekeningGroep.RekeningGroepDTO(
+                naam = "_reservering_buffer",
+                rekeningGroepSoort = RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER.name,
+                sortOrder = 0,
+                rekeningen = listOf(
+                    Rekening.RekeningDTO(
+                        naam = "_reservering_buffer",
+                        saldo = BigDecimal(0),
+                        rekeningGroepNaam = "_reservering_buffer",
+                    )
+                )
+            )
+            rekeningService.save(gebruiker, rekeningGroepDTO)
         }
-        periodeService.creeerInitielePeriode(gebruiker, initielePeriodeStartDatum)
-    }
         return gebruiker
     }
 }
