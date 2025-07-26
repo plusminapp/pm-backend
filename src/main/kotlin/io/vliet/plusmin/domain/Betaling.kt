@@ -31,7 +31,7 @@ class Betaling(
     @Enumerated(EnumType.STRING)
     val betalingsSoort: BetalingsSoort,
     val sortOrder: String,
-    @OneToOne(optional = true)
+    @OneToOne(optional = true, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "reservering_id", nullable = true)
     val reservering: Reservering? = null,
     @ManyToOne
