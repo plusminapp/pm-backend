@@ -27,11 +27,13 @@ class Saldo(
     @JsonIgnore
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,                                       // bevat de betaaldag en de rekeningGroep
-    val openingsSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
+    val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
+    val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
     val achterstand: BigDecimal = BigDecimal.ZERO,            // achterstand aan het begin van de periode
     val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,      // verwachte bedrag per maand
-    val budgetBetaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
-    val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
+    val betaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
+    val reservering: BigDecimal = BigDecimal.ZERO,         // reservering deze periode
+    val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
     val budgetVariabiliteit: Int? = null,                        // variabiliteit als percentage van budgetMaandBedrag
     @ManyToOne
     @JsonIgnore
@@ -40,21 +42,25 @@ class Saldo(
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
-        openingsSaldo: BigDecimal = this.openingsSaldo,
+        openingsBalansSaldo: BigDecimal = this.openingsBalansSaldo,
+        openingsReserveSaldo: BigDecimal = this.openingsReserveSaldo,
         achterstand: BigDecimal = this.achterstand,
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
-        budgetBetaling: BigDecimal = this.budgetBetaling,
-        oorspronkelijkeBudgetBetaling: BigDecimal = this.oorspronkelijkeBudgetBetaling,
+        betaling: BigDecimal = this.betaling,
+        reservering: BigDecimal = this.reservering,
+        oorspronkelijkeBetaling: BigDecimal = this.oorspronkelijkeBetaling,
         budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         periode: Periode? = this.periode,
     ) = Saldo(
         this.id,
         rekening,
-        openingsSaldo,
+        openingsBalansSaldo,
+        openingsReserveSaldo,
         achterstand,
         budgetMaandBedrag,
-        budgetBetaling,
-        oorspronkelijkeBudgetBetaling,
+        betaling,
+        reservering,
+        oorspronkelijkeBetaling,
         budgetVariabiliteit,
         periode
     )
@@ -69,18 +75,20 @@ class Saldo(
         val aflossing: Aflossing.AflossingDTO? = null,
         val spaartegoed: Spaartegoed.SpaartegoeDTO? = null,
         val sortOrder: Int = 0,
-        val openingsSaldo: BigDecimal = BigDecimal.ZERO,
+        val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,
+        val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,
         val achterstand: BigDecimal = BigDecimal.ZERO,
         val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,
         val budgetBetaalDag: Int? = null,
-        val budgetBetaling: BigDecimal = BigDecimal.ZERO,
-        val oorspronkelijkeBudgetBetaling: BigDecimal = BigDecimal.ZERO,
+        val betaling: BigDecimal = BigDecimal.ZERO,
+        val reservering: BigDecimal = BigDecimal.ZERO,
+        val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,
         val achterstandOpPeilDatum: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
         // invarianten:
         // * budgetMaandBedrag = betaaldBinnenBudget + minderDanBudget + restMaandBudget
-        // * budgetOpPeilDatum = budgetBetaling - meerDanBudget - meerDanMaandBudget
+        // * budgetOpPeilDatum = betaling - meerDanBudget - meerDanMaandBudget
         val betaaldBinnenBudget: BigDecimal? = null,
         val minderDanBudget: BigDecimal? = null,
         val meerDanBudget: BigDecimal? = null,
@@ -91,15 +99,16 @@ class Saldo(
     fun toDTO(
     ): SaldoDTO {
         // Saldo -> SaldoDTO kan alleen voor periodes die zijn afgelopen
-        val achterstandOpPeilDatum = this.achterstand + this.budgetBetaling.abs() - this.budgetMaandBedrag
+        val achterstandOpPeilDatum = this.achterstand + this.betaling.abs() - this.budgetMaandBedrag
         val budgetPeilDatum = periode?.periodeEindDatum.toString()
         val budgetOpPeilDatum = this.budgetMaandBedrag.abs()
-        val betaaldBinnenBudget = this.budgetBetaling.abs().min(this.budgetMaandBedrag)
+        val betaaldBinnenBudget = this.betaling.abs().min(this.budgetMaandBedrag)
         val minderDanBudget = BigDecimal.ZERO
         val meerDanMaandBudget = BigDecimal.ZERO
         val meerDanBudget = BigDecimal.ZERO
         val restMaandBudget = BigDecimal.ZERO
-        val openingsSaldo = this.openingsSaldo
+        val openingsBalansSaldo = this.openingsBalansSaldo
+        val openingsReserveSaldo = this.openingsReserveSaldo
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
@@ -109,12 +118,14 @@ class Saldo(
             this.rekening.aflossing?.toDTO(),
             this.rekening.spaartegoed?.toDTO(),
             1000 * this.rekening.rekeningGroep.sortOrder + this.rekening.sortOrder,
-            openingsSaldo,
+            openingsBalansSaldo,
+            openingsReserveSaldo,
             this.achterstand,
             this.budgetMaandBedrag,
             this.rekening.budgetBetaalDag,
-            this.budgetBetaling,
-            this.oorspronkelijkeBudgetBetaling,
+            this.betaling,
+            this.reservering,
+            this.oorspronkelijkeBetaling,
             achterstandOpPeilDatum,
             budgetPeilDatum,
             budgetOpPeilDatum,

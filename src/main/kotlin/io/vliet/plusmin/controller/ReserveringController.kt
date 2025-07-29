@@ -54,8 +54,9 @@ class ReserveringController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(reserveringService.getReserveringenVoorHulpvrager(hulpvrager))
+        return ResponseEntity.ok().body(reserveringService
+            .getReserveringenVoorHulpvrager(hulpvrager)
+            .mapKeys { it.key?.naam ?: "Onbekend" }
+        )
     }
-
-
 }

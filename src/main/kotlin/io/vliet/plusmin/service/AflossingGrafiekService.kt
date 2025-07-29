@@ -35,7 +35,7 @@ class AflossingGrafiekService {
             aflossingGrafiekDataMap.forEach { (maand, saldoDtoLijst) ->
                 append("{ month: '${maand}'")
                 saldoDtoLijst.forEach { saldoDto ->
-                    append(", ${saldoDto.rekeningNaam.lowercase().replace("\\s".toRegex(), "")}: ${saldoDto.openingsSaldo}")
+                    append(", ${saldoDto.rekeningNaam.lowercase().replace("\\s".toRegex(), "")}: ${saldoDto.openingsBalansSaldo}")
                 }
                 append(" },\n")
             }

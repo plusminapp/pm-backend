@@ -1,5 +1,6 @@
 package io.vliet.plusmin.repository
 
+import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Reservering
 import org.springframework.data.jpa.repository.JpaRepository
@@ -11,6 +12,18 @@ import java.time.LocalDate
 @Repository
 interface ReserveringRepository : JpaRepository<Reservering, Long> {
     fun findAllByGebruiker(gebruiker: Gebruiker): List<Reservering>
+
+    @Query(
+        value = "SELECT r FROM Reservering r " +
+                "WHERE r.gebruiker = :gebruiker AND " +
+                "r.boekingsdatum >= :openingsDatum AND " +
+                "r.boekingsdatum <= :eindDatum"
+    )
+    fun findAllByGebruikerTussenDatums(
+        gebruiker: Gebruiker,
+        openingsDatum: LocalDate,
+        eindDatum: LocalDate
+    ): List<Reservering>
 
     @Query(
         value = "SELECT MIN(r.sortOrder) FROM Reservering r " +

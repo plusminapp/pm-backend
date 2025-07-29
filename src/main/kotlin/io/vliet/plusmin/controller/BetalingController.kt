@@ -150,7 +150,7 @@ class BetalingController {
         val betaling = betalingOpt.get()
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
         logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO, betaling.reservering).toDTO())
+        return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
     }
 
     @GetMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")

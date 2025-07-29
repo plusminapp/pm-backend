@@ -35,25 +35,25 @@ class BetalingvalidatieService {
                 it.rekeningNaam
             )
         } ?: throw IllegalStateException("betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is ongeldig: ${betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam} voor ${gebruiker.email}.")
-        val openingsSaldo = saldoRepository.findLaatsteSaldoBijRekening( rekening.id).getOrNull()
+        val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening( rekening.id).getOrNull()
             ?: throw IllegalStateException("Geen Saldo voor ${rekening.naam}/${rekening.id} voor ${gebruiker.email}.")
-        val betalingen = if (openingsSaldo.periode == null) {
-            throw IllegalStateException("Geen Periode bij Saldo ${openingsSaldo.id} voor ${gebruiker.email}.")
+        val betalingen = if (openingsBalansSaldo.periode == null) {
+            throw IllegalStateException("Geen Periode bij Saldo ${openingsBalansSaldo.id} voor ${gebruiker.email}.")
         } else {
             betalingRepository.findAllByGebruikerTussenDatums(
                 gebruiker,
-                openingsSaldo.periode!!.periodeStartDatum,
+                openingsBalansSaldo.periode!!.periodeStartDatum,
                 LocalDate.now()
             )
         }
-        val saldoOpDatum = betalingen.fold(openingsSaldo.openingsSaldo) { saldo, betaling ->
+        val saldoOpDatum = betalingen.fold(openingsBalansSaldo.openingsBalansSaldo) { saldo, betaling ->
             saldo + berekenMutaties(betaling, rekening)
         }
         val validatedBetalingen = betalingvalidatieWrapper.betalingen.map { betaling ->
             valideerOcrBetaling(gebruiker, betaling)
         }
         val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatumBijRekening(gebruiker, rekening)
-            ?: openingsSaldo.periode!!.periodeStartDatum
+            ?: openingsBalansSaldo.periode!!.periodeStartDatum
 
         return Betaling.BetalingValidatieWrapper(
             laatsteBetalingDatum,
@@ -63,7 +63,7 @@ class BetalingvalidatieService {
                 budgetType = rekening.rekeningGroep.budgetType,
                 rekeningNaam = rekening.naam,
                 sortOrder = rekening.sortOrder,
-                openingsSaldo = saldoOpDatum
+                openingsBalansSaldo = saldoOpDatum
             ),
             validatedBetalingen,
         )

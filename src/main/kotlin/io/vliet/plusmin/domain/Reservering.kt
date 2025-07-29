@@ -31,10 +31,10 @@ class Reservering(
     val sortOrder: String,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
-    val bron: Rekening? = null,
+    val bron: Rekening,
     @ManyToOne
     @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
-    val bestemming: Rekening? = null,
+    val bestemming: Rekening,
 ) {
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
@@ -42,8 +42,8 @@ class Reservering(
         bedrag: BigDecimal = this.bedrag,
         omschrijving: String = this.omschrijving,
         sortOrder: String = this.sortOrder,
-        bron: Rekening? = this.bron,
-        bestemming: Rekening? = this.bestemming,
+        bron: Rekening = this.bron,
+        bestemming: Rekening = this.bestemming,
     ) = Reservering(
         this.id,
         gebruiker,
@@ -72,8 +72,8 @@ class Reservering(
             this.bedrag.toString(),
             this.omschrijving,
             this.sortOrder,
-            this.bron?.naam ?: "",
-            this.bestemming?.naam ?: ""
+            this.bron.naam,
+            this.bestemming.naam
         )
     }
 }

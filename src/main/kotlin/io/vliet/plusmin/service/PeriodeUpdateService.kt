@@ -49,31 +49,31 @@ class PeriodeUpdateService {
                 "sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
                     eindSaldiVanVorigeGeslotenPeriode
                         .filter { it.rekening.naam == "Greenchoice" }
-                        .joinToString { it.rekening.naam + " | OS: " + it.openingsSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.budgetBetaling }
+                        .joinToString { it.rekening.naam + " | OS: " + it.openingsBalansSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.betaling }
                 }"
             )
             val nieuweSaldiLijst = eindSaldiVanVorigeGeslotenPeriode.map { saldo ->
-                val budgetBetaling = betalingenGedurendePeilPeriode
+                val betaling = betalingenGedurendePeilPeriode
                     .filter { it.rekening.naam == saldo.rekening.naam }
-                    .sumOf { it.budgetBetaling }
+                    .sumOf { it.betaling }
                 val budgetMaandBedrag =
                     if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
-                    else saldo.rekening.toDTO(periode, budgetBetaling).budgetMaandBedrag ?: BigDecimal.ZERO
-                val openingsSaldo =
+                    else saldo.rekening.toDTO(periode, betaling).budgetMaandBedrag ?: BigDecimal.ZERO
+                val openingsBalansSaldo =
                     if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
-                        saldo.openingsSaldo + saldo.budgetBetaling
+                        saldo.openingsBalansSaldo + saldo.betaling
                     else BigDecimal.ZERO
                 val achterstand = BigDecimal.ZERO
 //                    if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-//                        (saldo.budgetBetaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
+//                        (saldo.betaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
 //                    else BigDecimal.ZERO
 
                 saldo.fullCopy(
-                    openingsSaldo = openingsSaldo,
+                    openingsBalansSaldo = openingsBalansSaldo,
                     achterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
-                    budgetBetaling = budgetBetaling,
-                    oorspronkelijkeBudgetBetaling = budgetBetaling,
+                    betaling = betaling,
+                    oorspronkelijkeBetaling = betaling,
                     budgetVariabiliteit = saldo.rekening.budgetVariabiliteit,
                     periode = periode
                 )
@@ -93,11 +93,11 @@ class PeriodeUpdateService {
                 saldoRepository.save(
                     Saldo(
                         rekening = rekening,
-                        openingsSaldo = saldo.openingsSaldo,
+                        openingsBalansSaldo = saldo.openingsBalansSaldo,
                         achterstand = saldo.achterstand,
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
-                        oorspronkelijkeBudgetBetaling = saldo.budgetBetaling,
-                        budgetBetaling = saldo.budgetBetaling,
+                        oorspronkelijkeBetaling = saldo.betaling,
+                        betaling = saldo.betaling,
                         budgetVariabiliteit = rekening.budgetVariabiliteit,
                         periode = periode,
                     )
@@ -173,18 +173,18 @@ class PeriodeUpdateService {
 
     fun wijzigPeriodeOpening(gebruiker: Gebruiker, periodeId: Long, nieuweOpeningsSaldi: List<Saldo.SaldoDTO>) {
         // LET OP: de opening van een periode wordt opgeslagen als sluiting van de vorige periode
-        // om de opening aan te passen worden de budgetBetalingen in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
+        // om de opening aan te passen worden de betalingen in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
         val (vorigePeriode, _) = checkPeriodeSluiten(gebruiker, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
-        nieuweOpeningsSaldi.forEach { nieuweOpeningsSaldo ->
-            val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsSaldo.rekeningNaam }
+        nieuweOpeningsSaldi.forEach { nieuweOpeningsBalansSaldo ->
+            val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
             if (saldo == null) {
-                logger.warn("wijzigPeriodeOpening: rekening ${nieuweOpeningsSaldo.rekeningNaam} bestaat niet in de (vorige) periode ${vorigePeriode.id} voor gebruiker ${gebruiker.bijnaam}; openingsSaldo wordt NIET aangepast")
+                logger.warn("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam} bestaat niet in de (vorige) periode ${vorigePeriode.id} voor gebruiker ${gebruiker.bijnaam}; openingsBalansSaldo wordt NIET aangepast")
             } else {
-                // Update de bestaande Saldo met de nieuwe openingsSaldo
-                val nieuweBudgetBetaling = nieuweOpeningsSaldo.openingsSaldo - saldo.openingsSaldo
-                logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsSaldo.rekeningNaam}: budgetBetaling wordt aangepast van ${saldo.budgetBetaling} naar ${nieuweBudgetBetaling}")
-                saldoRepository.save(saldo.fullCopy(budgetBetaling = nieuweBudgetBetaling))
+                // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
+                val nieuweBetaling = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
+                logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: betaling wordt aangepast van ${saldo.betaling} naar ${nieuweBetaling}")
+                saldoRepository.save(saldo.fullCopy(betaling = nieuweBetaling))
             }
         }
     }

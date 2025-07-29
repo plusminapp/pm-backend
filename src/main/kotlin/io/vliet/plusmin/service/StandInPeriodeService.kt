@@ -2,10 +2,7 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
-import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.repository.RekeningGroepRepository
-import io.vliet.plusmin.repository.SaldoRepository
+import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +22,9 @@ class StandInPeriodeService {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
+    lateinit var reserveringRepository: ReserveringRepository
+
+    @Autowired
     lateinit var periodeService: PeriodeService
 
     @Autowired
@@ -39,22 +39,28 @@ class StandInPeriodeService {
     ): List<Saldo.SaldoDTO> {
         val gebruiker = peilPeriode.gebruiker
         val startSaldiVanPeilPeriode = berekenStartSaldiVanPeilPeriode(peilPeriode)
-        val betalingenInPeilPeriode = berekenMutatieLijstTussenDatums(
-            gebruiker,
-            peilPeriode.periodeStartDatum,
-            peilDatum
-        )
-        logger.info("betalingenInPeilPeriode: van ${peilPeriode.periodeStartDatum} tot: ${peilDatum} ${betalingenInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.budgetBetaling }}")
+        val mutatiesInPeilPeriode =
+            berekenMutatieLijstTussenDatums(gebruiker, peilPeriode.periodeStartDatum, peilDatum)
+        val inkomstenInPeilPeriode = mutatiesInPeilPeriode
+            .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
+            .sumOf { it.betaling }
+        logger.info("betalingenInPeilPeriode: van ${peilPeriode.periodeStartDatum} tot: ${peilDatum} ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
 
         return startSaldiVanPeilPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
             .sortedBy { it.rekening.sortOrder }
             .map { saldo ->
                 val rekening = saldo.rekening
-                val betaling = betalingenInPeilPeriode
+                val betaling = mutatiesInPeilPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.budgetBetaling }
-                val openingsSaldo = saldo.openingsSaldo
+                    .sumOf { it.betaling }
+                val reservering = mutatiesInPeilPeriode
+                    .filter { it.rekening.naam == rekening.naam }
+                    .sumOf { it.reservering } -
+                        if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER)
+                            inkomstenInPeilPeriode
+                        else BigDecimal.ZERO
+                val openingsBalansSaldo = saldo.openingsBalansSaldo
                 val achterstand = saldo.achterstand
 
                 // eerst de achterstand afbetalen, let op: achterstand is negatief
@@ -110,13 +116,14 @@ class StandInPeriodeService {
                     aflossing = rekening.aflossing?.toDTO(),
                     spaartegoed = rekening.spaartegoed?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
-                    openingsSaldo,
+                    openingsBalansSaldo,
                     achterstand = achterstand,
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetBetaalDag = rekening.budgetBetaalDag,
                     budgetPeilDatum = peilDatum.toString(),
-                    budgetBetaling = betaling,
+                    betaling = betaling,
+                    reservering = reservering,
                     budgetOpPeilDatum = budgetOpPeilDatum,
                     betaaldBinnenBudget = betaaldBinnenBudget,
                     minderDanBudget = minderDanBudget,
@@ -151,21 +158,39 @@ class StandInPeriodeService {
     fun berekenMutatieLijstTussenDatums(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
         val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
+        val reserveringen = reserveringRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->
-                val budgetBetaling =
-                    betalingen.fold(BigDecimal.ZERO) { acc, betaling -> acc + berekenMutaties(betaling, rekening) }
+                val betaling =
+                    betalingen.fold(BigDecimal.ZERO) { acc, betaling ->
+                        acc + berekenBetalingMutaties(
+                            betaling,
+                            rekening
+                        )
+                    }
+                val reservering =
+                    reserveringen.fold(BigDecimal.ZERO) { acc, reservering ->
+                        acc + berekenReserveringMutaties(
+                            reservering,
+                            rekening
+                        )
+                    }
 
-                Saldo(0, rekening, budgetBetaling = budgetBetaling)
+                Saldo(0, rekening, betaling = betaling, reservering = reservering)
             }
         }
-        logger.info("mutaties van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.budgetBetaling}" }}")
+        logger.info("mutaties van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.betaling}" }}")
         return saldoLijst
     }
 
-    fun berekenMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
+    fun berekenBetalingMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
         return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO +
                 if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal.ZERO
+    }
+
+    fun berekenReserveringMutaties(reservering: Reservering, rekening: Rekening): BigDecimal {
+        return if (reservering.bron.id == rekening.id) -reservering.bedrag else BigDecimal.ZERO +
+                if (reservering.bestemming.id == rekening.id) reservering.bedrag else BigDecimal.ZERO
     }
 
     fun berekenStartSaldiVanPeilPeriode(peilPeriode: Periode): List<Saldo> {
@@ -182,12 +207,12 @@ class StandInPeriodeService {
         )
 
         val saldoLijst = basisPeriodeSaldi.map { basisPeriodeSaldo: Saldo ->
-            val budgetBetaling = betalingenTussenBasisEnPeilPeriode
+            val betaling = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeSaldo.rekening.naam }
-                .sumOf { it.budgetBetaling }
-            val openingsSaldo =
+                .sumOf { it.betaling }
+            val openingsBalansSaldo =
                 if (!resultaatRekeningGroepSoort.contains(basisPeriodeSaldo.rekening.rekeningGroep.rekeningGroepSoort))
-                    basisPeriodeSaldo.openingsSaldo + basisPeriodeSaldo.budgetBetaling + budgetBetaling
+                    basisPeriodeSaldo.openingsBalansSaldo + basisPeriodeSaldo.betaling + betaling
                 else BigDecimal.ZERO
 
             val aantalGeldigePeriodes = periodeRepository
@@ -205,11 +230,11 @@ class StandInPeriodeService {
 //                if (basisPeriodeSaldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
 //                    (basisPeriodeSaldo.achterstand
 //                            - (BigDecimal(aantalGeldigePeriodes) * budgetMaandBedrag)
-//                            + basisPeriodeSaldo.budgetBetaling + budgetBetaling
+//                            + basisPeriodeSaldo.betaling + betaling
 //                            ).min(BigDecimal.ZERO)
 //                else BigDecimal.ZERO
             basisPeriodeSaldo.fullCopy(
-                openingsSaldo = openingsSaldo,
+                openingsBalansSaldo = openingsBalansSaldo,
                 achterstand = achterstand,
             )
         }
