@@ -16,49 +16,49 @@ class Spaartegoed(
         allocationSize = 1
     )
     val id: Long = 0,
-    val startDatum: LocalDate,
-    val eindBedrag: BigDecimal?,
+    val doelDatum: LocalDate?,
+    val doelBedrag: BigDecimal?,
     @Column(columnDefinition = "TEXT")
     val notities: String
 ) {
     fun fullCopy(
-        startDatum: LocalDate = this.startDatum,
-        eindBedrag: BigDecimal? = this.eindBedrag,
+        doelDatum: LocalDate? = this.doelDatum,
+        doelBedrag: BigDecimal? = this.doelBedrag,
         notities: String = this.notities,
     ) = Spaartegoed(
         this.id,
-        startDatum,
-        eindBedrag,
+        doelDatum,
+        doelBedrag,
         notities
     )
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    data class SpaartegoeDTO(
+    data class SpaartegoedDTO(
         val id: Long = 0,
-        val startDatum: String,
-        val eindBedrag: String?,
+        val doelDatum: String?,
+        val doelBedrag: String?,
         val notities: String,
     ) {
         fun fullCopy(
-            startDatum: String = this.startDatum,
-            eindBedrag: String? = this.eindBedrag,
+            doelDatum: String? = this.doelDatum,
+            doelBedrag: String? = this.doelBedrag,
             notities: String = this.notities,
 
-            ): SpaartegoeDTO = SpaartegoeDTO(
+            ): SpaartegoedDTO = SpaartegoedDTO(
             this.id,
-            startDatum,
-            eindBedrag,
+            doelDatum,
+            doelBedrag,
             notities,
         )
     }
 
     fun toDTO(
         saldo: BigDecimal? = null
-    ): SpaartegoeDTO {
-        return SpaartegoeDTO(
+    ): SpaartegoedDTO {
+        return SpaartegoedDTO(
             this.id,
-            this.startDatum.toString(),
-            this.eindBedrag?.toString(),
+            this.doelDatum.toString(),
+            this.doelBedrag?.toString(),
             this.notities,
         )
     }

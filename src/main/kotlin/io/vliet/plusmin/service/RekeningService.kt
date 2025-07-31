@@ -57,9 +57,8 @@ class RekeningService {
             rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningGroepDTO.rekeningGroepSoort),
             rekeningGroepIcoonNaam = rekeningGroepDTO.rekeningGroepIcoonNaam,
             sortOrder = rekeningGroepDTO.sortOrder,
-            budgetType = if (rekeningGroepDTO.budgetType !== null) enumValueOf<RekeningGroep.BudgetType>(
-                rekeningGroepDTO.budgetType
-            ) else null,
+            budgetType = if (rekeningGroepDTO.budgetType !== null)
+                enumValueOf<RekeningGroep.BudgetType>(rekeningGroepDTO.budgetType) else null,
             rekeningen = emptyList(),
         )
         val savedRekeningGroep = rekeningGroepRepository.save(
@@ -113,24 +112,32 @@ class RekeningService {
                     )
                 }
             } else null
-            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING) {
+            val spaartegoed = if (rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) {
                 if (rekeningOpt.spaartegoed == null) {
                     spaartegoedRepository.save(
                         Spaartegoed(
                             0,
-                            LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            if (rekeningDTO.spaartegoed.eindBedrag != null)
-                                BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
-                            rekeningDTO.spaartegoed.notities
+                            if (rekeningDTO.spaartegoed?.doelDatum != null)
+                                LocalDate.parse(
+                                    rekeningDTO.spaartegoed.doelDatum,
+                                    DateTimeFormatter.ISO_LOCAL_DATE
+                                ) else null,
+                            if (rekeningDTO.spaartegoed?.doelBedrag != null)
+                                BigDecimal(rekeningDTO.spaartegoed.doelBedrag) else null,
+                            rekeningDTO.spaartegoed?.notities ?: ""
                         )
                     )
                 } else {
                     spaartegoedRepository.save(
                         rekeningOpt.spaartegoed.fullCopy(
-                            LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            if (rekeningDTO.spaartegoed.eindBedrag != null)
-                                BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
-                            rekeningDTO.spaartegoed.notities
+                            if (rekeningDTO.spaartegoed?.doelDatum != null)
+                                LocalDate.parse(
+                                    rekeningDTO.spaartegoed.doelDatum,
+                                    DateTimeFormatter.ISO_LOCAL_DATE
+                                ) else null,
+                            if (rekeningDTO.spaartegoed?.doelBedrag != null)
+                                BigDecimal(rekeningDTO.spaartegoed.doelBedrag) else null,
+                            rekeningDTO.spaartegoed?.notities ?: ""
                         )
                     )
                 }
@@ -165,18 +172,6 @@ class RekeningService {
                     )
                 )
             } else null
-
-//            val spaartegoed = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING) {
-//                spaartegoedRepository.save(
-//                    Spaartegoed(
-//                        0,
-//                        LocalDate.parse(rekeningDTO.spaartegoed!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-//                        if (rekeningDTO.spaartegoed.eindBedrag != null)
-//                            BigDecimal(rekeningDTO.spaartegoed.eindBedrag) else null,
-//                        rekeningDTO.spaartegoed.notities
-//                    )
-//                )
-//            } else null
 
             val savedRekening = rekeningRepository.save(
                 Rekening(
@@ -227,12 +222,13 @@ class RekeningService {
             RekeningGroep.RekeningGroepPerBetalingsSoort(
                 betalingsSoort = betalingsSoort,
                 rekeningGroepen = rekeningGroepenMetGeldigeRekeningen
-                    .map{ it.toDTO(periode)}
+                    .map { it.toDTO(periode) }
                     .filter { it.rekeningGroepSoort == rekeningGroepSoort.name }
                     .sortedBy { it.sortOrder }
             )
         }.filter { it.rekeningGroepen.isNotEmpty() }
     }
+
     fun findRekeningGroepenMetGeldigeRekeningen(
         gebruiker: Gebruiker,
         periode: Periode

@@ -73,7 +73,7 @@ class Saldo(
         val budgetType: RekeningGroep.BudgetType? = null,
         val rekeningNaam: String,
         val aflossing: Aflossing.AflossingDTO? = null,
-        val spaartegoed: Spaartegoed.SpaartegoeDTO? = null,
+        val spaartegoed: Spaartegoed.SpaartegoedDTO? = null,
         val sortOrder: Int = 0,
         val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,
         val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,

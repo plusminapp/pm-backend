@@ -269,31 +269,7 @@
     "omschrijving": "Rente",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Rente",
-    "bestemming": "Vrij spaargeld"
-  },
-  {
-    "boekingsdatum": "2025-01-26",
-    "bedrag": "25",
-    "omschrijving": "Storting vrij spaartegoed",
-    "betalingsSoort": "SPAREN",
-    "bron": "Alex' betaalrekening",
-    "bestemming": "Vrij spaargeld"
-  },
-  {
-    "boekingsdatum": "2025-01-26",
-    "bedrag": "25",
-    "omschrijving": "Storting kleedgeld",
-    "betalingsSoort": "SPAREN",
-    "bron": "Alex' betaalrekening",
-    "bestemming": "Kleding"
-  },
-  {
-    "boekingsdatum": "2025-01-26",
-    "bedrag": "50",
-    "omschrijving": "Storting wasmachine",
-    "betalingsSoort": "SPAREN",
-    "bron": "Alex' betaalrekening",
-    "bestemming": "Nieuwe wasmachine"
+    "bestemming": "Alex' spaarrekening"
   },
   {
     "boekingsdatum": "2025-02-19",

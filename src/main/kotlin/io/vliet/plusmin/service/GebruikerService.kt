@@ -4,14 +4,17 @@ import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.Role
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
+import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
+import io.vliet.plusmin.repository.RekeningGroepRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class GebruikerService {
@@ -20,6 +23,9 @@ class GebruikerService {
 
     @Autowired
     lateinit var periodeService: PeriodeService
+
+    @Autowired
+    lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
     lateinit var rekeningService: RekeningService
@@ -77,9 +83,14 @@ class GebruikerService {
                 periodeService.berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first
             }
             periodeService.creeerInitielePeriode(gebruiker, initielePeriodeStartDatum)
-            val rekeningGroepDTO = RekeningGroep.RekeningGroepDTO(
+        }
+
+        rekeningGroepRepository
+            .findRekeningGroepOpNaam(gebruiker, "_reservering_buffer")
+            .getOrNull() ?: rekeningService.save(
+            gebruiker, RekeningGroep.RekeningGroepDTO(
                 naam = "_reservering_buffer",
-                rekeningGroepSoort = RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER.name,
+                rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
                 sortOrder = 0,
                 rekeningen = listOf(
                     Rekening.RekeningDTO(
@@ -89,8 +100,8 @@ class GebruikerService {
                     )
                 )
             )
-            rekeningService.save(gebruiker, rekeningGroepDTO)
-        }
+        )
+
         return gebruiker
     }
 }

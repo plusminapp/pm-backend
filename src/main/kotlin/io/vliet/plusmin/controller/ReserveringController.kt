@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
-
+import kotlin.jvm.optionals.getOrNull
 
 
 @RestController
@@ -46,6 +46,32 @@ class ReserveringController {
         logger.info("POST ReserveringController.creeerNieuweReserveringVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val reservering = reserveringService.creeerReservering(hulpvrager, reserveringDTO)
         return ResponseEntity.ok().body(reservering)
+    }
+
+    @PostMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
+    fun creeerNieuweReserveringVoorPeriode(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val periode = reserveringService.periodeRepository.findById(periodeId).getOrNull()
+            ?: throw IllegalStateException("Periode met id $periodeId bestaat niet.")
+        if (periode.gebruiker.id != hulpvrager.id) {
+            throw IllegalStateException("Periode met id $periodeId hoort niet bij hulpvrager ${hulpvrager.email}.")
+        }
+        reserveringService.creeerReservingenVoorPeriode(periode)
+        return ResponseEntity.ok().body("Reserveringen aangemaakt voor periode ${periode.periodeStartDatum} t/m ${periode.periodeEindDatum} voor ${hulpvrager.email}.")
+    }
+
+    @PostMapping("/hulpvrager/{hulpvragerId}/periodes")
+    fun creeerNieuweReserveringVoorAllePeriodes(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        reserveringService.creeerReservingenVoorAllePeriodes(hulpvrager)
+        return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periodes voor ${hulpvrager.email}.")
     }
 
     @GetMapping("/hulpvrager/{hulpvragerId}")

@@ -133,7 +133,7 @@ class Rekening(
         val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
-        val spaartegoed: Spaartegoed.SpaartegoeDTO? = null,
+        val spaartegoed: Spaartegoed.SpaartegoedDTO? = null,
     ) {
         fun fullCopy(
             naam: String = this.naam,
@@ -149,7 +149,7 @@ class Rekening(
             betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             aflossing: Aflossing.AflossingDTO? = this.aflossing,
-            spaartegoed: Spaartegoed.SpaartegoeDTO? = this.spaartegoed,
+            spaartegoed: Spaartegoed.SpaartegoedDTO? = this.spaartegoed,
         ) = RekeningDTO(
             this.id,
             naam,
@@ -179,23 +179,23 @@ class Rekening(
             if (periode == null || !this.rekeningIsGeldigInPeriode(periode) || this.budgetBedrag == null)
                 BigDecimal.ZERO
             else {
+                val budgetBetaalDagInPeriode = if (this.budgetBetaalDag != null)
+                    berekenDagInPeriode(this.budgetBetaalDag, periode) else null
+                val wordtBetalingVerwacht =
+                    this.maanden.isNullOrEmpty() || this.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)
                 if (this.budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
                     val periodeLengte = periode.periodeEindDatum.dayOfYear - periode.periodeStartDatum.dayOfYear + 1
                     (this.budgetBedrag.times(BigDecimal(periodeLengte))
                         .div(BigDecimal(7)))
                         .setScale(2, java.math.RoundingMode.HALF_UP)
+                } else if (!wordtBetalingVerwacht) {
+                    BigDecimal.ZERO
                 } else if (betaling == null) {
                     this.budgetBedrag
-                } else {
-                    val budgetBetaalDagInPeriode = if (this.budgetBetaalDag != null)
-                        berekenDagInPeriode(this.budgetBetaalDag, periode)
-                    else null
-                    if (this.maanden.isNullOrEmpty() || this.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)) {
-                        // er wordt een betaling verwacht in deze periode
-                        val isBedragBinnenVariabiliteit =
-                            isBedragBinnenVariabiliteit(betaling)
-                        if (isBedragBinnenVariabiliteit) betaling.abs() else this.budgetBedrag
-                    } else BigDecimal.ZERO
+                } else { //er wordt een betaling verwacht en de betaling != null
+                    val isBedragBinnenVariabiliteit =
+                        isBedragBinnenVariabiliteit(betaling)
+                    if (isBedragBinnenVariabiliteit) betaling.abs() else this.budgetBedrag
                 }
             }
         return RekeningDTO(

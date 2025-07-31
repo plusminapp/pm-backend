@@ -2,6 +2,7 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.Companion.inkomstenBetalingsSoorten
+import io.vliet.plusmin.domain.RekeningGroep.Companion.reserveringRekeningGroepSoort
 import io.vliet.plusmin.domain.Reservering.ReserveringDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -32,7 +33,7 @@ class ReserveringService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun creeerReserveringLijst(gebruiker: Gebruiker, reserveringenLijst: List<ReserveringDTO>): List<ReserveringDTO> {
+    fun creeerReserveringen(gebruiker: Gebruiker, reserveringenLijst: List<ReserveringDTO>): List<ReserveringDTO> {
         return reserveringenLijst.map { reserveringDTO ->
             creeerReservering(gebruiker, reserveringDTO)
         }
@@ -139,20 +140,58 @@ class ReserveringService {
             }
             .groupBy { it.first }
             .mapValues { entry -> entry.value.sumOf { it.second } }
-        logger.info("Reserveringen voor ${hulpvrager.bijnaam}: reserveringen: ${reserveringen.map { "${it.key.naam}=${it.value}" }.joinToString(", ")}")
+        logger.info(
+            "Reserveringen voor ${hulpvrager.bijnaam}: reserveringen: ${
+                reserveringen.map { "${it.key.naam}=${it.value}" }.joinToString(", ")
+            }"
+        )
 
         return reserveringen.keys.union(betalingen.keys)
             .toSet()
             .associateWith { rekening ->
-            val reservering = reserveringen
-                .filter { it.key.id == rekening?.id }
-                .values.sumOf { it }
-            val betaling = betalingen
-                .filter { it.key?.id == rekening?.id }
-                .values.sumOf { it }
-            logger.info(">>> ${rekening?.naam}/${rekening?.id}: reservering=$reservering - betaling=${betaling}")
+                val reservering = reserveringen
+                    .filter { it.key.id == rekening?.id }
+                    .values.sumOf { it }
+                val betaling = betalingen
+                    .filter { it.key?.id == rekening?.id }
+                    .values.sumOf { it }
+                logger.info(">>> ${rekening?.naam}/${rekening?.id}: reservering=$reservering - betaling=${betaling}")
 
-            Pair(reservering, betaling)
-        }
+                Pair(reservering, betaling)
+            }
+    }
+
+    fun creeerReservingenVoorPeriode(periode: Periode) {
+        val gebruiker = periode.gebruiker
+        val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
+        val reserveringBuffer = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, "_reservering_buffer")
+            ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${gebruiker.bijnaam}.")
+        var blaat = 0
+        rekeningen
+            .filter { reserveringRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
+            .map { rekening ->
+                blaat += 10
+                if (rekening.naam == "GBLT")
+                    logger.info("ReserveringBuffer voor ${rekening.naam} ${rekening.toDTO(periode).budgetMaandBedrag} ")
+                reserveringRepository.save(
+                    Reservering(
+                        gebruiker = gebruiker,
+                        boekingsdatum = periode.periodeStartDatum,
+                        bedrag = rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO,
+                        omschrijving = "Buffer voor ${rekening.naam} in periode " +
+                                "${periode.periodeStartDatum.format(dateTimeFormatter)}/" +
+                                "${periode.periodeEindDatum.format(dateTimeFormatter)}",
+                        bron = reserveringBuffer,
+                        bestemming = rekening,
+                        sortOrder = "${periode.periodeStartDatum.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.${blaat}"
+                    )
+                )
+            }
+    }
+
+    fun creeerReservingenVoorAllePeriodes(gebruiker: Gebruiker) {
+        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
+        periodes.forEach { creeerReservingenVoorPeriode(it) }
     }
 }

@@ -55,6 +55,19 @@ class RekeningCashflowService {
                 else
                     it.budgetBedrag?.divide(BigDecimal(7), 2, java.math.RoundingMode.HALF_UP) ?: BigDecimal.ZERO
             }
+        // "betaalde vaste lasten tot date (negatieve waarde)" + "verwachte vaste lasten tot date (negatieve waarde)"
+        val vasteLastenAflossingAchterstand = if (periode.periodeStartDatum < laatsteBetaling)
+            periode.periodeStartDatum
+                .datesUntil(laatsteBetaling.plusDays(1))
+                .toList()
+                .fold(BigDecimal.ZERO) { accSaldo, date ->
+                    val betaaldeVasteLaten = -vasteLastenUitgaven(betalingenInPeriode, date)
+                    val verwachteUitgaven = vasteBudgetUitgaven(rekeningGroepen, date)
+                    logger.info("Vaste lasten uitgaven op $date: $betaaldeVasteLaten, verwachte uitgaven: $verwachteUitgaven, saldo: $accSaldo")
+                    accSaldo + betaaldeVasteLaten + verwachteUitgaven
+                } else BigDecimal.ZERO
+        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand")
+
         val cashflow = periode.periodeStartDatum
             .datesUntil(periode.periodeEindDatum.plusDays(1))
             .toList()
@@ -63,7 +76,15 @@ class RekeningCashflowService {
                     if (date > laatsteBetaling) budgetInkomsten(rekeningGroepen, date)
                     else inkomsten(betalingenInPeriode, date)
                 val uitgaven =
-                    if (date > laatsteBetaling) continueBudgetUitgaven + vasteBudgetUitgaven(rekeningGroepen, date)
+                    if (date > laatsteBetaling.plusDays(1)) continueBudgetUitgaven + vasteBudgetUitgaven(
+                        rekeningGroepen,
+                        date
+                    )
+                    else if (date == laatsteBetaling.plusDays(1))
+                        continueBudgetUitgaven + vasteBudgetUitgaven(
+                            rekeningGroepen,
+                            date
+                        ) + vasteLastenAflossingAchterstand
                     else uitgaven(betalingenInPeriode, date)
                 val saldo = accSaldo + inkomsten + uitgaven
                 val nieuwSaldo =
@@ -77,11 +98,11 @@ class RekeningCashflowService {
     }
 
     fun vasteBudgetUitgaven(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
-        return -rekeningGroepen.flatMap { it.rekeningen }
-            .filter {
-                it.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST &&
-                        it.budgetBetaalDag == date.dayOfMonth
-            }
+        return -rekeningGroepen
+            .filter { it.budgetType == RekeningGroep.BudgetType.VAST }
+            .flatMap { it.rekeningen }
+            .filter { it.budgetBetaalDag == date.dayOfMonth }
+            .filter { it.maanden.isNullOrEmpty() || it.maanden!!.contains(date.monthValue) }
             .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
     }
 
@@ -92,6 +113,13 @@ class RekeningCashflowService {
                         it.budgetBetaalDag == date.dayOfMonth
             }
             .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
+    }
+
+    fun vasteLastenUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+        return -betalingen
+            .filter { it.boekingsdatum == date }
+            .filter { it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST }
+            .sumOf { it.bedrag }
     }
 
     fun uitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {

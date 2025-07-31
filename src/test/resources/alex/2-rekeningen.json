@@ -13,12 +13,27 @@
     ]
   },
   {
+    "naam": "Spaarrekening",
+    "rekeningGroepSoort": "SPAARREKENING",
+    "sortOrder": 110,
+    "rekeningen": [
+      {
+        "naam": "Alex' spaarrekening",
+        "bankNaam": "ASN",
+        "saldo": 500,
+        "sortOrder": 100
+      }
+    ]
+  },
+  {
     "naam": "Creditcard",
     "rekeningGroepSoort": "CREDITCARD",
-    "sortOrder": 200,
+    "sortOrder": 120,
     "rekeningen": [
       {
         "naam": "Visa Creditcard",
+        "saldo": -100,
+        "bankNaam": "ICS",
         "sortOrder": 200,
         "betaalMethoden": [
           {
@@ -29,122 +44,10 @@
     ]
   },
   {
-    "naam": "Spaarrekening",
-    "rekeningGroepSoort": "SPAARREKENING",
-    "budgetType": "SPAREN",
-    "rekeningGroepIcoonNaam": "spaartegoed",
-    "sortOrder": 300,
-    "rekeningen": [
-      {
-        "naam": "Vrij spaargeld",
-        "bankNaam": "ASN",
-        "sortOrder": 1300,
-        "saldo": 116.18,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
-        "budgetBetaalDag": 26,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "spaartegoed": {
-          "startDatum": "2025-07-01",
-          "eindBedrag": 2000,
-          "notities": "notities bij 1ste"
-        }
-      },
-      {
-        "naam": "Kleding",
-        "bankNaam": "ASN",
-        "sortOrder": 1400,
-        "saldo": 200,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
-        "budgetBetaalDag": 26,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "spaartegoed": {
-          "startDatum": "2025-07-01",
-          "notities": "notities bij Kleding"
-        }
-      },
-      {
-        "naam": "Nieuwe wasmachine",
-        "bankNaam": "ASN",
-        "sortOrder": 1500,
-        "saldo": 50,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 50,
-        "budgetBetaalDag": 26,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "spaartegoed": {
-          "startDatum": "2025-07-01",
-          "eindBedrag": 2000,
-          "notities": "notities bij 3de"
-        }
-      }
-    ]
-  },
-  {
-    "naam": "Aflossing",
-    "rekeningGroepSoort": "AFLOSSING",
-    "budgetType": "VAST",
-    "rekeningGroepIcoonNaam": "aflossing",
-    "sortOrder": 500,
-    "rekeningen": [
-      {
-        "naam": "Demo aflossing",
-        "sortOrder": 500,
-        "saldo": -1400,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 100,
-        "budgetBetaalDag": 26,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "aflossing": {
-          "startDatum": "2025-01-01",
-          "eindBedrag": 2000,
-          "dossierNummer": "dossiernummer10",
-          "notities": "notities1"
-        }
-      },
-      {
-        "naam": "Andere aflossing",
-        "sortOrder": 600,
-        "saldo": -500,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 50,
-        "budgetBetaalDag": 28,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "aflossing": {
-          "startDatum": "2025-02-01",
-          "eindBedrag": 1200,
-          "dossierNummer": "dossiernummer2",
-          "notities": "notities2"
-        }
-      }
-    ]
-  },
-  {
     "naam": "Inkomsten",
     "rekeningGroepSoort": "INKOMSTEN",
     "rekeningGroepIcoonNaam": "inkomsten",
-    "sortOrder": 100,
+    "sortOrder": 200,
     "budgetType": "INKOMSTEN",
     "rekeningen": [
       {
@@ -192,7 +95,7 @@
     "naam": "Leefgeld",
     "rekeningGroepSoort": "UITGAVEN",
     "rekeningGroepIcoonNaam": "boodschappen",
-    "sortOrder": 110,
+    "sortOrder": 300,
     "budgetType": "CONTINU",
     "rekeningen": [
       {
@@ -228,7 +131,7 @@
     "naam": "Vaste lasten",
     "rekeningGroepSoort": "UITGAVEN",
     "rekeningGroepIcoonNaam": "vaste lasten",
-    "sortOrder": 120,
+    "sortOrder": 400,
     "budgetType": "VAST",
     "rekeningen": [
       {
@@ -344,6 +247,117 @@
             "naam": "Alex' betaalrekening"
           }
         ]
+      }
+    ]
+  },
+  {
+    "naam": "Spaarpotjes",
+    "rekeningGroepSoort": "UITGAVEN",
+    "budgetType": "SPAREN",
+    "rekeningGroepIcoonNaam": "spaartegoed",
+    "sortOrder": 500,
+    "rekeningen": [
+      {
+        "naam": "Vrij spaargeld",
+        "bankNaam": "ASN",
+        "sortOrder": 300,
+        "saldo": 116.18,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 26,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2027-01-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 1ste"
+        }
+      },
+      {
+        "naam": "Kleding",
+        "bankNaam": "ASN",
+        "sortOrder": 1400,
+        "saldo": 200,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 26,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "notities": "notities bij Kleding"
+        }
+      },
+      {
+        "naam": "Nieuwe wasmachine",
+        "bankNaam": "ASN",
+        "sortOrder": 1500,
+        "saldo": 50,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "budgetBetaalDag": 26,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "doelDatum": "2026-07-01",
+          "doelBedrag": 2000,
+          "notities": "notities bij 3de"
+        }
+      }
+    ]
+  },
+  {
+    "naam": "Aflossing",
+    "rekeningGroepSoort": "AFLOSSING",
+    "budgetType": "VAST",
+    "rekeningGroepIcoonNaam": "aflossing",
+    "sortOrder": 900,
+    "rekeningen": [
+      {
+        "naam": "Demo aflossing",
+        "sortOrder": 500,
+        "saldo": -1400,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 100,
+        "budgetBetaalDag": 26,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "aflossing": {
+          "startDatum": "2025-01-01",
+          "eindBedrag": 2000,
+          "dossierNummer": "dossiernummer10",
+          "notities": "notities1"
+        }
+      },
+      {
+        "naam": "Andere aflossing",
+        "sortOrder": 600,
+        "saldo": -500,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "budgetBetaalDag": 28,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "aflossing": {
+          "startDatum": "2025-02-01",
+          "eindBedrag": 1200,
+          "dossierNummer": "dossiernummer2",
+          "notities": "notities2"
+        }
       }
     ]
   }

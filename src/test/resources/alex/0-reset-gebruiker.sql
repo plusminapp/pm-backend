@@ -22,3 +22,5 @@ BEGIN
   DELETE FROM public.rekening_groep WHERE gebruiker_id = gebruikerId;
 END;
 $$;
+
+-- CALL reset_gebruiker_data(440);

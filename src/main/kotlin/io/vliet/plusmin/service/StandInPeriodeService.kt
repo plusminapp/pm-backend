@@ -80,7 +80,7 @@ class StandInPeriodeService {
 
                 val budgetOpPeilDatum =
                     when (rekening.rekeningGroep.budgetType) {
-                        RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.SPAREN, RekeningGroep.BudgetType.INKOMSTEN -> {
+                        RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
                             if (betaaldagInPeriode == null) {
                                 throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
                             }

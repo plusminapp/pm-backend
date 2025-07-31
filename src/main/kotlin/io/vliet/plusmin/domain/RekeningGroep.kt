@@ -40,6 +40,10 @@ class RekeningGroep(
             RekeningGroepSoort.INKOMSTEN,
             RekeningGroepSoort.UITGAVEN,
         )
+        val reserveringRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.UITGAVEN,
+            RekeningGroepSoort.AFLOSSING,
+        )
         val balansRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
             RekeningGroepSoort.SPAARREKENING,
