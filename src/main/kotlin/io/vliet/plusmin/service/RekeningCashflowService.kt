@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 @Service
@@ -23,6 +24,9 @@ class RekeningCashflowService {
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
+
+    @Autowired
+    lateinit var reserveringService: ReserveringService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -50,10 +54,10 @@ class RekeningCashflowService {
             .filter { it.budgetBedrag != null }
             .sumOf {
                 if (it.budgetPeriodiciteit == BudgetPeriodiciteit.MAAND)
-                    it.budgetBedrag?.divide(BigDecimal(periodeLengte), 2, java.math.RoundingMode.HALF_UP)
+                    it.budgetBedrag?.divide(BigDecimal(periodeLengte), 2, RoundingMode.HALF_UP)
                         ?: BigDecimal.ZERO
                 else
-                    it.budgetBedrag?.divide(BigDecimal(7), 2, java.math.RoundingMode.HALF_UP) ?: BigDecimal.ZERO
+                    it.budgetBedrag?.divide(BigDecimal(7), 2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO
             }
         // "betaalde vaste lasten tot date (negatieve waarde)" + "verwachte vaste lasten tot date (negatieve waarde)"
         val vasteLastenAflossingAchterstand = if (periode.periodeStartDatum < laatsteBetaling)
@@ -68,10 +72,11 @@ class RekeningCashflowService {
                 } else BigDecimal.ZERO
         logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand")
 
+        val openingsReserveringsSaldo = openingsReserveringsSaldo(rekeningGroepen, periode)
         val cashflow = periode.periodeStartDatum
             .datesUntil(periode.periodeEindDatum.plusDays(1))
             .toList()
-            .fold(Pair(BigDecimal.ZERO, emptyList<CashFlow>())) { (accSaldo, accList), date ->
+            .fold(Pair(openingsReserveringsSaldo, emptyList<CashFlow>())) { (accSaldo, accList), date ->
                 val inkomsten =
                     if (date > laatsteBetaling) budgetInkomsten(rekeningGroepen, date)
                     else inkomsten(betalingenInPeriode, date)
@@ -120,6 +125,20 @@ class RekeningCashflowService {
             .filter { it.boekingsdatum == date }
             .filter { it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST }
             .sumOf { it.bedrag }
+    }
+
+    fun openingsReserveringsSaldo(rekeningGroepen: List<RekeningGroep>, periode: Periode): BigDecimal {
+        val openingReserveringSaldo: BigDecimal = reserveringService
+            .getReserveringenEnBetalingenVoorHulpvrager(periode.gebruiker, periode.periodeStartDatum.minusDays(1))
+            .filter {it.key?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
+            .map { it.key!!.id to it.value.first + it.value.second  }
+            .toMap().values.sumOf { it }
+
+        val spaarReserveringen = rekeningGroepen
+            .filter { it.budgetType == RekeningGroep.BudgetType.SPAREN }
+            .flatMap { it.rekeningen }
+            .sumOf { it.budgetBedrag ?: BigDecimal.ZERO}
+        return openingReserveringSaldo - spaarReserveringen
     }
 
     fun uitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {

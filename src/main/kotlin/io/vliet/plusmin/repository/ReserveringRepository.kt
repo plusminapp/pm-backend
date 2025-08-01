@@ -26,6 +26,13 @@ interface ReserveringRepository : JpaRepository<Reservering, Long> {
     ): List<Reservering>
 
     @Query(
+        value = "SELECT r FROM Reservering r " +
+                "WHERE r.gebruiker = :gebruiker AND " +
+                "r.boekingsdatum <= :datum"
+    )
+    fun findAllByGebruikerOpDatum(gebruiker: Gebruiker, datum: LocalDate): List<Reservering>
+
+    @Query(
         value = "SELECT MIN(r.sortOrder) FROM Reservering r " +
                 "WHERE r.gebruiker = :gebruiker AND " +
                 "r.boekingsdatum = :datum"

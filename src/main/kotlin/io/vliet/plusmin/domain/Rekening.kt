@@ -42,6 +42,7 @@ class Rekening(
     @Enumerated(EnumType.STRING)
     val budgetPeriodiciteit: BudgetPeriodiciteit? = null,
     val budgetBetaalDag: Int? = null,
+    val budgetAanvulling: Rekening.BudgetAanvulling? = null,
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rekening_betaal_methoden",
@@ -72,6 +73,7 @@ class Rekening(
         maanden: Set<Int>? = this.maanden,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
+        budgetAanvulling: Rekening.BudgetAanvulling? = this.budgetAanvulling,
         betaalMethoden: List<Rekening> = this.betaalMethoden,
         aflossing: Aflossing? = this.aflossing,
         spaartegoed: Spaartegoed? = this.spaartegoed,
@@ -88,6 +90,7 @@ class Rekening(
         maanden,
         budgetPeriodiciteit,
         budgetBetaalDag,
+        budgetAanvulling,
         betaalMethoden,
         aflossing,
         spaartegoed
@@ -108,11 +111,16 @@ class Rekening(
         rekeningDTO.budgetVariabiliteit,
         rekeningDTO.maanden,
         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
-        rekeningDTO.budgetBetaalDag
+        rekeningDTO.budgetBetaalDag,
+        rekeningDTO.budgetAanvulling?.let { BudgetAanvulling.valueOf(it.name) },
     )
 
     enum class BudgetPeriodiciteit {
         WEEK, MAAND
+    }
+
+    enum class BudgetAanvulling {
+        TOT, MET
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -130,6 +138,7 @@ class Rekening(
         val budgetVariabiliteit: Int? = null,
         val maanden: Set<Int>? = emptySet(),
         val budgetBetaalDag: Int? = null,
+        val budgetAanvulling: BudgetAanvulling? = null,
         val betaalMethoden: List<RekeningDTO> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
@@ -146,6 +155,7 @@ class Rekening(
             saldo: BigDecimal? = this.saldo,
             budgetBedrag: BigDecimal? = this.budgetBedrag,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
+            budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
             betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             aflossing: Aflossing.AflossingDTO? = this.aflossing,
@@ -164,6 +174,7 @@ class Rekening(
             budgetVariabiliteit,
             maanden,
             budgetBetaalDag,
+            budgetAanvulling,
             betaalMethoden,
             budgetMaandBedrag,
             aflossing,
@@ -212,6 +223,7 @@ class Rekening(
             this.budgetVariabiliteit,
             this.maanden,
             this.budgetBetaalDag,
+            this.budgetAanvulling,
             this.betaalMethoden.map { it.toDTO() },
             budgetMaandBedrag,
             this.aflossing?.toDTO(),

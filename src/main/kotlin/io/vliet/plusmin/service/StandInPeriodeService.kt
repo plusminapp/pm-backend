@@ -25,6 +25,9 @@ class StandInPeriodeService {
     lateinit var reserveringRepository: ReserveringRepository
 
     @Autowired
+    lateinit var reserveringService: ReserveringService
+
+    @Autowired
     lateinit var periodeService: PeriodeService
 
     @Autowired
@@ -45,6 +48,14 @@ class StandInPeriodeService {
             .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .sumOf { it.betaling }
         logger.info("betalingenInPeilPeriode: van ${peilPeriode.periodeStartDatum} tot: ${peilDatum} ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
+
+        val openingReserveringSaldi: Map<Long, BigDecimal> = reserveringService
+            .getReserveringenEnBetalingenVoorHulpvrager(gebruiker, peilPeriode.periodeStartDatum.minusDays(1))
+            .filter {it.key != null}
+            .map { it.key!!.id to it.value.first + it.value.second  }
+            .toMap()
+
+        logger.info("openingReserveringSaldi: ${openingReserveringSaldi.map { "${it.key} -> ${it.value}" }}")
 
         return startSaldiVanPeilPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
@@ -117,6 +128,7 @@ class StandInPeriodeService {
                     spaartegoed = rekening.spaartegoed?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     openingsBalansSaldo,
+                    openingsReserveSaldo = openingReserveringSaldi[rekening.id] ?: BigDecimal.ZERO,
                     achterstand = achterstand,
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetMaandBedrag = budgetMaandBedrag,

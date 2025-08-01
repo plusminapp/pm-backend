@@ -110,9 +110,9 @@ class ReserveringService {
         )
     }
 
-    fun getReserveringenVoorHulpvrager(hulpvrager: Gebruiker): Map<Rekening?, Pair<BigDecimal, BigDecimal>> {
+    fun getReserveringenEnBetalingenVoorHulpvrager(hulpvrager: Gebruiker, datum: LocalDate): Map<Rekening?, Pair<BigDecimal, BigDecimal>> {
         val inkomsten = betalingsRepository
-            .findAllByGebruiker(hulpvrager)
+            .findAllByGebruikerOpDatum(hulpvrager, datum)
             .groupBy { if (inkomstenBetalingsSoorten.contains(it.betalingsSoort)) it.bron else null }
             .filter { it.key != null }
             .mapValues { entry -> entry.value.sumOf { it.bedrag } }
@@ -123,7 +123,7 @@ class ReserveringService {
         val reserveringsBuffer = mapOf(reserveringsBufferRekening to reserveringsBufferBedrag)
 
         val uitgaven: Map<Rekening?, BigDecimal> = betalingsRepository
-            .findAllByGebruiker(hulpvrager)
+            .findAllByGebruikerOpDatum(hulpvrager, datum)
             .groupBy { if (inkomstenBetalingsSoorten.contains(it.betalingsSoort)) null else it.bestemming }
             .filterKeys { it != null }
             .mapValues { entry -> entry.value.sumOf { -it.bedrag } }
@@ -131,7 +131,7 @@ class ReserveringService {
         val betalingen = uitgaven + reserveringsBuffer
 
         val reserveringen = reserveringRepository
-            .findAllByGebruiker(hulpvrager)
+            .findAllByGebruikerOpDatum(hulpvrager, datum)
             .flatMap { reservering ->
                 listOfNotNull(
                     reservering.bron.let { it to -reservering.bedrag },
@@ -146,7 +146,7 @@ class ReserveringService {
             }"
         )
 
-        return reserveringen.keys.union(betalingen.keys)
+        val reserveringenEnBetalingenPerRekening = reserveringen.keys.union(betalingen.keys)
             .toSet()
             .associateWith { rekening ->
                 val reservering = reserveringen
@@ -159,6 +159,8 @@ class ReserveringService {
 
                 Pair(reservering, betaling)
             }
+
+        return reserveringenEnBetalingenPerRekening
     }
 
     fun creeerReservingenVoorPeriode(periode: Periode) {

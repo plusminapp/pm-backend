@@ -1,9 +1,6 @@
 package io.vliet.plusmin.controller
 
-import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.Reservering
 import io.vliet.plusmin.domain.Reservering.ReserveringDTO
-import io.vliet.plusmin.repository.ReserveringRepository
 import io.vliet.plusmin.service.ReserveringService
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -13,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.jvm.optionals.getOrNull
 
 
@@ -74,14 +72,15 @@ class ReserveringController {
         return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periodes voor ${hulpvrager.email}.")
     }
 
-    @GetMapping("/hulpvrager/{hulpvragerId}")
-    fun getReserveringenVoorHulpvrager(
+    @GetMapping("/hulpvrager/{hulpvragerId}/datum/{datum}")
+    fun getReserveringenEnBetalingenVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("datum") datum: String, // Datum in ISO-8601 formaat (yyyy-MM-dd)
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("GET ReserveringController.getReserveringenEnBetalingenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(reserveringService
-            .getReserveringenVoorHulpvrager(hulpvrager)
+            .getReserveringenEnBetalingenVoorHulpvrager(hulpvrager, LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE))
             .mapKeys { it.key?.naam ?: "Onbekend" }
         )
     }
