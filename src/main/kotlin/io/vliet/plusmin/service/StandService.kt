@@ -102,6 +102,7 @@ class StandService {
             rekeningNaam = "",
             sortOrder = saldoDTO1.sortOrder,
             openingsBalansSaldo = saldoDTO1.openingsBalansSaldo.plus(saldoDTO2.openingsBalansSaldo),
+            openingsReserveSaldo = saldoDTO1.openingsReserveSaldo.plus(saldoDTO2.openingsReserveSaldo),
             achterstand = BigDecimal.ZERO,
 //                if (saldoDTO1.budgetType == RekeningGroep.BudgetType.VAST)
 //                saldoDTO1.achterstand.plus(saldoDTO2.achterstand)
@@ -114,6 +115,7 @@ class StandService {
             else BigDecimal.ZERO,
             budgetMaandBedrag = saldoDTO1.budgetMaandBedrag.plus(saldoDTO2.budgetMaandBedrag),
             betaling = saldoDTO1.betaling.plus(saldoDTO2.betaling),
+            reservering = saldoDTO1.reservering.plus(saldoDTO2.reservering),
             budgetPeilDatum = saldoDTO1.budgetPeilDatum ?: saldoDTO2.budgetPeilDatum,
             budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal.ZERO),
             betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal.ZERO),

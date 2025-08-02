@@ -112,7 +112,7 @@ class ReserveringService {
 
     fun getReserveringenEnBetalingenVoorHulpvrager(hulpvrager: Gebruiker, datum: LocalDate): Map<Rekening?, Pair<BigDecimal, BigDecimal>> {
         val inkomsten = betalingsRepository
-            .findAllByGebruikerOpDatum(hulpvrager, datum)
+            .findAllByGebruikerTotEnMetDatum(hulpvrager, datum)
             .groupBy { if (inkomstenBetalingsSoorten.contains(it.betalingsSoort)) it.bron else null }
             .filter { it.key != null }
             .mapValues { entry -> entry.value.sumOf { it.bedrag } }
@@ -123,8 +123,8 @@ class ReserveringService {
         val reserveringsBuffer = mapOf(reserveringsBufferRekening to reserveringsBufferBedrag)
 
         val uitgaven: Map<Rekening?, BigDecimal> = betalingsRepository
-            .findAllByGebruikerOpDatum(hulpvrager, datum)
-            .groupBy { if (inkomstenBetalingsSoorten.contains(it.betalingsSoort)) null else it.bestemming }
+            .findAllByGebruikerTotEnMetDatum(hulpvrager, datum)
+            .groupBy { if (!inkomstenBetalingsSoorten.contains(it.betalingsSoort)) it.bestemming else null }
             .filterKeys { it != null }
             .mapValues { entry -> entry.value.sumOf { -it.bedrag } }
 
@@ -155,8 +155,6 @@ class ReserveringService {
                 val betaling = betalingen
                     .filter { it.key?.id == rekening?.id }
                     .values.sumOf { it }
-                logger.info(">>> ${rekening?.naam}/${rekening?.id}: reservering=$reservering - betaling=${betaling}")
-
                 Pair(reservering, betaling)
             }
 

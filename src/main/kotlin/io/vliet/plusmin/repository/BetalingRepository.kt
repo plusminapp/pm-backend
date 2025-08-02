@@ -26,7 +26,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "WHERE b.gebruiker = :gebruiker AND " +
                 "b.boekingsdatum <= :datum"
     )
-    fun findAllByGebruikerOpDatum(gebruiker: Gebruiker, datum: LocalDate): List<Betaling>
+    fun findAllByGebruikerTotEnMetDatum(gebruiker: Gebruiker, datum: LocalDate): List<Betaling>
 
     @Query(
         value = "SELECT b FROM Betaling b " +

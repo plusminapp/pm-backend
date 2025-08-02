@@ -1,7 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -83,7 +83,7 @@ class StandInPeriodeService {
                 else null
 
                 // budgetMaandBedrag is het bedrag dat deze periode moet worden betaald,
-                // eventueel aangepast aan de budgetVariabiliteit obv een betaling,
+                // eventueel aangepast aan de budgetVariabiliteit o.b.v. een betaling,
                 // eventueel 0 als deze maand geen betaling wordt verwacht,
                 // EXCL een eventuele de achterstand
                 val budgetMaandBedrag =
@@ -128,7 +128,7 @@ class StandInPeriodeService {
                     spaartegoed = rekening.spaartegoed?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     openingsBalansSaldo,
-                    openingsReserveSaldo = openingReserveringSaldi[rekening.id] ?: BigDecimal.ZERO,
+                    openingsReserveSaldo = saldo.openingsReserveSaldo + (openingReserveringSaldi[rekening.id] ?: BigDecimal.ZERO),
                     achterstand = achterstand,
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetMaandBedrag = budgetMaandBedrag,
@@ -208,8 +208,6 @@ class StandInPeriodeService {
     fun berekenStartSaldiVanPeilPeriode(peilPeriode: Periode): List<Saldo> {
         val gebruiker = peilPeriode.gebruiker
         val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-        val startDatum = basisPeriode.periodeEindDatum.plusDays(1)
-        val eindDatum = peilPeriode.periodeStartDatum.minusDays(1)
 
         val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
         val betalingenTussenBasisEnPeilPeriode = berekenMutatieLijstTussenDatums(
@@ -223,22 +221,22 @@ class StandInPeriodeService {
                 .filter { it.rekening.naam == basisPeriodeSaldo.rekening.naam }
                 .sumOf { it.betaling }
             val openingsBalansSaldo =
-                if (!resultaatRekeningGroepSoort.contains(basisPeriodeSaldo.rekening.rekeningGroep.rekeningGroepSoort))
+                if (balansRekeningGroepSoort.contains(basisPeriodeSaldo.rekening.rekeningGroep.rekeningGroepSoort))
                     basisPeriodeSaldo.openingsBalansSaldo + basisPeriodeSaldo.betaling + betaling
                 else BigDecimal.ZERO
 
-            val aantalGeldigePeriodes = periodeRepository
-                .getPeriodesTussenDatums(
-                    basisPeriodeSaldo.rekening.rekeningGroep.gebruiker,
-                    basisPeriode.periodeStartDatum,
-                    peilPeriode.periodeStartDatum.minusDays(1)
-                )
-                .count {
-                    basisPeriodeSaldo.rekening.rekeningIsGeldigInPeriode(it)
-                            && basisPeriodeSaldo.rekening.rekeningVerwachtBetalingInPeriode(it)
-                }
-            val budgetMaandBedrag = basisPeriodeSaldo.rekening.toDTO(peilPeriode).budgetMaandBedrag ?: BigDecimal.ZERO
-            val achterstand = BigDecimal.ZERO
+//            val aantalGeldigePeriodes = periodeRepository
+//                .getPeriodesTussenDatums(
+//                    basisPeriodeSaldo.rekening.rekeningGroep.gebruiker,
+//                    basisPeriode.periodeStartDatum,
+//                    peilPeriode.periodeStartDatum.minusDays(1)
+//                )
+//                .count {
+//                    basisPeriodeSaldo.rekening.rekeningIsGeldigInPeriode(it)
+//                            && basisPeriodeSaldo.rekening.rekeningVerwachtBetalingInPeriode(it)
+//                }
+//            val budgetMaandBedrag = basisPeriodeSaldo.rekening.toDTO(peilPeriode).budgetMaandBedrag ?: BigDecimal.ZERO
+//            val achterstand = BigDecimal.ZERO
 //                if (basisPeriodeSaldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
 //                    (basisPeriodeSaldo.achterstand
 //                            - (BigDecimal(aantalGeldigePeriodes) * budgetMaandBedrag)
@@ -247,9 +245,11 @@ class StandInPeriodeService {
 //                else BigDecimal.ZERO
             basisPeriodeSaldo.fullCopy(
                 openingsBalansSaldo = openingsBalansSaldo,
-                achterstand = achterstand,
+                openingsReserveSaldo = basisPeriodeSaldo.openingsReserveSaldo,
+                achterstand = BigDecimal.ZERO,
             )
         }
+        logger.info("startSaldiVanPeilPeriode: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.openingsReserveSaldo}" }}")
         return saldoLijst
     }
 }

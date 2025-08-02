@@ -21,7 +21,12 @@
         "naam": "Alex' spaarrekening",
         "bankNaam": "ASN",
         "saldo": 500,
-        "sortOrder": 100
+        "sortOrder": 100,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ]
       }
     ]
   },
@@ -251,7 +256,7 @@
     ]
   },
   {
-    "naam": "Spaarpotjes",
+    "naam": "Spaarpotten",
     "rekeningGroepSoort": "UITGAVEN",
     "budgetType": "SPAREN",
     "rekeningGroepIcoonNaam": "spaartegoed",
