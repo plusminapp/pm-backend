@@ -110,16 +110,19 @@ class ReserveringService {
         )
     }
 
-    fun getReserveringenEnBetalingenVoorHulpvrager(hulpvrager: Gebruiker, datum: LocalDate): Map<Rekening?, Pair<BigDecimal, BigDecimal>> {
+    fun getReserveringenEnBetalingenVoorHulpvrager(
+        hulpvrager: Gebruiker,
+        datum: LocalDate
+    ): Map<Rekening?, Pair<BigDecimal, BigDecimal>> {
         val inkomsten = betalingsRepository
             .findAllByGebruikerTotEnMetDatum(hulpvrager, datum)
             .groupBy { if (inkomstenBetalingsSoorten.contains(it.betalingsSoort)) it.bron else null }
             .filter { it.key != null }
             .mapValues { entry -> entry.value.sumOf { it.bedrag } }
         val reserveringsBufferBedrag = inkomsten.values.sumOf { it }
-        val reserveringsBufferRekening =
-            rekeningRepository.findRekeningGebruikerEnNaam(hulpvrager, "_reservering_buffer")
-                ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${hulpvrager.bijnaam}.")
+        val bufferRekeningen = rekeningRepository.findBufferRekeningVoorGebruiker(hulpvrager)
+        val reserveringsBufferRekening = bufferRekeningen.firstOrNull()
+            ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${hulpvrager.bijnaam}.")
         val reserveringsBuffer = mapOf(reserveringsBufferRekening to reserveringsBufferBedrag)
 
         val uitgaven: Map<Rekening?, BigDecimal> = betalingsRepository
@@ -165,7 +168,7 @@ class ReserveringService {
         val gebruiker = periode.gebruiker
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
-        val reserveringBuffer = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, "_reservering_buffer")
+        val reserveringBuffer = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, "Buffer")
             ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${gebruiker.bijnaam}.")
         var blaat = 0
         rekeningen

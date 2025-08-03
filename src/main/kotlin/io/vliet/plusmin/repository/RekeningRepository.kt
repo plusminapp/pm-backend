@@ -24,6 +24,12 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
             "AND r.naam = :rekeningNaam")
     fun findRekeningGebruikerEnNaam(gebruiker: Gebruiker, rekeningNaam: String): Rekening?
 
+    @Query(value = "SELECT r FROM Rekening r " +
+            "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+            "AND r.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' ")
+    fun findBufferRekeningVoorGebruiker(gebruiker: Gebruiker): List<Rekening>
+
+
     @Query(value ="SELECT * FROM rekening r ORDER BY r.sort_order DESC LIMIT 1",
         nativeQuery = true)
     fun findMaxSortOrder(): Optional<Rekening>

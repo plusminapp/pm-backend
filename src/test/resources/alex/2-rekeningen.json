@@ -74,7 +74,7 @@
         "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 678,
-        "budgetBetaalDag": 24,
+        "budgetBetaalDag": 8,
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
