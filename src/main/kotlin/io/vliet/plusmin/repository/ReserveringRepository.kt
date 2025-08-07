@@ -2,6 +2,7 @@ package io.vliet.plusmin.repository
 
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Reservering
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -40,11 +41,11 @@ interface ReserveringRepository : JpaRepository<Reservering, Long> {
     fun findLaatsteSortOrder(gebruiker: Gebruiker, datum: LocalDate): String?
 
     @Query(
-        value = "SELECT b FROM Reservering b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
-                "b.boekingsdatum = :boekingsdatum AND " +
-                "ABS(b.bedrag) = ABS(:bedrag) AND " +
-                "b.omschrijving = :omschrijving "
+        value = "SELECT r FROM Reservering r " +
+                "WHERE r.gebruiker = :gebruiker AND " +
+                "r.boekingsdatum = :boekingsdatum AND " +
+                "ABS(r.bedrag) = ABS(:bedrag) AND " +
+                "r.omschrijving = :omschrijving "
     )
     fun findMatchingReservering(
         gebruiker: Gebruiker,
@@ -53,4 +54,16 @@ interface ReserveringRepository : JpaRepository<Reservering, Long> {
         omschrijving: String
     ): List<Reservering>
 
-}
+@Query(
+    value = "SELECT r FROM Reservering r " +
+            "WHERE r.gebruiker = :gebruiker AND " +
+            "r.boekingsdatum >= :startDatum AND " +
+            "r.boekingsdatum <= :eindDatum AND " +
+            "r.bron.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' AND " +
+            "r.bestemming.rekeningGroep.budgetType = 'SPAREN'"
+)
+fun findSpaarReserveringenInPeriode(
+    gebruiker: Gebruiker,
+    startDatum: LocalDate,
+    eindDatum: LocalDate
+): List<Reservering>}

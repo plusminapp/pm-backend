@@ -197,4 +197,34 @@ class ReserveringService {
         val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
         periodes.forEach { creeerReservingenVoorPeriode(it) }
     }
+
+    fun creeerReserveringenVoorStortenSpaargeld(gebruiker: Gebruiker, spaarRekeningNaam: String) {
+        val spaarRekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, spaarRekeningNaam)
+            ?: throw IllegalStateException("Spaarrekening $spaarRekeningNaam niet gevonden voor ${gebruiker.bijnaam}.")
+        val spaarBetalingen = betalingsRepository
+            .findAllByGebruiker(gebruiker)
+            .filter { it.betalingsSoort == Betaling.BetalingsSoort.SPAREN }
+        spaarBetalingen.forEach {
+            val reserveringen = reserveringRepository.findMatchingReservering(
+                gebruiker = gebruiker,
+                boekingsdatum = it.boekingsdatum,
+                bedrag = it.bedrag,
+                omschrijving = it.omschrijving
+            )
+            if (reserveringen.isEmpty()) {
+                val bron = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker).firstOrNull()
+                    ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${gebruiker.bijnaam}.")
+                reserveringRepository.save(
+                    Reservering(
+                        boekingsdatum = it.boekingsdatum,
+                        bedrag = it.bedrag,
+                        omschrijving = it.omschrijving,
+                        bron = bron,
+                        bestemming = spaarRekening,
+                        gebruiker = gebruiker
+                    )
+                )
+            }
+        }
+    }
 }

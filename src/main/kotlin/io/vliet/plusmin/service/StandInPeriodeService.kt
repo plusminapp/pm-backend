@@ -64,6 +64,7 @@ class StandInPeriodeService {
                 val rekening = saldo.rekening
                 val betaling = mutatiesInPeilPeriode
                     .filter { it.rekening.naam == rekening.naam }
+//                    .filter { it.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN }
                     .sumOf { it.betaling }
                 val reservering = mutatiesInPeilPeriode
                     .filter { it.rekening.naam == rekening.naam }

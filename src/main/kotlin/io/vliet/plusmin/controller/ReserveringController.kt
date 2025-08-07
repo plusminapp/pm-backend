@@ -72,6 +72,17 @@ class ReserveringController {
         return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periodes voor ${hulpvrager.email}.")
     }
 
+    @PostMapping("/hulpvrager/{hulpvragerId}/spaarRekening/{spaarRekeningNaam}")
+    fun creeerReserveringenVoorStortenSpaargeld(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("spaarRekeningNaam") spaarRekeningNaam: String,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST ReserveringController.creeerReserveringenVoorStortenSpaargeld voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        reserveringService.creeerReserveringenVoorStortenSpaargeld(hulpvrager, spaarRekeningNaam)
+        return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periodes voor ${hulpvrager.email}.")
+    }
+
     @GetMapping("/hulpvrager/{hulpvragerId}/datum/{datum}")
     fun getReserveringenEnBetalingenVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,

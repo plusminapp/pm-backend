@@ -28,7 +28,7 @@ class Reservering(
     val bedrag: BigDecimal,
     @Column(columnDefinition = "TEXT")
     val omschrijving: String,
-    val sortOrder: String,
+    val sortOrder: String? = null, // sortering van reserveringen, kan gebruikt worden voor het tonen in de UI
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening,
@@ -41,7 +41,7 @@ class Reservering(
         boekingsdatum: LocalDate = this.boekingsdatum,
         bedrag: BigDecimal = this.bedrag,
         omschrijving: String = this.omschrijving,
-        sortOrder: String = this.sortOrder,
+        sortOrder: String? = this.sortOrder,
         bron: Rekening = this.bron,
         bestemming: Rekening = this.bestemming,
     ) = Reservering(

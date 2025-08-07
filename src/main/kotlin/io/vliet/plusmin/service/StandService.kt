@@ -6,6 +6,7 @@ import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
+import io.vliet.plusmin.repository.ReserveringRepository
 import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,6 +25,9 @@ class StandService {
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
+
+    @Autowired
+    lateinit var reserveringRepository: ReserveringRepository
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
@@ -134,8 +138,8 @@ class StandService {
 //        logger.info("berekenResultaatSamenvatting ${saldi.joinToString { it.toString() }}")
         val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val periodeVoorbij = peilDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-        val percentagePeriodeVoorbij = 100 * periodeVoorbij / periodeLengte
         val isPeriodeVoorbij = peilDatum >= periode.periodeEindDatum
+        val percentagePeriodeVoorbij = if (isPeriodeVoorbij) 100 else 100 * periodeVoorbij / periodeLengte
         val budgetMaandInkomsten = saldi
             .filter {
                 it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN
@@ -144,20 +148,24 @@ class StandService {
         val werkelijkeMaandInkomsten = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc - (saldoDTO.betaling) }
-        val maandInkomstenBedrag = budgetMaandInkomsten.max(werkelijkeMaandInkomsten)
+        val maandInkomstenBedrag = if (isPeriodeVoorbij) werkelijkeMaandInkomsten else budgetMaandInkomsten
         logger.info("budgetMaandInkomsten: $budgetMaandInkomsten, werkelijkeMaandInkomsten: $werkelijkeMaandInkomsten, maandInkomstenBedrag: $maandInkomstenBedrag")
 
         val besteedTotPeilDatum = saldi
             .filter {
-                it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN ||
-                        it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
+                it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING ||
+                        (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN &&
+                                it.budgetType != RekeningGroep.BudgetType.SPAREN)
             }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.betaling) }
-        val gespaardTotPeilDatum = saldi
-            .filter {
-                        it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING
-            }
-            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.betaling) }
+        val gespaardTotPeilDatum = reserveringRepository
+            .findSpaarReserveringenInPeriode(
+                gebruiker = periode.gebruiker,
+                startDatum = periode.periodeStartDatum,
+                eindDatum = peilDatum
+            )
+            .fold(BigDecimal.ZERO) { acc, reservering -> acc + (reservering.bedrag) }
+        logger.info("besteedTotPeilDatum: $besteedTotPeilDatum, gespaardTotPeilDatum: $gespaardTotPeilDatum op $peilDatum")
 
         val nogNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal.ZERO else {
             saldi
