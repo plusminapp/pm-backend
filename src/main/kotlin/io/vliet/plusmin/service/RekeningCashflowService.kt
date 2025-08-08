@@ -76,11 +76,12 @@ class RekeningCashflowService {
                 .datesUntil(laatsteBetalingDatum.plusDays(1))
                 .toList()
                 .fold(BigDecimal.ZERO) { accSaldo, date ->
-                    val betaaldeVasteLaten = -vasteLastenUitgaven(betalingenInPeriode, date)
+                    val betaaldeVasteLaten = vasteLastenUitgaven(betalingenInPeriode, date)
                     val verwachteUitgaven = vasteBudgetUitgaven(rekeningGroepen, date)
-                    accSaldo + betaaldeVasteLaten + verwachteUitgaven
+                    logger.info("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
+                    accSaldo + verwachteUitgaven - betaaldeVasteLaten
                 } else BigDecimal.ZERO
-        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand")
+        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand, ")
 
         val openingsReserveringsSaldo = openingsReserveringsSaldo(periode)
         val cashflow = periode.periodeStartDatum
@@ -94,11 +95,17 @@ class RekeningCashflowService {
                 val uitgaven = spaarReserveringen +
                         if (date > laatsteBetalingDatum.plusDays(1)) continueBudgetUitgaven +
                                 vasteBudgetUitgaven(rekeningGroepen, date)
-                        else if (date == laatsteBetalingDatum.plusDays(1))
+                        else if (date == laatsteBetalingDatum.plusDays(1)) {
+                            logger.info(
+                                "continueBudgetUitgaven $continueBudgetUitgaven, " +
+                                        "vasteBudgetUitgaven ${vasteBudgetUitgaven(rekeningGroepen, date)}, " +
+                                        "vasteLastenAflossingAchterstand $vasteLastenAflossingAchterstand, " +
+                                        "spaarReserveringen $spaarReserveringen, inkomsten $inkomsten, "
+                            )
                             continueBudgetUitgaven +
                                     vasteBudgetUitgaven(rekeningGroepen, date) +
                                     vasteLastenAflossingAchterstand
-                        else uitgaven(betalingenInPeriode, date)
+                        } else uitgaven(betalingenInPeriode, date)
                 val saldo = accSaldo + inkomsten + uitgaven
                 val nieuwSaldo =
                     if (date <= laatsteBetalingDatum) saldo else null
