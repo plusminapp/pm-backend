@@ -42,7 +42,8 @@ class Rekening(
     @Enumerated(EnumType.STRING)
     val budgetPeriodiciteit: BudgetPeriodiciteit? = null,
     val budgetBetaalDag: Int? = null,
-    val budgetAanvulling: Rekening.BudgetAanvulling? = null,
+    @Enumerated(EnumType.STRING)
+    val budgetAanvulling: BudgetAanvulling? = null,
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rekening_betaal_methoden",
@@ -73,7 +74,7 @@ class Rekening(
         maanden: Set<Int>? = this.maanden,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
-        budgetAanvulling: Rekening.BudgetAanvulling? = this.budgetAanvulling,
+        budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
         betaalMethoden: List<Rekening> = this.betaalMethoden,
         aflossing: Aflossing? = this.aflossing,
         spaartegoed: Spaartegoed? = this.spaartegoed,

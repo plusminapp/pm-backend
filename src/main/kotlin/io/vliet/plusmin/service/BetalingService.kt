@@ -72,9 +72,9 @@ class BetalingService {
     fun berekenSortOrder(gebruiker: Gebruiker, boekingsDatum: LocalDate): String {
         val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
         val sortOrderDatum = boekingsDatum.toString().replace("-", "")
-        return if (laatsteSortOrder == null) sortOrderDatum + ".900"
+        return if (laatsteSortOrder == null) sortOrderDatum + ".100"
         else {
-            val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) - 10).toString()
+            val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) + 10).toString()
             sortOrderDatum + "." + sortOrderTeller
         }
     }

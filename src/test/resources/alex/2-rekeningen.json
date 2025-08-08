@@ -121,6 +121,7 @@
         "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 250,
+        "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -264,11 +265,11 @@
     "rekeningen": [
       {
         "naam": "Vrij spaargeld",
-        "bankNaam": "ASN",
         "sortOrder": 300,
         "saldo": 116.18,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
+        "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -282,11 +283,11 @@
       },
       {
         "naam": "Kleding",
-        "bankNaam": "ASN",
         "sortOrder": 1400,
         "saldo": 200,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
+        "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -298,11 +299,11 @@
       },
       {
         "naam": "Nieuwe wasmachine",
-        "bankNaam": "ASN",
         "sortOrder": 1500,
         "saldo": 50,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 50,
+        "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"

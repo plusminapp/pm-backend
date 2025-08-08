@@ -16,7 +16,7 @@ import java.math.RoundingMode
 import java.time.LocalDate
 
 @Service
-class RekeningCashflowService {
+class CashflowService {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
@@ -27,7 +27,7 @@ class RekeningCashflowService {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
-    lateinit var reserveringService: ReserveringService
+    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
 
     @Autowired
     lateinit var reserveringRepository: ReserveringRepository
@@ -37,7 +37,7 @@ class RekeningCashflowService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun getCashflowVoorHulpvrager(
+    fun getCashflow(
         hulpvrager: Gebruiker,
         periode: Periode,
     ): List<CashFlow> {
@@ -78,10 +78,10 @@ class RekeningCashflowService {
                 .fold(BigDecimal.ZERO) { accSaldo, date ->
                     val betaaldeVasteLaten = vasteLastenUitgaven(betalingenInPeriode, date)
                     val verwachteUitgaven = vasteBudgetUitgaven(rekeningGroepen, date)
-                    logger.info("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
+//                    logger.info("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
                     accSaldo + verwachteUitgaven - betaaldeVasteLaten
                 } else BigDecimal.ZERO
-        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand, ")
+//        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand, ")
 
         val openingsReserveringsSaldo = openingsReserveringsSaldo(periode)
         val cashflow = periode.periodeStartDatum
@@ -92,7 +92,7 @@ class RekeningCashflowService {
                     if (date > laatsteBetalingDatum) budgetInkomsten(rekeningGroepen, date)
                     else inkomsten(betalingenInPeriode, date)
                 val spaarReserveringen = spaarReserveringen(spaarReserveringenInPeriode, date)
-                val uitgaven = spaarReserveringen +
+                val uitgaven =
                         if (date > laatsteBetalingDatum.plusDays(1)) continueBudgetUitgaven +
                                 vasteBudgetUitgaven(rekeningGroepen, date)
                         else if (date == laatsteBetalingDatum.plusDays(1)) {
@@ -111,7 +111,7 @@ class RekeningCashflowService {
                     if (date <= laatsteBetalingDatum) saldo else null
                 val nieuwePrognose =
                     if (date >= laatsteBetalingDatum) saldo else null
-                val cashFlow = CashFlow(date, inkomsten, uitgaven, nieuwSaldo, nieuwePrognose)
+                val cashFlow = CashFlow(date, inkomsten, uitgaven, spaarReserveringen, nieuwSaldo, nieuwePrognose)
                 Pair(saldo, accList + cashFlow)
             }.second
         return cashflow.toList()
@@ -143,13 +143,17 @@ class RekeningCashflowService {
     }
 
     fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
-        val openingReserveringSaldo: BigDecimal = reserveringService
-            .getReserveringenEnBetalingenVoorHulpvrager(periode.gebruiker, periode.periodeStartDatum.minusDays(1))
-            .filter { it.key?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
-            .map { it.key!!.id to it.value.first + it.value.second }
-            .toMap().values.sumOf { it }
+        val startSaldiVanPeriodeService = startSaldiVanPeriodeService
+            .berekenStartSaldiVanPeilPeriode(periode)
+        val saldoBetaalmiddelen = startSaldiVanPeriodeService
+            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            .sumOf { it.openingsBalansSaldo }
+        val saldoSpaartegoed = startSaldiVanPeriodeService
+            .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
+            .sumOf { it.openingsReserveSaldo }
 
-        return openingReserveringSaldo
+
+        return saldoBetaalmiddelen - saldoSpaartegoed
     }
 
     fun uitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {

@@ -148,6 +148,7 @@ class RekeningService {
                     sortOrder = rekeningDTO.sortOrder ?: 0,
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
+                    budgetAanvulling = rekeningDTO.budgetAanvulling,
                     budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
                         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit)
                     else null,
@@ -180,6 +181,7 @@ class RekeningService {
                     sortOrder = rekeningDTO.sortOrder ?: 0,
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
+                    budgetAanvulling = rekeningDTO.budgetAanvulling,
                     budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
                         BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
                     else null,

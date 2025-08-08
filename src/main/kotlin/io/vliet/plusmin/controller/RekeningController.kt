@@ -5,7 +5,7 @@ import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.service.RekeningCashflowService
+import io.vliet.plusmin.service.CashflowService
 import io.vliet.plusmin.service.RekeningService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,7 +27,7 @@ class RekeningController {
     lateinit var rekeningService: RekeningService
 
     @Autowired
-    lateinit var rekeningCashflowService: RekeningCashflowService
+    lateinit var cashflowService: CashflowService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -69,7 +69,7 @@ class RekeningController {
         logger.info("GET RekeningController.getCashflowVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(rekeningCashflowService.getCashflowVoorHulpvrager(hulpvrager, periode))
+        return ResponseEntity.ok().body(cashflowService.getCashflow(hulpvrager, periode))
     }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")

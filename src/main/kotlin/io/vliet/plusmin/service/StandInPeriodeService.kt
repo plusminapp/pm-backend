@@ -1,7 +1,6 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,16 +12,10 @@ import java.time.LocalDate
 @Service
 class StandInPeriodeService {
     @Autowired
-    lateinit var rekeningGroepRepository: RekeningGroepRepository
-
-    @Autowired
-    lateinit var saldoRepository: SaldoRepository
+    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
-
-    @Autowired
-    lateinit var reserveringRepository: ReserveringRepository
 
     @Autowired
     lateinit var reserveringService: ReserveringService
@@ -41,21 +34,13 @@ class StandInPeriodeService {
         inclusiefOngeldigeRekeningen: Boolean = false
     ): List<Saldo.SaldoDTO> {
         val gebruiker = peilPeriode.gebruiker
-        val startSaldiVanPeilPeriode = berekenStartSaldiVanPeilPeriode(peilPeriode)
+        val startSaldiVanPeilPeriode = startSaldiVanPeriodeService.berekenStartSaldiVanPeilPeriode(peilPeriode)
         val mutatiesInPeilPeriode =
-            berekenMutatieLijstTussenDatums(gebruiker, peilPeriode.periodeStartDatum, peilDatum)
+            startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(gebruiker, peilPeriode.periodeStartDatum, peilDatum)
         val inkomstenInPeilPeriode = mutatiesInPeilPeriode
             .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .sumOf { it.betaling }
-        logger.info("betalingenInPeilPeriode: van ${peilPeriode.periodeStartDatum} tot: ${peilDatum} ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
-
-        val openingReserveringSaldi: Map<Long, BigDecimal> = reserveringService
-            .getReserveringenEnBetalingenVoorHulpvrager(gebruiker, peilPeriode.periodeStartDatum.minusDays(1))
-            .filter {it.key != null}
-            .map { it.key!!.id to it.value.first + it.value.second  }
-            .toMap()
-
-        logger.info("openingReserveringSaldi: ${openingReserveringSaldi.map { "${it.key} -> ${it.value}" }}")
+        logger.info("betalingenInPeilPeriode: van ${peilPeriode.periodeStartDatum} tot: $peilDatum ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
 
         return startSaldiVanPeilPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
@@ -129,7 +114,7 @@ class StandInPeriodeService {
                     spaartegoed = rekening.spaartegoed?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     openingsBalansSaldo,
-                    openingsReserveSaldo = saldo.openingsReserveSaldo + (openingReserveringSaldi[rekening.id] ?: BigDecimal.ZERO),
+                    openingsReserveSaldo = saldo.openingsReserveSaldo,
                     achterstand = achterstand,
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetMaandBedrag = budgetMaandBedrag,
@@ -166,91 +151,5 @@ class StandInPeriodeService {
         if (peilDatum >= gekozenPeriode.periodeEindDatum) return budgetMaandBedrag
         val dagenTotPeilDatum: Long = peilDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
         return (budgetMaandBedrag.times(BigDecimal(dagenTotPeilDatum)).div(BigDecimal(dagenInPeriode)))
-    }
-
-    fun berekenMutatieLijstTussenDatums(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
-        val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
-        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
-        val reserveringen = reserveringRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
-        val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
-            rekeningGroep.rekeningen.map { rekening ->
-                val betaling =
-                    betalingen.fold(BigDecimal.ZERO) { acc, betaling ->
-                        acc + berekenBetalingMutaties(
-                            betaling,
-                            rekening
-                        )
-                    }
-                val reservering =
-                    reserveringen.fold(BigDecimal.ZERO) { acc, reservering ->
-                        acc + berekenReserveringMutaties(
-                            reservering,
-                            rekening
-                        )
-                    }
-
-                Saldo(0, rekening, betaling = betaling, reservering = reservering)
-            }
-        }
-        logger.info("mutaties van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.betaling}" }}")
-        return saldoLijst
-    }
-
-    fun berekenBetalingMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
-        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO +
-                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal.ZERO
-    }
-
-    fun berekenReserveringMutaties(reservering: Reservering, rekening: Rekening): BigDecimal {
-        return if (reservering.bron.id == rekening.id) -reservering.bedrag else BigDecimal.ZERO +
-                if (reservering.bestemming.id == rekening.id) reservering.bedrag else BigDecimal.ZERO
-    }
-
-    fun berekenStartSaldiVanPeilPeriode(peilPeriode: Periode): List<Saldo> {
-        val gebruiker = peilPeriode.gebruiker
-        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-
-        val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
-        val betalingenTussenBasisEnPeilPeriode = berekenMutatieLijstTussenDatums(
-            gebruiker,
-            basisPeriode.periodeEindDatum.plusDays(1),
-            peilPeriode.periodeStartDatum.minusDays(1)
-        )
-
-        val saldoLijst = basisPeriodeSaldi.map { basisPeriodeSaldo: Saldo ->
-            val betaling = betalingenTussenBasisEnPeilPeriode
-                .filter { it.rekening.naam == basisPeriodeSaldo.rekening.naam }
-                .sumOf { it.betaling }
-            val openingsBalansSaldo =
-                if (balansRekeningGroepSoort.contains(basisPeriodeSaldo.rekening.rekeningGroep.rekeningGroepSoort))
-                    basisPeriodeSaldo.openingsBalansSaldo + basisPeriodeSaldo.betaling + betaling
-                else BigDecimal.ZERO
-
-//            val aantalGeldigePeriodes = periodeRepository
-//                .getPeriodesTussenDatums(
-//                    basisPeriodeSaldo.rekening.rekeningGroep.gebruiker,
-//                    basisPeriode.periodeStartDatum,
-//                    peilPeriode.periodeStartDatum.minusDays(1)
-//                )
-//                .count {
-//                    basisPeriodeSaldo.rekening.rekeningIsGeldigInPeriode(it)
-//                            && basisPeriodeSaldo.rekening.rekeningVerwachtBetalingInPeriode(it)
-//                }
-//            val budgetMaandBedrag = basisPeriodeSaldo.rekening.toDTO(peilPeriode).budgetMaandBedrag ?: BigDecimal.ZERO
-//            val achterstand = BigDecimal.ZERO
-//                if (basisPeriodeSaldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-//                    (basisPeriodeSaldo.achterstand
-//                            - (BigDecimal(aantalGeldigePeriodes) * budgetMaandBedrag)
-//                            + basisPeriodeSaldo.betaling + betaling
-//                            ).min(BigDecimal.ZERO)
-//                else BigDecimal.ZERO
-            basisPeriodeSaldo.fullCopy(
-                openingsBalansSaldo = openingsBalansSaldo,
-                openingsReserveSaldo = basisPeriodeSaldo.openingsReserveSaldo,
-                achterstand = BigDecimal.ZERO,
-            )
-        }
-        logger.info("startSaldiVanPeilPeriode: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.openingsReserveSaldo}" }}")
-        return saldoLijst
     }
 }

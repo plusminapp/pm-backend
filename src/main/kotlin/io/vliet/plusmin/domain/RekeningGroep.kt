@@ -43,6 +43,7 @@ class RekeningGroep(
         val reserveringRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.UITGAVEN,
             RekeningGroepSoort.AFLOSSING,
+//            RekeningGroepSoort.RESERVERING_BUFFER
         )
         val balansRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "reservering",
-    uniqueConstraints = [jakarta.persistence.UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "boekingsdatum", "bron_id", "bestemming_id"])],
 )
 class Reservering(
     @Id
@@ -28,7 +28,7 @@ class Reservering(
     val bedrag: BigDecimal,
     @Column(columnDefinition = "TEXT")
     val omschrijving: String,
-    val sortOrder: String? = null, // sortering van reserveringen, kan gebruikt worden voor het tonen in de UI
+    val sortOrder: String? = null,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening,

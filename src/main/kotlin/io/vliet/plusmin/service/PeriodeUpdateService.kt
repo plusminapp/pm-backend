@@ -29,6 +29,9 @@ class PeriodeUpdateService {
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
+    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
@@ -40,7 +43,7 @@ class PeriodeUpdateService {
         val (basisPeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         if (saldoLijst.isEmpty()) {
             val eindSaldiVanVorigeGeslotenPeriode = saldoRepository.findAllByPeriode(basisPeriode)
-            val betalingenGedurendePeilPeriode = standInPeriodeService.berekenMutatieLijstTussenDatums(
+            val betalingenGedurendePeilPeriode = startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
                 gebruiker,
                 periode.periodeStartDatum,
                 periode.periodeEindDatum

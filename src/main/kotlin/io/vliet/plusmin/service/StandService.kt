@@ -180,7 +180,7 @@ class StandService {
                 }
         }
 
-        val actueleBuffer = maandInkomstenBedrag - besteedTotPeilDatum - nogNodigNaPeilDatum
+        val actueleBuffer = maandInkomstenBedrag - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum
         return Saldo.ResultaatSamenvattingOpDatumDTO(
             percentagePeriodeVoorbij = percentagePeriodeVoorbij,
             budgetMaandInkomstenBedrag =
