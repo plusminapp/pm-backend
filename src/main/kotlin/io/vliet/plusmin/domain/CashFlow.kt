@@ -9,6 +9,7 @@ data class CashFlow(
     val datum: LocalDate,
     val inkomsten: BigDecimal,
     val uitgaven: BigDecimal,
+    val aflossing: BigDecimal,
     val spaarReserveringen: BigDecimal,
     val saldo: BigDecimal? = null,
     val prognose: BigDecimal? = null,

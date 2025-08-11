@@ -57,89 +57,60 @@ class CashflowService {
         val laatsteBetalingDatum =
             betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager) ?: periode.periodeStartDatum
         val rekeningGroepen = rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
-        val periodeLengte = periode.periodeEindDatum
-            .toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-        val continueBudgetUitgaven = -rekeningGroepen
-            .flatMap { it.rekeningen }
-            .filter { it.rekeningGroep.budgetType == RekeningGroep.BudgetType.CONTINU }
-            .filter { it.budgetBedrag != null }
-            .sumOf {
-                if (it.budgetPeriodiciteit == BudgetPeriodiciteit.MAAND)
-                    it.budgetBedrag?.divide(BigDecimal(periodeLengte), 2, RoundingMode.HALF_UP)
-                        ?: BigDecimal.ZERO
-                else
-                    it.budgetBedrag?.divide(BigDecimal(7), 2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO
-            }
+        val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+        val continueBudgetUitgaven = budgetContinueUitgaven(rekeningGroepen, periodeLengte)
         // "betaalde vaste lasten tot date (negatieve waarde)" + "verwachte vaste lasten tot date (negatieve waarde)"
         val vasteLastenAflossingAchterstand = if (periode.periodeStartDatum < laatsteBetalingDatum)
             periode.periodeStartDatum
                 .datesUntil(laatsteBetalingDatum.plusDays(1))
                 .toList()
                 .fold(BigDecimal.ZERO) { accSaldo, date ->
-                    val betaaldeVasteLaten = vasteLastenUitgaven(betalingenInPeriode, date)
-                    val verwachteUitgaven = vasteBudgetUitgaven(rekeningGroepen, date)
+                    val betaaldeVasteLaten = betaaldeVasteLaten(betalingenInPeriode, date)
+                    val verwachteUitgaven = budgetVasteLastenUitgaven(rekeningGroepen, date)
 //                    logger.info("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
                     accSaldo + verwachteUitgaven - betaaldeVasteLaten
                 } else BigDecimal.ZERO
 //        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand, ")
 
         val openingsReserveringsSaldo = openingsReserveringsSaldo(periode)
+        val initalCashflow = CashFlow(
+            datum = periode.periodeStartDatum.minusDays(1),
+            inkomsten = BigDecimal.ZERO,
+            uitgaven = BigDecimal.ZERO,
+            aflossing = BigDecimal.ZERO,
+            spaarReserveringen = BigDecimal.ZERO,
+            saldo = openingsReserveringsSaldo,
+            prognose = null,
+        )
         val cashflow = periode.periodeStartDatum
             .datesUntil(periode.periodeEindDatum.plusDays(1))
             .toList()
-            .fold(Pair(openingsReserveringsSaldo, emptyList<CashFlow>())) { (accSaldo, accList), date ->
+            .fold(Pair(openingsReserveringsSaldo, listOf(initalCashflow))) { (accSaldo, accList), date ->
                 val inkomsten =
                     if (date > laatsteBetalingDatum) budgetInkomsten(rekeningGroepen, date)
-                    else inkomsten(betalingenInPeriode, date)
-                val spaarReserveringen = spaarReserveringen(spaarReserveringenInPeriode, date)
+                    else betaaldeInkomsten(betalingenInPeriode, date)
                 val uitgaven =
-                        if (date > laatsteBetalingDatum.plusDays(1)) continueBudgetUitgaven +
-                                vasteBudgetUitgaven(rekeningGroepen, date)
-                        else if (date == laatsteBetalingDatum.plusDays(1)) {
-                            logger.info(
-                                "continueBudgetUitgaven $continueBudgetUitgaven, " +
-                                        "vasteBudgetUitgaven ${vasteBudgetUitgaven(rekeningGroepen, date)}, " +
-                                        "vasteLastenAflossingAchterstand $vasteLastenAflossingAchterstand, " +
-                                        "spaarReserveringen $spaarReserveringen, inkomsten $inkomsten, "
-                            )
-                            continueBudgetUitgaven +
-                                    vasteBudgetUitgaven(rekeningGroepen, date) +
-                                    vasteLastenAflossingAchterstand
-                        } else uitgaven(betalingenInPeriode, date)
-                val saldo = accSaldo + inkomsten + uitgaven
+                    if (date > laatsteBetalingDatum.plusDays(1))
+                        continueBudgetUitgaven + budgetVasteLastenUitgaven(rekeningGroepen, date)
+                    else if (date.equals(laatsteBetalingDatum.plusDays(1))) {
+                        continueBudgetUitgaven +
+                                budgetVasteLastenUitgaven(rekeningGroepen, date) +
+                                vasteLastenAflossingAchterstand
+                    } else betaaldeUitgaven(betalingenInPeriode, date)
+                val aflossing =
+                    if (date <= laatsteBetalingDatum) betaaldeAflossing(betalingenInPeriode, date)
+                    else budgetAflossing(rekeningGroepen, date)
+                val spaarReserveringen = spaarReserveringen(spaarReserveringenInPeriode, date)
+                val saldo = accSaldo + inkomsten + uitgaven + spaarReserveringen
                 val nieuwSaldo =
                     if (date <= laatsteBetalingDatum) saldo else null
                 val nieuwePrognose =
                     if (date >= laatsteBetalingDatum) saldo else null
-                val cashFlow = CashFlow(date, inkomsten, uitgaven, spaarReserveringen, nieuwSaldo, nieuwePrognose)
+                val cashFlow =
+                    CashFlow(date, inkomsten, uitgaven, aflossing, spaarReserveringen, nieuwSaldo, nieuwePrognose)
                 Pair(saldo, accList + cashFlow)
             }.second
         return cashflow.toList()
-    }
-
-    fun vasteBudgetUitgaven(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
-        return -rekeningGroepen
-            .filter { it.budgetType == RekeningGroep.BudgetType.VAST }
-            .flatMap { it.rekeningen }
-            .filter { it.budgetBetaalDag == date.dayOfMonth }
-            .filter { it.maanden.isNullOrEmpty() || it.maanden!!.contains(date.monthValue) }
-            .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
-    }
-
-    fun budgetInkomsten(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
-        return rekeningGroepen.flatMap { it.rekeningen }
-            .filter {
-                it.rekeningGroep.budgetType == RekeningGroep.BudgetType.INKOMSTEN &&
-                        it.budgetBetaalDag == date.dayOfMonth
-            }
-            .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
-    }
-
-    fun vasteLastenUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
-        return -betalingen
-            .filter { it.boekingsdatum == date }
-            .filter { it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST }
-            .sumOf { it.bedrag }
     }
 
     fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
@@ -151,15 +122,87 @@ class CashflowService {
         val saldoSpaartegoed = startSaldiVanPeriodeService
             .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
             .sumOf { it.openingsReserveSaldo }
-
-
+        logger.info(
+            "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +
+                    "openings saldo spaartegoed: $saldoSpaartegoed"
+        )
         return saldoBetaalmiddelen - saldoSpaartegoed
     }
 
-    fun uitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+    fun budgetInkomsten(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
+        return rekeningGroepen.flatMap { it.rekeningen }
+            .filter {
+                it.rekeningGroep.budgetType == RekeningGroep.BudgetType.INKOMSTEN &&
+                        it.budgetBetaalDag == date.dayOfMonth
+            }
+            .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
+    }
+
+    fun budgetContinueUitgaven(rekeningGroepen: List<RekeningGroep>, periodeLengte: Long): BigDecimal {
+        val continueBudgetUitgaven = -rekeningGroepen
+            .flatMap { it.rekeningen }
+            .filter { it.rekeningGroep.budgetType == RekeningGroep.BudgetType.CONTINU }
+            .filter { it.budgetBedrag != null }
+            .sumOf {
+                if (it.budgetPeriodiciteit == BudgetPeriodiciteit.MAAND)
+                    it.budgetBedrag?.divide(BigDecimal(periodeLengte), 2, RoundingMode.HALF_UP)
+                        ?: BigDecimal.ZERO
+                else
+                    it.budgetBedrag?.divide(BigDecimal(7), 2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO
+            }
+        return continueBudgetUitgaven
+    }
+
+    fun budgetVasteLastenUitgaven(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
+        return -rekeningGroepen
+            .asSequence()
+            .filter { it.budgetType == RekeningGroep.BudgetType.VAST }//&& it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN }
+            .flatMap { it.rekeningen }
+            .filter { it.budgetBetaalDag == date.dayOfMonth }
+            .filter { it.maanden.isNullOrEmpty() || it.maanden!!.contains(date.monthValue) }
+            .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
+    }
+
+    fun budgetAflossing(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
+        return -rekeningGroepen
+            .asSequence()
+            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING }
+            .flatMap { it.rekeningen }
+            .filter { it.budgetBetaalDag == date.dayOfMonth }
+            .filter { it.maanden.isNullOrEmpty() || it.maanden!!.contains(date.monthValue) }
+            .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
+    }
+
+    fun betaaldeInkomsten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+        return betalingen
+            .filter { it.boekingsdatum == date }
+            .filter { it.bron.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
+            .sumOf { it.bedrag }
+    }
+
+    fun betaaldeUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
             .filter { it.boekingsdatum == date }
-            .filter { betaalMethodeRekeningGroepSoort.contains(it.bron.rekeningGroep.rekeningGroepSoort) }
+            .onEach { logger.info("betaaldeUitgaven: ${it.bestemming.rekeningGroep.rekeningGroepSoort}") }
+            .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN) }
+            .sumOf { it.bedrag }
+    }
+
+    fun betaaldeVasteLaten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+        return -betalingen
+            .filter { it.boekingsdatum == date }
+            .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }
+            .filter {
+                it.bestemming.rekeningGroep.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false// &&
+//                        it.bestemming.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN
+            }
+            .sumOf { it.bedrag }
+    }
+
+    fun betaaldeAflossing(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+        return -betalingen
+            .filter { it.boekingsdatum == date }
+            .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.AFLOSSING) }
             .sumOf { it.bedrag }
     }
 
@@ -168,15 +211,9 @@ class CashflowService {
             .filter { it.boekingsdatum == date }
             .sumOf {
                 BigDecimal.ZERO +
-                        if (it.bron.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) it.bedrag else BigDecimal.ZERO -
-                                if (it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) it.bedrag else BigDecimal.ZERO
+                        if (it.bron.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) it.bedrag
+                        else if (it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) -it.bedrag
+                        else BigDecimal.ZERO
             }
-    }
-
-    fun inkomsten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
-        return betalingen
-            .filter { it.boekingsdatum == date }
-            .filter { betaalMethodeRekeningGroepSoort.contains(it.bestemming.rekeningGroep.rekeningGroepSoort) }
-            .sumOf { it.bedrag }
     }
 }
