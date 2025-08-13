@@ -101,7 +101,7 @@ class CashflowService {
                     if (date <= laatsteBetalingDatum) betaaldeAflossing(betalingenInPeriode, date)
                     else budgetAflossing(rekeningGroepen, date)
                 val spaarReserveringen = spaarReserveringen(spaarReserveringenInPeriode, date)
-                val saldo = accSaldo + inkomsten + uitgaven + spaarReserveringen
+                val saldo = accSaldo + inkomsten + uitgaven + aflossing + spaarReserveringen
                 val nieuwSaldo =
                     if (date <= laatsteBetalingDatum) saldo else null
                 val nieuwePrognose =
@@ -114,12 +114,12 @@ class CashflowService {
     }
 
     fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
-        val startSaldiVanPeriodeService = startSaldiVanPeriodeService
+        val startSaldiVanPeriode = startSaldiVanPeriodeService
             .berekenStartSaldiVanPeilPeriode(periode)
-        val saldoBetaalmiddelen = startSaldiVanPeriodeService
+        val saldoBetaalmiddelen = startSaldiVanPeriode
             .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }
-        val saldoSpaartegoed = startSaldiVanPeriodeService
+        val saldoSpaartegoed = startSaldiVanPeriode
             .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
             .sumOf { it.openingsReserveSaldo }
         logger.info(

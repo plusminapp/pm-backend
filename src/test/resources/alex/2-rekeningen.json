@@ -1,5 +1,16 @@
 [
   {
+    "naam": "Buffer",
+    "rekeningGroepSoort": "RESERVERING_BUFFER",
+    "sortOrder": 10,
+    "rekeningen": [
+      {
+        "naam": "Buffer",
+        "sortOrder": 10
+      }
+    ]
+  },
+  {
     "naam": "Betaalrekening",
     "rekeningGroepSoort": "BETAALREKENING",
     "sortOrder": 100,
@@ -20,7 +31,7 @@
       {
         "naam": "Alex' spaarrekening",
         "bankNaam": "ASN",
-        "saldo": 500,
+        "saldo": 750,
         "sortOrder": 100,
         "betaalMethoden": [
           {
@@ -58,7 +69,6 @@
       {
         "naam": "Salaris",
         "sortOrder": 100,
-        "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 1445,
         "budgetBetaalDag": 24,
@@ -71,7 +81,6 @@
       {
         "naam": "Toeslagen",
         "sortOrder": 100,
-        "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 678,
         "budgetBetaalDag": 8,
@@ -84,7 +93,6 @@
       {
         "naam": "Rente",
         "sortOrder": 200,
-        "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 5,
         "budgetBetaalDag": 5,
@@ -106,7 +114,6 @@
       {
         "naam": "Boodschappen",
         "sortOrder": 110,
-        "saldo": 0,
         "budgetPeriodiciteit": "WEEK",
         "budgetBedrag": 85,
         "betaalMethoden": [
@@ -118,7 +125,6 @@
       {
         "naam": "Andere uitgaven",
         "sortOrder": 120,
-        "saldo": 0,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 250,
         "budgetAanvulling": "MET",
@@ -266,7 +272,7 @@
       {
         "naam": "Vrij spaargeld",
         "sortOrder": 300,
-        "saldo": 116.18,
+        "reserve": 500,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
         "budgetAanvulling": "MET",
@@ -284,7 +290,7 @@
       {
         "naam": "Kleding",
         "sortOrder": 1400,
-        "saldo": 200,
+        "reserve": 200,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
         "budgetAanvulling": "MET",
@@ -300,7 +306,7 @@
       {
         "naam": "Nieuwe wasmachine",
         "sortOrder": 1500,
-        "saldo": 50,
+        "reserve": 50,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 50,
         "budgetAanvulling": "MET",

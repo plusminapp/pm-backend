@@ -196,7 +196,6 @@ class RekeningService {
 
             savedRekening
         }
-        logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag}; banknaam ${rekeningDTO.bankNaam}.")
         if (rekeningOpt == null) {
             val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
             saldoRepository.save(
@@ -204,6 +203,7 @@ class RekeningService {
                     id = 0,
                     rekening = rekening,
                     openingsBalansSaldo = rekeningDTO.saldo ?: BigDecimal.ZERO,
+                    openingsReserveSaldo = rekeningDTO.reserve ?: BigDecimal.ZERO,
                     periode = periode,
                     achterstand = BigDecimal.ZERO,
                     budgetMaandBedrag = BigDecimal.ZERO,
@@ -211,6 +211,8 @@ class RekeningService {
                 )
             )
         }
+        logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag}" +
+                "openingsBalansSaldo: ${rekeningDTO.saldo ?: BigDecimal.ZERO}, openingsReserveSaldo: ${rekeningDTO.reserve ?: BigDecimal.ZERO}.")
         return rekening
     }
 
