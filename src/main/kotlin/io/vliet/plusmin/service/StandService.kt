@@ -77,6 +77,10 @@ class StandService {
             } else {
                 standInPeriodeService.berekenStandInPeriode(peilDatum, periode)
             }
+        val openingsReservePotjesVoorNuSaldo = standOpDatum
+            .filter { it.budgetAanvulling == Rekening.BudgetAanvulling.MET && it.budgetType != RekeningGroep.BudgetType.SPAREN }
+            .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam }}") }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.openingsReserveSaldo) }
         val geaggregeerdeStandOpDatum = standOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }
@@ -86,6 +90,7 @@ class StandService {
                 periode,
                 peilDatum,
                 geaggregeerdeStandOpDatum,
+                openingsReservePotjesVoorNuSaldo
             )
         return StandController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findDatumLaatsteBetalingBijGebruiker(gebruiker),
@@ -134,6 +139,7 @@ class StandService {
         periode: Periode,
         peilDatum: LocalDate,
         saldi: List<Saldo.SaldoDTO>,
+        openingsReservePotjesVoorNuSaldo: BigDecimal = BigDecimal.ZERO
     ): Saldo.ResultaatSamenvattingOpDatumDTO {
 //        logger.info("berekenResultaatSamenvatting ${saldi.joinToString { it.toString() }}")
         val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
@@ -158,6 +164,13 @@ class StandService {
                                 it.budgetType != RekeningGroep.BudgetType.SPAREN)
             }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.betaling) }
+
+        val maandSpaarBudget = saldi
+            .filter {
+                it.budgetType == RekeningGroep.BudgetType.SPAREN
+            }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetMaandBedrag) }
+
         val gespaardTotPeilDatum = reserveringRepository
             .findSpaarReserveringenInPeriode(
                 gebruiker = periode.gebruiker,
@@ -180,17 +193,22 @@ class StandService {
                 }
         }
 
-        val actueleBuffer = maandInkomstenBedrag - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum
+        val actueleBuffer =
+            maandInkomstenBedrag + openingsReservePotjesVoorNuSaldo - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum
+//                    if (isPeriodeVoorbij) gespaardTotPeilDatum
+//                    else gespaardTotPeilDatum.min(maandSpaarBudget)
         return Saldo.ResultaatSamenvattingOpDatumDTO(
             percentagePeriodeVoorbij = percentagePeriodeVoorbij,
+            openingsReservePotjesVoorNuSaldo = openingsReservePotjesVoorNuSaldo,
             budgetMaandInkomstenBedrag =
                 if (isPeriodeVoorbij)
                     werkelijkeMaandInkomsten
                 else budgetMaandInkomsten.max(werkelijkeMaandInkomsten),
             besteedTotPeilDatum = besteedTotPeilDatum,
-            gespaardTotPeilDatum = gespaardTotPeilDatum,
+            gespaardTotPeilDatum = gespaardTotPeilDatum.min(maandSpaarBudget),
             nogNodigNaPeilDatum = nogNodigNaPeilDatum,
-            actueleBuffer = actueleBuffer
+            actueleBuffer = actueleBuffer,
+            extraGespaardTotPeilDatum = (gespaardTotPeilDatum - maandSpaarBudget).max(BigDecimal.ZERO)
         )
     }
 }

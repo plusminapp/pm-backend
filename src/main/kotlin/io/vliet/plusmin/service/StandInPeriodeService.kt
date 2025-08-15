@@ -38,7 +38,11 @@ class StandInPeriodeService {
         val gebruiker = peilPeriode.gebruiker
         val startSaldiVanPeilPeriode = startSaldiVanPeriodeService.berekenStartSaldiVanPeilPeriode(peilPeriode)
         val mutatiesInPeilPeriode =
-            startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(gebruiker, peilPeriode.periodeStartDatum, peilDatum)
+            startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
+                gebruiker,
+                peilPeriode.periodeStartDatum,
+                peilDatum
+            )
         val inkomstenInPeilPeriode = mutatiesInPeilPeriode
             .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .sumOf { it.betaling }
@@ -105,7 +109,10 @@ class StandInPeriodeService {
                 else
                     BigDecimal.ZERO.max(betalingNaAflossenAchterstand.abs() - budgetOpPeilDatum - meerDanMaandBudget)
                 val restMaandBudget =
-                    BigDecimal.ZERO.max(budgetMaandBedrag - betalingNaAflossenAchterstand.abs() - minderDanBudget)
+                    if (saldo.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN)
+                        BigDecimal.ZERO.max(budgetMaandBedrag - betalingNaAflossenAchterstand.abs() - minderDanBudget)
+                    else
+                        BigDecimal.ZERO
                 Saldo.SaldoDTO(
                     0,
                     rekening.rekeningGroep.naam,
@@ -121,6 +128,7 @@ class StandInPeriodeService {
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetBetaalDag = rekening.budgetBetaalDag,
+                    budgetAanvulling = rekening.budgetAanvulling,
                     budgetPeilDatum = peilDatum.toString(),
                     betaling = betaling,
                     reservering = reservering,

@@ -2,6 +2,7 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.vliet.plusmin.domain.Rekening.BudgetAanvulling
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -80,6 +81,7 @@ class Saldo(
         val achterstand: BigDecimal = BigDecimal.ZERO,
         val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,
         val budgetBetaalDag: Int? = null,
+        val budgetAanvulling: BudgetAanvulling? = null,
         val betaling: BigDecimal = BigDecimal.ZERO,
         val reservering: BigDecimal = BigDecimal.ZERO,
         val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,
@@ -123,6 +125,7 @@ class Saldo(
             this.achterstand,
             this.budgetMaandBedrag,
             this.rekening.budgetBetaalDag,
+            this.rekening.budgetAanvulling,
             this.betaling,
             this.reservering,
             this.oorspronkelijkeBetaling,
@@ -139,10 +142,12 @@ class Saldo(
 
     data class ResultaatSamenvattingOpDatumDTO(
         val percentagePeriodeVoorbij: Long,
+        val openingsReservePotjesVoorNuSaldo: BigDecimal,
         val budgetMaandInkomstenBedrag: BigDecimal,
         val besteedTotPeilDatum: BigDecimal,
         val gespaardTotPeilDatum: BigDecimal,
         val nogNodigNaPeilDatum: BigDecimal,
         val actueleBuffer: BigDecimal,
+        val extraGespaardTotPeilDatum: BigDecimal,
     )
 }

@@ -1,8 +1,7 @@
 {
-  "boekingsdatum": "2025-07-19",
-  "bedrag": "217.33",
-  "omschrijving": "Boodschappen naar vrij spaargeld",
-  "sortOrder": "20250719.900",
-  "bron": "Boodschappen",
+  "boekingsdatum": "2025-08-10",
+  "bedrag": "125",
+  "omschrijving": "Extra sparen",
+  "bron": "Buffer",
   "bestemming": "Vrij spaargeld"
 }
