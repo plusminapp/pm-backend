@@ -69,7 +69,7 @@ class RekeningController {
         logger.info("GET RekeningController.getCashflowVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(cashflowService.getCashflow(hulpvrager, periode))
+        return ResponseEntity.ok().body(cashflowService.getCashflow(hulpvrager, periode, true))
     }
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
