@@ -3,6 +3,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
   DELETE FROM public.betaling WHERE gebruiker_id = gebruikerId;
+  DELETE FROM public.reservering WHERE gebruiker_id = gebruikerId;
   DELETE FROM public.saldo WHERE periode_id IN (
     SELECT id FROM public.periode WHERE gebruiker_id = gebruikerId
   );

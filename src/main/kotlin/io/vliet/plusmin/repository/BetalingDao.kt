@@ -42,13 +42,8 @@ class BetalingDao {
 
         val queryTokens = queryString.trim().split(" ")
         val fields = listOf(
-            "referentie",
-            "tegenrekening",
-            "naam_tegenrekening",
-            "betalingskenmerk",
-            "omschrijving_bank",
+            "betalingsSoort",
             "omschrijving",
-            "categorie"
         )
         val querySelectBody = if (queryTokens[0].isNotBlank()) {
             (queryTokens.indices).joinToString(prefix = " (", separator = ") AND (", postfix = ") ") { index ->

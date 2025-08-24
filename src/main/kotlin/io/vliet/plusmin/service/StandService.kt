@@ -78,8 +78,9 @@ class StandService {
                 standInPeriodeService.berekenStandInPeriode(peilDatum, periode)
             }
         val openingsReservePotjesVoorNuSaldo = standOpDatum
-            .filter { it.budgetAanvulling == Rekening.BudgetAanvulling.MET && it.budgetType != RekeningGroep.BudgetType.SPAREN }
-            .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam }}") }
+            .filter { (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN && it.budgetType != RekeningGroep.BudgetType.SPAREN) ||
+                    it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING }
+            .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo}}") }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.openingsReserveSaldo) }
         val geaggregeerdeStandOpDatum = standOpDatum
             .groupBy { it.rekeningGroepNaam }
@@ -194,7 +195,7 @@ class StandService {
         }
 
         val actueleBuffer =
-            maandInkomstenBedrag + openingsReservePotjesVoorNuSaldo - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum
+            maandInkomstenBedrag + openingsReservePotjesVoorNuSaldo - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum.min(maandSpaarBudget)
 //                    if (isPeriodeVoorbij) gespaardTotPeilDatum
 //                    else gespaardTotPeilDatum.min(maandSpaarBudget)
         return Saldo.ResultaatSamenvattingOpDatumDTO(

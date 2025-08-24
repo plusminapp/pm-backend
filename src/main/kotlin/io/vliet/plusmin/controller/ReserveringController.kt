@@ -1,6 +1,7 @@
 package io.vliet.plusmin.controller
 
 import io.vliet.plusmin.domain.Reservering.ReserveringDTO
+import io.vliet.plusmin.service.CashflowService
 import io.vliet.plusmin.service.ReserveringService
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -22,6 +23,9 @@ class ReserveringController {
     
     @Autowired
     lateinit var reserveringService: ReserveringService
+
+    @Autowired
+    lateinit var cashflowService: CashflowService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -46,13 +50,24 @@ class ReserveringController {
         return ResponseEntity.ok().body(reservering)
     }
 
+    @PostMapping("/hulpvrager/{hulpvragerId}/list")
+    fun creeerNieuweReserveringenVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @Valid @RequestBody reserveringDTO: List<ReserveringDTO>,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val reservering = reserveringService.creeerReserveringen(hulpvrager, reserveringDTO)
+        return ResponseEntity.ok().body(reservering)
+    }
+
     @PostMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
     fun creeerNieuweReserveringVoorPeriode(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("POST ReserveringController.creeerNieuweReserveringVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = reserveringService.periodeRepository.findById(periodeId).getOrNull()
             ?: throw IllegalStateException("Periode met id $periodeId bestaat niet.")
         if (periode.gebruiker.id != hulpvrager.id) {
@@ -62,12 +77,38 @@ class ReserveringController {
         return ResponseEntity.ok().body("Reserveringen aangemaakt voor periode ${periode.periodeStartDatum} t/m ${periode.periodeEindDatum} voor ${hulpvrager.email}.")
     }
 
+    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}/budgethorizon")
+    fun getBudgetHorizon(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val periode = reserveringService.periodeRepository.findById(periodeId).getOrNull()
+            ?: throw IllegalStateException("Periode met id $periodeId bestaat niet.")
+        if (periode.gebruiker.id != hulpvrager.id) {
+            throw IllegalStateException("Periode met id $periodeId hoort niet bij hulpvrager ${hulpvrager.email}.")
+        }
+        val budgetHorizon = cashflowService.getBudgetHorizon(hulpvrager, periode)
+        return ResponseEntity.ok().body("Budgethorizon ${budgetHorizon} berekend voor periode ${periode.periodeStartDatum} t/m ${periode.periodeEindDatum} voor ${hulpvrager.email}.")
+    }
+
     @PostMapping("/hulpvrager/{hulpvragerId}/periodes")
     fun creeerNieuweReserveringVoorAllePeriodes(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("POST ReserveringController.creeerNieuweReserveringVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorAllePeriodes voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        reserveringService.creeerReservingenVoorAllePeriodes(hulpvrager)
+        return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periodes voor ${hulpvrager.email}.")
+    }
+
+    @PostMapping("/hulpvrager/{hulpvragerId}/huidig")
+    fun creeerNieuweReserveringVoorHuidigePeriode(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorHuidigePeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
         reserveringService.creeerReservingenVoorAllePeriodes(hulpvrager)
         return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periodes voor ${hulpvrager.email}.")
     }

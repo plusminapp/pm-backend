@@ -40,6 +40,7 @@ class CashflowService {
     fun getCashflow(
         hulpvrager: Gebruiker,
         periode: Periode,
+        metInkomsten: Boolean? = false,
     ): List<CashFlow> {
         logger.info("GET RekeningCashflowService.getCashflowVoorHulpvrager voor ${hulpvrager.email} in periode ${periode.periodeStartDatum}")
         val betalingenInPeriode = betalingRepository
@@ -80,7 +81,7 @@ class CashflowService {
             aflossing = BigDecimal.ZERO,
             spaarReserveringen = BigDecimal.ZERO,
             saldo = openingsReserveringsSaldo,
-            prognose = null,
+            prognose = openingsReserveringsSaldo,
         )
         val cashflow = periode.periodeStartDatum
             .datesUntil(periode.periodeEindDatum.plusDays(1))
@@ -101,7 +102,8 @@ class CashflowService {
                     if (date <= laatsteBetalingDatum) betaaldeAflossing(betalingenInPeriode, date)
                     else budgetAflossing(rekeningGroepen, date)
                 val spaarReserveringen = spaarReserveringen(spaarReserveringenInPeriode, date)
-                val saldo = accSaldo + inkomsten + uitgaven + aflossing + spaarReserveringen
+                val saldo = accSaldo + uitgaven + aflossing + spaarReserveringen +
+                        if (metInkomsten ?: false || date <= laatsteBetalingDatum) inkomsten else BigDecimal.ZERO
                 val nieuwSaldo =
                     if (date <= laatsteBetalingDatum) saldo else null
                 val nieuwePrognose =
@@ -175,14 +177,14 @@ class CashflowService {
 
     fun betaaldeInkomsten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return betalingen
-            .filter { it.boekingsdatum == date }
+            .filter { it.boekingsdatum.equals(date) }
             .filter { it.bron.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .sumOf { it.bedrag }
     }
 
     fun betaaldeUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
-            .filter { it.boekingsdatum == date }
+            .filter { it.boekingsdatum.equals(date) }
             .onEach { logger.info("betaaldeUitgaven: ${it.bestemming.rekeningGroep.rekeningGroepSoort}") }
             .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN) }
             .sumOf { it.bedrag }
@@ -190,7 +192,7 @@ class CashflowService {
 
     fun betaaldeVasteLaten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
-            .filter { it.boekingsdatum == date }
+            .filter { it.boekingsdatum.equals(date) }
             .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }
             .filter {
                 it.bestemming.rekeningGroep.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false// &&
@@ -201,19 +203,32 @@ class CashflowService {
 
     fun betaaldeAflossing(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
-            .filter { it.boekingsdatum == date }
+            .filter { it.boekingsdatum.equals(date) }
             .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.AFLOSSING) }
             .sumOf { it.bedrag }
     }
 
     fun spaarReserveringen(reserveringen: List<Reservering>, date: LocalDate): BigDecimal {
         return reserveringen
-            .filter { it.boekingsdatum == date }
+            .filter { it.boekingsdatum.equals(date) }
             .sumOf {
                 BigDecimal.ZERO +
                         if (it.bron.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) it.bedrag
                         else if (it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) -it.bedrag
                         else BigDecimal.ZERO
             }
+    }
+
+    fun getBudgetHorizon(
+        hulpvrager: Gebruiker,
+        periode: Periode,
+    ): LocalDate? {
+        val cashflowLijst = getCashflow(hulpvrager, periode, metInkomsten = false)
+        val budgetHorizon = cashflowLijst
+            .filter { (it.saldo != null && it.saldo > BigDecimal.ZERO) || (it.prognose != null && it.prognose > BigDecimal.ZERO) }
+            .maxByOrNull { it.datum }
+            ?.datum
+        logger.info("Budget horizon voor ${hulpvrager.email} in periode ${periode.periodeStartDatum} is $budgetHorizon")
+        return budgetHorizon
     }
 }

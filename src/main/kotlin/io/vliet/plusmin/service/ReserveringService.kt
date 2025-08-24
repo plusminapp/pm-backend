@@ -39,6 +39,12 @@ class ReserveringService {
     @Autowired
     lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
 
+    @Autowired
+    lateinit var standInPeriodeService: StandInPeriodeService
+
+    @Autowired
+    lateinit var cashflowService: CashflowService
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun creeerReserveringen(gebruiker: Gebruiker, reserveringenLijst: List<ReserveringDTO>): List<ReserveringDTO> {
@@ -173,7 +179,7 @@ class ReserveringService {
     }
 
     fun creeerReservingenVoorPeriode(periode: Periode) {
-        val standOpDatum: List<Saldo> =
+        val startSaldiVanPeriode: List<Saldo> =
             if (geslotenPeriodes.contains(periode.periodeStatus)) {
                 saldoRepository
                     .findAllByPeriode(periode)
@@ -182,38 +188,56 @@ class ReserveringService {
                 startSaldiVanPeriodeService.berekenStartSaldiVanPeilPeriode(periode)
             }
         val gebruiker = periode.gebruiker
+        val budgetHorizon = cashflowService.getBudgetHorizon(gebruiker, periode) ?: periode.periodeStartDatum
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
+        val mutatiesInPeilPeriode =
+            startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
+                gebruiker,
+                periode.periodeStartDatum,
+                budgetHorizon
+            )
+
         val reserveringBufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker).firstOrNull()
             ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${gebruiker.bijnaam}.")
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
         rekeningen
             .filter { reserveringRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
             .map { rekening ->
+                val betaling = mutatiesInPeilPeriode
+                    .filter { it.rekening.naam == rekening.naam }
+//                    .filter { it.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN }
+                    .sumOf { it.betaling }
+
+                val startSaldoVanPeriode = startSaldiVanPeriode
+                    .find { it.rekening.id == rekening.id }
+                    ?.openingsReserveSaldo ?: BigDecimal.ZERO
+
+                val maandBedrag =
+                    (rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO) -
+                            (if (rekening.budgetAanvulling != Rekening.BudgetAanvulling.MET) startSaldoVanPeriode
+                            else BigDecimal.ZERO)
+                val budgetHorizonBedrag = (standInPeriodeService.berekenBudgetOpPeilDatum(
+                    rekening,
+                    budgetHorizon,
+                    maandBedrag,
+                    betaling,
+                    periode
+                )?.minus(startSaldoVanPeriode) ?: BigDecimal.ZERO).max(BigDecimal.ZERO)
+                val bedrag = budgetHorizonBedrag.min(maandBedrag)
+                logger.info(
+                    "creeerReservingenVoorPeriode: bedrag: $bedrag, rekening: ${rekening.naam}, " +
+                            "maandBedrag: $maandBedrag, betaling: $betaling, " +
+                            "budgetHorizon: $budgetHorizon, budgetHorizonBedrag: $budgetHorizonBedrag, " +
+                            "periode: ${periode.periodeStartDatum} t/m ${periode.periodeEindDatum} " +
+                            "voor ${gebruiker.bijnaam}"
+                )
+
                 val reservering = reserveringRepository
                     .findByGebruikerOpDatumBronBestemming(
                         gebruiker = gebruiker,
                         datum = periode.periodeStartDatum,
                         bron = reserveringBufferRekening,
                         bestemming = rekening
-                    )
-                val bedrag =
-                    (rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO) -
-                            (if (rekening.budgetAanvulling != Rekening.BudgetAanvulling.MET)
-                                standOpDatum
-                                    .find { it.rekening.id == rekening.id }
-                                    ?.openingsReserveSaldo ?: BigDecimal.ZERO
-                            else BigDecimal.ZERO)
-                if (rekening.naam == "Boodschappen" || rekening.naam == "Andere uitgaven")
-                    logger.info(
-                        "Startsaldo voor ${rekening.naam} in periode " +
-                                "${periode.periodeStartDatum.format(dateTimeFormatter)}" +
-                                " is $bedrag met standOpDatum " +
-                                "${
-                                    standOpDatum
-                                        .find { it.rekening.id == rekening.id }
-                                        ?.openingsReserveSaldo ?: BigDecimal.ZERO
-                                } " +
-                                "en budgetAanvulling ${rekening.budgetAanvulling}"
                     )
                 if (reservering.isEmpty) {
                     reserveringRepository.save(
@@ -241,7 +265,7 @@ class ReserveringService {
     fun creeerReservingenVoorAllePeriodes(gebruiker: Gebruiker) {
         val periodes = periodeRepository
             .getPeriodesVoorGebruiker(gebruiker)
-            .filter { it.periodeStartDatum != it.periodeEindDatum }
+            .filter { !it.periodeStartDatum.equals(it.periodeEindDatum) }
             .sortedBy { it.periodeStartDatum }
         periodes.forEach {
             logger.info("creeerReservingenVoorPeriode ${it.periodeStartDatum} t/m ${it.periodeEindDatum} voor ${gebruiker.bijnaam}")

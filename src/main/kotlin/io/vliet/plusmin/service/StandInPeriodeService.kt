@@ -1,7 +1,6 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,9 +17,6 @@ class StandInPeriodeService {
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
-
-    @Autowired
-    lateinit var reserveringService: ReserveringService
 
     @Autowired
     lateinit var periodeService: PeriodeService
@@ -70,10 +66,6 @@ class StandInPeriodeService {
                 val achterstandOpPeilDatum = (achterstand + betaling.abs()).min(BigDecimal.ZERO)
                 val betalingNaAflossenAchterstand = (achterstand + betaling.abs()).max(BigDecimal.ZERO)
 
-                val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
-                    periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, peilPeriode)
-                else null
-
                 // budgetMaandBedrag is het bedrag dat deze periode moet worden betaald,
                 // eventueel aangepast aan de budgetVariabiliteit o.b.v. een betaling,
                 // eventueel 0 als deze maand geen betaling wordt verwacht,
@@ -82,26 +74,14 @@ class StandInPeriodeService {
                     rekening.toDTO(peilPeriode, betaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
 
                 val budgetOpPeilDatum =
-                    when (rekening.rekeningGroep.budgetType) {
-                        RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
-                            if (betaaldagInPeriode == null) {
-                                throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
-                            }
-                            if (peilDatum.isAfter(betaaldagInPeriode)) budgetMaandBedrag
-                            else (budgetMaandBedrag).min(betaling.abs())
-                        }
-
-                        RekeningGroep.BudgetType.CONTINU -> {
-                            berekenContinuBudgetOpPeildatum(rekening, peilPeriode, peilDatum)
-                        }
-
-                        else -> BigDecimal.ZERO
-                    }
+                    berekenBudgetOpPeilDatum(rekening, peilDatum, budgetMaandBedrag, betaling, peilPeriode)
+                        ?: BigDecimal.ZERO
 
                 val betaaldBinnenBudget = if (rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
                     (budgetMaandBedrag + achterstand.abs()).min(betaling.abs())
-                else
+                else {
                     (budgetOpPeilDatum + achterstand.abs()).min(betaling.abs())
+                }
                 val meerDanMaandBudget = BigDecimal.ZERO.max(betalingNaAflossenAchterstand.abs() - budgetMaandBedrag)
                 val minderDanBudget = BigDecimal.ZERO.max(budgetOpPeilDatum - betalingNaAflossenAchterstand.abs())
                 val meerDanBudget = if (rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
@@ -110,7 +90,7 @@ class StandInPeriodeService {
                     BigDecimal.ZERO.max(betalingNaAflossenAchterstand.abs() - budgetOpPeilDatum - meerDanMaandBudget)
                 val restMaandBudget =
                     if (saldo.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN)
-                        BigDecimal.ZERO.max(budgetMaandBedrag - betalingNaAflossenAchterstand.abs() - minderDanBudget)
+                        BigDecimal.ZERO.max(budgetMaandBedrag - betalingNaAflossenAchterstand.abs() - minderDanBudget + meerDanBudget + meerDanMaandBudget)
                     else
                         BigDecimal.ZERO
                 Saldo.SaldoDTO(
@@ -140,6 +120,36 @@ class StandInPeriodeService {
                     restMaandBudget = restMaandBudget,
                 )
             }
+    }
+
+    fun berekenBudgetOpPeilDatum(
+        rekening: Rekening,
+        peilDatum: LocalDate,
+        budgetMaandBedrag: BigDecimal,
+        betaling: BigDecimal,
+        peilPeriode: Periode
+    ): BigDecimal? {
+        val budgetOpPeilDatum =
+            when (rekening.rekeningGroep.budgetType) {
+                RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
+                    val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
+                        periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, peilPeriode)
+                    else null
+
+                    if (betaaldagInPeriode == null) {
+                        throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
+                    }
+                    if (!peilDatum.isBefore(betaaldagInPeriode)) budgetMaandBedrag
+                    else (budgetMaandBedrag).min(betaling.abs())
+                }
+
+                RekeningGroep.BudgetType.CONTINU -> {
+                    berekenContinuBudgetOpPeildatum(rekening, peilPeriode, peilDatum)
+                }
+
+                else -> BigDecimal.ZERO
+            }
+        return budgetOpPeilDatum
     }
 
     fun berekenContinuBudgetOpPeildatum(
