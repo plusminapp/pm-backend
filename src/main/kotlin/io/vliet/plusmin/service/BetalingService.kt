@@ -4,10 +4,10 @@ import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.Reservering
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.ReserveringRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,6 +26,9 @@ class BetalingService {
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
+
+    @Autowired
+    lateinit var reserveringService: ReserveringService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -66,6 +69,23 @@ class BetalingService {
                 sortOrder = sortOrder,
             )
         }
+
+        if (betalingDTO.spaarPotje != null &&
+            (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name ||
+                    betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name)
+        ) {
+            val isSparen = betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name
+            val bufferRekeningNaam = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker)[0].naam
+            val reserveringDTO = Reservering.ReserveringDTO(
+                boekingsdatum = betalingDTO.boekingsdatum,
+                bedrag = betalingDTO.bedrag,
+                omschrijving = "${betalingDTO.betalingsSoort} voor ${betalingDTO.spaarPotje}",
+                bron = if (isSparen) bufferRekeningNaam else betalingDTO.spaarPotje,
+                bestemming = if (isSparen) betalingDTO.spaarPotje else bufferRekeningNaam
+            )
+            reserveringService.creeerReservering(gebruiker, reserveringDTO)
+        }
+
         return betalingRepository.save(betaling).toDTO()
     }
 
