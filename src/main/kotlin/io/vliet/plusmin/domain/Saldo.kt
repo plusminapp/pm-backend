@@ -30,12 +30,10 @@ class Saldo(
     val rekening: Rekening,                                       // bevat de betaaldag en de rekeningGroep
     val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
     val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,           //reserve aan het begin van de periode
-    val openingsOpgenomenReserveSaldo: BigDecimal = BigDecimal.ZERO,  //opgenomen saldo aan het begin van de periode
     val achterstand: BigDecimal = BigDecimal.ZERO,            // achterstand aan het begin van de periode
     val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,      // verwachte bedrag per maand
     val betaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
     val reservering: BigDecimal = BigDecimal.ZERO,         // reservering deze periode
-    val opgenomenReservering: BigDecimal = BigDecimal.ZERO,         // reservering deze periode
     val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
     val budgetVariabiliteit: Int? = null,                        // variabiliteit als percentage van budgetMaandBedrag
     @ManyToOne
@@ -51,7 +49,6 @@ class Saldo(
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
         betaling: BigDecimal = this.betaling,
         reservering: BigDecimal = this.reservering,
-        opgenomenReservering: BigDecimal= this.opgenomenReservering,
         oorspronkelijkeBetaling: BigDecimal = this.oorspronkelijkeBetaling,
         budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         periode: Periode? = this.periode,
@@ -60,12 +57,10 @@ class Saldo(
         rekening,
         openingsBalansSaldo,
         openingsReserveSaldo,
-        openingsOpgenomenReserveSaldo,
         achterstand,
         budgetMaandBedrag,
         betaling,
         reservering,
-        opgenomenReservering,
         oorspronkelijkeBetaling,
         budgetVariabiliteit,
         periode
@@ -83,14 +78,12 @@ class Saldo(
         val sortOrder: Int = 0,
         val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,
         val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,
-        val openingsOpgenomenReserveSaldo: BigDecimal = BigDecimal.ZERO,
         val achterstand: BigDecimal = BigDecimal.ZERO,
         val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,
         val budgetBetaalDag: Int? = null,
         val budgetAanvulling: BudgetAanvulling? = null,
         val betaling: BigDecimal = BigDecimal.ZERO,
         val reservering: BigDecimal = BigDecimal.ZERO,
-        val opgenomenReservering: BigDecimal = BigDecimal.ZERO,
         val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,
         val achterstandOpPeilDatum: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
@@ -118,7 +111,6 @@ class Saldo(
         val restMaandBudget = BigDecimal.ZERO
         val openingsBalansSaldo = this.openingsBalansSaldo
         val openingsReserveSaldo = this.openingsReserveSaldo
-        val openingsOpgenomenReserveSaldo = this.openingsOpgenomenReserveSaldo
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
@@ -130,14 +122,12 @@ class Saldo(
             1000 * this.rekening.rekeningGroep.sortOrder + this.rekening.sortOrder,
             openingsBalansSaldo,
             openingsReserveSaldo,
-            openingsOpgenomenReserveSaldo,
             this.achterstand,
             this.budgetMaandBedrag,
             this.rekening.budgetBetaalDag,
             this.rekening.budgetAanvulling,
             this.betaling,
             this.reservering,
-            this.opgenomenReservering,
             this.oorspronkelijkeBetaling,
             achterstandOpPeilDatum,
             budgetPeilDatum,

@@ -87,7 +87,7 @@ class Betaling(
         val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
-        val spaarPotje: String? = null, // alleen relevant voor betalingsSoorten SPAREN en OPNEMEN
+        val spaarPotje: String? = null, // alleen relevant voor betalingsSoorten SPAREN en RENTE
     )
 
     fun toDTO(): BetalingDTO {

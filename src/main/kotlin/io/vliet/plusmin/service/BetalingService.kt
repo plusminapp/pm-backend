@@ -70,18 +70,32 @@ class BetalingService {
             )
         }
 
-        if (betalingDTO.spaarPotje != null &&
-            (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name ||
-                    betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name)
+        if (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name ||
+            betalingDTO.betalingsSoort == Betaling.BetalingsSoort.RENTE.name
         ) {
-            val isSparen = betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name
-            val bufferRekeningNaam = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker)[0].naam
+            val bufferRekeningNaam = rekeningRepository
+                .findBufferRekeningVoorGebruiker(gebruiker)
+                .sortedBy { it.sortOrder }[0]
+                .naam
+            val spaarPotje = if (betalingDTO.spaarPotje.isNullOrBlank()) {
+                val spaarpotten = rekeningRepository.findSpaarpottenVoorGebruiker(gebruiker)
+                if (spaarpotten.isEmpty()) {
+                    throw IllegalStateException("Er is geen spaarpotje voor ${gebruiker.bijnaam}.")
+                } else {
+                    if (spaarpotten.size > 1) {
+                        logger.warn("Er is meer dan één spaarpotje voor ${gebruiker.bijnaam}, ${spaarpotten[0].naam} wordt gebruikt.")
+                    }
+                    spaarpotten[0].naam
+                }
+            } else {
+                betalingDTO.spaarPotje
+            }
             val reserveringDTO = Reservering.ReserveringDTO(
                 boekingsdatum = betalingDTO.boekingsdatum,
                 bedrag = betalingDTO.bedrag,
-                omschrijving = "${betalingDTO.betalingsSoort} voor ${betalingDTO.spaarPotje}",
-                bron = if (isSparen) bufferRekeningNaam else betalingDTO.spaarPotje,
-                bestemming = if (isSparen) betalingDTO.spaarPotje else bufferRekeningNaam
+                omschrijving = "${betalingDTO.betalingsSoort} voor ${spaarPotje}",
+                bron = bufferRekeningNaam,
+                bestemming = spaarPotje
             )
             reserveringService.creeerReservering(gebruiker, reserveringDTO)
         }
@@ -92,10 +106,10 @@ class BetalingService {
     fun berekenSortOrder(gebruiker: Gebruiker, boekingsDatum: LocalDate): String {
         val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
         val sortOrderDatum = boekingsDatum.toString().replace("-", "")
-        return if (laatsteSortOrder == null) sortOrderDatum + ".100"
+        return if (laatsteSortOrder == null) "$sortOrderDatum.100"
         else {
             val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) + 10).toString()
-            sortOrderDatum + "." + sortOrderTeller
+            "$sortOrderDatum.$sortOrderTeller"
         }
     }
 

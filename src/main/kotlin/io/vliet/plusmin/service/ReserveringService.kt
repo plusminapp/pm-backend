@@ -223,7 +223,7 @@ class ReserveringService {
                     betaling,
                     periode
                 )?.minus(startSaldoVanPeriode) ?: BigDecimal.ZERO).max(BigDecimal.ZERO)
-                val bedrag = budgetHorizonBedrag.min(maandBedrag)
+                val bedrag = maxOf(budgetHorizonBedrag.min(maandBedrag), BigDecimal.ZERO)
                 logger.info(
                     "creeerReservingenVoorPeriode: bedrag: $bedrag, rekening: ${rekening.naam}, " +
                             "maandBedrag: $maandBedrag, betaling: $betaling, " +
@@ -239,26 +239,28 @@ class ReserveringService {
                         bron = reserveringBufferRekening,
                         bestemming = rekening
                     )
-                if (reservering.isEmpty) {
-                    reserveringRepository.save(
-                        Reservering(
-                            gebruiker = gebruiker,
-                            boekingsdatum = periode.periodeStartDatum,
-                            bedrag = maxOf(bedrag, BigDecimal.ZERO),
-                            omschrijving = "Buffer voor ${rekening.naam} in periode " +
-                                    "${periode.periodeStartDatum.format(dateTimeFormatter)}/" +
-                                    "${periode.periodeEindDatum.format(dateTimeFormatter)}",
-                            bron = reserveringBufferRekening,
-                            bestemming = rekening,
-                            sortOrder = berekenSortOrder(gebruiker, periode.periodeStartDatum)
+                if (bedrag > BigDecimal.ZERO) {
+                    if (reservering.isEmpty) {
+                        reserveringRepository.save(
+                            Reservering(
+                                gebruiker = gebruiker,
+                                boekingsdatum = periode.periodeStartDatum,
+                                bedrag = maxOf(bedrag, BigDecimal.ZERO),
+                                omschrijving = "Buffer voor ${rekening.naam} in periode " +
+                                        "${periode.periodeStartDatum.format(dateTimeFormatter)}/" +
+                                        "${periode.periodeEindDatum.format(dateTimeFormatter)}",
+                                bron = reserveringBufferRekening,
+                                bestemming = rekening,
+                                sortOrder = berekenSortOrder(gebruiker, periode.periodeStartDatum)
+                            )
                         )
-                    )
-                } else
-                    reserveringRepository.save(
-                        reservering.get().fullCopy(
-                            bedrag = maxOf(bedrag, BigDecimal.ZERO),
+                    } else
+                        reserveringRepository.save(
+                            reservering.get().fullCopy(
+                                bedrag = maxOf(bedrag, BigDecimal.ZERO),
+                            )
                         )
-                    )
+                }
             }
     }
 
