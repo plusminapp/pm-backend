@@ -4,10 +4,10 @@ import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.Reservering
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.ReserveringRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,6 +26,9 @@ class BetalingService {
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
+
+    @Autowired
+    lateinit var reserveringService: ReserveringService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -66,16 +69,47 @@ class BetalingService {
                 sortOrder = sortOrder,
             )
         }
+
+        if (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name ||
+            betalingDTO.betalingsSoort == Betaling.BetalingsSoort.RENTE.name
+        ) {
+            val bufferRekeningNaam = rekeningRepository
+                .findBufferRekeningVoorGebruiker(gebruiker)
+                .sortedBy { it.sortOrder }[0]
+                .naam
+            val spaarPotje = if (betalingDTO.spaarPotje.isNullOrBlank()) {
+                val spaarpotten = rekeningRepository.findSpaarpottenVoorGebruiker(gebruiker)
+                if (spaarpotten.isEmpty()) {
+                    throw IllegalStateException("Er is geen spaarpotje voor ${gebruiker.bijnaam}.")
+                } else {
+                    if (spaarpotten.size > 1) {
+                        logger.warn("Er is meer dan één spaarpotje voor ${gebruiker.bijnaam}, ${spaarpotten[0].naam} wordt gebruikt.")
+                    }
+                    spaarpotten[0].naam
+                }
+            } else {
+                betalingDTO.spaarPotje
+            }
+            val reserveringDTO = Reservering.ReserveringDTO(
+                boekingsdatum = betalingDTO.boekingsdatum,
+                bedrag = betalingDTO.bedrag,
+                omschrijving = "${betalingDTO.betalingsSoort} voor ${spaarPotje}",
+                bron = bufferRekeningNaam,
+                bestemming = spaarPotje
+            )
+            reserveringService.creeerReservering(gebruiker, reserveringDTO)
+        }
+
         return betalingRepository.save(betaling).toDTO()
     }
 
     fun berekenSortOrder(gebruiker: Gebruiker, boekingsDatum: LocalDate): String {
         val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
         val sortOrderDatum = boekingsDatum.toString().replace("-", "")
-        return if (laatsteSortOrder == null) sortOrderDatum + ".100"
+        return if (laatsteSortOrder == null) "$sortOrderDatum.100"
         else {
             val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) + 10).toString()
-            sortOrderDatum + "." + sortOrderTeller
+            "$sortOrderDatum.$sortOrderTeller"
         }
     }
 

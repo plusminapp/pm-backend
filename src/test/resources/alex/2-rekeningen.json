@@ -278,7 +278,7 @@
         "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
-            "naam": "Alex' betaalrekening"
+            "naam": "Alex' spaarrekening"
           }
         ],
         "spaartegoed": {
@@ -289,14 +289,14 @@
       },
       {
         "naam": "Kleding",
-        "sortOrder": 1400,
+        "sortOrder": 400,
         "reserve": 200,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
         "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
-            "naam": "Alex' betaalrekening"
+            "naam": "Alex' spaarrekening"
           }
         ],
         "spaartegoed": {
@@ -305,14 +305,14 @@
       },
       {
         "naam": "Nieuwe wasmachine",
-        "sortOrder": 1500,
+        "sortOrder": 500,
         "reserve": 50,
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 50,
         "budgetAanvulling": "MET",
         "betaalMethoden": [
           {
-            "naam": "Alex' betaalrekening"
+            "naam": "Alex' spaarrekening"
           }
         ],
         "spaartegoed": {

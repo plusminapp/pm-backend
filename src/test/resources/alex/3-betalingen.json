@@ -267,7 +267,7 @@
     "boekingsdatum": "2025-02-03",
     "bedrag": "5.25",
     "omschrijving": "Rente",
-    "betalingsSoort": "INKOMSTEN",
+    "betalingsSoort": "RENTE",
     "bron": "Rente",
     "bestemming": "Alex' spaarrekening"
   },

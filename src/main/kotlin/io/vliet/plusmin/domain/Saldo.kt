@@ -29,7 +29,7 @@ class Saldo(
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,                                       // bevat de betaaldag en de rekeningGroep
     val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
-    val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,           //saldo aan het begin van de periode
+    val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,           //reserve aan het begin van de periode
     val achterstand: BigDecimal = BigDecimal.ZERO,            // achterstand aan het begin van de periode
     val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,      // verwachte bedrag per maand
     val betaling: BigDecimal = BigDecimal.ZERO,         // betaling deze periode
@@ -100,7 +100,7 @@ class Saldo(
 
     fun toDTO(
     ): SaldoDTO {
-        // Saldo -> SaldoDTO kan alleen voor periodes die zijn afgelopen
+        // Saldo → SaldoDTO kan alleen voor periodes die zijn afgelopen
         val achterstandOpPeilDatum = this.achterstand + this.betaling.abs() - this.budgetMaandBedrag
         val budgetPeilDatum = periode?.periodeEindDatum.toString()
         val budgetOpPeilDatum = this.budgetMaandBedrag.abs()

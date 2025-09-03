@@ -117,8 +117,8 @@ class BetalingController {
 
     @PostMapping("/hulpvrager/{hulpvragerId}/list")
     fun creeerNieuweBetalingenVoorHulpvrager(
-        @Valid @RequestBody betalingList: List<BetalingDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @Valid @RequestBody betalingList: List<BetalingDTO>,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")

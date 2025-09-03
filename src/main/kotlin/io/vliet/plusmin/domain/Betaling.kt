@@ -87,6 +87,7 @@ class Betaling(
         val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
+        val spaarPotje: String? = null, // alleen relevant voor betalingsSoorten SPAREN en RENTE
     )
 
     fun toDTO(): BetalingDTO {
@@ -98,7 +99,8 @@ class Betaling(
             this.betalingsSoort.toString(),
             this.sortOrder,
             this.bron.naam,
-            this.bestemming.naam
+            this.bestemming.naam,
+            null
         )
     }
 
