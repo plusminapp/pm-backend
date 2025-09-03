@@ -24,6 +24,9 @@ class StandService {
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
+    lateinit var cashflowService: CashflowService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
@@ -68,6 +71,7 @@ class StandService {
         peilDatum: LocalDate,
         periode: Periode
     ): StandController.StandDTO {
+        val budgetHorizon = cashflowService.getBudgetHorizon(gebruiker, periode) ?: periode.periodeStartDatum
         val standOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus)) {
                 saldoRepository
@@ -97,6 +101,7 @@ class StandService {
             datumLaatsteBetaling = betalingRepository.findDatumLaatsteBetalingBijGebruiker(gebruiker),
             periodeStartDatum = periode.periodeStartDatum,
             peilDatum = peilDatum,
+            budgetHorizon = budgetHorizon,
             resultaatOpDatum = standOpDatum,
             resultaatSamenvattingOpDatum = standSamenvattingOpDatumDTO,
             geaggregeerdResultaatOpDatum = geaggregeerdeStandOpDatum,

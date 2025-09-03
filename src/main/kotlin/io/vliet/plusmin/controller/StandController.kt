@@ -26,9 +26,6 @@ class StandController {
     lateinit var standService: StandService
 
     @Autowired
-    lateinit var periodeService: PeriodeService
-
-    @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
@@ -70,6 +67,7 @@ class StandController {
         val periodeStartDatum: LocalDate,
         val peilDatum: LocalDate,
         val datumLaatsteBetaling: LocalDate?,
+        val budgetHorizon: LocalDate,
         val resultaatOpDatum: List<SaldoDTO>,
         val resultaatSamenvattingOpDatum: Saldo.ResultaatSamenvattingOpDatumDTO,
         val geaggregeerdResultaatOpDatum: List<SaldoDTO>,
