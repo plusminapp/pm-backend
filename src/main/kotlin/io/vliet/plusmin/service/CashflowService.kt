@@ -92,7 +92,9 @@ class CashflowService {
                     else betaaldeInkomsten(betalingenInPeriode, date)
                 val uitgaven =
                     if (date > laatsteBetalingDatum.plusDays(1))
-                        continueBudgetUitgaven + budgetVasteLastenUitgaven(rekeningGroepen, date)
+                        continueBudgetUitgaven +
+                                budgetVasteLastenUitgaven(rekeningGroepen, date) -
+                                eerderBetaaldeVasteLastenUitgaven(betalingenInPeriode, date)
                     else if (date.equals(laatsteBetalingDatum.plusDays(1))) {
                         continueBudgetUitgaven +
                                 budgetVasteLastenUitgaven(rekeningGroepen, date) +
@@ -163,6 +165,13 @@ class CashflowService {
             .filter { it.budgetBetaalDag == date.dayOfMonth }
             .filter { it.maanden.isNullOrEmpty() || it.maanden!!.contains(date.monthValue) }
             .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
+    }
+
+    fun eerderBetaaldeVasteLastenUitgaven(betaaldeVasteLasten: List<Betaling>, date: LocalDate): BigDecimal {
+        return -betaaldeVasteLasten
+            .asSequence()
+            .filter { it.bestemming.budgetBetaalDag == date.dayOfMonth }
+            .sumOf { it.bedrag }
     }
 
     fun budgetAflossing(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {
