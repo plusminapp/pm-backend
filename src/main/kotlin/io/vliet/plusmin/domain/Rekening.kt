@@ -195,7 +195,7 @@ class Rekening(
                 BigDecimal.ZERO
             else {
                 val budgetBetaalDagInPeriode = if (this.budgetBetaalDag != null)
-                    berekenDagInPeriode(this.budgetBetaalDag, periode) else null
+                    Periode.berekenDagInPeriode(this.budgetBetaalDag, periode) else null
                 val wordtBetalingVerwacht =
                     this.maanden.isNullOrEmpty() || this.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)
                 if (this.budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {
@@ -240,24 +240,6 @@ class Rekening(
         return (this.vanPeriode == null || periode.periodeStartDatum >= this.vanPeriode.periodeStartDatum) &&
                 (this.totEnMetPeriode == null || periode.periodeEindDatum <= this.totEnMetPeriode.periodeEindDatum) &&
                 (periode.periodeStartDatum != periode.periodeEindDatum)
-    }
-
-    fun rekeningVerwachtBetalingInPeriode(periode: Periode): Boolean {
-        if (this.budgetBetaalDag == null || this.maanden.isNullOrEmpty())
-            return true
-        val betaaldagInPeriode = berekenDagInPeriode(this.budgetBetaalDag, periode)
-        return this.maanden!!.contains(betaaldagInPeriode.monthValue)
-    }
-
-    fun berekenDagInPeriode(dagInMaand: Int, periode: Periode): LocalDate {
-        val jaar = periode.periodeStartDatum.year
-        val maand = periode.periodeStartDatum.monthValue
-        val periodeStartDag = periode.periodeStartDatum.dayOfMonth
-        return if (dagInMaand < periodeStartDag) {
-            LocalDate.of(jaar, maand, dagInMaand).plusMonths(1)
-        } else {
-            LocalDate.of(jaar, maand, dagInMaand)
-        }
     }
 
     fun isBedragBinnenVariabiliteit(

@@ -40,17 +40,6 @@ class PeriodeService {
         return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
     }
 
-    fun berekenDagInPeriode(dagInMaand: Int, periode: Periode): LocalDate {
-        val jaar = periode.periodeStartDatum.year
-        val maand = periode.periodeStartDatum.monthValue
-        val periodeStartDag = periode.periodeStartDatum.dayOfMonth
-        return if (dagInMaand < periodeStartDag) {
-            LocalDate.of(jaar, maand, dagInMaand).plusMonths(1)
-        } else {
-            LocalDate.of(jaar, maand, dagInMaand)
-        }
-    }
-
     /*
         check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
      */
