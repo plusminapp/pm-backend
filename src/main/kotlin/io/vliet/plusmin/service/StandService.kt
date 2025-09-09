@@ -72,6 +72,12 @@ class StandService {
         periode: Periode
     ): StandController.StandDTO {
         val budgetHorizon = cashflowService.getBudgetHorizon(gebruiker, periode) ?: periode.periodeStartDatum
+        val reserveringsHorizon: LocalDate =
+            reserveringRepository.getReserveringsHorizon(gebruiker, periode.periodeStartDatum, periode.periodeEindDatum)
+                ?: run {
+                    logger.warn("Geen reserveringsHorizon gevonden voor ${gebruiker.bijnaam} in periode ${periode.periodeStartDatum} - ${periode.periodeEindDatum}")
+                    periode.periodeStartDatum
+                }
         val standOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus)) {
                 saldoRepository
@@ -82,9 +88,11 @@ class StandService {
                 standInPeriodeService.berekenStandInPeriode(peilDatum, periode)
             }
         val openingsReservePotjesVoorNuSaldo = standOpDatum
-            .filter { (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN && it.budgetType != RekeningGroep.BudgetType.SPAREN) ||
-                    it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING }
-            .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo}}") }
+            .filter {
+                (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN && it.budgetType != RekeningGroep.BudgetType.SPAREN) ||
+                        it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
+            }
+            .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo }}") }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.openingsReserveSaldo) }
         val geaggregeerdeStandOpDatum = standOpDatum
             .groupBy { it.rekeningGroepNaam }
@@ -102,6 +110,7 @@ class StandService {
             periodeStartDatum = periode.periodeStartDatum,
             peilDatum = peilDatum,
             budgetHorizon = budgetHorizon,
+            reserveringsHorizon = reserveringsHorizon,
             resultaatOpDatum = standOpDatum,
             resultaatSamenvattingOpDatum = standSamenvattingOpDatumDTO,
             geaggregeerdResultaatOpDatum = geaggregeerdeStandOpDatum,
@@ -200,7 +209,9 @@ class StandService {
         }
 
         val actueleBuffer =
-            maandInkomstenBedrag + openingsReservePotjesVoorNuSaldo - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum.min(maandSpaarBudget)
+            maandInkomstenBedrag + openingsReservePotjesVoorNuSaldo - besteedTotPeilDatum - nogNodigNaPeilDatum - gespaardTotPeilDatum.min(
+                maandSpaarBudget
+            )
 //                    if (isPeriodeVoorbij) gespaardTotPeilDatum
 //                    else gespaardTotPeilDatum.min(maandSpaarBudget)
         return Saldo.ResultaatSamenvattingOpDatumDTO(

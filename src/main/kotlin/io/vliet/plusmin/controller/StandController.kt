@@ -68,6 +68,7 @@ class StandController {
         val peilDatum: LocalDate,
         val datumLaatsteBetaling: LocalDate?,
         val budgetHorizon: LocalDate,
+        val reserveringsHorizon: LocalDate,
         val resultaatOpDatum: List<SaldoDTO>,
         val resultaatSamenvattingOpDatum: Saldo.ResultaatSamenvattingOpDatumDTO,
         val geaggregeerdResultaatOpDatum: List<SaldoDTO>,

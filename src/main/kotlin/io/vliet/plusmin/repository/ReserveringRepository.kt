@@ -81,4 +81,16 @@ interface ReserveringRepository : JpaRepository<Reservering, Long> {
         startDatum: LocalDate,
         eindDatum: LocalDate
     ): List<Reservering>
+
+@Query(
+        value = "SELECT MAX(r.reserveringsHorizon) FROM Reservering r " +
+                "WHERE r.gebruiker = :gebruiker AND " +
+                "r.reserveringsHorizon >= :periodeStartDatum AND " +
+                "r.reserveringsHorizon <= :periodeEindDatum"
+    )
+    fun getReserveringsHorizon(
+        gebruiker: Gebruiker,
+        periodeStartDatum: LocalDate,
+        periodeEindDatum: LocalDate
+    ): LocalDate?
 }
