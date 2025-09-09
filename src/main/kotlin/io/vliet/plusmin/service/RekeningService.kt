@@ -4,6 +4,7 @@ import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.AflossingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -22,6 +23,9 @@ import kotlin.jvm.optionals.getOrNull
 
 @Service
 class RekeningService {
+    @Autowired
+    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
@@ -74,6 +78,11 @@ class RekeningService {
             )
         )
         val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
+
+        if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
+                startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
+            }
+
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
 

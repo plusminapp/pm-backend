@@ -60,10 +60,10 @@ class Periode(
     companion object {
         val openPeriodes = listOf(PeriodeStatus.HUIDIG, PeriodeStatus.OPEN)
         val geslotenPeriodes = listOf(PeriodeStatus.GESLOTEN, PeriodeStatus.OPGERUIMD)
-        fun berekenDagInPeriode(dagInMaand: Int, periode: Periode): LocalDate {
-            val jaar = periode.periodeStartDatum.year
-            val maand = periode.periodeStartDatum.monthValue
-            val periodeStartDag = periode.periodeStartDatum.dayOfMonth
+        fun Periode.berekenDagInPeriode(dagInMaand: Int): LocalDate {
+            val jaar = this.periodeStartDatum.year
+            val maand = this.periodeStartDatum.monthValue
+            val periodeStartDag = this.periodeStartDatum.dayOfMonth
             return if (dagInMaand < periodeStartDag) {
                 LocalDate.of(jaar, maand, dagInMaand).plusMonths(1)
             } else {

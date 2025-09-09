@@ -2,6 +2,7 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -195,7 +196,7 @@ class Rekening(
                 BigDecimal.ZERO
             else {
                 val budgetBetaalDagInPeriode = if (this.budgetBetaalDag != null)
-                    Periode.berekenDagInPeriode(this.budgetBetaalDag, periode) else null
+                    periode.berekenDagInPeriode(this.budgetBetaalDag) else null
                 val wordtBetalingVerwacht =
                     this.maanden.isNullOrEmpty() || this.maanden!!.contains(budgetBetaalDagInPeriode?.monthValue)
                 if (this.budgetPeriodiciteit == BudgetPeriodiciteit.WEEK) {

@@ -58,6 +58,11 @@ class RekeningGroep(
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
         )
+        val betaalMiddelenRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.BETAALREKENING,
+            RekeningGroepSoort.CONTANT,
+            RekeningGroepSoort.CREDITCARD,
+        )
 
         val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
             Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
@@ -69,6 +74,11 @@ class RekeningGroep(
             Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
             Betaling.BetalingsSoort.STORTEN_CONTANT to RekeningGroepSoort.CONTANT,
             )
+        fun RekeningGroep.isPotjeVoorNu(): Boolean {
+            if (this.rekeningGroepSoort != RekeningGroepSoort.UITGAVEN && this.rekeningGroepSoort != RekeningGroepSoort.AFLOSSING ) return false
+            if (this.budgetType == BudgetType.SPAREN) return false
+            return true
+        }
     }
 
     override fun equals(other: Any?): Boolean {

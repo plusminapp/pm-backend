@@ -2,7 +2,8 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
 import io.vliet.plusmin.domain.RekeningGroep.Companion.reserveringRekeningGroepSoort
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
@@ -35,21 +36,31 @@ class StartSaldiVanPeriodeService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
-        val startSaldiVanPeriode = berekenStartSaldiVanPeilPeriode(periode)
-        val saldoBetaalmiddelen = startSaldiVanPeriode
-            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+    fun updateOpeningsReserveringsSaldo(gebruiker: Gebruiker) {
+        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
+
+        val saldoBetaalMiddelen = basisPeriodeSaldi
+            .filter { betaalMiddelenRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }
-        val saldoSpaartegoed = startSaldiVanPeriode
-            .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
+        val saldoPotjesVoorNu = basisPeriodeSaldi
+            .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
             .sumOf { it.openingsReserveSaldo }
         logger.info(
-            "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +
-                    "openings saldo spaartegoed: $saldoSpaartegoed"
+            "Openings saldo betaalmiddelen: $saldoBetaalMiddelen, " +
+                    "openings saldo potjes voor nu: $saldoPotjesVoorNu, " +
+                    "totaal: ${saldoBetaalMiddelen - saldoPotjesVoorNu}"
         )
-        return saldoBetaalmiddelen - saldoSpaartegoed
-    }
+        val bufferReserveSaldo = basisPeriodeSaldi
+            .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
+            ?: throw IllegalStateException("RESERVERING_BUFFER Saldo voor periode ${basisPeriode.id} bestaat niet voor ${gebruiker.bijnaam}.")
 
+        saldoRepository.save(
+            bufferReserveSaldo.fullCopy(
+                openingsReserveSaldo = saldoBetaalMiddelen - saldoPotjesVoorNu
+            )
+        )
+    }
 
     fun berekenStartSaldiVanPeilPeriode(peilPeriode: Periode): List<Saldo> {
         val gebruiker = peilPeriode.gebruiker
