@@ -19,9 +19,6 @@ class StandInPeriodeService {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
-    lateinit var periodeService: PeriodeService
-
-    @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
@@ -133,7 +130,7 @@ class StandInPeriodeService {
             when (rekening.rekeningGroep.budgetType) {
                 RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
                     val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
-                        periodeService.berekenDagInPeriode(rekening.budgetBetaalDag, peilPeriode)
+                        Periode.berekenDagInPeriode(rekening.budgetBetaalDag, peilPeriode)
                     else null
 
                     if (betaaldagInPeriode == null) {

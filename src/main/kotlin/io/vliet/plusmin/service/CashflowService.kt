@@ -66,7 +66,8 @@ class CashflowService {
                 .datesUntil(laatsteBetalingDatum.plusDays(1))
                 .toList()
                 .fold(BigDecimal.ZERO) { accSaldo, date ->
-                    val betaaldeVasteLaten = betaaldeVasteLaten(betalingenInPeriode, date)
+                    val betaaldeVasteLaten =
+                        betaaldeVasteLaten(betalingenInPeriode, date, laatsteBetalingDatum, periode)
                     val verwachteUitgaven = budgetVasteLastenUitgaven(rekeningGroepen, date)
 //                    logger.info("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
                     accSaldo + verwachteUitgaven - betaaldeVasteLaten
@@ -169,8 +170,7 @@ class CashflowService {
 
     fun eerderBetaaldeVasteLastenUitgaven(betaaldeVasteLasten: List<Betaling>, date: LocalDate): BigDecimal {
         return -betaaldeVasteLasten
-            .asSequence()
-            .filter { it.bestemming.budgetBetaalDag == date.dayOfMonth }
+            .filter { it.bestemming.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
             .sumOf { it.bedrag }
     }
 
@@ -199,14 +199,24 @@ class CashflowService {
             .sumOf { it.bedrag }
     }
 
-    fun betaaldeVasteLaten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+    fun betaaldeVasteLaten(
+        betalingen: List<Betaling>,
+        date: LocalDate,
+        laatsteBetalingDatum: LocalDate,
+        periode: Periode
+    ): BigDecimal {
         return -betalingen
-            .filter { it.boekingsdatum.equals(date) }
-            .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }
             .filter {
-                it.bestemming.rekeningGroep.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false// &&
-//                        it.bestemming.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN
+                it.bestemming.rekeningGroep.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false
             }
+            .filter {
+                it.boekingsdatum.equals(date) &&
+                        Periode.berekenDagInPeriode(
+                            it.bestemming.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1),
+                            periode
+                        ) <= laatsteBetalingDatum // het had al betaald moeten zijn
+            }
+            .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }
             .sumOf { it.bedrag }
     }
 
