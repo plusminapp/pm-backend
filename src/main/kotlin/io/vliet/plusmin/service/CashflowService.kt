@@ -1,6 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
@@ -194,7 +195,6 @@ class CashflowService {
     fun betaaldeUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .onEach { logger.info("betaaldeUitgaven: ${it.bestemming.rekeningGroep.rekeningGroepSoort}") }
             .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN) }
             .sumOf { it.bedrag }
     }
@@ -211,9 +211,8 @@ class CashflowService {
             }
             .filter {
                 it.boekingsdatum.equals(date) &&
-                        Periode.berekenDagInPeriode(
-                            it.bestemming.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1),
-                            periode
+                        periode.berekenDagInPeriode(
+                            it.bestemming.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1)
                         ) <= laatsteBetalingDatum // het had al betaald moeten zijn
             }
             .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }

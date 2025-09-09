@@ -1,6 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -130,7 +131,7 @@ class StandInPeriodeService {
             when (rekening.rekeningGroep.budgetType) {
                 RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
                     val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
-                        Periode.berekenDagInPeriode(rekening.budgetBetaalDag, peilPeriode)
+                        peilPeriode.berekenDagInPeriode(rekening.budgetBetaalDag)
                     else null
 
                     if (betaaldagInPeriode == null) {
