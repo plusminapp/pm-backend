@@ -92,6 +92,7 @@ class BetalingService {
             }
             val reserveringDTO = Reservering.ReserveringDTO(
                 boekingsdatum = betalingDTO.boekingsdatum,
+                reserveringsHorizon = null,
                 bedrag = betalingDTO.bedrag,
                 omschrijving = "${betalingDTO.betalingsSoort} voor ${spaarPotje}",
                 bron = bufferRekeningNaam,

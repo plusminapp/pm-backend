@@ -74,6 +74,7 @@ class ReserveringService {
             Reservering(
                 gebruiker = gebruiker,
                 boekingsdatum = LocalDate.parse(reserveringDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                reserveringsHorizon = null,
                 bedrag = reserveringDTO.bedrag.toBigDecimal(),
                 omschrijving = reserveringDTO.omschrijving,
                 bron = bron,
@@ -208,25 +209,25 @@ class ReserveringService {
 //                    .filter { it.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN }
                     .sumOf { it.betaling }
 
-                val startSaldoVanPeriode = startSaldiVanPeriode
-                    .find { it.rekening.id == rekening.id }
-                    ?.openingsReserveSaldo ?: BigDecimal.ZERO
+                val verrekenbareStartReservering =
+                    if (rekening.budgetAanvulling == Rekening.BudgetAanvulling.MET) BigDecimal.ZERO
+                    else startSaldiVanPeriode
+                        .find { it.rekening.id == rekening.id }
+                        ?.openingsReserveSaldo ?: BigDecimal.ZERO
 
                 val maandBedrag =
-                    (rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO) -
-                            (if (rekening.budgetAanvulling != Rekening.BudgetAanvulling.MET) startSaldoVanPeriode
-                            else BigDecimal.ZERO)
+                    (rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO).minus(verrekenbareStartReservering)
                 val budgetHorizonBedrag = (standInPeriodeService.berekenBudgetOpPeilDatum(
                     rekening,
                     budgetHorizon,
                     maandBedrag,
                     betaling,
                     periode
-                )?.minus(startSaldoVanPeriode) ?: BigDecimal.ZERO).max(BigDecimal.ZERO)
+                )?.minus(verrekenbareStartReservering) ?: BigDecimal.ZERO).max(BigDecimal.ZERO)
                 val bedrag = maxOf(budgetHorizonBedrag.min(maandBedrag), BigDecimal.ZERO)
                 logger.info(
                     "creeerReservingenVoorPeriode: bedrag: $bedrag, rekening: ${rekening.naam}, " +
-                            "maandBedrag: $maandBedrag, betaling: $betaling, " +
+                            "maandBedrag: $maandBedrag, betaling: $betaling, BudgetAanvulling: ${rekening.budgetAanvulling}" +
                             "budgetHorizon: $budgetHorizon, budgetHorizonBedrag: $budgetHorizonBedrag, " +
                             "periode: ${periode.periodeStartDatum} t/m ${periode.periodeEindDatum} " +
                             "voor ${gebruiker.bijnaam}"
@@ -245,6 +246,7 @@ class ReserveringService {
                             Reservering(
                                 gebruiker = gebruiker,
                                 boekingsdatum = periode.periodeStartDatum,
+                                reserveringsHorizon = budgetHorizon,
                                 bedrag = maxOf(bedrag, BigDecimal.ZERO),
                                 omschrijving = "Buffer voor ${rekening.naam} in periode " +
                                         "${periode.periodeStartDatum.format(dateTimeFormatter)}/" +
@@ -258,6 +260,7 @@ class ReserveringService {
                         reserveringRepository.save(
                             reservering.get().fullCopy(
                                 bedrag = maxOf(bedrag, BigDecimal.ZERO),
+                                reserveringsHorizon = budgetHorizon
                             )
                         )
                 }
@@ -294,6 +297,7 @@ class ReserveringService {
                 reserveringRepository.save(
                     Reservering(
                         boekingsdatum = it.boekingsdatum,
+                        reserveringsHorizon = null,
                         bedrag = it.bedrag,
                         omschrijving = it.omschrijving,
                         bron = bron,

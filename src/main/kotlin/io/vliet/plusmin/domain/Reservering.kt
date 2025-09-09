@@ -25,6 +25,7 @@ class Reservering(
     @JoinColumn(name = "gebruiker_id", referencedColumnName = "id")
     val gebruiker: Gebruiker,
     val boekingsdatum: LocalDate,
+    val reserveringsHorizon: LocalDate? = null,
     val bedrag: BigDecimal,
     @Column(columnDefinition = "TEXT")
     val omschrijving: String,
@@ -39,6 +40,7 @@ class Reservering(
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
         boekingsdatum: LocalDate = this.boekingsdatum,
+        reserveringsHorizon: LocalDate? = this.reserveringsHorizon,
         bedrag: BigDecimal = this.bedrag,
         omschrijving: String = this.omschrijving,
         sortOrder: String? = this.sortOrder,
@@ -48,6 +50,7 @@ class Reservering(
         this.id,
         gebruiker,
         boekingsdatum,
+        reserveringsHorizon,
         bedrag,
         omschrijving,
         sortOrder,
@@ -58,6 +61,7 @@ class Reservering(
     data class ReserveringDTO(
         val id: Long = 0,
         val boekingsdatum: String,
+        val reserveringsHorizon: String?,
         val bedrag: String,
         val omschrijving: String,
         val sortOrder: String? = null,
@@ -69,6 +73,7 @@ class Reservering(
         return ReserveringDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            this.reserveringsHorizon?.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.bedrag.toString(),
             this.omschrijving,
             this.sortOrder,
