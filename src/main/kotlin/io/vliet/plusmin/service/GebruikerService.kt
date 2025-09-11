@@ -89,14 +89,21 @@ class GebruikerService {
             .findRekeningGroepOpNaam(gebruiker, "Buffer")
             .getOrNull() ?: rekeningService.save(
             gebruiker, RekeningGroep.RekeningGroepDTO(
-                naam = "Buffer",
+                naam = "Buffer IN",
                 rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
                 sortOrder = 0,
                 rekeningen = listOf(
                     Rekening.RekeningDTO(
-                        naam = "Buffer",
+                        naam = "Buffer IN",
                         saldo = BigDecimal(0),
                         rekeningGroepNaam = "Buffer",
+                        budgetAanvulling = Rekening.BudgetAanvulling.IN
+                    ),
+                    Rekening.RekeningDTO(
+                        naam = "Buffer UIT",
+                        saldo = BigDecimal(0),
+                        rekeningGroepNaam = "Buffer",
+                        budgetAanvulling = Rekening.BudgetAanvulling.UIT
                     )
                 )
             )

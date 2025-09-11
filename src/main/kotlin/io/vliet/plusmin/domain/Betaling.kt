@@ -105,6 +105,8 @@ class Betaling(
         val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
+        val reserveringBron: String? = null,
+        val reserveringBestemming: String? = null,
     )
 
     fun toDTO(): BetalingDTO {
@@ -117,6 +119,8 @@ class Betaling(
             this.sortOrder,
             this.bron?.naam ?: "",
             this.bestemming?.naam ?: "",
+            this.reserveringBron?.naam ?: "",
+            this.reserveringBestemming?.naam ?: "",
         )
     }
 

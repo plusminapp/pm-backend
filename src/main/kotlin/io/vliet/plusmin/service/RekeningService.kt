@@ -80,8 +80,8 @@ class RekeningService {
         val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
 
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-                startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
-            }
+            startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
+        }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
@@ -95,8 +95,18 @@ class RekeningService {
                     it.naam
                 )
             }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
-        val rekeningOpt = rekeningRepository.findRekeningOpGroepEnNaam(rekeningGroep, rekeningDTO.naam)
-            .getOrNull()
+        val budgetPeriodiciteit =
+            if (rekeningDTO.budgetPeriodiciteit != null)
+                BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
+            else null
+        val gekoppeldeRekening =
+            if (rekeningDTO.gekoppeldeRekening != null) rekeningRepository.findRekeningGebruikerEnNaam(
+                gebruiker,
+                rekeningDTO.gekoppeldeRekening
+            )
+            else null
+        logger.info("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
+        val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, rekeningDTO.naam)
         val rekening = if (rekeningOpt != null) {
             logger.info("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${gebruiker.bijnaam}")
             val aflossing = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.AFLOSSING) {
@@ -158,9 +168,8 @@ class RekeningService {
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetAanvulling = rekeningDTO.budgetAanvulling,
-                    budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
-                        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit)
-                    else null,
+                    gekoppeldeRekening = gekoppeldeRekening,
+                    budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
                     maanden = rekeningDTO.maanden,
@@ -191,9 +200,8 @@ class RekeningService {
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetAanvulling = rekeningDTO.budgetAanvulling,
-                    budgetPeriodiciteit = if (rekeningDTO.budgetPeriodiciteit != null)
-                        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
-                    else null,
+                    gekoppeldeRekening = gekoppeldeRekening,
+                    budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
                     maanden = rekeningDTO.maanden,
@@ -220,8 +228,10 @@ class RekeningService {
                 )
             )
         }
-        logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag}" +
-                "openingsBalansSaldo: ${rekeningDTO.saldo ?: BigDecimal.ZERO}, openingsReserveSaldo: ${rekeningDTO.reserve ?: BigDecimal.ZERO}.")
+        logger.info(
+            "Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag}" +
+                    "openingsBalansSaldo: ${rekeningDTO.saldo ?: BigDecimal.ZERO}, openingsReserveSaldo: ${rekeningDTO.reserve ?: BigDecimal.ZERO}."
+        )
         return rekening
     }
 

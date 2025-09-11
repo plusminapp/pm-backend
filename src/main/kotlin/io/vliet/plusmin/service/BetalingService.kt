@@ -5,6 +5,7 @@ import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Betaling.Boeking
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -36,27 +37,25 @@ class BetalingService {
     }
 
     fun creeerBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): BetalingDTO {
-        val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
-        val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
-        if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
-            throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
-        }
-        val bron =
-            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
-        val bestemming =
-            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
-                ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
-
-        val reserveringBron = bron
-        val reserveringBestemming = bestemming
-
         val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
 
         val betaling = if (betalingList.isNotEmpty()) {
             logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
             update(betalingList[0], betalingDTO)
         } else {
+            val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
+            val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
+            if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
+                throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
+            }
+            val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
+                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+            val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
+                ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+
+            val getransformeerdeBoeking = transformeerDtoBoeking(
+                Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
+            )
             val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
             logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
             Betaling(
@@ -65,14 +64,13 @@ class BetalingService {
                 bedrag = betalingDTO.bedrag,
                 omschrijving = betalingDTO.omschrijving,
                 betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
-                bron = bron,
-                bestemming = bestemming,
-                reserveringBron = reserveringBron,
-                reserveringBestemming = reserveringBestemming,
+                bron = getransformeerdeBoeking.first?.bron,
+                bestemming = getransformeerdeBoeking.first?.bestemming,
+                reserveringBron = getransformeerdeBoeking.second?.bron,
+                reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
                 sortOrder = sortOrder,
             )
         }
-
         return betalingRepository.save(betaling).toDTO()
     }
 
@@ -88,20 +86,19 @@ class BetalingService {
 
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
         val gebruiker = oldBetaling.gebruiker
-        val dtoBron =
-            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
-            ?: oldBetaling.bron
-        val dtoBestemming =
-            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
-                ?: oldBetaling.bestemming
-
-        val getransformeerdeBoeking =
-            transformeerDtoBoeking(Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
-                Boeking(dtoBron, dtoBestemming))
-        val reserveringBron = dtoBron
-        val reserveringBestemming = dtoBestemming
-
         val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
+        val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
+        if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
+            throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
+        }
+        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
+            ?: throw IllegalStateException("${newBetalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
+            ?: throw IllegalStateException("${newBetalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+
+        val getransformeerdeBoeking = transformeerDtoBoeking(
+            Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
+        )
         val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
         logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
         val newBetaling = oldBetaling.fullCopy(
@@ -109,16 +106,71 @@ class BetalingService {
             bedrag = newBetalingDTO.bedrag,
             omschrijving = newBetalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
-            bron = dtoBron,
-            bestemming = dtoBestemming,
-            reserveringBron = reserveringBron,
-            reserveringBestemming = reserveringBestemming,
+            bron = getransformeerdeBoeking.first?.bron,
+            bestemming = getransformeerdeBoeking.first?.bestemming,
+            reserveringBron = getransformeerdeBoeking.second?.bron,
+            reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
             sortOrder = sortOrder,
         )
         return betalingRepository.save(newBetaling)
     }
 
-    fun transformeerDtoBoeking(betalingsSoort: Betaling.BetalingsSoort, dtoBoeking: Boeking): Pair<Boeking, Boeking> {
+    /*
+     *    Transformeert een DTO-Boeking naar betaling en reservering boekingen, afhankelijk van de betalingssoort.
+     *    Zie ook https://docs.google.com/spreadsheets/d/1erhLtz1Kp1ZiEvSCOSyJRTElepPDDEDiZdDrYggmm0o/edit
+     */
+    fun transformeerDtoBoeking(betalingsSoort: Betaling.BetalingsSoort, dtoBoeking: Boeking): Pair<Boeking?, Boeking?> {
+        val bufferRekeningen =
+            rekeningRepository.findBufferRekeningVoorGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
+        val bufferRekeningIn = bufferRekeningen.find { it.budgetAanvulling == Rekening.BudgetAanvulling.IN }
+            ?: throw IllegalStateException("Er is geen buffer rekening IN voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}.")
+        val bufferRekeningUit = bufferRekeningen.find { it.budgetAanvulling == Rekening.BudgetAanvulling.UIT }
+            ?: throw IllegalStateException("Er is geen buffer rekening UIT voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}.")
+
+        return when (betalingsSoort) {
+            Betaling.BetalingsSoort.INKOMSTEN -> Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekeningIn))
+
+            Betaling.BetalingsSoort.RENTE -> Pair(
+                Boeking(
+                    dtoBoeking.bron,
+                    dtoBoeking.bestemming.gekoppeldeRekening
+                        ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                ),
+                dtoBoeking,
+            )
+
+            Betaling.BetalingsSoort.UITGAVEN, Betaling.BetalingsSoort.BESTEDEN, Betaling.BetalingsSoort.AFLOSSEN -> Pair(
+                dtoBoeking, Boeking(
+                    dtoBoeking.bestemming, bufferRekeningUit
+                )
+            )
+
+            Betaling.BetalingsSoort.SPAREN -> Pair(
+                Boeking(
+                    dtoBoeking.bron,
+                    dtoBoeking.bestemming.gekoppeldeRekening
+                        ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                ), Boeking(
+                    bufferRekeningIn, dtoBoeking.bestemming
+                )
+            )
+
+            Betaling.BetalingsSoort.OPNEMEN, Betaling.BetalingsSoort.TERUGSTORTEN, Betaling.BetalingsSoort.INCASSO_CREDITCARD, Betaling.BetalingsSoort.OPNEMEN_CONTANT, Betaling.BetalingsSoort.STORTEN_CONTANT -> Pair(
+                dtoBoeking,
+                null
+            )
+
+            Betaling.BetalingsSoort.P2P, Betaling.BetalingsSoort.SP2SP -> Pair(null, dtoBoeking)
+
+            Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P -> Pair(
+                Boeking(
+                    dtoBoeking.bron.gekoppeldeRekening
+                        ?: throw IllegalStateException("${dtoBoeking.bron.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                    dtoBoeking.bestemming.gekoppeldeRekening
+                        ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                ), dtoBoeking
+            )
+        }
 
     }
 
@@ -133,14 +185,12 @@ class BetalingService {
     }
 
     fun valideerBetalingenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
-        val betalingenLijst = betalingRepository
-            .findAllByGebruiker(gebruiker)
-            .filter { betaling: Betaling ->
-                val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
-                periode != null && betaling.bron != null && betaling.bestemming != null &&
-                        (!betaling.bron.rekeningIsGeldigInPeriode(periode) ||
-                                !betaling.bestemming.rekeningIsGeldigInPeriode(periode))
-            }
+        val betalingenLijst = betalingRepository.findAllByGebruiker(gebruiker).filter { betaling: Betaling ->
+            val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
+            periode != null && betaling.bron != null && betaling.bestemming != null && (!betaling.bron.rekeningIsGeldigInPeriode(
+                periode
+            ) || !betaling.bestemming.rekeningIsGeldigInPeriode(periode))
+        }
         return betalingenLijst
     }
 }
