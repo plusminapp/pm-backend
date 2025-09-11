@@ -65,15 +65,15 @@ class DemoService {
         val betalingenDoelPeriode = betalingen.map { betaling ->
             val boekingsdatum = shiftDatumNaarPeriodeMetZelfdeDag(betaling.boekingsdatum, doelPeriode)
             val wordtDezeMaandBetalingVerwacht =
-                (betaling.bron.maanden.isNullOrEmpty() || betaling.bron.maanden!!.contains(boekingsdatum.monthValue)) &&
-                        (betaling.bestemming.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(boekingsdatum.monthValue));
+                (betaling.bron?.maanden.isNullOrEmpty() || betaling.bron.maanden!!.contains(boekingsdatum.monthValue)) &&
+                        (betaling.bestemming?.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(boekingsdatum.monthValue));
             val betalingDTO = BetalingDTO(
                 boekingsdatum = boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 bedrag = betaling.bedrag,
                 omschrijving = betaling.omschrijving,
                 sortOrder = betaling.sortOrder,
-                bron = betaling.bron.naam,
-                bestemming = betaling.bestemming.naam,
+                bron = betaling.bron?.naam ?: "",
+                bestemming = betaling.bestemming?.naam ?: "",
                 betalingsSoort = betaling.betalingsSoort.toString(),
             )
             if (wordtDezeMaandBetalingVerwacht && betalingDTO.boekingsdatum <= vandaag) {

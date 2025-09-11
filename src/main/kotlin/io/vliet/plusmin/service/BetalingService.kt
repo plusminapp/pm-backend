@@ -2,9 +2,9 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
+import io.vliet.plusmin.domain.Betaling.Boeking
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
-import io.vliet.plusmin.domain.Reservering
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -27,9 +27,6 @@ class BetalingService {
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
-    @Autowired
-    lateinit var reserveringService: ReserveringService
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun creeerBetalingLijst(gebruiker: Gebruiker, betalingenLijst: List<BetalingDTO>): List<BetalingDTO> {
@@ -44,11 +41,15 @@ class BetalingService {
         if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
             throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
         }
-        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-            ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+        val bron =
+            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
+                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
         val bestemming =
             rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
                 ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+
+        val reserveringBron = bron
+        val reserveringBestemming = bestemming
 
         val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
 
@@ -66,39 +67,10 @@ class BetalingService {
                 betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
                 bron = bron,
                 bestemming = bestemming,
+                reserveringBron = reserveringBron,
+                reserveringBestemming = reserveringBestemming,
                 sortOrder = sortOrder,
             )
-        }
-
-        if (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.SPAREN.name ||
-            betalingDTO.betalingsSoort == Betaling.BetalingsSoort.RENTE.name
-        ) {
-            val bufferRekeningNaam = rekeningRepository
-                .findBufferRekeningVoorGebruiker(gebruiker)
-                .sortedBy { it.sortOrder }[0]
-                .naam
-            val spaarPotje = if (betalingDTO.spaarPotje.isNullOrBlank()) {
-                val spaarpotten = rekeningRepository.findSpaarpottenVoorGebruiker(gebruiker)
-                if (spaarpotten.isEmpty()) {
-                    throw IllegalStateException("Er is geen spaarpotje voor ${gebruiker.bijnaam}.")
-                } else {
-                    if (spaarpotten.size > 1) {
-                        logger.warn("Er is meer dan één spaarpotje voor ${gebruiker.bijnaam}, ${spaarpotten[0].naam} wordt gebruikt.")
-                    }
-                    spaarpotten[0].naam
-                }
-            } else {
-                betalingDTO.spaarPotje
-            }
-            val reserveringDTO = Reservering.ReserveringDTO(
-                boekingsdatum = betalingDTO.boekingsdatum,
-                reserveringsHorizon = null,
-                bedrag = betalingDTO.bedrag.toString(),
-                omschrijving = "${betalingDTO.betalingsSoort} voor ${spaarPotje}",
-                bron = bufferRekeningNaam,
-                bestemming = spaarPotje
-            )
-            reserveringService.creeerReservering(gebruiker, reserveringDTO)
         }
 
         return betalingRepository.save(betaling).toDTO()
@@ -116,11 +88,19 @@ class BetalingService {
 
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
         val gebruiker = oldBetaling.gebruiker
-        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
+        val dtoBron =
+            rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
             ?: oldBetaling.bron
-        val bestemming =
+        val dtoBestemming =
             rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
                 ?: oldBetaling.bestemming
+
+        val getransformeerdeBoeking =
+            transformeerDtoBoeking(Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
+                Boeking(dtoBron, dtoBestemming))
+        val reserveringBron = dtoBron
+        val reserveringBestemming = dtoBestemming
+
         val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
         val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
         logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
@@ -129,11 +109,17 @@ class BetalingService {
             bedrag = newBetalingDTO.bedrag,
             omschrijving = newBetalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
-            bron = bron,
-            bestemming = bestemming,
+            bron = dtoBron,
+            bestemming = dtoBestemming,
+            reserveringBron = reserveringBron,
+            reserveringBestemming = reserveringBestemming,
             sortOrder = sortOrder,
         )
         return betalingRepository.save(newBetaling)
+    }
+
+    fun transformeerDtoBoeking(betalingsSoort: Betaling.BetalingsSoort, dtoBoeking: Boeking): Pair<Boeking, Boeking> {
+
     }
 
     fun findMatchingBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): List<Betaling> {
@@ -146,13 +132,12 @@ class BetalingService {
         )
     }
 
-
     fun valideerBetalingenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
         val betalingenLijst = betalingRepository
             .findAllByGebruiker(gebruiker)
             .filter { betaling: Betaling ->
                 val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
-                periode != null &&
+                periode != null && betaling.bron != null && betaling.bestemming != null &&
                         (!betaling.bron.rekeningIsGeldigInPeriode(periode) ||
                                 !betaling.bestemming.rekeningIsGeldigInPeriode(periode))
             }
