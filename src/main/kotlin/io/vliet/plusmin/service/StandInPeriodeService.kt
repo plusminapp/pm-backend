@@ -58,6 +58,10 @@ class StandInPeriodeService {
                             inkomstenInPeilPeriode
                         else BigDecimal.ZERO
                 val openingsBalansSaldo = saldo.openingsBalansSaldo
+                val openingsReserveSaldo =
+                    if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
+                        saldo.openingsBalansSaldo + saldo.opgenomenSaldo
+                    else saldo.openingsReserveSaldo
                 val achterstand = saldo.achterstand
 
                 // eerst de achterstand afbetalen, let op: achterstand is negatief
@@ -101,7 +105,7 @@ class StandInPeriodeService {
                     spaartegoed = rekening.spaartegoed?.toDTO(),
                     rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
                     openingsBalansSaldo,
-                    openingsReserveSaldo = saldo.openingsReserveSaldo,
+                    openingsReserveSaldo = openingsReserveSaldo,
                     achterstand = achterstand,
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetMaandBedrag = budgetMaandBedrag,

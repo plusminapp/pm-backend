@@ -25,6 +25,7 @@ class Betaling(
     @JoinColumn(name = "gebruiker_id", referencedColumnName = "id")
     val gebruiker: Gebruiker,
     val boekingsdatum: LocalDate,
+    val reserveringsHorizon: LocalDate? = null,
     val bedrag: BigDecimal,
     @Column(columnDefinition = "TEXT")
     val omschrijving: String,
@@ -33,10 +34,16 @@ class Betaling(
     val sortOrder: String,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
-    val bron: Rekening,
+    val bron: Rekening? = null,
     @ManyToOne
     @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
-    val bestemming: Rekening,
+    val bestemming: Rekening? = null,
+    @ManyToOne
+    @JoinColumn(name = "reservering_bron_id", referencedColumnName = "id")
+    val reserveringBron: Rekening? = null,
+    @ManyToOne
+    @JoinColumn(name = "reservering_bestemming_id", referencedColumnName = "id")
+    val reserveringBestemming: Rekening? = null,
 ) {
     companion object {
         val sortableFields = setOf("id", "boekingsdatum", "status")
@@ -51,6 +58,11 @@ class Betaling(
             BetalingsSoort.UITGAVEN,
             BetalingsSoort.AFLOSSEN,
         )
+        val reserveringSpaarBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.RENTE,
+            BetalingsSoort.SPAREN,
+            BetalingsSoort.BESTEDEN,
+        )
         val inkomstenBetalingsSoorten = listOf<BetalingsSoort>(
             BetalingsSoort.INKOMSTEN,
             BetalingsSoort.RENTE,
@@ -60,22 +72,28 @@ class Betaling(
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
         boekingsdatum: LocalDate = this.boekingsdatum,
+        reserveringsHorizon: LocalDate? = this.reserveringsHorizon,
         bedrag: BigDecimal = this.bedrag,
         omschrijving: String = this.omschrijving,
         betalingsSoort: BetalingsSoort = this.betalingsSoort,
         sortOrder: String = this.sortOrder,
-        bron: Rekening = this.bron,
-        bestemming: Rekening = this.bestemming,
+        bron: Rekening? = this.bron,
+        bestemming: Rekening? = this.bestemming,
+        reserveringBron: Rekening? = this.reserveringBron,
+        reserveringBestemming: Rekening? = this.reserveringBestemming,
     ) = Betaling(
         this.id,
         gebruiker,
         boekingsdatum,
+        reserveringsHorizon,
         bedrag,
         omschrijving,
         betalingsSoort,
         sortOrder,
         bron,
         bestemming,
+        reserveringBron,
+        reserveringBestemming
     )
 
     data class BetalingDTO(
@@ -87,7 +105,6 @@ class Betaling(
         val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
-        val spaarPotje: String? = null, // alleen relevant voor betalingsSoorten SPAREN en RENTE
     )
 
     fun toDTO(): BetalingDTO {
@@ -98,9 +115,8 @@ class Betaling(
             this.omschrijving,
             this.betalingsSoort.toString(),
             this.sortOrder,
-            this.bron.naam,
-            this.bestemming.naam,
-            null
+            this.bron?.naam ?: "",
+            this.bestemming?.naam ?: "",
         )
     }
 
@@ -134,11 +150,22 @@ class Betaling(
         INKOMSTEN("Inkomsten"),
         RENTE("Rente"),
         UITGAVEN("Uitgaven"),
+        BESTEDEN("besteden"),
         AFLOSSEN("aflossen"),
-        INCASSO_CREDITCARD("incasso_creditcard"),
-        OPNEMEN("opnemen"),
         SPAREN("sparen"),
+        OPNEMEN("opnemen"),
+        TERUGSTORTEN("terugstorten"),
+        INCASSO_CREDITCARD("incasso_creditcard"),
         OPNEMEN_CONTANT("opnemen_contant"),
-        STORTEN_CONTANT("storten_contant")
+        STORTEN_CONTANT("storten_contant"),
+        P2P("potje2potje"),
+        SP2SP("spaarpotje2spaarpotje"),
+        P2SP("potje2spaarpotje"),
+        SP2P("spaarpotje2potje")
     }
+
+    data class Boeking(
+        val bron: Rekening,
+        val bestemming: Rekening,
+    )
 }

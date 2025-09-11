@@ -45,6 +45,9 @@ class RekeningGroep(
             RekeningGroepSoort.AFLOSSING,
 //            RekeningGroepSoort.RESERVERING_BUFFER
         )
+        val sparenRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.SPAARREKENING
+        )
         val balansRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
             RekeningGroepSoort.SPAARREKENING,
@@ -67,10 +70,12 @@ class RekeningGroep(
         val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
             Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
+            Betaling.BetalingsSoort.BESTEDEN to RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
             Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
             Betaling.BetalingsSoort.SPAREN to  RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.OPNEMEN to  RekeningGroepSoort.SPAARREKENING,
+            Betaling.BetalingsSoort.TERUGSTORTEN to  RekeningGroepSoort.SPAARREKENING,
             Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
             Betaling.BetalingsSoort.STORTEN_CONTANT to RekeningGroepSoort.CONTANT,
             )

@@ -47,8 +47,8 @@ class CashflowService {
         val betalingenInPeriode = betalingRepository
             .findAllByGebruikerTussenDatums(hulpvrager, periode.periodeStartDatum, periode.periodeEindDatum)
             .filter {
-                it.bron.rekeningGroep.budgetType !== RekeningGroep.BudgetType.SPAREN &&
-                        it.bestemming.rekeningGroep.budgetType !== RekeningGroep.BudgetType.SPAREN
+                it.bron?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN &&
+                        it.bestemming?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN
             }
         val spaarReserveringenInPeriode = reserveringRepository
             .findAllByGebruikerTussenDatums(hulpvrager, periode.periodeStartDatum, periode.periodeEindDatum)
@@ -171,7 +171,7 @@ class CashflowService {
 
     fun eerderBetaaldeVasteLastenUitgaven(betaaldeVasteLasten: List<Betaling>, date: LocalDate): BigDecimal {
         return -betaaldeVasteLasten
-            .filter { it.bestemming.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
+            .filter { it.bestemming?.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
             .sumOf { it.bedrag }
     }
 
@@ -188,14 +188,14 @@ class CashflowService {
     fun betaaldeInkomsten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .filter { it.bron.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
+            .filter { it.bron?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .sumOf { it.bedrag }
     }
 
     fun betaaldeUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN) }
+            .filter { it.bestemming?.rekeningGroep?.rekeningGroepSoort?.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN) ?: false }
             .sumOf { it.bedrag }
     }
 
@@ -207,22 +207,22 @@ class CashflowService {
     ): BigDecimal {
         return -betalingen
             .filter {
-                it.bestemming.rekeningGroep.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false
+                it.bestemming?.rekeningGroep?.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false
             }
             .filter {
                 it.boekingsdatum.equals(date) &&
                         periode.berekenDagInPeriode(
-                            it.bestemming.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1)
+                            it.bestemming?.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1)
                         ) <= laatsteBetalingDatum // het had al betaald moeten zijn
             }
-            .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }
+            .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming?.rekeningGroep?.rekeningGroepSoort}, ${it.bestemming?.rekeningGroep?.budgetType}") }
             .sumOf { it.bedrag }
     }
 
     fun betaaldeAflossing(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.AFLOSSING) }
+            .filter { it.bestemming?.rekeningGroep?.rekeningGroepSoort?.equals(RekeningGroep.RekeningGroepSoort.AFLOSSING) ?: false }
             .sumOf { it.bedrag }
     }
 

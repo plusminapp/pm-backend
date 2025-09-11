@@ -30,8 +30,8 @@ object TestFixtures {
         omschrijving = "Test betaling",
         betalingsSoort = "UITGAVEN",
         bron = "Betaalrekening",
+        bestemming = "Uitgave",
         sortOrder = "20230101.900",
-        bestemming = "Uitgave"
     )
 
     val testBetalingenLijst = listOf(testBetalingDTO)

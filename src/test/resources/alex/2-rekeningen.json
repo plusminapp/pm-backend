@@ -24,20 +24,64 @@
     ]
   },
   {
-    "naam": "Spaarrekening",
+    "naam": "Spaarpotjes",
     "rekeningGroepSoort": "SPAARREKENING",
-    "sortOrder": 110,
+    "budgetType": "SPAREN",
+    "rekeningGroepIcoonNaam": "spaartegoed",
+    "sortOrder": 800,
     "rekeningen": [
       {
-        "naam": "Alex' spaarrekening",
+        "naam": "Vrij spaargeld",
         "bankNaam": "ASN",
-        "saldo": 750,
-        "sortOrder": 100,
+        "sortOrder": 1300,
+        "saldo": 116.18,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
           }
-        ]
+        ],
+        "spaartegoed": {
+          "startDatum": "2025-07-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 1ste"
+        }
+      },
+      {
+        "naam": "Kleding",
+        "bankNaam": "ASN",
+        "sortOrder": 1400,
+        "saldo": 200,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2025-07-01",
+          "notities": "notities bij Kleding"
+        }
+      },
+      {
+        "naam": "Nieuwe wasmachine",
+        "bankNaam": "ASN",
+        "sortOrder": 1500,
+        "saldo": 50,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "betaalMethoden": [
+          {
+            "naam": "Alex' betaalrekening"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2025-07-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 3de"
+        }
       }
     ]
   },
@@ -259,67 +303,6 @@
             "naam": "Alex' betaalrekening"
           }
         ]
-      }
-    ]
-  },
-  {
-    "naam": "Spaarpotten",
-    "rekeningGroepSoort": "UITGAVEN",
-    "budgetType": "SPAREN",
-    "rekeningGroepIcoonNaam": "spaartegoed",
-    "sortOrder": 500,
-    "rekeningen": [
-      {
-        "naam": "Vrij spaargeld",
-        "sortOrder": 300,
-        "reserve": 500,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
-        "budgetAanvulling": "MET",
-        "betaalMethoden": [
-          {
-            "naam": "Alex' spaarrekening"
-          }
-        ],
-        "spaartegoed": {
-          "startDatum": "2027-01-01",
-          "eindBedrag": 2000,
-          "notities": "notities bij 1ste"
-        }
-      },
-      {
-        "naam": "Kleding",
-        "sortOrder": 400,
-        "reserve": 200,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
-        "budgetAanvulling": "MET",
-        "betaalMethoden": [
-          {
-            "naam": "Alex' spaarrekening"
-          }
-        ],
-        "spaartegoed": {
-          "notities": "notities bij Kleding"
-        }
-      },
-      {
-        "naam": "Nieuwe wasmachine",
-        "sortOrder": 500,
-        "reserve": 50,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 50,
-        "budgetAanvulling": "MET",
-        "betaalMethoden": [
-          {
-            "naam": "Alex' spaarrekening"
-          }
-        ],
-        "spaartegoed": {
-          "doelDatum": "2026-07-01",
-          "doelBedrag": 2000,
-          "notities": "notities bij 3de"
-        }
       }
     ]
   },
