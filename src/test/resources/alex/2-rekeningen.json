@@ -1,16 +1,5 @@
 [
   {
-    "naam": "Buffer",
-    "rekeningGroepSoort": "RESERVERING_BUFFER",
-    "sortOrder": 10,
-    "rekeningen": [
-      {
-        "naam": "Buffer",
-        "sortOrder": 10
-      }
-    ]
-  },
-  {
     "naam": "Betaalrekening",
     "rekeningGroepSoort": "BETAALREKENING",
     "sortOrder": 100,
@@ -24,64 +13,20 @@
     ]
   },
   {
-    "naam": "Spaarpotjes",
+    "naam": "Spaarrekening",
     "rekeningGroepSoort": "SPAARREKENING",
-    "budgetType": "SPAREN",
-    "rekeningGroepIcoonNaam": "spaartegoed",
-    "sortOrder": 800,
+    "sortOrder": 110,
     "rekeningen": [
       {
-        "naam": "Vrij spaargeld",
+        "naam": "Alex' spaarrekening",
         "bankNaam": "ASN",
-        "sortOrder": 1300,
-        "saldo": 116.18,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
+        "saldo": 750,
+        "sortOrder": 100,
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
           }
-        ],
-        "spaartegoed": {
-          "startDatum": "2025-07-01",
-          "eindBedrag": 2000,
-          "notities": "notities bij 1ste"
-        }
-      },
-      {
-        "naam": "Kleding",
-        "bankNaam": "ASN",
-        "sortOrder": 1400,
-        "saldo": 200,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 25,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "spaartegoed": {
-          "startDatum": "2025-07-01",
-          "notities": "notities bij Kleding"
-        }
-      },
-      {
-        "naam": "Nieuwe wasmachine",
-        "bankNaam": "ASN",
-        "sortOrder": 1500,
-        "saldo": 50,
-        "budgetPeriodiciteit": "MAAND",
-        "budgetBedrag": 50,
-        "betaalMethoden": [
-          {
-            "naam": "Alex' betaalrekening"
-          }
-        ],
-        "spaartegoed": {
-          "startDatum": "2025-07-01",
-          "eindBedrag": 2000,
-          "notities": "notities bij 3de"
-        }
+        ]
       }
     ]
   },
@@ -160,6 +105,7 @@
         "sortOrder": 110,
         "budgetPeriodiciteit": "WEEK",
         "budgetBedrag": 85,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -172,6 +118,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 250,
         "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -195,6 +142,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 175,
         "budgetBetaalDag": 8,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -206,6 +154,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 120.07,
         "budgetBetaalDag": 8,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -217,6 +166,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 147.50,
         "budgetBetaalDag": 3,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -228,6 +178,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 26.22,
         "budgetBetaalDag": 1,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -239,6 +190,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 541.95,
         "budgetBetaalDag": 28,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -263,6 +215,7 @@
           11,
           12
         ],
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -287,6 +240,7 @@
           11,
           12
         ],
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -298,11 +252,76 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 8,
         "budgetBetaalDag": 26,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
           }
         ]
+      }
+    ]
+  },
+  {
+    "naam": "Spaarpotten",
+    "rekeningGroepSoort": "UITGAVEN",
+    "budgetType": "SPAREN",
+    "rekeningGroepIcoonNaam": "spaartegoed",
+    "sortOrder": 500,
+    "rekeningen": [
+      {
+        "naam": "Vrij spaargeld",
+        "sortOrder": 300,
+        "reserve": 500,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Alex' spaarrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Alex' spaarrekening"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2027-01-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 1ste"
+        }
+      },
+      {
+        "naam": "Kleding",
+        "sortOrder": 400,
+        "reserve": 200,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Alex' spaarrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Alex' spaarrekening"
+          }
+        ],
+        "spaartegoed": {
+          "notities": "notities bij Kleding"
+        }
+      },
+      {
+        "naam": "Nieuwe wasmachine",
+        "sortOrder": 500,
+        "reserve": 50,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Alex' spaarrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Alex' spaarrekening"
+          }
+        ],
+        "spaartegoed": {
+          "doelDatum": "2026-07-01",
+          "doelBedrag": 2000,
+          "notities": "notities bij 3de"
+        }
       }
     ]
   },
@@ -320,6 +339,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 100,
         "budgetBetaalDag": 26,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
@@ -339,6 +359,7 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 50,
         "budgetBetaalDag": 28,
+        "gekoppeldeRekening": "Alex' betaalrekening",
         "betaalMethoden": [
           {
             "naam": "Alex' betaalrekening"
