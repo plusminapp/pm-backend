@@ -69,7 +69,7 @@ class DemoService {
                         (betaling.bestemming.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(boekingsdatum.monthValue));
             val betalingDTO = BetalingDTO(
                 boekingsdatum = boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                bedrag = betaling.bedrag.toString(),
+                bedrag = betaling.bedrag,
                 omschrijving = betaling.omschrijving,
                 sortOrder = betaling.sortOrder,
                 bron = betaling.bron.naam,

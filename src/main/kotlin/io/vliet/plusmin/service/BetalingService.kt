@@ -61,7 +61,7 @@ class BetalingService {
             Betaling(
                 gebruiker = gebruiker,
                 boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                bedrag = betalingDTO.bedrag.toBigDecimal(),
+                bedrag = betalingDTO.bedrag,
                 omschrijving = betalingDTO.omschrijving,
                 betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
                 bron = bron,
@@ -93,7 +93,7 @@ class BetalingService {
             val reserveringDTO = Reservering.ReserveringDTO(
                 boekingsdatum = betalingDTO.boekingsdatum,
                 reserveringsHorizon = null,
-                bedrag = betalingDTO.bedrag,
+                bedrag = betalingDTO.bedrag.toString(),
                 omschrijving = "${betalingDTO.betalingsSoort} voor ${spaarPotje}",
                 bron = bufferRekeningNaam,
                 bestemming = spaarPotje
@@ -126,7 +126,7 @@ class BetalingService {
         logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = boekingsDatum,
-            bedrag = newBetalingDTO.bedrag.toBigDecimal(),
+            bedrag = newBetalingDTO.bedrag,
             omschrijving = newBetalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
             bron = bron,
@@ -140,7 +140,7 @@ class BetalingService {
         return betalingRepository.findMatchingBetaling(
             gebruiker = gebruiker,
             boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-            bedrag = betalingDTO.bedrag.toBigDecimal(),
+            bedrag = betalingDTO.bedrag,
             omschrijving = betalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
         )

@@ -81,7 +81,7 @@ class Betaling(
     data class BetalingDTO(
         val id: Long = 0,
         val boekingsdatum: String,
-        val bedrag: String,
+        val bedrag: BigDecimal,
         val omschrijving: String,
         val betalingsSoort: String,
         val sortOrder: String? = null,
@@ -94,7 +94,7 @@ class Betaling(
         return BetalingDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-            this.bedrag.toString(),
+            this.bedrag,
             this.omschrijving,
             this.betalingsSoort.toString(),
             this.sortOrder,

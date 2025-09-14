@@ -26,7 +26,7 @@ object TestFixtures {
 
     val testBetalingDTO = Betaling.BetalingDTO(
         boekingsdatum = "2023-01-01",
-        bedrag = "100.00",
+        bedrag = BigDecimal(100.00),
         omschrijving = "Test betaling",
         betalingsSoort = "UITGAVEN",
         bron = "Betaalrekening",
