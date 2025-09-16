@@ -120,15 +120,10 @@ class BetalingService {
      *    Zie ook https://docs.google.com/spreadsheets/d/1erhLtz1Kp1ZiEvSCOSyJRTElepPDDEDiZdDrYggmm0o/edit
      */
     fun transformeerDtoBoeking(betalingsSoort: Betaling.BetalingsSoort, dtoBoeking: Boeking): Pair<Boeking?, Boeking?> {
-        val bufferRekeningen =
-            rekeningRepository.findBufferRekeningVoorGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
-        val bufferRekeningIn = bufferRekeningen.find { it.budgetAanvulling == Rekening.BudgetAanvulling.IN }
+        val bufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
             ?: throw IllegalStateException("Er is geen buffer rekening IN voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}.")
-        val bufferRekeningUit = bufferRekeningen.find { it.budgetAanvulling == Rekening.BudgetAanvulling.UIT }
-            ?: throw IllegalStateException("Er is geen buffer rekening UIT voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}.")
-
         return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN -> Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekeningIn))
+            Betaling.BetalingsSoort.INKOMSTEN -> Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
 
             Betaling.BetalingsSoort.RENTE -> Pair(
                 Boeking(
@@ -140,9 +135,7 @@ class BetalingService {
             )
 
             Betaling.BetalingsSoort.UITGAVEN, Betaling.BetalingsSoort.BESTEDEN, Betaling.BetalingsSoort.AFLOSSEN -> Pair(
-                dtoBoeking, Boeking(
-                    dtoBoeking.bestemming, bufferRekeningUit
-                )
+                dtoBoeking, null
             )
 
             Betaling.BetalingsSoort.SPAREN -> Pair(
@@ -151,13 +144,12 @@ class BetalingService {
                     dtoBoeking.bestemming.gekoppeldeRekening
                         ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
                 ), Boeking(
-                    bufferRekeningIn, dtoBoeking.bestemming
+                    bufferRekening, dtoBoeking.bestemming
                 )
             )
 
             Betaling.BetalingsSoort.OPNEMEN, Betaling.BetalingsSoort.TERUGSTORTEN, Betaling.BetalingsSoort.INCASSO_CREDITCARD, Betaling.BetalingsSoort.OPNEMEN_CONTANT, Betaling.BetalingsSoort.STORTEN_CONTANT -> Pair(
-                dtoBoeking,
-                null
+                dtoBoeking, null
             )
 
             Betaling.BetalingsSoort.P2P, Betaling.BetalingsSoort.SP2SP -> Pair(null, dtoBoeking)

@@ -263,7 +263,7 @@
   },
   {
     "naam": "Spaarpotten",
-    "rekeningGroepSoort": "UITGAVEN",
+    "rekeningGroepSoort": "SPAARPOT",
     "budgetType": "SPAREN",
     "rekeningGroepIcoonNaam": "spaartegoed",
     "sortOrder": 500,
@@ -278,7 +278,7 @@
         "gekoppeldeRekening": "Alex' spaarrekening",
         "betaalMethoden": [
           {
-            "naam": "Alex' spaarrekening"
+            "naam": "Alex' betaalrekening"
           }
         ],
         "spaartegoed": {
@@ -297,7 +297,7 @@
         "gekoppeldeRekening": "Alex' spaarrekening",
         "betaalMethoden": [
           {
-            "naam": "Alex' spaarrekening"
+            "naam": "Alex' betaalrekening"
           }
         ],
         "spaartegoed": {
@@ -314,7 +314,10 @@
         "gekoppeldeRekening": "Alex' spaarrekening",
         "betaalMethoden": [
           {
-            "naam": "Alex' spaarrekening"
+            "naam": "Alex' betaalrekening"
+          },
+          {
+            "naam": "Visa Creditcard"
           }
         ],
         "spaartegoed": {

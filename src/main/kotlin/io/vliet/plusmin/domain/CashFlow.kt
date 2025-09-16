@@ -10,6 +10,7 @@ data class CashFlow(
     val inkomsten: BigDecimal,
     val uitgaven: BigDecimal,
     val aflossing: BigDecimal,
+    val potjesVoorNuReserveringen: BigDecimal,
     val spaarReserveringen: BigDecimal,
     val saldo: BigDecimal? = null,
     val prognose: BigDecimal? = null,

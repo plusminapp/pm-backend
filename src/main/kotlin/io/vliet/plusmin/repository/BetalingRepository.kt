@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.Optional
 
 @Repository
 @Transactional
@@ -39,6 +40,28 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         openingsDatum: LocalDate,
         eindDatum: LocalDate
     ): List<Betaling>
+
+    @Query(
+        value = "SELECT b FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker AND " +
+                "b.boekingsdatum >= :startDatum AND " +
+                "b.boekingsdatum <= :eindDatum AND " +
+                "b.reserveringBron.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' AND " +
+                "b.reserveringBestemming.rekeningGroep.budgetType = 'SPAREN'"
+    )
+    fun findSpaarReserveringenInPeriode(
+        gebruiker: Gebruiker,
+        startDatum: LocalDate,
+        eindDatum: LocalDate
+    ): List<Betaling>
+    
+    @Query(
+        value = "SELECT MAX(b.reserveringsHorizon) FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker"
+    )
+    fun getReserveringsHorizon(
+        gebruiker: Gebruiker,
+    ): LocalDate?
 
     @Modifying
     @Query(
@@ -100,6 +123,20 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "b.boekingsdatum = :datum"
     )
     fun findLaatsteSortOrder(gebruiker: Gebruiker, datum: LocalDate): String?
+
+    @Query(
+        value = "SELECT b FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker AND " +
+                "b.boekingsdatum = :datum AND " +
+                "b.reserveringBron = :reserveringBron AND " +
+                "b.reserveringBestemming = :reserveringBestemming"
+    )
+    fun findByGebruikerOpDatumBronBestemming(
+        gebruiker: Gebruiker,
+        datum: LocalDate,
+        reserveringBron: Rekening,
+        reserveringBestemming: Rekening
+    ): Optional<Betaling>
 
     @Modifying
     @Query(

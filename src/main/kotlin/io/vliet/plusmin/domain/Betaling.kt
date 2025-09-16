@@ -54,9 +54,10 @@ class Betaling(
             BetalingsSoort.OPNEMEN,
         )
         val reserveringBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.INKOMSTEN,
-            BetalingsSoort.UITGAVEN,
-            BetalingsSoort.AFLOSSEN,
+            BetalingsSoort.P2P,
+            BetalingsSoort.SP2SP,
+            BetalingsSoort.P2SP,
+            BetalingsSoort.SP2P,
         )
         val reserveringSpaarBetalingsSoorten = listOf<BetalingsSoort>(
             BetalingsSoort.RENTE,

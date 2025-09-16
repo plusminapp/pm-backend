@@ -2,6 +2,7 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
+import io.vliet.plusmin.domain.Betaling.Companion.reserveringBetalingsSoorten
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -59,7 +60,7 @@ class DemoService {
             gebruiker,
             bronPeriode.periodeStartDatum,
             bronPeriode.periodeEindDatum
-        )
+        ).filter { !reserveringBetalingsSoorten.contains(it.betalingsSoort) }
         val betalingenDoelPeriode = betalingen.map { betaling ->
             val boekingsDatum = shiftDatumNaarPeriodeMetZelfdeDag(betaling.boekingsdatum, doelPeriode)
             val wordtDezeMaandBetalingVerwacht =

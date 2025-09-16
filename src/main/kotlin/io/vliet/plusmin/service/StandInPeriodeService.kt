@@ -37,10 +37,7 @@ class StandInPeriodeService {
                 peilPeriode.periodeStartDatum,
                 peilDatum
             )
-        val inkomstenInPeilPeriode = mutatiesInPeilPeriode
-            .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
-            .sumOf { it.betaling }
-        logger.info("betalingenInPeilPeriode: van ${peilPeriode.periodeStartDatum} tot: $peilDatum ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
+        logger.info("mutatiesInPeilPeriode: van ${peilPeriode.periodeStartDatum}  ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
 
         return startSaldiVanPeilPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
@@ -49,14 +46,10 @@ class StandInPeriodeService {
                 val rekening = saldo.rekening
                 val betaling = mutatiesInPeilPeriode
                     .filter { it.rekening.naam == rekening.naam }
-//                    .filter { it.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN }
                     .sumOf { it.betaling }
                 val reservering = mutatiesInPeilPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.reservering } -
-                        if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER)
-                            inkomstenInPeilPeriode
-                        else BigDecimal.ZERO
+                    .sumOf { it.reservering }
                 val openingsBalansSaldo = saldo.openingsBalansSaldo
                 val openingsReserveSaldo =
                     if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
