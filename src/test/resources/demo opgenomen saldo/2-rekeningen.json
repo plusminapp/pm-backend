@@ -5,7 +5,7 @@
     "sortOrder": 100,
     "rekeningen": [
       {
-        "naam": "Alex' betaalrekening",
+        "naam": "Opgenomen saldo betaalrekening",
         "bankNaam": "ASN",
         "saldo": 500,
         "sortOrder": 100
@@ -18,13 +18,13 @@
     "sortOrder": 110,
     "rekeningen": [
       {
-        "naam": "Alex' spaarrekening",
+        "naam": "Opgenomen saldo spaarrekening",
         "bankNaam": "ASN",
         "saldo": 200,
         "sortOrder": 100,
         "betaalMethoden": [
           {
-            "naam": "Alex' betaalrekening"
+            "naam": "Opgenomen saldo betaalrekening"
           }
         ]
       }
@@ -42,7 +42,7 @@
         "sortOrder": 200,
         "betaalMethoden": [
           {
-            "naam": "Alex' betaalrekening"
+            "naam": "Opgenomen saldo betaalrekening"
           }
         ]
       }
@@ -62,10 +62,10 @@
         "budgetPeriodiciteit": "MAAND",
         "budgetBedrag": 25,
         "budgetAanvulling": "MET",
-        "gekoppeldeRekening": "Alex' spaarrekening",
+        "gekoppeldeRekening": "Opgenomen saldo spaarrekening",
         "betaalMethoden": [
           {
-            "naam": "Alex' betaalrekening"
+            "naam": "Opgenomen saldo betaalrekening"
           }
         ],
         "spaartegoed": {
