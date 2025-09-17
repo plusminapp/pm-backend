@@ -3,7 +3,6 @@
   "bedrag": "150",
   "omschrijving": "opname winterjas",
   "betalingsSoort": "OPNEMEN",
-  "bron": "Alex' spaarrekening",
-  "bestemming": "Alex' betaalrekening",
-  "spaarpotje": "Kleding"
+  "bron": "Kleding",
+  "bestemming": "Alex' betaalrekening"
 }

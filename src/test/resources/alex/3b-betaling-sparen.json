@@ -2,6 +2,7 @@
   "boekingsdatum": "2025-08-10",
   "bedrag": "1250",
   "omschrijving": "Extra sparen",
-  "bron": "Buffer",
+  "betalingsSoort": "SPAREN",
+  "bron": "Alex' betaalrekening",
   "bestemming": "Vrij spaargeld"
 }

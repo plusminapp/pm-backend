@@ -53,6 +53,10 @@ class Betaling(
             BetalingsSoort.STORTEN_CONTANT,
             BetalingsSoort.OPNEMEN,
         )
+        val internSparenBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.OPNEMEN,
+            BetalingsSoort.TERUGSTORTEN,
+        )
         val reserveringBetalingsSoorten = listOf<BetalingsSoort>(
             BetalingsSoort.P2P,
             BetalingsSoort.SP2SP,

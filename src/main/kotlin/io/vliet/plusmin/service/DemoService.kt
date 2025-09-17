@@ -65,27 +65,35 @@ class DemoService {
             val boekingsDatum = shiftDatumNaarPeriodeMetZelfdeDag(betaling.boekingsdatum, doelPeriode)
             val wordtDezeMaandBetalingVerwacht =
                 (betaling.bron?.maanden.isNullOrEmpty() || betaling.bron.maanden!!.contains(boekingsDatum.monthValue)) &&
-                        (betaling.bestemming?.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(boekingsDatum.monthValue));
-            val sortOrder = betalingService.berekenSortOrder(gebruiker, boekingsDatum)
+                        (betaling.bestemming?.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(
+                            boekingsDatum.monthValue
+                        ));
+            if (wordtDezeMaandBetalingVerwacht && boekingsDatum <= LocalDate.now()) {
+                val sortOrder = betalingService.berekenSortOrder(gebruiker, boekingsDatum)
 
-            val nieuweBetaling = Betaling(
-                boekingsdatum = boekingsDatum,
-                bedrag = betaling.bedrag,
-                omschrijving = betaling.omschrijving,
-                sortOrder = sortOrder,
-                bron = betaling.bron,
-                bestemming = betaling.bestemming,
-                betalingsSoort = betaling.betalingsSoort,
-                gebruiker = gebruiker,
-                reserveringsHorizon = betaling.reserveringsHorizon,
-                reserveringBron = betaling.reserveringBron,
-                reserveringBestemming = betaling.reserveringBestemming
-            )
-            if (wordtDezeMaandBetalingVerwacht && nieuweBetaling.boekingsdatum <= LocalDate.now()) {
+                val reservering = betalingRepository.findByGebruikerOpDatumBronBestemming(
+                    gebruiker,
+                    datum = doelPeriode.periodeStartDatum,
+                    reserveringBron = TODO(),
+                    reserveringBestemming = TODO(),
+                )
+                val nieuweBetaling = Betaling(
+                    boekingsdatum = boekingsDatum,
+                    bedrag = betaling.bedrag,
+                    omschrijving = betaling.omschrijving,
+                    sortOrder = sortOrder,
+                    bron = betaling.bron,
+                    bestemming = betaling.bestemming,
+                    betalingsSoort = betaling.betalingsSoort,
+                    gebruiker = gebruiker,
+                    reserveringsHorizon = betaling.reserveringsHorizon,
+                    reserveringBron = betaling.reserveringBron,
+                    reserveringBestemming = betaling.reserveringBestemming
+                )
                 logger.info("Betaling op ${nieuweBetaling.boekingsdatum}  gekopieerd: ${nieuweBetaling.omschrijving}")
-                betalingRepository.save( nieuweBetaling).toDTO()
+                betalingRepository.save(nieuweBetaling).toDTO()
             } else {
-                logger.info("Betaling op ${nieuweBetaling.boekingsdatum} ${if (!wordtDezeMaandBetalingVerwacht) "nog" else ""} niet gekopieerd: ${nieuweBetaling.omschrijving}")
+                logger.info("Betaling op ${boekingsDatum} ${if (!wordtDezeMaandBetalingVerwacht) "nog" else ""} niet gekopieerd: ${betaling.omschrijving}")
                 betaling.toDTO()
             }
         }

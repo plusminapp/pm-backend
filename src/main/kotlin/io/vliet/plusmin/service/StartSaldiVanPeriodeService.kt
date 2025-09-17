@@ -1,6 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Betaling.Companion.internSparenBetalingsSoorten
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
 import io.vliet.plusmin.repository.*
@@ -120,7 +121,9 @@ class StartSaldiVanPeriodeService {
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->
                 val betaling =
-                    betalingen.fold(BigDecimal.ZERO) { acc, betaling ->
+                    betalingen
+                        .filter { !internSparenBetalingsSoorten.contains(it.betalingsSoort) }
+                        .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenBetalingMutaties(betaling, rekening)
                     }
                 val reservering =
@@ -130,7 +133,7 @@ class StartSaldiVanPeriodeService {
 
                 val opname =
                     betalingen
-                        .filter { it.betalingsSoort == Betaling.BetalingsSoort.OPNEMEN || it.betalingsSoort == Betaling.BetalingsSoort.TERUGSTORTEN }
+                        .filter { internSparenBetalingsSoorten.contains(it.betalingsSoort) }
                         .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenBetalingMutaties(betaling, rekening)
                         }
