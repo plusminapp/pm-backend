@@ -37,7 +37,7 @@ class StandInPeriodeService {
                 peilPeriode.periodeStartDatum,
                 peilDatum
             )
-        logger.info("mutatiesInPeilPeriode: van ${peilPeriode.periodeStartDatum}  ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling }}")
+        logger.info("mutatiesInPeilPeriode: van ${peilPeriode.periodeStartDatum}  ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling + ' ' + it.reservering + ' ' + it.opgenomenSaldo }}")
 
         return startSaldiVanPeilPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
@@ -52,7 +52,7 @@ class StandInPeriodeService {
                     .sumOf { it.reservering }
                 val opgenomenSaldo = mutatiesInPeilPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.opgenomenSaldo + it.betaling }
+                    .sumOf { it.opgenomenSaldo }
 
                 val openingsBalansSaldo = saldo.openingsBalansSaldo
                 val openingsReserveSaldo =

@@ -266,7 +266,7 @@
     "rekeningGroepSoort": "SPAARPOT",
     "budgetType": "SPAREN",
     "rekeningGroepIcoonNaam": "spaartegoed",
-    "sortOrder": 500,
+    "sortOrder": 900,
     "rekeningen": [
       {
         "naam": "Vrij spaargeld",
@@ -333,7 +333,7 @@
     "rekeningGroepSoort": "AFLOSSING",
     "budgetType": "VAST",
     "rekeningGroepIcoonNaam": "aflossing",
-    "sortOrder": 900,
+    "sortOrder": 600,
     "rekeningen": [
       {
         "naam": "Demo aflossing",

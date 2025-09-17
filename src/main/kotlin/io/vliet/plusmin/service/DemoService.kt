@@ -71,12 +71,12 @@ class DemoService {
             if (wordtDezeMaandBetalingVerwacht && boekingsDatum <= LocalDate.now()) {
                 val sortOrder = betalingService.berekenSortOrder(gebruiker, boekingsDatum)
 
-                val reservering = betalingRepository.findByGebruikerOpDatumBronBestemming(
-                    gebruiker,
-                    datum = doelPeriode.periodeStartDatum,
-                    reserveringBron = TODO(),
-                    reserveringBestemming = TODO(),
-                )
+//                val reservering = betalingRepository.findByGebruikerOpDatumBronBestemming(
+//                    gebruiker,
+//                    datum = doelPeriode.periodeStartDatum,
+//                    reserveringBron = TODO(),
+//                    reserveringBestemming = TODO(),
+//                )
                 val nieuweBetaling = Betaling(
                     boekingsdatum = boekingsDatum,
                     bedrag = betaling.bedrag,

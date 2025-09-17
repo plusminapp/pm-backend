@@ -52,10 +52,9 @@ class ReserveringController {
 //        return ResponseEntity.ok().body(reservering)
 //    }
 
-    @PostMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
+    @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweReserveringVoorPeriode(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")

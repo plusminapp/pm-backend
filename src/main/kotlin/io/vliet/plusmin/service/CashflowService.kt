@@ -245,9 +245,7 @@ class CashflowService {
             .filter { it.boekingsdatum.equals(date) }
             .sumOf {
                 BigDecimal.ZERO +
-                        if (it.reserveringBron?.rekeningGroep?.budgetType == RekeningGroep.BudgetType.SPAREN) it.bedrag
-                        else if (it.reserveringBestemming?.rekeningGroep?.budgetType == RekeningGroep.BudgetType.SPAREN) -it.bedrag
-                        else BigDecimal.ZERO
+                        if (it.betalingsSoort == Betaling.BetalingsSoort.SPAREN) -it.bedrag else BigDecimal.ZERO
             }
     }
 

@@ -2,6 +2,8 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -9,7 +11,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "betaling",
-    uniqueConstraints = [jakarta.persistence.UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
 )
 class Betaling(
     @Id
@@ -45,7 +47,9 @@ class Betaling(
     @JoinColumn(name = "reservering_bestemming_id", referencedColumnName = "id")
     val reserveringBestemming: Rekening? = null,
 ) {
+
     companion object {
+        val logger: Logger = LoggerFactory.getLogger(::javaClass.name)
         val sortableFields = setOf("id", "boekingsdatum", "status")
 
         val bestemmingBetalingsSoorten = listOf<BetalingsSoort>(
@@ -53,7 +57,8 @@ class Betaling(
             BetalingsSoort.STORTEN_CONTANT,
             BetalingsSoort.OPNEMEN,
         )
-        val internSparenBetalingsSoorten = listOf<BetalingsSoort>(
+        val opgenomenSaldoBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.BESTEDEN,
             BetalingsSoort.OPNEMEN,
             BetalingsSoort.TERUGSTORTEN,
         )
@@ -110,11 +115,16 @@ class Betaling(
         val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
-        val reserveringBron: String? = null,
-        val reserveringBestemming: String? = null,
     )
 
     fun toDTO(): BetalingDTO {
+        val (bron, bestemming) = transformeerNaarDtoBoeking(
+            this.betalingsSoort,
+            boeking = Pair(
+                this.bron?.let { Boeking(it, this.bestemming!!) },
+                this.reserveringBron?.let { Boeking(it, this.reserveringBestemming!!) })
+        )
+        Betaling.logger.info("Betaling.toDTO: $this -> bron: ${bron.naam}, bestemming: ${bestemming.naam}")
         return BetalingDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -122,10 +132,8 @@ class Betaling(
             this.omschrijving,
             this.betalingsSoort.toString(),
             this.sortOrder,
-            this.bron?.naam ?: "",
-            this.bestemming?.naam ?: "",
-            this.reserveringBron?.naam ?: "",
-            this.reserveringBestemming?.naam ?: "",
+            bron.naam,
+            bestemming.naam,
         )
     }
 
@@ -177,4 +185,28 @@ class Betaling(
         val bron: Rekening,
         val bestemming: Rekening,
     )
+
+    fun transformeerNaarDtoBoeking(
+        betalingsSoort: BetalingsSoort,
+        boeking: Pair<Boeking?, Boeking?>
+    ): Boeking {
+        return when (betalingsSoort) {
+            BetalingsSoort.INKOMSTEN,
+            BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN,
+            BetalingsSoort.INCASSO_CREDITCARD, BetalingsSoort.OPNEMEN_CONTANT, BetalingsSoort.STORTEN_CONTANT ->
+                boeking.first!!
+
+            BetalingsSoort.RENTE,
+            BetalingsSoort.TERUGSTORTEN,
+            BetalingsSoort.SPAREN ->
+                Boeking(boeking.first!!.bron, boeking.second!!.bestemming)
+
+            BetalingsSoort.OPNEMEN ->
+                Boeking(boeking.second!!.bron, boeking.first!!.bestemming)
+
+            BetalingsSoort.P2P, BetalingsSoort.SP2SP,
+            BetalingsSoort.P2SP, BetalingsSoort.SP2P ->
+                boeking.second!!
+        }
+    }
 }

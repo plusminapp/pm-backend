@@ -1,6 +1,6 @@
 [
   {
-    "boekingsdatum": "2025-01-22",
+    "boekingsdatum": "2025-07-22",
     "bedrag": "27.95",
     "omschrijving": "Rohloff olie",
     "betalingsSoort": "UITGAVEN",
@@ -8,7 +8,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-01-22",
+    "boekingsdatum": "2025-07-22",
     "bedrag": "50.00",
     "omschrijving": "OV chipkaart",
     "betalingsSoort": "UITGAVEN",
@@ -16,7 +16,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-02-08",
+    "boekingsdatum": "2025-08-08",
     "bedrag": "678.00",
     "omschrijving": "Toeslagen",
     "betalingsSoort": "INKOMSTEN",
@@ -24,7 +24,7 @@
     "bestemming": "Alex' betaalrekening"
   },
   {
-    "boekingsdatum": "2025-01-23",
+    "boekingsdatum": "2025-07-23",
     "bedrag": "22.31",
     "omschrijving": "Jumbo",
     "betalingsSoort": "UITGAVEN",
@@ -32,7 +32,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-23",
+    "boekingsdatum": "2025-07-23",
     "bedrag": "1445.00",
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
@@ -40,7 +40,7 @@
     "bestemming": "Alex' betaalrekening"
   },
   {
-    "boekingsdatum": "2025-01-24",
+    "boekingsdatum": "2025-07-24",
     "bedrag": "100.00",
     "omschrijving": "Demo aflossing",
     "betalingsSoort": "AFLOSSEN",
@@ -48,7 +48,7 @@
     "bestemming": "Demo aflossing"
   },
   {
-    "boekingsdatum": "2025-01-25",
+    "boekingsdatum": "2025-07-25",
     "bedrag": "3.20",
     "omschrijving": "Bankkosten",
     "betalingsSoort": "UITGAVEN",
@@ -56,7 +56,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-01-27",
+    "boekingsdatum": "2025-07-27",
     "bedrag": "8.00",
     "omschrijving": "Simyo",
     "betalingsSoort": "UITGAVEN",
@@ -64,7 +64,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-01-27",
+    "boekingsdatum": "2025-07-27",
     "bedrag": "50.00",
     "omschrijving": "Andere aflossing",
     "betalingsSoort": "AFLOSSEN",
@@ -72,7 +72,7 @@
     "bestemming": "Andere aflossing"
   },
   {
-    "boekingsdatum": "2025-01-27",
+    "boekingsdatum": "2025-07-27",
     "bedrag": "5.00",
     "omschrijving": "Fietsersbond",
     "betalingsSoort": "UITGAVEN",
@@ -80,7 +80,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-01-27",
+    "boekingsdatum": "2025-07-27",
     "bedrag": "31.49",
     "omschrijving": "GBLT",
     "betalingsSoort": "UITGAVEN",
@@ -88,7 +88,7 @@
     "bestemming": "GBLT"
   },
   {
-    "boekingsdatum": "2025-01-27",
+    "boekingsdatum": "2025-07-27",
     "bedrag": "74.7",
     "omschrijving": "Regionale belasting",
     "betalingsSoort": "UITGAVEN",
@@ -96,7 +96,7 @@
     "bestemming": "Regionale belasting"
   },
   {
-    "boekingsdatum": "2025-01-28",
+    "boekingsdatum": "2025-07-28",
     "bedrag": "8.00",
     "omschrijving": "Vitens",
     "betalingsSoort": "UITGAVEN",
@@ -104,7 +104,7 @@
     "bestemming": "Vitens"
   },
   {
-    "boekingsdatum": "2025-01-29",
+    "boekingsdatum": "2025-07-29",
     "bedrag": "4.97",
     "omschrijving": "Kruidvat",
     "betalingsSoort": "UITGAVEN",
@@ -112,7 +112,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-30",
+    "boekingsdatum": "2025-07-30",
     "bedrag": "541.95",
     "omschrijving": "Huur",
     "betalingsSoort": "UITGAVEN",
@@ -120,7 +120,7 @@
     "bestemming": "Huur"
   },
   {
-    "boekingsdatum": "2025-01-31",
+    "boekingsdatum": "2025-07-31",
     "bedrag": "8.68",
     "omschrijving": "Spar Heverlee",
     "betalingsSoort": "UITGAVEN",
@@ -128,7 +128,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-03",
+    "boekingsdatum": "2025-08-03",
     "bedrag": "1.00",
     "omschrijving": "Broodjes voor de lunch, bedankt",
     "betalingsSoort": "UITGAVEN",
@@ -136,7 +136,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-03",
+    "boekingsdatum": "2025-08-03",
     "bedrag": "147.50",
     "omschrijving": "Ziektekosten verzekering",
     "betalingsSoort": "UITGAVEN",
@@ -144,7 +144,7 @@
     "bestemming": "Ziektekosten"
   },
   {
-    "boekingsdatum": "2025-02-03",
+    "boekingsdatum": "2025-08-03",
     "bedrag": "26.22",
     "omschrijving": "Verzekeringen",
     "betalingsSoort": "UITGAVEN",
@@ -152,7 +152,7 @@
     "bestemming": "Schadeverzekeringen"
   },
   {
-    "boekingsdatum": "2025-02-04",
+    "boekingsdatum": "2025-08-04",
     "bedrag": "47.95",
     "omschrijving": "Scheerspiegel",
     "betalingsSoort": "UITGAVEN",
@@ -160,7 +160,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-02-04",
+    "boekingsdatum": "2025-08-04",
     "bedrag": "36.45",
     "omschrijving": "Plein.NL ragers",
     "betalingsSoort": "UITGAVEN",
@@ -168,7 +168,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-02-04",
+    "boekingsdatum": "2025-08-04",
     "bedrag": "63.89",
     "omschrijving": "Jumbo",
     "betalingsSoort": "UITGAVEN",
@@ -176,7 +176,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-04",
+    "boekingsdatum": "2025-08-04",
     "bedrag": "120.07",
     "omschrijving": "VvE-bijdrage",
     "betalingsSoort": "UITGAVEN",
@@ -184,7 +184,7 @@
     "bestemming": "VvE"
   },
   {
-    "boekingsdatum": "2025-02-05",
+    "boekingsdatum": "2025-08-05",
     "bedrag": "39.95",
     "omschrijving": "Climber Cartoon Lamp",
     "betalingsSoort": "UITGAVEN",
@@ -192,7 +192,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-02-06",
+    "boekingsdatum": "2025-08-06",
     "bedrag": "175.00",
     "omschrijving": "Greenchoice",
     "betalingsSoort": "UITGAVEN",
@@ -200,7 +200,7 @@
     "bestemming": "Greenchoice"
   },
   {
-    "boekingsdatum": "2025-02-06",
+    "boekingsdatum": "2025-08-06",
     "bedrag": "1.00",
     "omschrijving": "Tijn Broodjes, dank je wel",
     "betalingsSoort": "UITGAVEN",
@@ -208,7 +208,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-09",
+    "boekingsdatum": "2025-08-09",
     "bedrag": "33.17",
     "omschrijving": "Jumbo",
     "betalingsSoort": "UITGAVEN",
@@ -216,7 +216,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-10",
+    "boekingsdatum": "2025-08-10",
     "bedrag": "4.65",
     "omschrijving": "NS OV-fiets",
     "betalingsSoort": "UITGAVEN",
@@ -224,7 +224,7 @@
     "bestemming": "Andere uitgaven"
   },
   {
-    "boekingsdatum": "2025-02-13",
+    "boekingsdatum": "2025-08-13",
     "bedrag": "47.42",
     "omschrijving": "Jumbo",
     "betalingsSoort": "UITGAVEN",
@@ -232,7 +232,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-16",
+    "boekingsdatum": "2025-08-16",
     "bedrag": "24.18",
     "omschrijving": "Jumbo",
     "betalingsSoort": "UITGAVEN",
@@ -240,7 +240,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-18",
+    "boekingsdatum": "2025-08-18",
     "bedrag": "20.23",
     "omschrijving": "Lidl",
     "betalingsSoort": "UITGAVEN",
@@ -248,7 +248,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-26",
+    "boekingsdatum": "2025-07-26",
     "bedrag": "48.23",
     "omschrijving": "Lidl",
     "betalingsSoort": "UITGAVEN",
@@ -256,7 +256,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-01-21",
+    "boekingsdatum": "2025-07-21",
     "bedrag": "55.01",
     "omschrijving": "Lidl",
     "betalingsSoort": "UITGAVEN",
@@ -264,7 +264,7 @@
     "bestemming": "Boodschappen"
   },
   {
-    "boekingsdatum": "2025-02-03",
+    "boekingsdatum": "2025-08-03",
     "bedrag": "5.25",
     "omschrijving": "Rente",
     "betalingsSoort": "RENTE",
@@ -272,7 +272,7 @@
     "bestemming": "Vrij spaargeld"
   },
   {
-    "boekingsdatum": "2025-02-19",
+    "boekingsdatum": "2025-08-19",
     "bedrag": "10.40",
     "omschrijving": "De Voordeelmarkt plamuur",
     "betalingsSoort": "UITGAVEN",

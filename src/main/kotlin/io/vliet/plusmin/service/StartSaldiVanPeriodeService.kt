@@ -1,7 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.Betaling.Companion.internSparenBetalingsSoorten
+import io.vliet.plusmin.domain.Betaling.Companion.opgenomenSaldoBetalingsSoorten
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
 import io.vliet.plusmin.repository.*
@@ -122,10 +122,9 @@ class StartSaldiVanPeriodeService {
             rekeningGroep.rekeningen.map { rekening ->
                 val betaling =
                     betalingen
-                        .filter { !internSparenBetalingsSoorten.contains(it.betalingsSoort) }
                         .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenBetalingMutaties(betaling, rekening)
-                    }
+                        }
                 val reservering =
                     betalingen.fold(BigDecimal.ZERO) { acc, betaling ->
                         acc + berekenReserveringMutaties(betaling, rekening)
@@ -133,25 +132,42 @@ class StartSaldiVanPeriodeService {
 
                 val opname =
                     betalingen
-                        .filter { internSparenBetalingsSoorten.contains(it.betalingsSoort) }
+                        .filter { opgenomenSaldoBetalingsSoorten.contains(it.betalingsSoort) }
                         .fold(BigDecimal.ZERO) { acc, betaling ->
-                            acc + berekenBetalingMutaties(betaling, rekening)
+                            acc + berekenOpgenomenSaldoMutaties(betaling, rekening)
                         }
 
                 Saldo(0, rekening, betaling = betaling, reservering = reservering, opgenomenSaldo = opname)
             }
         }
-        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.betaling} + R ${it.reservering}" }}")
+        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.betaling} + R ${it.reservering} + O ${it.opgenomenSaldo}" }}")
         return saldoLijst
     }
 
     fun berekenBetalingMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
-        return if (betaling.bron?.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO +
-                if (betaling.bestemming?.id == rekening.id) betaling.bedrag else BigDecimal.ZERO
+        return (if (betaling.bron?.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO) +
+                (if (betaling.bestemming?.id == rekening.id) betaling.bedrag else BigDecimal.ZERO)
     }
 
     fun berekenReserveringMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
-        return if (betaling.reserveringBron?.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO +
-                if (betaling.reserveringBestemming?.id == rekening.id) betaling.bedrag else BigDecimal.ZERO
+        return (if (betaling.reserveringBron?.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO) +
+                (if (betaling.reserveringBestemming?.id == rekening.id) betaling.bedrag else BigDecimal.ZERO)
+    }
+
+    fun berekenOpgenomenSaldoMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
+        val opgenomenSaldoMutatie =
+            // BESTEDEN
+            (if (betaling.bestemming?.id == rekening.id && betaling.betalingsSoort == Betaling.BetalingsSoort.BESTEDEN) -betaling.bedrag else BigDecimal.ZERO) +
+                    (if (betaling.reserveringBron?.id == rekening.id) {
+                        when (betaling.betalingsSoort) {
+                            Betaling.BetalingsSoort.OPNEMEN -> betaling.bedrag
+                            Betaling.BetalingsSoort.TERUGSTORTEN -> -betaling.bedrag
+                            else -> BigDecimal.ZERO
+                        }
+                    } else BigDecimal.ZERO)
+
+        logger.info("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
+
+        return opgenomenSaldoMutatie
     }
 }
