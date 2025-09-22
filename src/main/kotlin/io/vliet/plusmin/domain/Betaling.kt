@@ -124,7 +124,7 @@ class Betaling(
                 this.bron?.let { Boeking(it, this.bestemming!!) },
                 this.reserveringBron?.let { Boeking(it, this.reserveringBestemming!!) })
         )
-        Betaling.logger.info("Betaling.toDTO: $this -> bron: ${bron.naam}, bestemming: ${bestemming.naam}")
+        Betaling.logger.debug("Betaling.toDTO: bron: ${bron.naam}, bestemming: ${bestemming.naam}")
         return BetalingDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
