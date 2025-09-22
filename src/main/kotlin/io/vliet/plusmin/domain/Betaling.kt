@@ -2,6 +2,8 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -9,7 +11,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "betaling",
-    uniqueConstraints = [jakarta.persistence.UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
 )
 class Betaling(
     @Id
@@ -25,6 +27,7 @@ class Betaling(
     @JoinColumn(name = "gebruiker_id", referencedColumnName = "id")
     val gebruiker: Gebruiker,
     val boekingsdatum: LocalDate,
+    val reserveringsHorizon: LocalDate? = null,
     val bedrag: BigDecimal,
     @Column(columnDefinition = "TEXT")
     val omschrijving: String,
@@ -33,12 +36,20 @@ class Betaling(
     val sortOrder: String,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
-    val bron: Rekening,
+    val bron: Rekening? = null,
     @ManyToOne
     @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
-    val bestemming: Rekening,
+    val bestemming: Rekening? = null,
+    @ManyToOne
+    @JoinColumn(name = "reservering_bron_id", referencedColumnName = "id")
+    val reserveringBron: Rekening? = null,
+    @ManyToOne
+    @JoinColumn(name = "reservering_bestemming_id", referencedColumnName = "id")
+    val reserveringBestemming: Rekening? = null,
 ) {
+
     companion object {
+        val logger: Logger = LoggerFactory.getLogger(::javaClass.name)
         val sortableFields = setOf("id", "boekingsdatum", "status")
 
         val bestemmingBetalingsSoorten = listOf<BetalingsSoort>(
@@ -46,10 +57,21 @@ class Betaling(
             BetalingsSoort.STORTEN_CONTANT,
             BetalingsSoort.OPNEMEN,
         )
+        val opgenomenSaldoBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.BESTEDEN,
+            BetalingsSoort.OPNEMEN,
+            BetalingsSoort.TERUGSTORTEN,
+        )
         val reserveringBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.INKOMSTEN,
-            BetalingsSoort.UITGAVEN,
-            BetalingsSoort.AFLOSSEN,
+            BetalingsSoort.P2P,
+            BetalingsSoort.SP2SP,
+            BetalingsSoort.P2SP,
+            BetalingsSoort.SP2P,
+        )
+        val reserveringSpaarBetalingsSoorten = listOf<BetalingsSoort>(
+            BetalingsSoort.RENTE,
+            BetalingsSoort.SPAREN,
+            BetalingsSoort.BESTEDEN,
         )
         val inkomstenBetalingsSoorten = listOf<BetalingsSoort>(
             BetalingsSoort.INKOMSTEN,
@@ -60,22 +82,28 @@ class Betaling(
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
         boekingsdatum: LocalDate = this.boekingsdatum,
+        reserveringsHorizon: LocalDate? = this.reserveringsHorizon,
         bedrag: BigDecimal = this.bedrag,
         omschrijving: String = this.omschrijving,
         betalingsSoort: BetalingsSoort = this.betalingsSoort,
         sortOrder: String = this.sortOrder,
-        bron: Rekening = this.bron,
-        bestemming: Rekening = this.bestemming,
+        bron: Rekening? = this.bron,
+        bestemming: Rekening? = this.bestemming,
+        reserveringBron: Rekening? = this.reserveringBron,
+        reserveringBestemming: Rekening? = this.reserveringBestemming,
     ) = Betaling(
         this.id,
         gebruiker,
         boekingsdatum,
+        reserveringsHorizon,
         bedrag,
         omschrijving,
         betalingsSoort,
         sortOrder,
         bron,
         bestemming,
+        reserveringBron,
+        reserveringBestemming
     )
 
     data class BetalingDTO(
@@ -87,10 +115,16 @@ class Betaling(
         val sortOrder: String? = null,
         val bron: String,
         val bestemming: String,
-        val spaarPotje: String? = null, // alleen relevant voor betalingsSoorten SPAREN en RENTE
     )
 
     fun toDTO(): BetalingDTO {
+        val (bron, bestemming) = transformeerNaarDtoBoeking(
+            this.betalingsSoort,
+            boeking = Pair(
+                this.bron?.let { Boeking(it, this.bestemming!!) },
+                this.reserveringBron?.let { Boeking(it, this.reserveringBestemming!!) })
+        )
+        Betaling.logger.debug("Betaling.toDTO: bron: ${bron.naam}, bestemming: ${bestemming.naam}")
         return BetalingDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -98,9 +132,8 @@ class Betaling(
             this.omschrijving,
             this.betalingsSoort.toString(),
             this.sortOrder,
-            this.bron.naam,
-            this.bestemming.naam,
-            null
+            bron.naam,
+            bestemming.naam,
         )
     }
 
@@ -134,11 +167,46 @@ class Betaling(
         INKOMSTEN("Inkomsten"),
         RENTE("Rente"),
         UITGAVEN("Uitgaven"),
+        BESTEDEN("besteden"),
         AFLOSSEN("aflossen"),
-        INCASSO_CREDITCARD("incasso_creditcard"),
-        OPNEMEN("opnemen"),
         SPAREN("sparen"),
+        OPNEMEN("opnemen"),
+        TERUGSTORTEN("terugstorten"),
+        INCASSO_CREDITCARD("incasso_creditcard"),
         OPNEMEN_CONTANT("opnemen_contant"),
-        STORTEN_CONTANT("storten_contant")
+        STORTEN_CONTANT("storten_contant"),
+        P2P("potje2potje"),
+        SP2SP("spaarpotje2spaarpotje"),
+        P2SP("potje2spaarpotje"),
+        SP2P("spaarpotje2potje")
+    }
+
+    data class Boeking(
+        val bron: Rekening,
+        val bestemming: Rekening,
+    )
+
+    fun transformeerNaarDtoBoeking(
+        betalingsSoort: BetalingsSoort,
+        boeking: Pair<Boeking?, Boeking?>
+    ): Boeking {
+        return when (betalingsSoort) {
+            BetalingsSoort.INKOMSTEN,
+            BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN,
+            BetalingsSoort.INCASSO_CREDITCARD, BetalingsSoort.OPNEMEN_CONTANT, BetalingsSoort.STORTEN_CONTANT ->
+                boeking.first!!
+
+            BetalingsSoort.RENTE,
+            BetalingsSoort.TERUGSTORTEN,
+            BetalingsSoort.SPAREN ->
+                Boeking(boeking.first!!.bron, boeking.second!!.bestemming)
+
+            BetalingsSoort.OPNEMEN ->
+                Boeking(boeking.second!!.bron, boeking.first!!.bestemming)
+
+            BetalingsSoort.P2P, BetalingsSoort.SP2SP,
+            BetalingsSoort.P2SP, BetalingsSoort.SP2P ->
+                boeking.second!!
+        }
     }
 }

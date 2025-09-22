@@ -40,10 +40,17 @@ class RekeningGroep(
             RekeningGroepSoort.INKOMSTEN,
             RekeningGroepSoort.UITGAVEN,
         )
-        val reserveringRekeningGroepSoort = arrayOf(
+        val potjesVoorNuRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.UITGAVEN,
             RekeningGroepSoort.AFLOSSING,
-//            RekeningGroepSoort.RESERVERING_BUFFER
+        )
+        val spaarPotjesRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.SPAARPOT
+        )
+        val potjesRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.UITGAVEN,
+            RekeningGroepSoort.AFLOSSING,
+            RekeningGroepSoort.SPAARPOT
         )
         val balansRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALREKENING,
@@ -67,10 +74,12 @@ class RekeningGroep(
         val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
             Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
+            Betaling.BetalingsSoort.BESTEDEN to RekeningGroepSoort.SPAARPOT,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
             Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
-            Betaling.BetalingsSoort.SPAREN to  RekeningGroepSoort.SPAARREKENING,
-            Betaling.BetalingsSoort.OPNEMEN to  RekeningGroepSoort.SPAARREKENING,
+            Betaling.BetalingsSoort.SPAREN to  RekeningGroepSoort.SPAARPOT,
+            Betaling.BetalingsSoort.OPNEMEN to  RekeningGroepSoort.SPAARPOT,
+            Betaling.BetalingsSoort.TERUGSTORTEN to  RekeningGroepSoort.SPAARPOT,
             Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
             Betaling.BetalingsSoort.STORTEN_CONTANT to RekeningGroepSoort.CONTANT,
             )
@@ -112,7 +121,7 @@ class RekeningGroep(
 
     enum class RekeningGroepSoort {
         BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD,
-        INKOMSTEN, UITGAVEN, AFLOSSING,
+        INKOMSTEN, UITGAVEN, AFLOSSING, SPAARPOT,
         RESERVERING_BUFFER
     }
 

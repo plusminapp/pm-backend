@@ -4,10 +4,10 @@ import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.ReserveringRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,9 +31,6 @@ class CashflowService {
     lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
 
     @Autowired
-    lateinit var reserveringRepository: ReserveringRepository
-
-    @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
@@ -47,14 +44,8 @@ class CashflowService {
         val betalingenInPeriode = betalingRepository
             .findAllByGebruikerTussenDatums(hulpvrager, periode.periodeStartDatum, periode.periodeEindDatum)
             .filter {
-                it.bron.rekeningGroep.budgetType !== RekeningGroep.BudgetType.SPAREN &&
-                        it.bestemming.rekeningGroep.budgetType !== RekeningGroep.BudgetType.SPAREN
-            }
-        val spaarReserveringenInPeriode = reserveringRepository
-            .findAllByGebruikerTussenDatums(hulpvrager, periode.periodeStartDatum, periode.periodeEindDatum)
-            .filter {
-                it.bron.rekeningGroep.budgetType === RekeningGroep.BudgetType.SPAREN ||
-                        it.bestemming.rekeningGroep.budgetType === RekeningGroep.BudgetType.SPAREN
+                it.bron?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN &&
+                        it.bestemming?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN
             }
         val laatsteBetalingDatum =
             betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager) ?: periode.periodeStartDatum
@@ -82,6 +73,7 @@ class CashflowService {
             uitgaven = BigDecimal.ZERO,
             aflossing = BigDecimal.ZERO,
             spaarReserveringen = BigDecimal.ZERO,
+            potjesVoorNuReserveringen = BigDecimal.ZERO,
             saldo = openingsReserveringsSaldo,
             prognose = openingsReserveringsSaldo,
         )
@@ -105,7 +97,8 @@ class CashflowService {
                 val aflossing =
                     if (date <= laatsteBetalingDatum) betaaldeAflossing(betalingenInPeriode, date)
                     else budgetAflossing(rekeningGroepen, date)
-                val spaarReserveringen = spaarReserveringen(spaarReserveringenInPeriode, date)
+                val potjesVoorNuReserveringen = potjesVoorNuReserveringen(betalingenInPeriode, date)
+                val spaarReserveringen = spaarReserveringen(betalingenInPeriode, date)
                 val saldo = accSaldo + uitgaven + aflossing + spaarReserveringen +
                         if (metInkomsten ?: false || date <= laatsteBetalingDatum) inkomsten else BigDecimal.ZERO
                 val nieuwSaldo =
@@ -113,7 +106,16 @@ class CashflowService {
                 val nieuwePrognose =
                     if (date >= laatsteBetalingDatum) saldo else null
                 val cashFlow =
-                    CashFlow(date, inkomsten, uitgaven, aflossing, spaarReserveringen, nieuwSaldo, nieuwePrognose)
+                    CashFlow(
+                        date,
+                        inkomsten,
+                        uitgaven,
+                        aflossing,
+                        potjesVoorNuReserveringen,
+                        spaarReserveringen,
+                        nieuwSaldo,
+                        nieuwePrognose
+                    )
                 Pair(saldo, accList + cashFlow)
             }.second
         return cashflow.toList()
@@ -171,7 +173,7 @@ class CashflowService {
 
     fun eerderBetaaldeVasteLastenUitgaven(betaaldeVasteLasten: List<Betaling>, date: LocalDate): BigDecimal {
         return -betaaldeVasteLasten
-            .filter { it.bestemming.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
+            .filter { it.bestemming?.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
             .sumOf { it.bedrag }
     }
 
@@ -188,14 +190,17 @@ class CashflowService {
     fun betaaldeInkomsten(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .filter { it.bron.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
+            .filter { it.bron?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .sumOf { it.bedrag }
     }
 
     fun betaaldeUitgaven(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN) }
+            .filter {
+                it.bestemming?.rekeningGroep?.rekeningGroepSoort?.equals(RekeningGroep.RekeningGroepSoort.UITGAVEN)
+                    ?: false
+            }
             .sumOf { it.bedrag }
     }
 
@@ -207,46 +212,79 @@ class CashflowService {
     ): BigDecimal {
         return -betalingen
             .filter {
-                it.bestemming.rekeningGroep.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false
+                it.bestemming?.rekeningGroep?.budgetType?.equals(RekeningGroep.BudgetType.VAST) ?: false
             }
             .filter {
                 it.boekingsdatum.equals(date) &&
                         periode.berekenDagInPeriode(
-                            it.bestemming.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1)
+                            it.bestemming?.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1)
                         ) <= laatsteBetalingDatum // het had al betaald moeten zijn
             }
-            .onEach { logger.info("betaaldeVasteLaten: ${it.bestemming.rekeningGroep.rekeningGroepSoort}, ${it.bestemming.rekeningGroep.budgetType}") }
+            .onEach {
+                logger.debug(
+                    "betaaldeVasteLaten: {}, {}",
+                    it.bestemming?.rekeningGroep?.rekeningGroepSoort,
+                    it.bestemming?.rekeningGroep?.budgetType
+                )
+            }
             .sumOf { it.bedrag }
     }
 
     fun betaaldeAflossing(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
         return -betalingen
             .filter { it.boekingsdatum.equals(date) }
-            .filter { it.bestemming.rekeningGroep.rekeningGroepSoort.equals(RekeningGroep.RekeningGroepSoort.AFLOSSING) }
+            .filter {
+                it.bestemming?.rekeningGroep?.rekeningGroepSoort?.equals(RekeningGroep.RekeningGroepSoort.AFLOSSING)
+                    ?: false
+            }
             .sumOf { it.bedrag }
     }
 
-    fun spaarReserveringen(reserveringen: List<Reservering>, date: LocalDate): BigDecimal {
-        return reserveringen
+    fun spaarReserveringen(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+        return betalingen
             .filter { it.boekingsdatum.equals(date) }
             .sumOf {
                 BigDecimal.ZERO +
-                        if (it.bron.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) it.bedrag
-                        else if (it.bestemming.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) -it.bedrag
+                        if (it.betalingsSoort == Betaling.BetalingsSoort.SPAREN) -it.bedrag else BigDecimal.ZERO
+            }
+    }
+
+    fun potjesVoorNuReserveringen(betalingen: List<Betaling>, date: LocalDate): BigDecimal {
+        return betalingen
+            .filter { it.boekingsdatum.equals(date) }
+            .sumOf {
+                BigDecimal.ZERO +
+                        if (potjesVoorNuRekeningGroepSoort.contains(it.reserveringBron?.rekeningGroep?.rekeningGroepSoort)) it.bedrag
+                        else if (potjesVoorNuRekeningGroepSoort.contains(it.reserveringBestemming?.rekeningGroep?.rekeningGroepSoort)) -it.bedrag
                         else BigDecimal.ZERO
             }
     }
 
-    fun getBudgetHorizon(
+    fun getReserveringEnBudgetHorizon(
         hulpvrager: Gebruiker,
         periode: Periode,
-    ): LocalDate? {
+        openingPotjesVoorNuSaldo: BigDecimal = BigDecimal.ZERO,
+    ): Pair<LocalDate, LocalDate> {
+        val reserveringsHorizon =
+            betalingRepository.getReserveringsHorizon(hulpvrager)
+                ?: run {
+                    logger.warn("Geen reserveringsHorizon gevonden voor ${hulpvrager.bijnaam}")
+                    periode.periodeStartDatum.minusDays(1)
+                }
+
         val cashflowLijst = getCashflow(hulpvrager, periode, metInkomsten = false)
         val budgetHorizon = cashflowLijst
-            .filter { (it.saldo != null && it.saldo > BigDecimal.ZERO) || (it.prognose != null && it.prognose > BigDecimal.ZERO) }
+            .filter {
+                (it.saldo != null && it.saldo.minus(openingPotjesVoorNuSaldo) > BigDecimal.ZERO) ||
+                        (it.prognose != null && it.prognose.minus(openingPotjesVoorNuSaldo) > BigDecimal.ZERO)
+            }
             .maxByOrNull { it.datum }
             ?.datum
-        logger.info("Budget horizon voor ${hulpvrager.email} in periode ${periode.periodeStartDatum} is $budgetHorizon")
-        return budgetHorizon
+                ?: run {
+                    logger.warn("Geen budgetHorizon gevonden voor ${hulpvrager.bijnaam}")
+                    periode.periodeStartDatum.minusDays(1)
+                }
+        logger.info("Budget horizon voor ${hulpvrager.email} in periode ${periode.periodeStartDatum} is PVNR ${openingPotjesVoorNuSaldo}, RH $reserveringsHorizon, BH $budgetHorizon")
+        return Pair(reserveringsHorizon, budgetHorizon)
     }
 }

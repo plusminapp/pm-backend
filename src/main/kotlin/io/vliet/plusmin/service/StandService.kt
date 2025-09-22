@@ -6,7 +6,6 @@ import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.ReserveringRepository
 import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,9 +27,6 @@ class StandService {
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
-
-    @Autowired
-    lateinit var reserveringRepository: ReserveringRepository
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
@@ -63,21 +59,15 @@ class StandService {
         peilDatum: LocalDate,
     ): StandController.StandDTO {
         val periode = periodeService.getPeriode(gebruiker, peilDatum)
-        return getStandOpPeriode(gebruiker, peilDatum, periode)
+        return getStandInPeriode(gebruiker, peilDatum, periode)
     }
 
-    fun getStandOpPeriode(
+    fun getStandInPeriode(
         gebruiker: Gebruiker,
         peilDatum: LocalDate,
         periode: Periode
     ): StandController.StandDTO {
-        val budgetHorizon = cashflowService.getBudgetHorizon(gebruiker, periode) ?: periode.periodeStartDatum
-        val reserveringsHorizon: LocalDate =
-            reserveringRepository.getReserveringsHorizon(gebruiker, periode.periodeStartDatum, periode.periodeEindDatum)
-                ?: run {
-                    logger.warn("Geen reserveringsHorizon gevonden voor ${gebruiker.bijnaam} in periode ${periode.periodeStartDatum} - ${periode.periodeEindDatum}")
-                    periode.periodeStartDatum
-                }
+        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(gebruiker, periode)
         val standOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus)) {
                 saldoRepository
@@ -186,7 +176,7 @@ class StandService {
             }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetMaandBedrag) }
 
-        val gespaardTotPeilDatum = reserveringRepository
+        val gespaardTotPeilDatum = betalingRepository
             .findSpaarReserveringenInPeriode(
                 gebruiker = periode.gebruiker,
                 startDatum = periode.periodeStartDatum,

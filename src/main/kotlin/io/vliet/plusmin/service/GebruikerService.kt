@@ -94,9 +94,10 @@ class GebruikerService {
                 sortOrder = 0,
                 rekeningen = listOf(
                     Rekening.RekeningDTO(
-                        naam = "Buffer",
+                        naam = "Buffer IN",
                         saldo = BigDecimal(0),
                         rekeningGroepNaam = "Buffer",
+                        budgetAanvulling = Rekening.BudgetAanvulling.IN
                     )
                 )
             )

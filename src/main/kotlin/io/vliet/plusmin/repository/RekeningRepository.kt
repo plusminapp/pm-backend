@@ -33,7 +33,7 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
     @Query(value = "SELECT r FROM Rekening r " +
             "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
             "AND r.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' ")
-    fun findBufferRekeningVoorGebruiker(gebruiker: Gebruiker): List<Rekening>
+    fun findBufferRekeningVoorGebruiker(gebruiker: Gebruiker): Rekening?
 
 
     @Query(value ="SELECT * FROM rekening r ORDER BY r.sort_order DESC LIMIT 1",

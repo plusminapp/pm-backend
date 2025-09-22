@@ -35,6 +35,9 @@ class Rekening(
     @ManyToOne
     @JoinColumn(name = "tot_periode_id")
     val totEnMetPeriode: Periode? = null,
+    @ManyToOne
+    @JoinColumn(name = "gekoppelde_rekening_id")
+    val gekoppeldeRekening: Rekening? = null, // gekoppelde spaarrekening bij spaarpotje of gekoppelde betaalrekening bij potje
     val budgetBedrag: BigDecimal? = null,
     val budgetVariabiliteit: Int? = 0, // toegestane afwijking in procenten om een betaling te accepteren bij vaste lasten en aflossingen
     @Column(name = "maanden")
@@ -70,6 +73,7 @@ class Rekening(
         bankNaam: String? = this.bankNaam,
         vanPeriode: Periode? = this.vanPeriode,
         totEnMetPeriode: Periode? = this.totEnMetPeriode,
+        gekoppeldeRekening: Rekening? = this.gekoppeldeRekening,
         budgetBedrag: BigDecimal? = this.budgetBedrag,
         budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         maanden: Set<Int>? = this.maanden,
@@ -87,6 +91,7 @@ class Rekening(
         bankNaam,
         vanPeriode,
         totEnMetPeriode,
+        gekoppeldeRekening,
         budgetBedrag,
         budgetVariabiliteit,
         maanden,
@@ -98,31 +103,32 @@ class Rekening(
         spaartegoed
     )
 
-    fun fromDTO(
-        rekeningDTO: RekeningDTO,
-        rekeningGroep: RekeningGroep,
-    ) = Rekening(
-        rekeningDTO.id,
-        rekeningDTO.naam,
-        rekeningGroep,
-        rekeningDTO.sortOrder ?: 0,
-        rekeningDTO.bankNaam,
-        rekeningDTO.vanPeriode,
-        rekeningDTO.totEnMetPeriode,
-        rekeningDTO.budgetBedrag,
-        rekeningDTO.budgetVariabiliteit,
-        rekeningDTO.maanden,
-        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
-        rekeningDTO.budgetBetaalDag,
-        rekeningDTO.budgetAanvulling?.let { BudgetAanvulling.valueOf(it.name) },
-    )
+//    fun fromDTO(
+//        rekeningDTO: RekeningDTO,
+//        rekeningGroep: RekeningGroep,
+//    ) = Rekening(
+//        rekeningDTO.id,
+//        rekeningDTO.naam,
+//        rekeningGroep,
+//        rekeningDTO.sortOrder ?: 0,
+//        rekeningDTO.bankNaam,
+//        rekeningDTO.vanPeriode,
+//        rekeningDTO.totEnMetPeriode,
+//        rekeningDTO.gekoppeldeRekening,
+//        rekeningDTO.budgetBedrag,
+//        rekeningDTO.budgetVariabiliteit,
+//        rekeningDTO.maanden,
+//        BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit ?: BudgetPeriodiciteit.MAAND.name),
+//        rekeningDTO.budgetBetaalDag,
+//        rekeningDTO.budgetAanvulling?.let { BudgetAanvulling.valueOf(it.name) },
+//    )
 
     enum class BudgetPeriodiciteit {
         WEEK, MAAND
     }
 
     enum class BudgetAanvulling {
-        TOT, MET
+        TOT, MET, IN, UIT
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -134,6 +140,7 @@ class Rekening(
         val bankNaam: String? = null,
         val vanPeriode: Periode? = null,
         val totEnMetPeriode: Periode? = null,
+        val gekoppeldeRekening: String? = null,
         val budgetPeriodiciteit: String? = null,
         val saldo: BigDecimal? = null,
         val reserve: BigDecimal? = null,
@@ -154,6 +161,7 @@ class Rekening(
             bankNaam: String? = this.bankNaam,
             vanPeriode: Periode? = this.vanPeriode,
             totEnMetPeriode: Periode? = this.totEnMetPeriode,
+            gekoppeldeRekening: String? = this.gekoppeldeRekening,
             budgetPeriodiciteit: String? = this.budgetPeriodiciteit,
             saldo: BigDecimal? = this.saldo,
             reserve: BigDecimal? = this.reserve,
@@ -172,6 +180,7 @@ class Rekening(
             bankNaam,
             vanPeriode,
             totEnMetPeriode,
+            gekoppeldeRekening,
             budgetPeriodiciteit,
             saldo,
             reserve,
@@ -222,6 +231,7 @@ class Rekening(
             this.bankNaam,
             this.vanPeriode,
             this.totEnMetPeriode,
+            this.gekoppeldeRekening?.naam,
             this.budgetPeriodiciteit?.name,
             null,
             null,
