@@ -2,14 +2,14 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
-import io.vliet.plusmin.repository.*
+import io.vliet.plusmin.repository.BetalingRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.collections.filter
 
 @Service
 class StandInPeriodeService {
@@ -20,11 +20,22 @@ class StandInPeriodeService {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
+    lateinit var periodeService: PeriodeService
+
+    @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenStandInPeriode(
+    fun berekenSaldiOpDatum(
+        gebruiker: Gebruiker,
+        peilDatum: LocalDate,
+    ): List<Saldo.SaldoDTO> {
+        val periode = periodeService.getPeriode(gebruiker, peilDatum)
+        return berekenSaldiInPeriode(LocalDate.now(),periode)
+    }
+
+    fun berekenSaldiInPeriode(
         peilDatum: LocalDate,
         peilPeriode: Periode,
         inclusiefOngeldigeRekeningen: Boolean = false

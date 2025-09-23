@@ -5,7 +5,7 @@ import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.domain.Saldo.SaldoDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.service.PeriodeService
+import io.vliet.plusmin.service.CheckSaldiService
 import io.vliet.plusmin.service.StandService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,6 +34,9 @@ class StandController {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
+    @Autowired
+    lateinit var checkSaldiService: CheckSaldiService
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     @Operation(summary = "GET de stand voor hulpvrager op datum")
@@ -55,12 +58,22 @@ class StandController {
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET SaldoController.getStandOpPeriodeVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} op periode $periodeId")
+        logger.info("GET SaldoController.getStandOpPeriodeVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} in periode $periodeId")
         val periode = periodeRepository.getPeriodeById(periodeId)
         if (periode == null) {
             return ResponseEntity.badRequest().body("Periode met id $periodeId bestaat niet.")
         }
         return ResponseEntity.ok(standService.getStandOpDatum(hulpvrager, periode.periodeEindDatum))
+    }
+
+    @Operation(summary = "GET de saldi controle voor hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}")
+    fun checkSaldi(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET SaldoController.checkSaldi() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok(checkSaldiService.checkSpaarSaldi(hulpvrager))
     }
 
     data class StandDTO(

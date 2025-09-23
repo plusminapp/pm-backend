@@ -68,23 +68,23 @@ class StandService {
         periode: Periode
     ): StandController.StandDTO {
         val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(gebruiker, periode)
-        val standOpDatum =
+        val saldiOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus)) {
                 saldoRepository
                     .findAllByPeriode(periode)
                     .filter { it.rekening.rekeningIsGeldigInPeriode(periode) }
                     .map { it.toDTO() }
             } else {
-                standInPeriodeService.berekenStandInPeriode(peilDatum, periode)
+                standInPeriodeService.berekenSaldiInPeriode(peilDatum, periode)
             }
-        val openingsReservePotjesVoorNuSaldo = standOpDatum
+        val openingsReservePotjesVoorNuSaldo = saldiOpDatum
             .filter {
                 (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN && it.budgetType != RekeningGroep.BudgetType.SPAREN) ||
                         it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
             }
             .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo }}") }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.openingsReserveSaldo) }
-        val geaggregeerdeStandOpDatum = standOpDatum
+        val geaggregeerdeStandOpDatum = saldiOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }
             .values.toList()
@@ -101,7 +101,7 @@ class StandService {
             peilDatum = peilDatum,
             budgetHorizon = budgetHorizon,
             reserveringsHorizon = reserveringsHorizon,
-            resultaatOpDatum = standOpDatum,
+            resultaatOpDatum = saldiOpDatum,
             resultaatSamenvattingOpDatum = standSamenvattingOpDatumDTO,
             geaggregeerdResultaatOpDatum = geaggregeerdeStandOpDatum,
         )
