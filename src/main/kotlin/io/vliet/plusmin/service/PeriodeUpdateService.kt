@@ -3,9 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
-import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.resultaatRekeningGroepSoort
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -117,7 +115,7 @@ class PeriodeUpdateService {
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         return standInPeriodeService
-            .berekenStandInPeriode(periode.periodeEindDatum, periode, true)
+            .berekenSaldiInPeriode(periode.periodeEindDatum, periode, true)
     }
 
     fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {

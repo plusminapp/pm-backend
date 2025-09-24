@@ -213,8 +213,10 @@ class RekeningService {
 
             savedRekening
         }
-        if (rekeningOpt == null) {
-            val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+            ?: throw IllegalStateException("Geen periode gevonden voor gebruiker ${gebruiker.email}")
+        val saldoOpt = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
+        if (saldoOpt == null) {
             saldoRepository.save(
                 Saldo(
                     id = 0,
@@ -227,9 +229,16 @@ class RekeningService {
                     betaling = BigDecimal.ZERO
                 )
             )
+        } else {
+            saldoRepository.save(
+                saldoOpt.fullCopy(
+                    openingsBalansSaldo = rekeningDTO.saldo ?: BigDecimal.ZERO,
+                    openingsReserveSaldo = rekeningDTO.reserve ?: BigDecimal.ZERO,
+                )
+            )
         }
         logger.info(
-            "Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag}" +
+            "Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag} " +
                     "openingsBalansSaldo: ${rekeningDTO.saldo ?: BigDecimal.ZERO}, openingsReserveSaldo: ${rekeningDTO.reserve ?: BigDecimal.ZERO}."
         )
         return rekening
