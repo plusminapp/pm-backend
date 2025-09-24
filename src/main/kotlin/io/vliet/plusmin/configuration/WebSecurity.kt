@@ -30,7 +30,9 @@ class SecurityConfig(
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
             .authorizeHttpRequests {
-                it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                it
+                    .requestMatchers("/api/v1/websocket/**").authenticated()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated()
             }
             .csrf { it.disable() }
