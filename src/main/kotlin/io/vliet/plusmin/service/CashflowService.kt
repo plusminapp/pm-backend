@@ -82,13 +82,15 @@ class CashflowService {
             .toList()
             .fold(Pair(openingsReserveringsSaldo, listOf(initalCashflow))) { (accSaldo, accList), date ->
                 val inkomsten =
-                    if (date > laatsteBetalingDatum) budgetInkomsten(rekeningGroepen, date)
+                    if (date > laatsteBetalingDatum)
+                        (budgetInkomsten(rekeningGroepen, date) - eerderOntvangenInkomsten(betalingenInPeriode, date))
+                            .max(BigDecimal.ZERO)
                     else betaaldeInkomsten(betalingenInPeriode, date)
                 val uitgaven =
                     if (date > laatsteBetalingDatum.plusDays(1))
                         continueBudgetUitgaven +
                                 budgetVasteLastenUitgaven(rekeningGroepen, date) -
-                                eerderBetaaldeVasteLastenUitgaven(betalingenInPeriode, date)
+                                eerderBetaaldeVasteLastenAflossing(betalingenInPeriode, date)
                     else if (date.equals(laatsteBetalingDatum.plusDays(1))) {
                         continueBudgetUitgaven +
                                 budgetVasteLastenUitgaven(rekeningGroepen, date) +
@@ -171,9 +173,17 @@ class CashflowService {
             .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
     }
 
-    fun eerderBetaaldeVasteLastenUitgaven(betaaldeVasteLasten: List<Betaling>, date: LocalDate): BigDecimal {
-        return -betaaldeVasteLasten
+    fun eerderBetaaldeVasteLastenAflossing(betalingenInPeriode: List<Betaling>, date: LocalDate): BigDecimal {
+        return -betalingenInPeriode
+            .filter { it.bestemming?.rekeningGroep?.budgetType == RekeningGroep.BudgetType.VAST } // vaste uitgave
             .filter { it.bestemming?.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
+            .sumOf { it.bedrag }
+    }
+
+    fun eerderOntvangenInkomsten(betalingenInPeriode: List<Betaling>, date: LocalDate): BigDecimal {
+        return betalingenInPeriode
+            .filter { it.bron?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN } // inkomsten
+            .filter { it.bron?.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
             .sumOf { it.bedrag }
     }
 
@@ -280,10 +290,10 @@ class CashflowService {
             }
             .maxByOrNull { it.datum }
             ?.datum
-                ?: run {
-                    logger.warn("Geen budgetHorizon gevonden voor ${hulpvrager.bijnaam}")
-                    periode.periodeStartDatum.minusDays(1)
-                }
+            ?: run {
+                logger.warn("Geen budgetHorizon gevonden voor ${hulpvrager.bijnaam}")
+                periode.periodeStartDatum.minusDays(1)
+            }
         logger.info("Budget horizon voor ${hulpvrager.email} in periode ${periode.periodeStartDatum} is PVNR ${openingPotjesVoorNuSaldo}, RH $reserveringsHorizon, BH $budgetHorizon")
         return Pair(reserveringsHorizon, budgetHorizon)
     }
