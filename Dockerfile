@@ -1,6 +1,6 @@
 ARG PLATFORM
 
-FROM eclipse-temurin:17.0.12_7-jre-ubi9-minimal
+FROM eclipse-temurin:25_36-jre-ubi10-minimal
 
 ARG JAR_FILE
 
