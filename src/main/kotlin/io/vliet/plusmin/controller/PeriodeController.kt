@@ -1,30 +1,22 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.vliet.plusmin.domain.ErrorResponse
 import io.vliet.plusmin.domain.Periode.PeriodeDTO
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.service.PeriodeService
 import io.vliet.plusmin.service.PeriodeUpdateService
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/periode")
 class PeriodeController {
-
-    @Autowired
-    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var periodeUpdateService: PeriodeUpdateService
@@ -127,14 +119,18 @@ class PeriodeController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.wijzigPeriodeOpeningVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
-        try {
+        val opgeslagenOpeningsSaldi = try {
             periodeUpdateService.wijzigPeriodeOpening(hulpvrager, periodeId, nieuweOpeningsSaldi)
         } catch (e: Exception) {
             logger.error("Fout bij wijzigen van periode $periodeId voor hulpvrager ${hulpvrager.email}: ${e.message}")
-            return ResponseEntity.badRequest().body("Fout bij heropenen van periode: ${e.message}")
+            return ResponseEntity.badRequest().body(
+                ErrorResponse(
+                    "wijzigPeriodeOpeningVoorHulpvragerError",
+                    "Fout bij wijzigen van periodeopening: ${e.message}"
+                )
+            )
         }
-        return ResponseEntity.ok()
-            .body("Periodeopening voor periode $periodeId voor hulpvrager ${hulpvrager.email} is succesvol gewijzigd.")
+        return ResponseEntity.ok().body(opgeslagenOpeningsSaldi)
     }
 
     @Operation(summary = "GET voorstel voor het sluiten van een periode voor hulpvrager")

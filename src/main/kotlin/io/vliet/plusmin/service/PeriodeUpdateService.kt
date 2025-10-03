@@ -104,7 +104,6 @@ class PeriodeUpdateService {
                     )
                 )
             }
-        val newPeriode =
             periodeRepository.save(
                 periode.fullCopy(
                     periodeStatus = Periode.PeriodeStatus.GESLOTEN
@@ -172,20 +171,21 @@ class PeriodeUpdateService {
         )
     }
 
-    fun wijzigPeriodeOpening(gebruiker: Gebruiker, periodeId: Long, nieuweOpeningsSaldi: List<Saldo.SaldoDTO>) {
+    fun wijzigPeriodeOpening(gebruiker: Gebruiker, periodeId: Long, nieuweOpeningsSaldi: List<Saldo.SaldoDTO>): List<Saldo.SaldoDTO> {
         // LET OP: de opening van een periode wordt opgeslagen als sluiting van de vorige periode
         // om de opening aan te passen worden de betalingen in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
         val (vorigePeriode, _) = checkPeriodeSluiten(gebruiker, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
-        nieuweOpeningsSaldi.forEach { nieuweOpeningsBalansSaldo ->
+        return  nieuweOpeningsSaldi.mapNotNull { nieuweOpeningsBalansSaldo ->
             val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
             if (saldo == null) {
                 logger.warn("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam} bestaat niet in de (vorige) periode ${vorigePeriode.id} voor gebruiker ${gebruiker.bijnaam}; openingsBalansSaldo wordt NIET aangepast")
+                null
             } else {
                 // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
                 val nieuweBetaling = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
                 logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: betaling wordt aangepast van ${saldo.betaling} naar ${nieuweBetaling}")
-                saldoRepository.save(saldo.fullCopy(betaling = nieuweBetaling))
+                saldoRepository.save(saldo.fullCopy(betaling = nieuweBetaling)).toDTO()
             }
         }
     }
