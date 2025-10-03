@@ -130,7 +130,7 @@ class PeriodeUpdateService {
         if (openPeriodes.contains(periodeLijst[index - 1].periodeStatus)) {
             throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten/gewijzigd, de vorige periode ${periodeLijst[index - 1].id} is niet gesloten voor gebruiker ${gebruiker.bijnaam}")
         }
-        if (periodeLijst[index].periodeStatus != Periode.PeriodeStatus.OPEN)
+        if (!openPeriodes.contains(periodeLijst[index].periodeStatus))
             throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten/gewijzigd, de periode is niet open voor gebruiker ${gebruiker.bijnaam}")
 
         return Pair(periodeLijst[index - 1], periodeLijst[index])
