@@ -224,6 +224,24 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <apiDocsUrl>http://localhost:3045/api/v1/v3/api-docs.yaml</apiDocsUrl>
+                    <outputFileName>PlusMin-api-docs.yaml</outputFileName>
+                    <outputDir>${project.basedir}/src/main/resources/static</outputDir>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

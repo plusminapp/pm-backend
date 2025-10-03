@@ -15,4 +15,6 @@ else
   echo mvn clean package FAILED!!!
 fi
 
+mvn springdoc-openapi:generate
+
 popd
