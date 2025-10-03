@@ -6,7 +6,6 @@ import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.GebruikerRepository
-import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class GebruikerService {
@@ -85,9 +83,10 @@ class GebruikerService {
             periodeService.creeerInitielePeriode(gebruiker, initielePeriodeStartDatum)
         }
 
-        rekeningGroepRepository
-            .findRekeningGroepOpNaam(gebruiker, "Buffer")
-            .getOrNull() ?: rekeningService.save(
+        val bufferRekeningen = rekeningGroepRepository
+            .findRekeningGroepenOpSoort(gebruiker, RekeningGroepSoort.RESERVERING_BUFFER)
+        if (bufferRekeningen.size == 0)
+             rekeningService.save(
             gebruiker, RekeningGroep.RekeningGroepDTO(
                 naam = "Buffer",
                 rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
