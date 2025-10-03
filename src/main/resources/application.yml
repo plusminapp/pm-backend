@@ -25,7 +25,7 @@ spring:
 server:
   servlet:
     context-path: /api/v1
-  port: '3040'
+  port: '3045'
 
 management:
   endpoints:
