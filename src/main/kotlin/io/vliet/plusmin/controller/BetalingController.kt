@@ -5,12 +5,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
+import io.vliet.plusmin.domain.ErrorResponse
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.service.BetalingService
 import io.vliet.plusmin.service.BetalingvalidatieService
-import io.vliet.plusmin.service.PagingService
-import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,34 +40,6 @@ class BetalingController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalState(ex: IllegalStateException): ResponseEntity<String> {
-        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
-            ?: ex.stackTrace.firstOrNull()
-        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
-        val errorMessage = "${ex.message}$locationInfo"
-        logger.error(errorMessage)
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage)
-    }
-
-    @Operation(summary = "GET alle eigen betalingen (voor alle gebruikers)")
-    @GetMapping("")
-    fun getAlleBetalingen(
-        @RequestParam("size", defaultValue = "25", required = false) sizeAsString: String,
-        @RequestParam("page", defaultValue = "0", required = false) pageAsString: String,
-        @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
-        @RequestParam("query", defaultValue = "", required = false) query: String,
-        @RequestParam("status", required = false) status: String?,
-        @RequestParam("fromDate", defaultValue = "", required = false) fromDate: String,
-        @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
-    ): ResponseEntity<PagingService.ContentWrapper> {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET BetalingController.getAlleBetalingen voor ${gebruiker.email}")
-        val betalingen =
-            betalingDao.search(gebruiker, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
-        return ResponseEntity.ok().body(betalingen)
-    }
-
     @Operation(
         summary = "Get betalingen hulpvrager",
         description = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)"
@@ -92,13 +63,6 @@ class BetalingController {
             betalingDao
                 .search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
-    }
-
-    @Operation(summary = "DELETE alle betalingen (alleen voor ADMINs)")
-    @RolesAllowed("ADMIN")
-    @DeleteMapping("")
-    fun deleteAlleBetalingen(): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(betalingRepository.deleteAll())
     }
 
     @Operation(summary = "DELETE betaling")
@@ -158,7 +122,7 @@ class BetalingController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<LocalDate?> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("GET BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager))
     }
 

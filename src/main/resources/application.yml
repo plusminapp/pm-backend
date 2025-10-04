@@ -26,6 +26,11 @@ server:
   servlet:
     context-path: /api/v1
   port: '3045'
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
 
 management:
   endpoints:
