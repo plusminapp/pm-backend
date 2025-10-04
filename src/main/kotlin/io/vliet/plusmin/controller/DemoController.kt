@@ -48,17 +48,6 @@ class DemoController {
         }
         return ResponseEntity.ok().body("Demo voor hulpvrager ${hulpvrager.email} is succesvol geconfigureerd.")    }
 
-//    @PutMapping("/hulpvrager/{hulpvragerId}/kopieerPeriode/{bronPeriodeId}/naar/{doelPeriodeId}")
-//    fun kopieerPeriode(
-//        @PathVariable("hulpvragerId") hulpvragerId: Long,
-//        @PathVariable("bronPeriodeId") bronPeriodeId: Long,
-//        @PathVariable("doelPeriodeId") doelPeriodeId: Long,
-//    ): ResponseEntity<List<BetalingDTO>> {
-//        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-//        logger.info("PUT DemoController.kopieerPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
-//        return ResponseEntity.ok().body(demoService.kopieerPeriodeBetalingen(hulpvrager, bronPeriodeId, doelPeriodeId))
-//    }
-
     @DeleteMapping("/hulpvrager/{hulpvragerId}/verwijderVanPeriode/{periodeId}")
     fun deleteBetalingenInPeriode(
         @PathVariable("hulpvragerId") hulpvragerId: Long,

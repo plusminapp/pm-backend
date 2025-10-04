@@ -110,7 +110,7 @@ class PeriodeController {
             .body("Periode $periodeId voor hulpvrager ${hulpvrager.email} is succesvol heropenend.")
     }
 
-    @Operation(summary = "PUT wijzig een periode (en verwijder de saldi) voor hulpvrager")
+    @Operation(summary = "PUT wijzig een periode voor hulpvrager")
     @PutMapping("/hulpvrager/{hulpvragerId}/wijzig-periode-opening/{periodeId}")
     fun wijzigPeriodeOpeningVoorHulpvrager(
         @Valid @RequestBody nieuweOpeningsSaldi: List<Saldo.SaldoDTO>,
