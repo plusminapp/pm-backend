@@ -5,6 +5,7 @@ import io.vliet.plusmin.domain.ErrorResponse
 import io.vliet.plusmin.domain.Periode.PeriodeDTO
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.PeriodeRepository
+import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.PeriodeUpdateService
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -25,7 +26,7 @@ class PeriodeController {
     lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
-    lateinit var gebruikerController: GebruikerController
+    lateinit var gebruikerService: GebruikerService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -35,7 +36,7 @@ class PeriodeController {
     fun getPeriodesVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET PeriodeController.getPeriodesVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         return ResponseEntity.ok().body(periodeRepository.getPeriodesVoorGebruiker(hulpvrager).map {
@@ -55,7 +56,7 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.sluitPeriodeVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         try {
             periodeUpdateService.sluitPeriode(hulpvrager, periodeId, saldoLijst)
@@ -72,7 +73,7 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.ruimPeriodesOpVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         val periode = periodeRepository.getPeriodeById(periodeId)
         if (periode == null) {
@@ -94,7 +95,7 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.heropenPeriodeVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         val periode = periodeRepository.getPeriodeById(periodeId)
         if (periode == null) {
@@ -117,7 +118,7 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.wijzigPeriodeOpeningVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         val opgeslagenOpeningsSaldi = try {
             periodeUpdateService.wijzigPeriodeOpening(hulpvrager, periodeId, nieuweOpeningsSaldi)
@@ -139,7 +140,7 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET PeriodeController.sluitPeriodeVoorstelVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         return ResponseEntity.ok().body(periodeUpdateService.voorstelPeriodeSluiten(hulpvrager, periodeId))
     }

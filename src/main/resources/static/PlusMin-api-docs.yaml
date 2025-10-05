@@ -210,31 +210,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /betalingen/hulpvrager/{hulpvragerId}/improvedbetalingvalidatie:
-    put:
-      tags:
-      - betaling-controller
-      operationId: improvedValideerOcrBetalingen
-      parameters:
-      - name: hulpvragerId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BetalingDTO"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /betalingen/hulpvrager/{hulpvragerId}/betalingvalidatie:
     get:
       tags:
@@ -477,32 +452,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /stand/hulpvrager/{hulpvragerId}/periode/{periodeId}:
-    get:
-      tags:
-      - stand-controller
-      summary: GET de stand voor hulpvrager op periode
-      operationId: getStandOpPeriodeVoorHulpvrager
-      parameters:
-      - name: hulpvragerId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /stand/hulpvrager/{hulpvragerId}/datum/{datum}:
     get:
       tags:
@@ -528,21 +477,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StandDTO"
-  /rekening:
-    get:
-      tags:
-      - rekening-controller
-      summary: GET de eigen rekeninggroepen op basis van de JWT
-      operationId: findRekeningGroepen
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/RekeningGroep"
   /rekening/hulpvrager/{hulpvragerId}/periode/{periodeId}:
     get:
       tags:
@@ -573,7 +507,7 @@ paths:
     get:
       tags:
       - rekening-controller
-      summary: GET de geldige rekeningen in een periode
+      summary: GET de cashflow in een periode
       operationId: getCashflowVoorHulpvrager
       parameters:
       - name: hulpvragerId
@@ -1171,6 +1105,18 @@ components:
       - reserveringsHorizon
       - resultaatOpDatum
       - resultaatSamenvattingOpDatum
+    GebruikerMetHulpvragersDTO:
+      type: object
+      properties:
+        gebruiker:
+          $ref: "#/components/schemas/GebruikerDTO"
+        hulpvragers:
+          type: array
+          items:
+            $ref: "#/components/schemas/GebruikerDTO"
+      required:
+      - gebruiker
+      - hulpvragers
     Aflossing:
       type: object
       properties:
@@ -1192,6 +1138,57 @@ components:
       - id
       - notities
       - startDatum
+    Betaling:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        boekingsdatum:
+          type: string
+          format: date
+        reserveringsHorizon:
+          type: string
+          format: date
+        bedrag:
+          type: number
+        omschrijving:
+          type: string
+        betalingsSoort:
+          type: string
+          enum:
+          - INKOMSTEN
+          - RENTE
+          - UITGAVEN
+          - BESTEDEN
+          - AFLOSSEN
+          - SPAREN
+          - OPNEMEN
+          - TERUGSTORTEN
+          - INCASSO_CREDITCARD
+          - OPNEMEN_CONTANT
+          - STORTEN_CONTANT
+          - P2P
+          - SP2SP
+          - P2SP
+          - SP2P
+        sortOrder:
+          type: string
+        bron:
+          $ref: "#/components/schemas/Rekening"
+        bestemming:
+          $ref: "#/components/schemas/Rekening"
+        reserveringBron:
+          $ref: "#/components/schemas/Rekening"
+        reserveringBestemming:
+          $ref: "#/components/schemas/Rekening"
+      required:
+      - bedrag
+      - betalingsSoort
+      - boekingsdatum
+      - id
+      - omschrijving
+      - sortOrder
     Rekening:
       type: object
       properties:
@@ -1250,48 +1247,6 @@ components:
       - id
       - naam
       - sortOrder
-    RekeningGroep:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        naam:
-          type: string
-        rekeningGroepSoort:
-          type: string
-          enum:
-          - BETAALREKENING
-          - SPAARREKENING
-          - CONTANT
-          - CREDITCARD
-          - INKOMSTEN
-          - UITGAVEN
-          - AFLOSSING
-          - SPAARPOT
-          - RESERVERING_BUFFER
-        rekeningGroepIcoonNaam:
-          type: string
-        sortOrder:
-          type: integer
-          format: int32
-        budgetType:
-          type: string
-          enum:
-          - INKOMSTEN
-          - VAST
-          - CONTINU
-          - SPAREN
-        rekeningen:
-          type: array
-          items:
-            $ref: "#/components/schemas/Rekening"
-      required:
-      - id
-      - naam
-      - rekeningGroepSoort
-      - rekeningen
-      - sortOrder
     Spaartegoed:
       type: object
       properties:
@@ -1308,69 +1263,6 @@ components:
       required:
       - id
       - notities
-    GebruikerMetHulpvragersDTO:
-      type: object
-      properties:
-        gebruiker:
-          $ref: "#/components/schemas/GebruikerDTO"
-        hulpvragers:
-          type: array
-          items:
-            $ref: "#/components/schemas/GebruikerDTO"
-      required:
-      - gebruiker
-      - hulpvragers
-    Betaling:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        boekingsdatum:
-          type: string
-          format: date
-        reserveringsHorizon:
-          type: string
-          format: date
-        bedrag:
-          type: number
-        omschrijving:
-          type: string
-        betalingsSoort:
-          type: string
-          enum:
-          - INKOMSTEN
-          - RENTE
-          - UITGAVEN
-          - BESTEDEN
-          - AFLOSSEN
-          - SPAREN
-          - OPNEMEN
-          - TERUGSTORTEN
-          - INCASSO_CREDITCARD
-          - OPNEMEN_CONTANT
-          - STORTEN_CONTANT
-          - P2P
-          - SP2SP
-          - P2SP
-          - SP2P
-        sortOrder:
-          type: string
-        bron:
-          $ref: "#/components/schemas/Rekening"
-        bestemming:
-          $ref: "#/components/schemas/Rekening"
-        reserveringBron:
-          $ref: "#/components/schemas/Rekening"
-        reserveringBestemming:
-          $ref: "#/components/schemas/Rekening"
-      required:
-      - bedrag
-      - betalingsSoort
-      - boekingsdatum
-      - id
-      - omschrijving
-      - sortOrder
   securitySchemes:
     bearerAuth:
       type: http

@@ -21,6 +21,25 @@ class GlobalExceptionHandler {
 
     private val logger: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
+    @ExceptionHandler(io.vliet.plusmin.domain.PlusMinException::class)
+    fun handlePlusMinException(
+        ex: io.vliet.plusmin.domain.PlusMinException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn("PlusMin exception: ${ex.errorCode} - ${ex.message}")
+
+        return ResponseEntity
+            .status(ex.httpStatus)
+            .body(
+                ErrorResponse(
+                    ex.errorCode,
+                    ex.message,
+                    ex.parameters,
+                    request.getDescription(false)
+                )
+            )
+    }
+
     @ExceptionHandler(IllegalStateException::class)
     fun handleIllegalStateException(
         ex: IllegalStateException,
@@ -30,9 +49,9 @@ class GlobalExceptionHandler {
             ?: ex.stackTrace.firstOrNull()
         val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
         val errorMessage = "${ex.message}$locationInfo"
-        
+
         logger.error("IllegalStateException: $errorMessage", ex)
-        
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("BUSINESS_RULE_VIOLATION", errorMessage))
@@ -43,11 +62,22 @@ class GlobalExceptionHandler {
         ex: IllegalArgumentException,
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
-        logger.error("IllegalArgumentException: ${ex.message}", ex)
-        
+        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
+            ?: ex.stackTrace.firstOrNull()
+        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
+        val errorMessage = "${ex.message}$locationInfo"
+        val parts = ex.message?.split(".")
+        val parameters = parts?.size?.let { if (it >= 2) parts.takeLast(2) else emptyList() } ?: emptyList()
+
+        logger.error("IllegalArgumentException: $errorMessage, illegalArgument: $parameters")
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("INVALID_ARGUMENT", ex.message ?: "Invalid argument provided"))
+            .body(
+                ErrorResponse(
+                    "ILLEGAL_ARGUMENT", errorMessage, parameters = parameters, path = request.getDescription(false)
+                )
+            )
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -61,9 +91,9 @@ class GlobalExceptionHandler {
             val errorMessage = error.getDefaultMessage() ?: "Invalid value"
             errors[fieldName] = errorMessage
         }
-        
+
         logger.warn("Validation failed: $errors")
-        
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ValidationErrorResponse("VALIDATION_FAILED", "Validation errors occurred", errors))
@@ -76,7 +106,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         val message = ex.constraintViolations.joinToString(", ") { it.message }
         logger.warn("Constraint violation: $message")
-        
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("CONSTRAINT_VIOLATION", message))
@@ -89,7 +119,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         val message = "Parameter '${ex.name}' should be of type ${ex.requiredType?.simpleName}"
         logger.warn("Type mismatch: $message")
-        
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("TYPE_MISMATCH", message))
@@ -101,7 +131,7 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn("Malformed JSON request: ${ex.message}")
-        
+
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse("MALFORMED_JSON", "Request body contains invalid JSON"))
@@ -113,30 +143,16 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn("Access denied: ${ex.message}")
-        
+
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
-            .body(ErrorResponse("ACCESS_DENIED", "You don't have permission to access this resource"))
-    }
-
-    @ExceptionHandler(io.vliet.plusmin.domain.PlusMinException::class)
-    fun handlePlusMinException(
-        ex: io.vliet.plusmin.domain.PlusMinException,
-        request: WebRequest,
-
-    ): ResponseEntity<ErrorResponse> {
-        logger.warn("Business exception: ${ex.errorCode} - ${ex.message}")
-        
-        val httpStatus = when (ex) {
-            is io.vliet.plusmin.domain.RekeningNotFoundException -> HttpStatus.NOT_FOUND
-            is io.vliet.plusmin.domain.AuthorizationException -> HttpStatus.FORBIDDEN
-            is io.vliet.plusmin.domain.DuplicateResourceException -> HttpStatus.CONFLICT
-            else -> HttpStatus.BAD_REQUEST
-        }
-        
-        return ResponseEntity
-            .status(httpStatus)
-            .body(ErrorResponse(ex.errorCode, ex.message, parameters = ex.parameters, path = request.getDescription(false)))
+            .body(
+                ErrorResponse(
+                    "ACCESS_DENIED",
+                    ex.message ?: "Access is denied",
+                    path = request.userPrincipal?.name
+                )
+            )
     }
 
     @ExceptionHandler(io.vliet.plusmin.domain.ResourceNotFoundException::class)
@@ -145,7 +161,7 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn("Resource not found: ${ex.resourceType} with id ${ex.resourceId}")
-        
+
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse(ex.code, ex.message, path = request.getDescription(false)))
@@ -157,7 +173,7 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         logger.error("Unexpected runtime exception: ${ex.message}", ex)
-        
+
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"))
@@ -169,7 +185,7 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         logger.error("Unexpected exception: ${ex.message}", ex)
-        
+
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"))

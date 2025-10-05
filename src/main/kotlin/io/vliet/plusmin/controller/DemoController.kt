@@ -2,6 +2,7 @@ package io.vliet.plusmin.controller
 
 import io.vliet.plusmin.repository.DemoRepository
 import io.vliet.plusmin.service.DemoService
+import io.vliet.plusmin.service.GebruikerService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,25 +21,15 @@ class DemoController {
     lateinit var demoRepository: DemoRepository
 
     @Autowired
-    lateinit var gebruikerController: GebruikerController
+    lateinit var gebruikerService: GebruikerService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
-
-    @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalState(ex: IllegalStateException): ResponseEntity<String> {
-        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
-            ?: ex.stackTrace.firstOrNull()
-        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
-        val errorMessage = "${ex.message}$locationInfo"
-        logger.error(errorMessage)
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage)
-    }
 
     @PutMapping("/hulpvrager/{hulpvragerId}/configureer")
     fun configureerPeriode(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT DemoController.configureerPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
         try {
             demoService.configureerDemoBetalingen(hulpvrager)
@@ -53,7 +44,7 @@ class DemoController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<String> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("DELETE DemoController.deleteBetalingenInPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
         demoService.deleteBetalingenInPeriode(hulpvrager, periodeId)
         return ResponseEntity.ok().body("Betalingen verwijderd.")
@@ -63,7 +54,7 @@ class DemoController {
     fun resetGebruikerData(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<String> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT DemoController.resetGebruikerData voor ${hulpvrager.email} door ${vrijwilliger.email}")
         try {
             demoRepository.resetGebruikerData(hulpvrager.id)

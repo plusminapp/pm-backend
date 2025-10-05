@@ -54,19 +54,12 @@ class StandService {
         - bereken de resultaatSamenvatting
         - return de StandDTO met alle gegevens
      */
+
     fun getStandOpDatum(
         gebruiker: Gebruiker,
         peilDatum: LocalDate,
     ): StandController.StandDTO {
         val periode = periodeService.getPeriode(gebruiker, peilDatum)
-        return getStandInPeriode(gebruiker, peilDatum, periode)
-    }
-
-    fun getStandInPeriode(
-        gebruiker: Gebruiker,
-        peilDatum: LocalDate,
-        periode: Periode
-    ): StandController.StandDTO {
         val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(gebruiker, periode)
         val saldiOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus)) {

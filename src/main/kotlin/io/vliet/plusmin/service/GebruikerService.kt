@@ -1,15 +1,22 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker.Role
+import io.vliet.plusmin.domain.PM_AuthorizationException
+import io.vliet.plusmin.domain.PM_HulpvragerNotFoundException
+import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -30,13 +37,41 @@ class GebruikerService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruikersLijst: List<Gebruiker.GebruikerDTO>): List<Gebruiker> {
+    fun getJwtGebruiker(): Gebruiker {
+        val jwt = SecurityContextHolder.getContext().authentication.principal as Jwt
+        val email = jwt.claims["username"] as String
+        // de gebruiker wordt in de configuration/WebSecurity.kt aangemaakt als ie niet bestaat
+        return gebruikerRepository.findByEmail(email)!!
+    }
+
+    fun checkAccess(hulpvragerId: Long): Pair<Gebruiker, Gebruiker> {
+        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
+        if (hulpvragerOpt.isEmpty)
+            throw PM_HulpvragerNotFoundException("Hulpvrager met Id $hulpvragerId bestaat niet.", hulpvragerId.toString())
+        val hulpvrager = hulpvragerOpt.get()
+
+        val vrijwilliger = getJwtGebruiker()
+        if (hulpvrager.id != vrijwilliger.id &&
+            hulpvrager.vrijwilliger?.id != vrijwilliger.id &&
+            !vrijwilliger.roles.contains(Role.ROLE_ADMIN)
+        ) {
+            logger.error("${vrijwilliger.bijnaam} vraagt toegang tot ${hulpvrager.bijnaam}")
+            throw PM_AuthorizationException(
+                "${vrijwilliger.bijnaam} vraagt toegang tot ${hulpvrager.bijnaam}",
+                vrijwilliger.bijnaam,
+                hulpvrager.bijnaam,
+            )
+        }
+        return Pair(hulpvrager, vrijwilliger)
+    }
+
+    fun saveAll(gebruikersLijst: List<GebruikerDTO>): List<Gebruiker> {
         return gebruikersLijst.map { gebruikerDTO ->
             save(gebruikerDTO)
         }
     }
 
-    fun save(gebruikerDTO: Gebruiker.GebruikerDTO): Gebruiker {
+    fun save(gebruikerDTO: GebruikerDTO): Gebruiker {
         val vrijwilliger = if (gebruikerDTO.vrijwilligerEmail.isNotEmpty()) {
             gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerEmail)
         } else null

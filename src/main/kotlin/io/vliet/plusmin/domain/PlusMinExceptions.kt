@@ -1,43 +1,48 @@
 package io.vliet.plusmin.domain
 
+import org.springframework.http.HttpStatus
+
 /**
  * Custom exceptions for business logic violations
  */
 sealed class PlusMinException(
     override val message: String,
+    val httpStatus: HttpStatus,
     val errorCode: String,
     val parameters: List<String> = emptyList(),
     cause: Throwable? = null
 ) : RuntimeException(message, cause)
 
-class InvalidPeriodeException(
-    message: String,
-    val gebruikerNaam: String
-) : PlusMinException(message, "INVALID_PERIODE", listOf(gebruikerNaam))
+class PM_PeriodeNotFoundException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Periode met id $parameters[0] niet gevonden voor gebruiker $parameters[1]",
+    HttpStatus.NOT_FOUND, "PERIODE_NOTFOUND", parameters
+)
 
-class RekeningNotFoundException(
+class PM_HulpvragerNotFoundException(
+    message: String,
+    val gebruikerId: String,
+) : PlusMinException(message, HttpStatus.NOT_FOUND, "GEBRUIKER_NOTFOUND", listOf(gebruikerId))
+
+class PM_RekeningNotFoundException(
     message: String,
     val rekeningNaam: String,
     val gebruikerNaam: String
-) : PlusMinException(message, "REKENING_NOT_FOUND", listOf(rekeningNaam, gebruikerNaam))
+) : PlusMinException(message, HttpStatus.NOT_FOUND, "REKENING_NOT_FOUND", listOf(rekeningNaam, gebruikerNaam))
 
 class InsufficientBufferException(
     message: String,
     val gebruikerNaam: String
-) : PlusMinException(message, "INSUFFICIENT_BUFFER", listOf(gebruikerNaam))
+) : PlusMinException(message, HttpStatus.BAD_REQUEST, "INSUFFICIENT_BUFFER", listOf(gebruikerNaam))
 
 class InvalidBetalingException(
     message: String,
     val details: String? = null
-) : PlusMinException(message, "INVALID_BETALING")
+) : PlusMinException(message, HttpStatus.BAD_REQUEST, "INVALID_BETALING")
 
-class DuplicateResourceException(
+class PM_AuthorizationException(
     message: String,
-    val resourceType: String,
-    val resourceId: String
-) : PlusMinException(message, "DUPLICATE_RESOURCE")
-
-class AuthorizationException(
-    message: String,
-    val requestedResource: String
-) : PlusMinException(message, "AUTHORIZATION_FAILED")
+    val aanvrager: String,
+    val eigenaar: String,
+) : PlusMinException(message, HttpStatus.FORBIDDEN, "AUTHORIZATION_FAILED", listOf(aanvrager, eigenaar))
