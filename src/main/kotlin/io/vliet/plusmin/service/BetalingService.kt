@@ -4,6 +4,10 @@ import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Betaling.Boeking
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.PM_BufferRekeningNotFoundException
+import io.vliet.plusmin.domain.PM_NoOpenPeriodException
+import io.vliet.plusmin.domain.PM_RekeningNotFoundException
+import io.vliet.plusmin.domain.PM_RekeningNotLinkedException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -45,12 +49,12 @@ class BetalingService {
             val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
             val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
             if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
-                throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
+                throw PM_NoOpenPeriodException(listOf(boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE), gebruiker.bijnaam))
             }
             val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+                ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bron, gebruiker.bijnaam))
             val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
-                ?: throw IllegalStateException("${betalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+                ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bestemming, gebruiker.bijnaam))
 
             val getransformeerdeBoeking = transformeerVanDtoBoeking(
                 Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
@@ -88,12 +92,12 @@ class BetalingService {
         val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
         val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
         if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
-            throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
+            throw PM_NoOpenPeriodException(listOf(boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE), gebruiker.bijnaam))
         }
         val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
-            ?: throw IllegalStateException("${newBetalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+            ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bron, gebruiker.bijnaam))
         val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
-            ?: throw IllegalStateException("${newBetalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+            ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bestemming, gebruiker.bijnaam))
 
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
             Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
@@ -123,7 +127,7 @@ class BetalingService {
         dtoBoeking: Boeking
     ): Pair<Boeking?, Boeking?> {
         val bufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
-            ?: throw IllegalStateException("Er is geen buffer rekening IN voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}.")
+            ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.gebruiker.bijnaam))
         return when (betalingsSoort) {
             Betaling.BetalingsSoort.INKOMSTEN -> Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
 
@@ -131,7 +135,7 @@ class BetalingService {
                 Boeking(
                     dtoBoeking.bron,
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bestemming.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email))
                 ),
                 dtoBoeking,
             )
@@ -144,7 +148,7 @@ class BetalingService {
                 Boeking(
                     dtoBoeking.bron,
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bestemming.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email))
                 ), Boeking(
                     bufferRekening, dtoBoeking.bestemming
                 )
@@ -153,7 +157,7 @@ class BetalingService {
             Betaling.BetalingsSoort.OPNEMEN -> Pair(
                 Boeking(
                     dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw IllegalStateException("${dtoBoeking.bron.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bron.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email)),
                     dtoBoeking.bestemming,
                 ),
                 Boeking(
@@ -165,7 +169,7 @@ class BetalingService {
                 Boeking(
                     dtoBoeking.bron,
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw IllegalStateException("${dtoBoeking.bron.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bron.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email)),
                 ),
                 Boeking(
                     dtoBoeking.bestemming, dtoBoeking.bestemming
@@ -181,37 +185,13 @@ class BetalingService {
             Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P -> Pair(
                 Boeking(
                     dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw IllegalStateException("${dtoBoeking.bron.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bron.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email)),
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw IllegalStateException("${dtoBoeking.bestemming.naam} heeft geen gekoppelde rekening voor ${dtoBoeking.bron.rekeningGroep.gebruiker.email}."),
+                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bestemming.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email))
                 ), dtoBoeking
             )
         }
 
-    }
-
-    fun transformeerNaarDtoBoeking(
-        betalingsSoort: Betaling.BetalingsSoort,
-        boeking: Pair<Boeking?, Boeking?>
-    ): Boeking {
-        return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN,
-            Betaling.BetalingsSoort.UITGAVEN, Betaling.BetalingsSoort.BESTEDEN, Betaling.BetalingsSoort.AFLOSSEN,
-            Betaling.BetalingsSoort.INCASSO_CREDITCARD, Betaling.BetalingsSoort.OPNEMEN_CONTANT, Betaling.BetalingsSoort.STORTEN_CONTANT ->
-                boeking.first!!
-
-            Betaling.BetalingsSoort.RENTE,
-            Betaling.BetalingsSoort.TERUGSTORTEN,
-            Betaling.BetalingsSoort.SPAREN ->
-                Boeking(boeking.first!!.bron, boeking.second!!.bestemming)
-
-            Betaling.BetalingsSoort.OPNEMEN ->
-                Boeking(boeking.second!!.bron, boeking.first!!.bestemming)
-
-            Betaling.BetalingsSoort.P2P, Betaling.BetalingsSoort.SP2SP,
-            Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P ->
-                boeking.second!!
-        }
     }
 
     fun findMatchingBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): List<Betaling> {

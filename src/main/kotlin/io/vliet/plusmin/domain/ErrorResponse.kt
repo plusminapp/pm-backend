@@ -1,6 +1,11 @@
 package io.vliet.plusmin.domain
 
-    data class ErrorResponse(
-        val errorCode: String,
-        val errorMessage: String
-    )
+import java.time.LocalDateTime
+
+data class ErrorResponse(
+    val errorCode: String,
+    val message: String,
+    val parameters: List<String> = emptyList(),
+    val path: String? = null,
+    val timestamp: LocalDateTime = LocalDateTime.now(),
+)

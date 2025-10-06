@@ -1,7 +1,10 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker.Role
+import io.vliet.plusmin.domain.PM_GeneralAuthorizationException
+import io.vliet.plusmin.domain.PM_HulpvragerNotFoundException
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
@@ -10,6 +13,8 @@ import io.vliet.plusmin.repository.RekeningGroepRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -30,13 +35,34 @@ class GebruikerService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruikersLijst: List<Gebruiker.GebruikerDTO>): List<Gebruiker> {
+    fun getJwtGebruiker(): Gebruiker {
+        val jwt = SecurityContextHolder.getContext().authentication.principal as Jwt
+        val email = jwt.claims["username"] as String
+        // de gebruiker wordt in de configuration/WebSecurity.kt aangemaakt als ie niet bestaat
+        return gebruikerRepository.findByEmail(email)!!
+    }
+
+    fun checkAccess(hulpvragerId: Long): Pair<Gebruiker, Gebruiker> {
+        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
+        if (hulpvragerOpt.isEmpty)
+            throw PM_HulpvragerNotFoundException(listOf(hulpvragerId.toString()))
+        val hulpvrager = hulpvragerOpt.get()
+
+        val vrijwilliger = getJwtGebruiker()
+        if (hulpvrager.id != vrijwilliger.id &&
+            hulpvrager.vrijwilliger?.id != vrijwilliger.id &&
+            !vrijwilliger.roles.contains(Role.ROLE_ADMIN)
+        ) throw PM_GeneralAuthorizationException(listOf(vrijwilliger.bijnaam, hulpvrager.bijnaam))
+        return Pair(hulpvrager, vrijwilliger)
+    }
+
+    fun saveAll(gebruikersLijst: List<GebruikerDTO>): List<Gebruiker> {
         return gebruikersLijst.map { gebruikerDTO ->
             save(gebruikerDTO)
         }
     }
 
-    fun save(gebruikerDTO: Gebruiker.GebruikerDTO): Gebruiker {
+    fun save(gebruikerDTO: GebruikerDTO): Gebruiker {
         val vrijwilliger = if (gebruikerDTO.vrijwilligerEmail.isNotEmpty()) {
             gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerEmail)
         } else null
@@ -86,21 +112,21 @@ class GebruikerService {
         val bufferRekeningen = rekeningGroepRepository
             .findRekeningGroepenOpSoort(gebruiker, RekeningGroepSoort.RESERVERING_BUFFER)
         if (bufferRekeningen.size == 0)
-             rekeningService.save(
-            gebruiker, RekeningGroep.RekeningGroepDTO(
-                naam = "Buffer",
-                rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
-                sortOrder = 0,
-                rekeningen = listOf(
-                    Rekening.RekeningDTO(
-                        naam = "Buffer IN",
-                        saldo = BigDecimal(0),
-                        rekeningGroepNaam = "Buffer",
-                        budgetAanvulling = Rekening.BudgetAanvulling.IN
+            rekeningService.save(
+                gebruiker, RekeningGroep.RekeningGroepDTO(
+                    naam = "Buffer",
+                    rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
+                    sortOrder = 0,
+                    rekeningen = listOf(
+                        Rekening.RekeningDTO(
+                            naam = "Buffer IN",
+                            saldo = BigDecimal(0),
+                            rekeningGroepNaam = "Buffer",
+                            budgetAanvulling = Rekening.BudgetAanvulling.IN
+                        )
                     )
                 )
             )
-        )
 
         return gebruiker
     }

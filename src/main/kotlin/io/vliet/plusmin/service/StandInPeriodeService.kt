@@ -152,7 +152,13 @@ class StandInPeriodeService {
                     else null
 
                     if (betaaldagInPeriode == null) {
-                        throw IllegalStateException("Geen budgetBetaalDag voor ${rekening.naam} met RekeningType 'VAST' van ${rekening.rekeningGroep.gebruiker.email}")
+                        throw PM_GeenBetaaldagException(
+                            listOf(
+                                rekening.naam,
+                                rekening.rekeningGroep.budgetType.name,
+                                rekening.rekeningGroep.gebruiker.bijnaam
+                            )
+                        )
                     }
                     if (!peilDatum.isBefore(betaaldagInPeriode)) budgetMaandBedrag
                     else (budgetMaandBedrag).min(betaling.abs())

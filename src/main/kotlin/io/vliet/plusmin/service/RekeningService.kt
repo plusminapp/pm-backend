@@ -7,7 +7,6 @@ import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroe
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.AflossingRepository
-import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -39,7 +38,7 @@ class RekeningService {
     lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
-    lateinit var periodeRepository: PeriodeRepository
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
@@ -213,8 +212,7 @@ class RekeningService {
 
             savedRekening
         }
-        val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-            ?: throw IllegalStateException("Geen periode gevonden voor gebruiker ${gebruiker.email}")
+        val periode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
         val saldoOpt = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         if (saldoOpt == null) {
             saldoRepository.save(

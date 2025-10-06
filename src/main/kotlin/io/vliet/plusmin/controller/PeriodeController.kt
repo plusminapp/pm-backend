@@ -1,10 +1,11 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.ErrorResponse
 import io.vliet.plusmin.domain.Periode.PeriodeDTO
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.PeriodeRepository
+import io.vliet.plusmin.service.GebruikerService
+import io.vliet.plusmin.service.PeriodeService
 import io.vliet.plusmin.service.PeriodeUpdateService
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -25,7 +26,10 @@ class PeriodeController {
     lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
-    lateinit var gebruikerController: GebruikerController
+    lateinit var periodeService: PeriodeService
+
+    @Autowired
+    lateinit var gebruikerService: GebruikerService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -35,7 +39,7 @@ class PeriodeController {
     fun getPeriodesVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET PeriodeController.getPeriodesVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         return ResponseEntity.ok().body(periodeRepository.getPeriodesVoorGebruiker(hulpvrager).map {
@@ -55,15 +59,10 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.sluitPeriodeVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
-        try {
-            periodeUpdateService.sluitPeriode(hulpvrager, periodeId, saldoLijst)
-        } catch (e: Exception) {
-            logger.error("Fout bij sluiten van periode $periodeId voor hulpvrager ${hulpvrager.email}: ${e.message}")
-            return ResponseEntity.badRequest().body("Fout bij sluiten van periode: ${e.message}")
-        }
-        return ResponseEntity.ok().body("Periode $periodeId voor hulpvrager ${hulpvrager.email} is succesvol gesloten.")
+        periodeUpdateService.sluitPeriode(hulpvrager, periodeId, saldoLijst)
+        return ResponseEntity.ok().build()
     }
 
     @Operation(summary = "PUT ruim een periode op (verwijder de betalingen) voor hulpvrager")
@@ -72,20 +71,11 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.ruimPeriodesOpVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
-        val periode = periodeRepository.getPeriodeById(periodeId)
-        if (periode == null) {
-            return ResponseEntity.status(404).body("Periode met id $periodeId bestaat niet.")
-        }
-        try {
-            periodeUpdateService.ruimPeriodeOp(hulpvrager, periode)
-        } catch (e: Exception) {
-            logger.error("Fout bij opruimen van periode $periodeId voor hulpvrager ${hulpvrager.email}: ${e.message}")
-            return ResponseEntity.badRequest().body("Fout bij opruimen van periode: ${e.message}")
-        }
-        return ResponseEntity.ok()
-            .body("Periode $periodeId voor hulpvrager ${hulpvrager.email} is succesvol opgeruimd.")
+        val periode = periodeService.getPeriode(periodeId, hulpvrager)
+        periodeUpdateService.ruimPeriodeOp(hulpvrager, periode)
+        return ResponseEntity.ok().build()
     }
 
     @Operation(summary = "PUT heropen een periode (en verwijder de saldi) voor hulpvrager")
@@ -94,42 +84,24 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.heropenPeriodeVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
-        val periode = periodeRepository.getPeriodeById(periodeId)
-        if (periode == null) {
-            return ResponseEntity.status(404).body("Periode met id $periodeId bestaat niet.")
-        }
-        try {
-            periodeUpdateService.heropenPeriode(hulpvrager, periode)
-        } catch (e: Exception) {
-            logger.error("Fout bij heropenen van periode $periodeId voor hulpvrager ${hulpvrager.email}: ${e.message}")
-            return ResponseEntity.badRequest().body("Fout bij heropenen van periode: ${e.message}")
-        }
-        return ResponseEntity.ok()
-            .body("Periode $periodeId voor hulpvrager ${hulpvrager.email} is succesvol heropenend.")
+        val periode = periodeService.getPeriode(periodeId, hulpvrager)
+        periodeUpdateService.heropenPeriode(hulpvrager, periode)
+        return ResponseEntity.ok().build()
     }
 
-    @Operation(summary = "PUT wijzig een periode (en verwijder de saldi) voor hulpvrager")
+    @Operation(summary = "PUT wijzig een periode voor hulpvrager")
     @PutMapping("/hulpvrager/{hulpvragerId}/wijzig-periode-opening/{periodeId}")
     fun wijzigPeriodeOpeningVoorHulpvrager(
         @Valid @RequestBody nieuweOpeningsSaldi: List<Saldo.SaldoDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.wijzigPeriodeOpeningVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
-        val opgeslagenOpeningsSaldi = try {
+        val opgeslagenOpeningsSaldi =
             periodeUpdateService.wijzigPeriodeOpening(hulpvrager, periodeId, nieuweOpeningsSaldi)
-        } catch (e: Exception) {
-            logger.error("Fout bij wijzigen van periode $periodeId voor hulpvrager ${hulpvrager.email}: ${e.message}")
-            return ResponseEntity.badRequest().body(
-                ErrorResponse(
-                    "wijzigPeriodeOpeningVoorHulpvragerError",
-                    "Fout bij wijzigen van periodeopening: ${e.message}"
-                )
-            )
-        }
         return ResponseEntity.ok().body(opgeslagenOpeningsSaldi)
     }
 
@@ -139,7 +111,7 @@ class PeriodeController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET PeriodeController.sluitPeriodeVoorstelVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         return ResponseEntity.ok().body(periodeUpdateService.voorstelPeriodeSluiten(hulpvrager, periodeId))
     }

@@ -9,8 +9,7 @@ import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.service.BetalingService
 import io.vliet.plusmin.service.BetalingvalidatieService
-import io.vliet.plusmin.service.PagingService
-import jakarta.annotation.security.RolesAllowed
+import io.vliet.plusmin.service.GebruikerService
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,7 +24,7 @@ import java.time.LocalDate
 class BetalingController {
 
     @Autowired
-    lateinit var gebruikerController: GebruikerController
+    lateinit var gebruikerService: GebruikerService
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
@@ -40,34 +39,6 @@ class BetalingController {
     lateinit var betalingvalidatieService: BetalingvalidatieService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
-
-    @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalState(ex: IllegalStateException): ResponseEntity<String> {
-        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
-            ?: ex.stackTrace.firstOrNull()
-        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
-        val errorMessage = "${ex.message}$locationInfo"
-        logger.error(errorMessage)
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage)
-    }
-
-    @Operation(summary = "GET alle eigen betalingen (voor alle gebruikers)")
-    @GetMapping("")
-    fun getAlleBetalingen(
-        @RequestParam("size", defaultValue = "25", required = false) sizeAsString: String,
-        @RequestParam("page", defaultValue = "0", required = false) pageAsString: String,
-        @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
-        @RequestParam("query", defaultValue = "", required = false) query: String,
-        @RequestParam("status", required = false) status: String?,
-        @RequestParam("fromDate", defaultValue = "", required = false) fromDate: String,
-        @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
-    ): ResponseEntity<PagingService.ContentWrapper> {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET BetalingController.getAlleBetalingen voor ${gebruiker.email}")
-        val betalingen =
-            betalingDao.search(gebruiker, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
-        return ResponseEntity.ok().body(betalingen)
-    }
 
     @Operation(
         summary = "Get betalingen hulpvrager",
@@ -86,19 +57,12 @@ class BetalingController {
         @Parameter(description = "Formaat: yyyy-mm-dd")
         @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val betalingen =
             betalingDao
                 .search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
-    }
-
-    @Operation(summary = "DELETE alle betalingen (alleen voor ADMINs)")
-    @RolesAllowed("ADMIN")
-    @DeleteMapping("")
-    fun deleteAlleBetalingen(): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(betalingRepository.deleteAll())
     }
 
     @Operation(summary = "DELETE betaling")
@@ -110,7 +74,7 @@ class BetalingController {
             logger.warn("Betaling met id $betalingId niet gevonden.")
             return ResponseEntity("Betaling met id $betalingId niet gevonden.", HttpStatus.NOT_FOUND)
         }
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(betaling.gebruiker.id)
         logger.info("DELETE BetalingController.deleteBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingRepository.delete(betaling))
     }
@@ -120,7 +84,7 @@ class BetalingController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @Valid @RequestBody betalingList: List<BetalingDTO>,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val betalingen = betalingService.creeerBetalingLijst(hulpvrager, betalingList)
         return ResponseEntity.ok().body(betalingen)
@@ -131,7 +95,7 @@ class BetalingController {
       @PathVariable("hulpvragerId") hulpvragerId: Long,
       @Valid @RequestBody betalingDTO: BetalingDTO,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val betaling = betalingService.creeerBetaling(hulpvrager, betalingDTO)
         return ResponseEntity.ok().body(betaling)
@@ -148,7 +112,7 @@ class BetalingController {
             return ResponseEntity("Betaling met id $betalingId niet gevonden.", HttpStatus.NOT_FOUND)
         }
         val betaling = betalingOpt.get()
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(betaling.gebruiker.id)
         logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
     }
@@ -157,8 +121,8 @@ class BetalingController {
     fun getDatumLaatsteBetaling(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<LocalDate?> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
+        logger.info("GET BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager))
     }
 
@@ -167,7 +131,7 @@ class BetalingController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @Valid @RequestBody betalingValidatieWrapper: Betaling.BetalingValidatieWrapper,
     ): ResponseEntity<Betaling.BetalingValidatieWrapper> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT BetalingController.valideerOcrBetalingen voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(hulpvrager, betalingValidatieWrapper))
     }
@@ -177,7 +141,7 @@ class BetalingController {
     fun valideerBetalingenVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): List<Betaling> {
-        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET BetalingController.valideerBetalingenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return betalingService.valideerBetalingenVoorGebruiker(hulpvrager)
     }

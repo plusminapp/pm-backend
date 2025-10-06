@@ -42,10 +42,10 @@ class ReserveringService {
 
     fun creeerReservingen(gebruiker: Gebruiker) {
         val periode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
-        if (periode == null || periode.periodeStatus != Periode.PeriodeStatus.HUIDIG) throw IllegalStateException("Geen huidige periode gevonden voor ${gebruiker.bijnaam}.")
+        if (periode == null || periode.periodeStatus != Periode.PeriodeStatus.HUIDIG) throw PM_HuidigePeriodeNotFoundException(listOf(gebruiker.bijnaam))
         val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
         val reserveringBufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker)
-            ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${gebruiker.bijnaam}.")
+            ?: throw PM_BufferRekeningNotFoundException(listOf(gebruiker.bijnaam))
 
         val initieleStartSaldiVanPeriode: List<Saldo> =
             startSaldiVanPeriodeService.berekenStartSaldiVanPeilPeriode(periode)
@@ -56,8 +56,13 @@ class ReserveringService {
             initieleStartSaldiVanPeriode.filter { potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
                 .sumOf { if (it.openingsReserveSaldo < BigDecimal.ZERO) it.openingsReserveSaldo else BigDecimal.ZERO }
         logger.info("Initiele buffer bij start van periode ${periode.periodeStartDatum} voor ${gebruiker.bijnaam} is $initieleBuffer, reserveringstekorten $initieleReserveringTekorten, delta ${initieleBuffer + initieleReserveringTekorten}.")
-        if (initieleBuffer + initieleReserveringTekorten < BigDecimal.ZERO) throw IllegalStateException(
-            "Buffer ($initieleBuffer) te laag bij start van periode ${periode.periodeStartDatum} voor ${gebruiker.bijnaam}:  " + "reserveringstekorten $initieleReserveringTekorten."
+        if (initieleBuffer + initieleReserveringTekorten < BigDecimal.ZERO) throw PM_OnvoldoendeBufferSaldoException(
+            listOf(
+                initieleBuffer.toString(),
+                periode.periodeStartDatum.toString(),
+                gebruiker.bijnaam,
+                initieleReserveringTekorten.toString()
+            )
         )
 
         val startSaldiVanPeriode = if (initieleReserveringTekorten == BigDecimal.ZERO) initieleStartSaldiVanPeriode
@@ -252,7 +257,7 @@ class ReserveringService {
 
 //    fun creeerReserveringenVoorStortenSpaargeld(gebruiker: Gebruiker, spaarRekeningNaam: String) {
 //        val spaarRekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, spaarRekeningNaam)
-//            ?: throw IllegalStateException("Spaarrekening $spaarRekeningNaam niet gevonden voor ${gebruiker.bijnaam}.")
+//            ?: throw PM_RekeningNotFoundException(listOf(spaarRekeningNaam, gebruiker.bijnaam))
 //        val spaarBetalingen = betalingsRepository
 //            .findAllByGebruiker(gebruiker)
 //            .filter { it.betalingsSoort == Betaling.BetalingsSoort.SPAREN }
@@ -265,7 +270,7 @@ class ReserveringService {
 //            )
 //            if (reserveringen.isEmpty()) {
 //                val bron = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker).firstOrNull()
-//                    ?: throw IllegalStateException("Buffer rekening niet gevonden voor ${gebruiker.bijnaam}.")
+//                      ?: throw PM_BufferRekeningNotFoundException(listOf(gebruiker.bijnaam))
 //                betalingsRepository.save(
 //                    Reservering(
 //                        boekingsdatum = it.boekingsdatum,

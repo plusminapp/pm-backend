@@ -34,11 +34,16 @@ class BetalingvalidatieService {
                 gebruiker,
                 it.rekeningNaam
             )
-        } ?: throw IllegalStateException("betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is ongeldig: ${betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam} voor ${gebruiker.email}.")
-        val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening( rekening.id).getOrNull()
-            ?: throw IllegalStateException("Geen Saldo voor ${rekening.naam}/${rekening.id} voor ${gebruiker.email}.")
+        } ?: throw PM_RekeningNotFoundException(
+            listOf(
+                betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam,
+                gebruiker.bijnaam
+            )
+        )
+        val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening(rekening.id).getOrNull()
+            ?: throw PM_GeenSaldoVoorRekeningException(listOf(rekening.naam, gebruiker.bijnaam))
         val betalingen = if (openingsBalansSaldo.periode == null) {
-            throw IllegalStateException("Geen Periode bij Saldo ${openingsBalansSaldo.id} voor ${gebruiker.email}.")
+            throw PM_GeenPeriodeVoorSaldoException(listOf(openingsBalansSaldo.id.toString(), gebruiker.email))
         } else {
             betalingRepository.findAllByGebruikerTussenDatums(
                 gebruiker,
