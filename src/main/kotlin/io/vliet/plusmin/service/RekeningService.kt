@@ -5,6 +5,9 @@ import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.spaarPotjesRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.uitgavePotjesRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.vastBudgetType
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.AflossingRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
@@ -51,7 +54,13 @@ class RekeningService {
         return rekeningGroepen.toSet()
     }
 
-    fun save(gebruiker: Gebruiker, rekeningGroepDTO: RekeningGroep.RekeningGroepDTO): RekeningGroep {
+    fun save(
+        gebruiker: Gebruiker,
+        rekeningGroepDTO: RekeningGroep.RekeningGroepDTO,
+        syscall: Boolean = false
+    ): RekeningGroep {
+        if (!syscall && rekeningGroepDTO.rekeningGroepSoort == RekeningGroepSoort.RESERVERING_BUFFER.name)
+            throw PM_BufferRekeningImmutableException()
         val rekeningGroep = rekeningGroepRepository
             .findRekeningGroepOpNaam(gebruiker, rekeningGroepDTO.naam)
             .getOrNull() ?: RekeningGroep(
@@ -87,6 +96,7 @@ class RekeningService {
 
     fun saveRekening(gebruiker: Gebruiker, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
         logger.info("Opslaan rekening ${rekeningDTO.naam} voor ${gebruiker.bijnaam} in groep ${rekeningGroep.naam}.")
+
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
                 rekeningRepository.findRekeningGebruikerEnNaam(
@@ -94,17 +104,39 @@ class RekeningService {
                     it.naam
                 )
             }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
+        if (betaalMethoden.size == 0 && rekeningGroep.rekeningGroepSoort != RekeningGroepSoort.BETAALREKENING)
+            throw PM_RekeningMoetBetaalmethodeException(listOf(rekeningDTO.naam))
+
         val budgetPeriodiciteit =
             if (rekeningDTO.budgetPeriodiciteit != null)
                 BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
             else null
+
         val gekoppeldeRekening =
             if (rekeningDTO.gekoppeldeRekening != null) rekeningRepository.findRekeningGebruikerEnNaam(
                 gebruiker,
                 rekeningDTO.gekoppeldeRekening
             )
             else null
+        val gekoppeldeRekeningIsBetaalMiddel =
+            betaalMiddelenRekeningGroepSoort.contains(gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort)
+        val gekoppeldeRekeningIsSpaarRekening =
+            gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING
+        if ((!gekoppeldeRekeningIsBetaalMiddel && uitgavePotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
+            !gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)
+        )
+            throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))
         logger.info("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
+
+        if (vastBudgetType.contains(rekeningGroep.budgetType) && !geldigeBetaalDag(rekeningDTO.budgetBetaalDag))
+            throw PM_GeenBetaaldagException(
+                listOf(
+                    rekeningDTO.naam,
+                    rekeningGroep.budgetType?.name ?: "null",
+                    gebruiker.bijnaam
+                )
+            )
+
         val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, rekeningDTO.naam)
         val rekening = if (rekeningOpt != null) {
             logger.info("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${gebruiker.bijnaam}")
@@ -242,6 +274,9 @@ class RekeningService {
         return rekening
     }
 
+    fun geldigeBetaalDag(dag: Int?): Boolean {
+        return (dag != null && (dag in 1..28))
+    }
 
     fun rekeningGroepenPerBetalingsSoort(
         gebruiker: Gebruiker,

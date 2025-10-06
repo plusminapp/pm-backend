@@ -1,6 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.PM_GeenSaldoVoorRekeningException
 import io.vliet.plusmin.domain.PM_PeriodeNietGeslotenException
 import io.vliet.plusmin.domain.PM_PeriodeNietLaatstGeslotenException
 import io.vliet.plusmin.domain.PM_PeriodeNietOpenException
@@ -113,11 +114,11 @@ class PeriodeUpdateService {
                     )
                 )
             }
-            periodeRepository.save(
-                periode.fullCopy(
-                    periodeStatus = Periode.PeriodeStatus.GESLOTEN
-                )
+        periodeRepository.save(
+            periode.fullCopy(
+                periodeStatus = Periode.PeriodeStatus.GESLOTEN
             )
+        )
     }
 
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
@@ -139,7 +140,13 @@ class PeriodeUpdateService {
         val vorigePeriode = periodeLijst[index - 1]
 
         if (openPeriodes.contains(vorigePeriode.periodeStatus)) {
-            throw PM_VorigePeriodeNietGeslotenException(listOf(periode.id.toString(), vorigePeriode.id.toString(), gebruiker.bijnaam))
+            throw PM_VorigePeriodeNietGeslotenException(
+                listOf(
+                    periode.id.toString(),
+                    vorigePeriode.id.toString(),
+                    gebruiker.bijnaam
+                )
+            )
         }
         if (!openPeriodes.contains(periode.periodeStatus))
             throw PM_PeriodeNietOpenException(listOf(periode.id.toString(), gebruiker.bijnaam))
@@ -171,7 +178,13 @@ class PeriodeUpdateService {
         }
         val laatstGeslotenOfOpgeruimdePeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
         if (laatstGeslotenOfOpgeruimdePeriode.id != periode.id) {
-            throw PM_PeriodeNietLaatstGeslotenException(listOf(periode.id.toString(), laatstGeslotenOfOpgeruimdePeriode.id.toString(), gebruiker.bijnaam))
+            throw PM_PeriodeNietLaatstGeslotenException(
+                listOf(
+                    periode.id.toString(),
+                    laatstGeslotenOfOpgeruimdePeriode.id.toString(),
+                    gebruiker.bijnaam
+                )
+            )
         }
         saldoRepository.deleteByPeriode(periode)
         periodeRepository.save(
@@ -181,22 +194,22 @@ class PeriodeUpdateService {
         )
     }
 
-    fun wijzigPeriodeOpening(gebruiker: Gebruiker, periodeId: Long, nieuweOpeningsSaldi: List<Saldo.SaldoDTO>): List<Saldo.SaldoDTO> {
+    fun wijzigPeriodeOpening(
+        gebruiker: Gebruiker,
+        periodeId: Long,
+        nieuweOpeningsSaldi: List<Saldo.SaldoDTO>
+    ): List<Saldo.SaldoDTO> {
         // LET OP: de opening van een periode wordt opgeslagen als sluiting van de vorige periode
         // om de opening aan te passen worden de betalingen in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
         val (vorigePeriode, _) = checkPeriodeSluiten(gebruiker, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
-        return  nieuweOpeningsSaldi.mapNotNull { nieuweOpeningsBalansSaldo ->
+        return nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
             val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
-            if (saldo == null) {
-                logger.warn("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam} bestaat niet in de (vorige) periode ${vorigePeriode.id} voor gebruiker ${gebruiker.bijnaam}; openingsBalansSaldo wordt NIET aangepast")
-                null
-            } else {
-                // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
-                val nieuweBetaling = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
-                logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: betaling wordt aangepast van ${saldo.betaling} naar ${nieuweBetaling}")
-                saldoRepository.save(saldo.fullCopy(betaling = nieuweBetaling)).toDTO()
-            }
+                ?: throw PM_GeenSaldoVoorRekeningException(listOf(nieuweOpeningsBalansSaldo.rekeningNaam, gebruiker.bijnaam))
+            // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
+            val nieuweBetaling = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
+            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: betaling wordt aangepast van ${saldo.betaling} naar ${nieuweBetaling}")
+            saldoRepository.save(saldo.fullCopy(betaling = nieuweBetaling)).toDTO()
         }
     }
 }

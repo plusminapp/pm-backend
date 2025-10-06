@@ -47,6 +47,10 @@ class RekeningGroep(
         val spaarPotjesRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.SPAARPOT
         )
+        val uitgavePotjesRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.UITGAVEN,
+            RekeningGroepSoort.AFLOSSING,
+        )
         val potjesRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.UITGAVEN,
             RekeningGroepSoort.AFLOSSING,
@@ -69,6 +73,10 @@ class RekeningGroep(
             RekeningGroepSoort.BETAALREKENING,
             RekeningGroepSoort.CONTANT,
             RekeningGroepSoort.CREDITCARD,
+        )
+        val vastBudgetType = arrayOf(
+            BudgetType.VAST,
+            BudgetType.INKOMSTEN
         )
 
         val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
