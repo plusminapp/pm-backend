@@ -113,7 +113,8 @@ class GebruikerService {
             .findRekeningGroepenOpSoort(gebruiker, RekeningGroepSoort.RESERVERING_BUFFER)
         if (bufferRekeningen.size == 0)
             rekeningService.save(
-                gebruiker, RekeningGroep.RekeningGroepDTO(
+                gebruiker,
+                RekeningGroep.RekeningGroepDTO(
                     naam = "Buffer",
                     rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
                     sortOrder = 0,
@@ -125,7 +126,8 @@ class GebruikerService {
                             budgetAanvulling = Rekening.BudgetAanvulling.IN
                         )
                     )
-                )
+                ),
+                syscall = true
             )
 
         return gebruiker

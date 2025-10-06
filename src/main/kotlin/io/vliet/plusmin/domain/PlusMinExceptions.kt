@@ -121,6 +121,26 @@ class PM_GeenBetaaldagException(
     HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_NOT_FOUND", parameters
 )
 
+class PM_BufferRekeningImmutableException(
+) : PlusMinException(
+    "RekeningGroep met soort RESERVERING_BUFFER mag niet handmatig worden aangemaakt of aangepast.",
+    HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_IMMUTABLE"
+)
+
+class PM_PotjeMoetGekoppeldeRekeningException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Potjes rekening ${parameters[0]} moet gekoppeld zijn aan een betaalmiddel.",
+    HttpStatus.INTERNAL_SERVER_ERROR, "POTJE_MOET_GEKOPPELDE_REKENING", parameters
+)
+
+class PM_RekeningMoetBetaalmethodeException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Rekening ${parameters[0]} moet geldige betaalmethoden hebben.",
+    HttpStatus.INTERNAL_SERVER_ERROR, "POTJE_MOET_BETAALMETHODE", parameters
+)
+
 // Saldo excepties
 class PM_OnvoldoendeBufferSaldoException(
     parameters: List<String> = emptyList()
