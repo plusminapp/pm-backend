@@ -1,6 +1,9 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.PM_LaatsteGeslotenPeriodeNotFoundException
+import io.vliet.plusmin.domain.PM_NoOpenPeriodException
+import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Service
 class PeriodeService {
@@ -19,12 +23,12 @@ class PeriodeService {
 
     fun getPeriode(gebruiker: Gebruiker, datum: LocalDate): Periode {
         return periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
-            ?: throw IllegalStateException("Geen periode voor ${gebruiker.email} op ${datum}")
+            ?: throw PM_NoOpenPeriodException(listOf(gebruiker.email, datum.format(DateTimeFormatter.ISO_LOCAL_DATE)))
     }
 
     fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode {
         return periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-            ?: throw IllegalStateException("Geen initiële periode voor gebruiker ${gebruiker.email}")
+            ?: throw PM_LaatsteGeslotenPeriodeNotFoundException(listOf(gebruiker.email))
     }
 
     fun berekenPeriodeDatums(periodeWisselDag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
@@ -46,7 +50,13 @@ class PeriodeService {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     fun checkPeriodesVoorGebruiker(gebruiker: Gebruiker) {
         val laatstePeriode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
-        logger.debug("laatstePeriode voor ${gebruiker.email}: ${laatstePeriode?.periodeStartDatum} -> ${laatstePeriode?.periodeEindDatum} ${laatstePeriode?.periodeStatus}")
+        logger.debug(
+            "laatstePeriode voor {}: {} -> {} {}",
+            gebruiker.email,
+            laatstePeriode?.periodeStartDatum,
+            laatstePeriode?.periodeEindDatum,
+            laatstePeriode?.periodeStatus
+        )
         val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
         logger.debug("periodes voor ${gebruiker.email}: ${periodes.map { it.periodeStartDatum }.joinToString(", ")} ")
         if (laatstePeriode == null) {
@@ -88,7 +98,7 @@ class PeriodeService {
                     Periode.PeriodeStatus.OPGERUIMD
                 )
             )
-            if (initielePeriode.periodeEindDatum < LocalDate.now()) {
+            if (initielePeriode.periodeEindDatum.isBefore(LocalDate.now())) {
                 creeerVolgendePeriodes(initielePeriode)
             }
         }
@@ -97,8 +107,8 @@ class PeriodeService {
     fun pasPeriodeDagAan(gebruiker: Gebruiker, gebruikerDTO: Gebruiker.GebruikerDTO) {
         val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
         if (periodes.size == 2 &&
-            periodes[0].periodeStartDatum == periodes[0].periodeEindDatum &&
-            periodes[1].periodeStatus == Periode.PeriodeStatus.HUIDIG
+            periodes[0].periodeStartDatum.equals(periodes[0].periodeEindDatum) &&
+            periodes[1].periodeStatus.equals(Periode.PeriodeStatus.HUIDIG)
         ) { // initiële periode + huidige periode
             val initielePeriodeEindDatum =
                 berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first.minusDays(1)
@@ -144,7 +154,13 @@ class PeriodeService {
                     gebruikerDTO.periodeDag,
                     it.periodeEindDatum
                 )
-                logger.debug("Periode verschuiven van ${it.periodeStartDatum}/${it.periodeEindDatum} -> $periodeStartDatum/$periodeEindDatum")
+                logger.debug(
+                    "Periode verschuiven van {}/{} -> {}/{}",
+                    it.periodeStartDatum,
+                    it.periodeEindDatum,
+                    periodeStartDatum,
+                    periodeEindDatum
+                )
                 periodeRepository.save(
                     it.fullCopy(
                         periodeStartDatum = periodeStartDatum,

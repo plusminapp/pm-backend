@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Service
 class DemoService {
@@ -50,7 +51,7 @@ class DemoService {
         val parameters = demoRepository.findAll()
         parameters.forEach { demo ->
             val doelPeriode = periodeRepository.getPeriodeGebruikerEnDatum(demo.gebruiker.id, LocalDate.now())
-                ?: throw IllegalStateException("Geen huidige periode voor ${demo.gebruiker.bijnaam}.")
+                ?: throw PM_NoOpenPeriodException(listOf(demo.gebruiker.email, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)))
             kopieerPeriodeBetalingen(demo.gebruiker, demo.bronPeriode, doelPeriode)
         }
     }
@@ -67,7 +68,7 @@ class DemoService {
                 (betaling.bron?.maanden.isNullOrEmpty() || betaling.bron.maanden!!.contains(boekingsDatum.monthValue)) &&
                         (betaling.bestemming?.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(
                             boekingsDatum.monthValue
-                        ));
+                        ))
             if (wordtDezeMaandBetalingVerwacht && boekingsDatum <= LocalDate.now()) {
                 val sortOrder = betalingService.berekenSortOrder(gebruiker, boekingsDatum)
 
@@ -104,7 +105,7 @@ class DemoService {
         val dayOfMonth = datum.dayOfMonth
         val newDate = try {
             periode.periodeStartDatum.withDayOfMonth(dayOfMonth)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             logger.warn("Datum teruggezet naar 28: $datum")
             periode.periodeStartDatum.withDayOfMonth(28)
         }
@@ -117,9 +118,9 @@ class DemoService {
 
     fun deleteBetalingenInPeriode(gebruiker: Gebruiker, periodeId: Long) {
         val periode = periodeRepository.findById(periodeId)
-            .orElseGet { throw IllegalStateException("Periode $periodeId bestaat niet.") }
+            .orElseGet { throw PM_PeriodeNotFoundException(listOf(periodeId.toString())) }
         if (periode.gebruiker.id != gebruiker.id) {
-            throw IllegalStateException("Periode $periodeId is niet van ${gebruiker.bijnaam}.")
+            throw PM_PeriodeNotFoundException(listOf(periodeId.toString()))
         }
         betalingRepository.deleteAllByGebruikerTussenDatums(
             gebruiker,

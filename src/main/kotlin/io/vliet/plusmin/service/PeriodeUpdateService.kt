@@ -1,6 +1,12 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.PM_PeriodeNietGeslotenException
+import io.vliet.plusmin.domain.PM_PeriodeNietLaatstGeslotenException
+import io.vliet.plusmin.domain.PM_PeriodeNietOpenException
+import io.vliet.plusmin.domain.PM_PeriodeNotFoundException
+import io.vliet.plusmin.domain.PM_RekeningNotFoundException
+import io.vliet.plusmin.domain.PM_VorigePeriodeNietGeslotenException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
@@ -19,6 +25,9 @@ import java.math.BigDecimal
 class PeriodeUpdateService {
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
+
+    @Autowired
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
@@ -90,7 +99,7 @@ class PeriodeUpdateService {
             .forEach { saldo ->
                 val rekening = rekeningRepository
                     .findRekeningGebruikerEnNaam(gebruiker, saldo.rekeningNaam)
-                    ?: throw IllegalStateException("Rekening ${saldo.rekeningNaam} bestaat niet voor gebruiker ${gebruiker.bijnaam}")
+                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekeningNaam, gebruiker.bijnaam))
                 saldoRepository.save(
                     Saldo(
                         rekening = rekening,
@@ -123,21 +132,24 @@ class PeriodeUpdateService {
             .sortedBy { it.periodeStartDatum }
         val index = periodeLijst.indexOfFirst { it.id == periodeId }
 
-        if (index <= 0) {
-            throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten of bestaat niet voor gebruiker ${gebruiker.bijnaam}")
+        if (index <= 0 || periodeLijst.size < 2) {
+            throw PM_PeriodeNotFoundException(listOf(periodeId.toString()))
         }
-        if (openPeriodes.contains(periodeLijst[index - 1].periodeStatus)) {
-            throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten/gewijzigd, de vorige periode ${periodeLijst[index - 1].id} is niet gesloten voor gebruiker ${gebruiker.bijnaam}")
-        }
-        if (!openPeriodes.contains(periodeLijst[index].periodeStatus))
-            throw IllegalStateException("Periode ${periodeId} kan niet worden gesloten/gewijzigd, de periode is niet open voor gebruiker ${gebruiker.bijnaam}")
+        val periode = periodeLijst[index]
+        val vorigePeriode = periodeLijst[index - 1]
 
-        return Pair(periodeLijst[index - 1], periodeLijst[index])
+        if (openPeriodes.contains(vorigePeriode.periodeStatus)) {
+            throw PM_VorigePeriodeNietGeslotenException(listOf(periode.id.toString(), vorigePeriode.id.toString(), gebruiker.bijnaam))
+        }
+        if (!openPeriodes.contains(periode.periodeStatus))
+            throw PM_PeriodeNietOpenException(listOf(periode.id.toString(), gebruiker.bijnaam))
+
+        return Pair(vorigePeriode, periode)
     }
 
     fun ruimPeriodeOp(gebruiker: Gebruiker, periode: Periode) {
         if (periode.periodeStatus != Periode.PeriodeStatus.GESLOTEN) {
-            throw IllegalStateException("Periode ${periode.id} kan niet worden opgeruimd, de periode is niet gesloten voor gebruiker ${gebruiker.bijnaam}")
+            throw PM_PeriodeNietGeslotenException(listOf(periode.id.toString(), "opgeruimd", gebruiker.bijnaam))
         }
         betalingRepository.deleteAllByGebruikerTotEnMetDatum(gebruiker, periode.periodeEindDatum)
         val periodeLijst = periodeRepository
@@ -155,13 +167,11 @@ class PeriodeUpdateService {
     @org.springframework.transaction.annotation.Transactional
     fun heropenPeriode(gebruiker: Gebruiker, periode: Periode) {
         if (periode.periodeStatus != Periode.PeriodeStatus.GESLOTEN) {
-            throw IllegalStateException("Periode ${periode.id} kan niet worden heropend, de periode is niet gesloten voor gebruiker ${gebruiker.bijnaam}")
+            throw PM_PeriodeNietGeslotenException(listOf(periode.id.toString(), "heropend", gebruiker.bijnaam))
         }
-        val laatstGeslotenOfOpgeruimdePeriode = periodeRepository
-            .getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-            ?: throw IllegalStateException("Er is geen laatst gesloten of opgeruimde periode voor gebruiker ${gebruiker.bijnaam}")
+        val laatstGeslotenOfOpgeruimdePeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
         if (laatstGeslotenOfOpgeruimdePeriode.id != periode.id) {
-            throw IllegalStateException("Periode ${periode.id} kan niet worden heropend, het is niet de laatst gesloten periode (dat is periode ${laatstGeslotenOfOpgeruimdePeriode.id}) voor gebruiker ${gebruiker.bijnaam}")
+            throw PM_PeriodeNietLaatstGeslotenException(listOf(periode.id.toString(), laatstGeslotenOfOpgeruimdePeriode.id.toString(), gebruiker.bijnaam))
         }
         saldoRepository.deleteByPeriode(periode)
         periodeRepository.save(

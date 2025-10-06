@@ -1,10 +1,9 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.PM_AuthorizationException
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
-import io.vliet.plusmin.domain.PM_HulpvragerNotFoundException
+import io.vliet.plusmin.domain.PM_CreateUserAuthorizationException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -15,8 +14,6 @@ import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -39,7 +36,7 @@ class GebruikerController {
     @Operation(summary = "GET alle gebruikers (alleen voor de COORDINATOR)")
     @RolesAllowed("COORDINATOR")
     @GetMapping("")
-    fun getAlleGebruikers(): List<Gebruiker.GebruikerDTO> {
+    fun getAlleGebruikers(): List<GebruikerDTO> {
         val gebruiker = gebruikerService.getJwtGebruiker()
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
         return gebruikerRepository.findAll().map { toDTO(it) }
@@ -69,11 +66,7 @@ class GebruikerController {
             "POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.bijnaam}: $nieuweGebruikers"
         )
         if (!gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
-            throw PM_AuthorizationException(
-                "${gebruiker.email} wil nieuwe gebruikers ${nieuweGebruikers} aanmaken maar is geen coördinator.",
-                gebruiker.bijnaam,
-                nieuweGebruikers,
-            )
+            throw PM_CreateUserAuthorizationException(listOf(gebruiker.bijnaam, nieuweGebruikers))
         }
         return gebruikerService.saveAll(gebruikerList)
     }

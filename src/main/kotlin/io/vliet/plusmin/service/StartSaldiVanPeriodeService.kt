@@ -49,8 +49,7 @@ class StartSaldiVanPeriodeService {
         )
         val bufferReserveSaldo = basisPeriodeSaldi
             .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
-            ?: throw IllegalStateException("RESERVERING_BUFFER Saldo voor periode ${basisPeriode.id} bestaat niet voor ${gebruiker.bijnaam}.")
-
+            ?: throw PM_GeenBufferVoorSaldoException(listOf(basisPeriode.id.toString(), gebruiker.bijnaam))
         saldoRepository.save(
             bufferReserveSaldo.fullCopy(
                 openingsReserveSaldo = saldoBetaalMiddelen - saldoPotjesVoorNu

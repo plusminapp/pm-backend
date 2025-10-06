@@ -21,12 +21,20 @@ class GlobalExceptionHandler {
 
     private val logger: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
+    fun extractLocationInfo(ex: Throwable): String {
+        logger.debug(ex.message, ex)
+        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
+            ?: ex.stackTrace.firstOrNull()
+        return stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
+    }
+
     @ExceptionHandler(io.vliet.plusmin.domain.PlusMinException::class)
     fun handlePlusMinException(
         ex: io.vliet.plusmin.domain.PlusMinException,
         request: WebRequest,
     ): ResponseEntity<ErrorResponse> {
-        logger.warn("PlusMin exception: ${ex.errorCode} - ${ex.message}")
+        val location = extractLocationInfo(ex)
+        logger.warn("PlusMin exception at ${location}: ${ex.errorCode} - ${ex.message}")
 
         return ResponseEntity
             .status(ex.httpStatus)
@@ -38,23 +46,6 @@ class GlobalExceptionHandler {
                     request.getDescription(false)
                 )
             )
-    }
-
-    @ExceptionHandler(IllegalStateException::class)
-    fun handleIllegalStateException(
-        ex: IllegalStateException,
-        request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
-        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
-            ?: ex.stackTrace.firstOrNull()
-        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
-        val errorMessage = "${ex.message}$locationInfo"
-
-        logger.error("IllegalStateException: $errorMessage", ex)
-
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("BUSINESS_RULE_VIOLATION", errorMessage))
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
@@ -142,7 +133,8 @@ class GlobalExceptionHandler {
         ex: AccessDeniedException,
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
-        logger.warn("Access denied: ${ex.message}")
+        val location = extractLocationInfo(ex)
+        logger.warn("Access denied ar ${location}: ${ex.message}")
 
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
@@ -155,40 +147,23 @@ class GlobalExceptionHandler {
             )
     }
 
-    @ExceptionHandler(io.vliet.plusmin.domain.ResourceNotFoundException::class)
-    fun handleResourceNotFoundException(
-        ex: io.vliet.plusmin.domain.ResourceNotFoundException,
-        request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
-        logger.warn("Resource not found: ${ex.resourceType} with id ${ex.resourceId}")
-
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(ex.code, ex.message, path = request.getDescription(false)))
-    }
-
-    @ExceptionHandler(RuntimeException::class)
-    fun handleRuntimeException(
-        ex: RuntimeException,
-        request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
-        logger.error("Unexpected runtime exception: ${ex.message}", ex)
-
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"))
-    }
-
     @ExceptionHandler(Exception::class)
     fun handleGenericException(
         ex: Exception,
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
-        logger.error("Unexpected exception: ${ex.message}", ex)
+        val location = extractLocationInfo(ex)
+        logger.error("Unexpected exception at ${location}: ${ex.message}")
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"))
+            .body(
+                ErrorResponse(
+                    "INTERNAL_ERROR",
+                    "An unexpected error occurred",
+                    path = request.getDescription(false)
+                )
+            )
     }
 
     data class ValidationErrorResponse(
