@@ -432,26 +432,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /stand/hulpvrager/{hulpvragerId}:
-    get:
-      tags:
-      - stand-controller
-      summary: GET de saldi controle voor hulpvrager
-      operationId: checkSaldi
-      parameters:
-      - name: hulpvragerId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /stand/hulpvrager/{hulpvragerId}/datum/{datum}:
     get:
       tags:
@@ -477,6 +457,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StandDTO"
+  /stand/hulpvrager/{hulpvragerId}/checkspaarsaldi:
+    get:
+      tags:
+      - stand-controller
+      summary: GET de spaarsaldi controle voor hulpvrager
+      operationId: checkSaldi
+      parameters:
+      - name: hulpvragerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /rekening/hulpvrager/{hulpvragerId}/periode/{periodeId}:
     get:
       tags:
