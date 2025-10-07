@@ -5,15 +5,12 @@ import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.spaarPotjesRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.uitgavePotjesRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.vastBudgetType
+import io.vliet.plusmin.domain.RekeningGroep.Companion.zonderBetaalMethodenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
-import io.vliet.plusmin.repository.AflossingRepository
-import io.vliet.plusmin.repository.RekeningGroepRepository
-import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.SaldoRepository
-import io.vliet.plusmin.repository.SpaartegoedRepository
+import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -104,7 +101,7 @@ class RekeningService {
                     it.naam
                 )
             }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
-        if (betaalMethoden.size == 0 && rekeningGroep.rekeningGroepSoort != RekeningGroepSoort.BETAALREKENING)
+        if (betaalMethoden.size == 0 && !zonderBetaalMethodenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
             throw PM_RekeningMoetBetaalmethodeException(listOf(rekeningDTO.naam))
 
         val budgetPeriodiciteit =
@@ -122,7 +119,7 @@ class RekeningService {
             betaalMiddelenRekeningGroepSoort.contains(gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort)
         val gekoppeldeRekeningIsSpaarRekening =
             gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING
-        if ((!gekoppeldeRekeningIsBetaalMiddel && uitgavePotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
+        if ((!gekoppeldeRekeningIsBetaalMiddel && potjesVoorNuRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
             !gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)
         )
             throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))

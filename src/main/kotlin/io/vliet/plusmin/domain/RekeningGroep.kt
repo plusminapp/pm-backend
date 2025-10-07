@@ -47,9 +47,9 @@ class RekeningGroep(
         val spaarPotjesRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.SPAARPOT
         )
-        val uitgavePotjesRekeningGroepSoort = arrayOf(
-            RekeningGroepSoort.UITGAVEN,
-            RekeningGroepSoort.AFLOSSING,
+        val zonderBetaalMethodenRekeningGroepSoort = arrayOf(
+            RekeningGroepSoort.BETAALREKENING,
+            RekeningGroepSoort.RESERVERING_BUFFER,
         )
         val potjesRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.UITGAVEN,

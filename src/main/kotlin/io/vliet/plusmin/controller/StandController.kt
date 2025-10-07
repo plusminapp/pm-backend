@@ -52,8 +52,8 @@ class StandController {
         return standService.getStandOpDatum(hulpvrager, peilDatum)
     }
 
-    @Operation(summary = "GET de saldi controle voor hulpvrager")
-    @GetMapping("/hulpvrager/{hulpvragerId}")
+    @Operation(summary = "GET de spaarsaldi controle voor hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}/checkspaarsaldi")
     fun checkSaldi(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any> {
