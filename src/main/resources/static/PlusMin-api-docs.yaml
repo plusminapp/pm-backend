@@ -432,6 +432,34 @@ paths:
             '*/*':
               schema:
                 type: object
+  /stand/hulpvrager/{hulpvragerId}/periode/{periodeId}/openingsbalans:
+    get:
+      tags:
+      - stand-controller
+      summary: GET de stand voor hulpvrager op datum
+      operationId: getOpeningsBalansVoorPeriode
+      parameters:
+      - name: hulpvragerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SaldoDTO"
   /stand/hulpvrager/{hulpvragerId}/datum/{datum}:
     get:
       tags:
@@ -720,7 +748,7 @@ components:
           type: number
         opgenomenSaldo:
           type: number
-        oorspronkelijkeBetaling:
+        correctieBoeking:
           type: number
         achterstandOpPeilDatum:
           type: number
@@ -742,8 +770,8 @@ components:
       - achterstand
       - betaling
       - budgetMaandBedrag
+      - correctieBoeking
       - id
-      - oorspronkelijkeBetaling
       - openingsBalansSaldo
       - openingsOpgenomenSaldo
       - openingsReserveSaldo

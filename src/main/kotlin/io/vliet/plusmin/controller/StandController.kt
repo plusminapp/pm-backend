@@ -8,6 +8,7 @@ import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.CheckSaldiService
 import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.StandService
+import io.vliet.plusmin.service.StartSaldiVanPeriodeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +26,9 @@ class StandController {
 
     @Autowired
     lateinit var standService: StandService
+
+    @Autowired
+    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -50,6 +54,18 @@ class StandController {
         logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} op datum $datum")
         val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
         return standService.getStandOpDatum(hulpvrager, peilDatum)
+    }
+
+    @Operation(summary = "GET de stand voor hulpvrager op datum")
+    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}/openingsbalans")
+    fun getOpeningsBalansVoorPeriode(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("periodeId") periodeId: Long,
+    ): List<SaldoDTO> {
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
+        logger.info("GET SaldoController.getOpeningsBalansVoorPeriode() voor ${hulpvrager.email} door ${vrijwilliger.email} voor periode datum $periodeId")
+        return startSaldiVanPeriodeService
+            .berekenStartSaldiVanPeriode(hulpvrager, periodeId)
     }
 
     @Operation(summary = "GET de spaarsaldi controle voor hulpvrager")
