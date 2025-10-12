@@ -84,7 +84,7 @@ class PeriodeUpdateService {
                     achterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
                     betaling = betaling,
-                    oorspronkelijkeBetaling = betaling,
+                    correctieBoeking = BigDecimal.ZERO,
                     budgetVariabiliteit = saldo.rekening.budgetVariabiliteit,
                     periode = periode
                 )
@@ -107,7 +107,7 @@ class PeriodeUpdateService {
                         openingsBalansSaldo = saldo.openingsBalansSaldo,
                         achterstand = saldo.achterstand,
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
-                        oorspronkelijkeBetaling = saldo.betaling,
+                        correctieBoeking = BigDecimal.ZERO,
                         betaling = saldo.betaling,
                         budgetVariabiliteit = rekening.budgetVariabiliteit,
                         periode = periode,
@@ -205,11 +205,21 @@ class PeriodeUpdateService {
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
         return nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
             val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
-                ?: throw PM_GeenSaldoVoorRekeningException(listOf(nieuweOpeningsBalansSaldo.rekeningNaam, gebruiker.bijnaam))
+                ?: throw PM_GeenSaldoVoorRekeningException(
+                    listOf(
+                        nieuweOpeningsBalansSaldo.rekeningNaam,
+                        gebruiker.bijnaam
+                    )
+                )
             // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
-            val nieuweBetaling = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
-            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: betaling wordt aangepast van ${saldo.betaling} naar ${nieuweBetaling}")
-            saldoRepository.save(saldo.fullCopy(betaling = nieuweBetaling)).toDTO()
+            val correctieboeking = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
+            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${saldo.openingsBalansSaldo} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
+            saldoRepository.save(
+                saldo.fullCopy(
+                    correctieBoeking = saldo.correctieBoeking + correctieboeking,
+                    openingsBalansSaldo = nieuweOpeningsBalansSaldo.openingsBalansSaldo
+                )
+            ).toDTO()
         }
     }
 }

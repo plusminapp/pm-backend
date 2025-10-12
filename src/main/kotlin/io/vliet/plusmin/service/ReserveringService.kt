@@ -48,7 +48,7 @@ class ReserveringService {
             ?: throw PM_BufferRekeningNotFoundException(listOf(gebruiker.bijnaam))
 
         val initieleStartSaldiVanPeriode: List<Saldo> =
-            startSaldiVanPeriodeService.berekenStartSaldiVanPeilPeriode(periode)
+            startSaldiVanPeriodeService.berekenStartSaldiVanPeriode(periode)
         val initieleBuffer =
             initieleStartSaldiVanPeriode.find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }?.openingsReserveSaldo
                 ?: BigDecimal.ZERO

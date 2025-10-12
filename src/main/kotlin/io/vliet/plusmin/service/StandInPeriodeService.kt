@@ -41,7 +41,7 @@ class StandInPeriodeService {
         inclusiefOngeldigeRekeningen: Boolean = false
     ): List<Saldo.SaldoDTO> {
         val gebruiker = peilPeriode.gebruiker
-        val startSaldiVanPeilPeriode = startSaldiVanPeriodeService.berekenStartSaldiVanPeilPeriode(peilPeriode)
+        val startSaldiVanPeilPeriode = startSaldiVanPeriodeService.berekenStartSaldiVanPeriode(peilPeriode)
         val mutatiesInPeilPeriode =
             startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
                 gebruiker,
@@ -124,7 +124,7 @@ class StandInPeriodeService {
                     betaling = betaling,
                     reservering = reservering,
                     opgenomenSaldo = opgenomenSaldo,
-//                    oorspronkelijkeBetaling = TODO(),
+                    correctieBoeking = BigDecimal.ZERO,
                     achterstandOpPeilDatum = achterstandOpPeilDatum,
                     budgetPeilDatum = peilDatum.toString(),
                     budgetOpPeilDatum = budgetOpPeilDatum,

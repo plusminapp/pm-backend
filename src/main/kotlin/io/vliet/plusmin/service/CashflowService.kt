@@ -125,7 +125,7 @@ class CashflowService {
 
     fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
         val startSaldiVanPeriode = startSaldiVanPeriodeService
-            .berekenStartSaldiVanPeilPeriode(periode)
+            .berekenStartSaldiVanPeriode(periode)
         val saldoBetaalmiddelen = startSaldiVanPeriode
             .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }

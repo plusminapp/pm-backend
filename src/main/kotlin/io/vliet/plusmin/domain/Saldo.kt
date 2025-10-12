@@ -36,7 +36,7 @@ class Saldo(
     val betaling: BigDecimal = BigDecimal.ZERO,                     // betaling deze periode
     val reservering: BigDecimal = BigDecimal.ZERO,                  // reservering deze periode
     val opgenomenSaldo: BigDecimal = BigDecimal.ZERO,               // opgenomen saldo deze periode
-    val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,      // betaling deze periode
+    val correctieBoeking: BigDecimal = BigDecimal.ZERO,      // betaling deze periode
     val budgetVariabiliteit: Int? = null,                           // variabiliteit als percentage van budgetMaandBedrag
     @ManyToOne
     @JsonIgnore
@@ -53,7 +53,7 @@ class Saldo(
         betaling: BigDecimal = this.betaling,
         reservering: BigDecimal = this.reservering,
         opgenomenSaldo: BigDecimal = this.opgenomenSaldo,
-        oorspronkelijkeBetaling: BigDecimal = this.oorspronkelijkeBetaling,
+        correctieBoeking: BigDecimal = this.correctieBoeking,
         budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         periode: Periode? = this.periode,
     ) = Saldo(
@@ -67,7 +67,7 @@ class Saldo(
         betaling,
         reservering,
         opgenomenSaldo,
-        oorspronkelijkeBetaling,
+        correctieBoeking,
         budgetVariabiliteit,
         periode
     )
@@ -92,7 +92,7 @@ class Saldo(
         val betaling: BigDecimal = BigDecimal.ZERO,
         val reservering: BigDecimal = BigDecimal.ZERO,
         val opgenomenSaldo: BigDecimal = BigDecimal.ZERO,
-        val oorspronkelijkeBetaling: BigDecimal = BigDecimal.ZERO,
+        val correctieBoeking: BigDecimal = BigDecimal.ZERO,
         val achterstandOpPeilDatum: BigDecimal? = null,
         val budgetPeilDatum: String? = null,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
@@ -106,9 +106,8 @@ class Saldo(
         val restMaandBudget: BigDecimal? = null,
     )
 
-    fun toDTO(
-    ): SaldoDTO {
-        // Saldo → SaldoDTO kan alleen voor periodes die zijn afgelopen
+    fun toDTO(): SaldoDTO {
+//         Saldo → SaldoDTO kan alleen voor periodes die zijn afgelopen
         val achterstandOpPeilDatum = this.achterstand + this.betaling.abs() - this.budgetMaandBedrag
         val budgetPeilDatum = periode?.periodeEindDatum.toString()
         val budgetOpPeilDatum = this.budgetMaandBedrag.abs()
@@ -139,7 +138,7 @@ class Saldo(
             this.betaling,
             this.reservering,
             this.opgenomenSaldo,
-            this.oorspronkelijkeBetaling,
+            this.correctieBoeking,
             achterstandOpPeilDatum,
             budgetPeilDatum,
             budgetOpPeilDatum,

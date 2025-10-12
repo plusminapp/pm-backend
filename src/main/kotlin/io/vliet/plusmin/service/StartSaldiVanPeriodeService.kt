@@ -2,6 +2,7 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.Companion.opgenomenSaldoBetalingsSoorten
+import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
 import io.vliet.plusmin.repository.*
@@ -57,9 +58,25 @@ class StartSaldiVanPeriodeService {
         )
     }
 
-    fun berekenStartSaldiVanPeilPeriode(peilPeriode: Periode): List<Saldo> {
+    fun berekenStartSaldiVanPeriode(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
+        val periode = periodeRepository.findById(periodeId)
+            .orElseThrow { PM_PeriodeNotFoundException(listOf(periodeId.toString(), gebruiker.bijnaam)) }
+        if (periode.gebruiker.id != gebruiker.id)
+            throw PM_PeriodeNotFoundException(listOf(periodeId.toString(), gebruiker.bijnaam))
+        return berekenStartSaldiVanPeriode(periode)
+            .filter { balansRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            .sortedBy { it.rekening.sortOrder }
+            .map { it.toDTO() }
+    }
+
+    fun berekenStartSaldiVanPeriode(peilPeriode: Periode): List<Saldo> {
+        if (peilPeriode.periodeStatus == Periode.PeriodeStatus.GESLOTEN) {
+            return saldoRepository.findAllByPeriode(peilPeriode)
+        }
+
         val gebruiker = peilPeriode.gebruiker
         val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val vorigPeriodeIsBasisPeriode = basisPeriode.periodeEindDatum.plusDays(1).equals(peilPeriode.periodeStartDatum)
 
         val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
         val betalingenTussenBasisEnPeilPeriode = berekenMutatieLijstTussenDatums(
@@ -107,6 +124,7 @@ class StartSaldiVanPeriodeService {
                 openingsBalansSaldo = openingsBalansSaldo,
                 openingsReserveSaldo = openingsReserveSaldo,
                 openingsOpgenomenSaldo = openingsOpgenomenSaldo,
+                correctieBoeking = if(vorigPeriodeIsBasisPeriode) basisPeriodeSaldo.correctieBoeking else BigDecimal.ZERO,
                 achterstand = BigDecimal.ZERO,
             )
         }
