@@ -8,7 +8,7 @@ servers:
 security:
 - bearerAuth: []
 paths:
-  /periode/hulpvrager/{hulpvragerId}/wijzig-periode-opening/{periodeId}:
+  /periodes/hulpvrager/{hulpvragerId}/wijzig-periode-opening/{periodeId}:
     put:
       tags:
       - periode-controller
@@ -42,7 +42,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periode/hulpvrager/{hulpvragerId}/sluiten/{periodeId}:
+  /periodes/hulpvrager/{hulpvragerId}/sluiten/{periodeId}:
     put:
       tags:
       - periode-controller
@@ -76,7 +76,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periode/hulpvrager/{hulpvragerId}/opruimen/{periodeId}:
+  /periodes/hulpvrager/{hulpvragerId}/opruimen/{periodeId}:
     put:
       tags:
       - periode-controller
@@ -102,7 +102,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periode/hulpvrager/{hulpvragerId}/heropenen/{periodeId}:
+  /periodes/hulpvrager/{hulpvragerId}/heropenen/{periodeId}:
     put:
       tags:
       - periode-controller
@@ -254,7 +254,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BetalingValidatieWrapper"
-  /rekening/hulpvrager/{hulpvragerId}:
+  /reserveringen/hulpvrager/{hulpvragerId}:
+    post:
+      tags:
+      - reservering-controller
+      operationId: creeerNieuweReserveringVoorPeriode
+      parameters:
+      - name: hulpvragerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /rekeningen/hulpvrager/{hulpvragerId}:
     post:
       tags:
       - rekening-controller
@@ -281,7 +300,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /gebruiker:
+  /gebruikers:
     get:
       tags:
       - gebruiker-controller
@@ -505,7 +524,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /rekening/hulpvrager/{hulpvragerId}/periode/{periodeId}:
+  /rekeningen/hulpvrager/{hulpvragerId}/periode/{periodeId}:
     get:
       tags:
       - rekening-controller
@@ -531,7 +550,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /rekening/hulpvrager/{hulpvragerId}/periode/{periodeId}/cashflow:
+  /rekeningen/hulpvrager/{hulpvragerId}/periode/{periodeId}/cashflow:
     get:
       tags:
       - rekening-controller
@@ -557,7 +576,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periode/hulpvrager/{hulpvragerId}:
+  /periodes/hulpvrager/{hulpvragerId}:
     get:
       tags:
       - periode-controller
@@ -577,7 +596,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periode/hulpvrager/{hulpvragerId}/sluitvoorstel/{periodeId}:
+  /periodes/hulpvrager/{hulpvragerId}/sluitvoorstel/{periodeId}:
     get:
       tags:
       - periode-controller
@@ -603,7 +622,7 @@ paths:
             '*/*':
               schema:
                 type: object
-  /gebruiker/zelf:
+  /gebruikers/zelf:
     get:
       tags:
       - gebruiker-controller

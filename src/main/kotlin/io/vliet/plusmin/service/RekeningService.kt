@@ -120,7 +120,7 @@ class RekeningService {
         val gekoppeldeRekeningIsSpaarRekening =
             gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING
         if ((!gekoppeldeRekeningIsBetaalMiddel && potjesVoorNuRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
-            !gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)
+            (!gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
         )
             throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))
         logger.info("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")

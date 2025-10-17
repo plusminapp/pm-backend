@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrElse
 
 @RestController
-@RequestMapping("/rekening")
+@RequestMapping("/rekeningen")
 class RekeningController {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository

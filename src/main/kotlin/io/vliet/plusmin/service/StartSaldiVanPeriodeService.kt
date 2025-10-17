@@ -2,6 +2,7 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.Companion.opgenomenSaldoBetalingsSoorten
+import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
@@ -39,7 +40,7 @@ class StartSaldiVanPeriodeService {
 
         val saldoBetaalMiddelen = basisPeriodeSaldi
             .filter { betaalMiddelenRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-            .sumOf { it.openingsBalansSaldo }
+            .sumOf { it.openingsBalansSaldo + it.correctieBoeking}
         val saldoPotjesVoorNu = basisPeriodeSaldi
             .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
             .sumOf { it.openingsReserveSaldo }
@@ -70,8 +71,21 @@ class StartSaldiVanPeriodeService {
     }
 
     fun berekenStartSaldiVanPeriode(peilPeriode: Periode): List<Saldo> {
-        if (peilPeriode.periodeStatus == Periode.PeriodeStatus.GESLOTEN) {
-            return saldoRepository.findAllByPeriode(peilPeriode)
+        if (geslotenPeriodes.contains(peilPeriode.periodeStatus)) {
+            val vorigePeriode = periodeRepository.getPeriodeGebruikerEnDatum(
+                peilPeriode.gebruiker.id,
+                peilPeriode.periodeStartDatum.minusDays(1)
+            )
+                ?: throw PM_PeriodeNotFoundException(listOf("vorige", peilPeriode.gebruiker.bijnaam))
+            val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
+            val huidigePeriodeSaldi = saldoRepository.findAllByPeriode(peilPeriode)
+            logger.info("berekenStartSaldiVanPeriode geslotenPeriode: vorigePeriode ${vorigePeriode.periodeStartDatum}, huidigePeriode- ${peilPeriode.periodeStartDatum}")
+            return huidigePeriodeSaldi.map { huidigePeriodeSaldo ->
+                val vorigePeriodeSaldo = vorigePeriodeSaldi.find { huidigePeriodeSaldo.rekening.id == it.rekening.id }
+                huidigePeriodeSaldo.fullCopy(
+                    correctieBoeking = vorigePeriodeSaldo?.correctieBoeking ?: BigDecimal.ZERO
+                )
+            }
         }
 
         val gebruiker = peilPeriode.gebruiker
@@ -96,7 +110,7 @@ class StartSaldiVanPeriodeService {
                 .sumOf { it.opgenomenSaldo }
 
             val openingsBalansSaldo =
-                basisPeriodeSaldo.openingsBalansSaldo + basisPeriodeSaldo.betaling + betaling
+                basisPeriodeSaldo.openingsBalansSaldo + basisPeriodeSaldo.betaling + basisPeriodeSaldo.correctieBoeking + betaling
             val openingsReserveSaldo =
                 basisPeriodeSaldo.openingsReserveSaldo + basisPeriodeSaldo.reservering + reservering - betaling
             val openingsOpgenomenSaldo =
@@ -124,7 +138,7 @@ class StartSaldiVanPeriodeService {
                 openingsBalansSaldo = openingsBalansSaldo,
                 openingsReserveSaldo = openingsReserveSaldo,
                 openingsOpgenomenSaldo = openingsOpgenomenSaldo,
-                correctieBoeking = if(vorigPeriodeIsBasisPeriode) basisPeriodeSaldo.correctieBoeking else BigDecimal.ZERO,
+                correctieBoeking = if (vorigPeriodeIsBasisPeriode) basisPeriodeSaldo.correctieBoeking else BigDecimal.ZERO,
                 achterstand = BigDecimal.ZERO,
             )
         }

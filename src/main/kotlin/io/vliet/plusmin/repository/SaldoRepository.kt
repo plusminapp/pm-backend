@@ -29,5 +29,5 @@ interface SaldoRepository : JpaRepository<Saldo, Long> {
                     "JOIN periode p2 ON s2.periode_id = p2.id " +
                     "WHERE s2.rekening_id = :rekeningId)",
         nativeQuery = true)
-    fun findLaatsteSaldoBijRekening(rekeningId: Long): Optional<Saldo>
+    fun findLaatsteSaldoBijRekening(rekeningId: Long): Saldo?
 }

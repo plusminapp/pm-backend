@@ -34,6 +34,9 @@ class PeriodeUpdateService {
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
+    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
+
+    @Autowired
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
@@ -72,7 +75,7 @@ class PeriodeUpdateService {
                     else saldo.rekening.toDTO(periode, betaling).budgetMaandBedrag ?: BigDecimal.ZERO
                 val openingsBalansSaldo =
                     if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
-                        saldo.openingsBalansSaldo + saldo.betaling
+                        saldo.openingsBalansSaldo + saldo.betaling + saldo.correctieBoeking
                     else BigDecimal.ZERO
                 val achterstand = BigDecimal.ZERO
 //                    if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
@@ -199,27 +202,31 @@ class PeriodeUpdateService {
         periodeId: Long,
         nieuweOpeningsSaldi: List<Saldo.SaldoDTO>
     ): List<Saldo.SaldoDTO> {
-        // LET OP: de opening van een periode wordt opgeslagen als sluiting van de vorige periode
-        // om de opening aan te passen worden de betalingen in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
+        // LET OP:
+        // - de alleen gesloten periodes hebben opgeslagen saldi
+        // - het aanpassen van de opening van een periode kan alleen bij een OPEN periode waarbij de vorige periode gesloten is
+        // om de opening aan te passen worden de correctieboekingen daarom in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
         val (vorigePeriode, _) = checkPeriodeSluiten(gebruiker, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
-        return nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
-            val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
+        val aangepasteOpeningsSaldi = nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
+            val vorigePeriodeSaldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
                 ?: throw PM_GeenSaldoVoorRekeningException(
                     listOf(
                         nieuweOpeningsBalansSaldo.rekeningNaam,
                         gebruiker.bijnaam
                     )
                 )
-            // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
-            val correctieboeking = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
-            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${saldo.openingsBalansSaldo} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
+            // Update de correctieBoeking
+            val correctieboeking = nieuweOpeningsBalansSaldo.openingsBalansSaldo - (vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.betaling)
+            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${vorigePeriodeSaldo.openingsBalansSaldo+vorigePeriodeSaldo.betaling} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
             saldoRepository.save(
-                saldo.fullCopy(
-                    correctieBoeking = saldo.correctieBoeking + correctieboeking,
-                    openingsBalansSaldo = nieuweOpeningsBalansSaldo.openingsBalansSaldo
+                vorigePeriodeSaldo.fullCopy(
+                    correctieBoeking = correctieboeking,
                 )
             ).toDTO()
         }
+        startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
+        updateSpaarSaldiService.checkSpaarSaldi(gebruiker)
+        return aangepasteOpeningsSaldi
     }
 }

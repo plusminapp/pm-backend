@@ -27,7 +27,7 @@ class Rekening(
     @JsonIgnore
     @JoinColumn(name = "rekening_groep_id", nullable = false)
     val rekeningGroep: RekeningGroep,
-    val sortOrder: Int,
+    val sortOrder: Int, // volgorde binnen de rekeninggroep; de eerste wordt gebruikt om correcties op toe te passen
     val bankNaam: String? = null,
     @ManyToOne
     @JoinColumn(name = "van_periode_id")

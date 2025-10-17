@@ -40,7 +40,7 @@ class BetalingvalidatieService {
                 gebruiker.bijnaam
             )
         )
-        val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening(rekening.id).getOrNull()
+        val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening(rekening.id)
             ?: throw PM_GeenSaldoVoorRekeningException(listOf(rekening.naam, gebruiker.bijnaam))
         val betalingen = if (openingsBalansSaldo.periode == null) {
             throw PM_GeenPeriodeVoorSaldoException(listOf(openingsBalansSaldo.id.toString(), gebruiker.email))

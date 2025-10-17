@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.format.DateTimeFormatter
 
 @RestController
-@RequestMapping("/periode")
+@RequestMapping("/periodes")
 class PeriodeController {
 
     @Autowired
@@ -100,9 +100,8 @@ class PeriodeController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("PUT PeriodeController.wijzigPeriodeOpeningVoorHulpvrager() $periodeId voor ${hulpvrager.email} door ${vrijwilliger.email}.")
-        val opgeslagenOpeningsSaldi =
-            periodeUpdateService.wijzigPeriodeOpening(hulpvrager, periodeId, nieuweOpeningsSaldi)
-        return ResponseEntity.ok().body(opgeslagenOpeningsSaldi)
+        periodeUpdateService.wijzigPeriodeOpening(hulpvrager, periodeId, nieuweOpeningsSaldi)
+        return ResponseEntity.ok().build()
     }
 
     @Operation(summary = "GET voorstel voor het sluiten van een periode voor hulpvrager")

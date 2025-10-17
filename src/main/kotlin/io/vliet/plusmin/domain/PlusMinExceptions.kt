@@ -114,6 +114,13 @@ class PM_BufferRekeningNotFoundException(
     HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_NOT_FOUND", parameters
 )
 
+class PM_SpaarRekeningNotFoundException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Geen spaarrekening gevonden voor ${parameters[0]}.",
+    HttpStatus.INTERNAL_SERVER_ERROR, "SPAAR_REKENING_NOT_FOUND", parameters
+)
+
 class PM_GeenBetaaldagException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
