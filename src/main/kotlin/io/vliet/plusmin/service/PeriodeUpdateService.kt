@@ -11,6 +11,7 @@ import io.vliet.plusmin.domain.PM_VorigePeriodeNietGeslotenException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesRekeningGroepSoort
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -51,48 +52,10 @@ class PeriodeUpdateService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun sluitPeriode(gebruiker: Gebruiker, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
-        val (basisPeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+        val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         if (saldoLijst.isEmpty()) {
-            val eindSaldiVanVorigeGeslotenPeriode = saldoRepository.findAllByPeriode(basisPeriode)
-            val betalingenGedurendePeilPeriode = startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
-                gebruiker,
-                periode.periodeStartDatum,
-                periode.periodeEindDatum
-            )
-            logger.info(
-                "sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
-                    eindSaldiVanVorigeGeslotenPeriode
-                        .filter { it.rekening.naam == "Greenchoice" }
-                        .joinToString { it.rekening.naam + " | OS: " + it.openingsBalansSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.betaling }
-                }"
-            )
-            val nieuweSaldiLijst = eindSaldiVanVorigeGeslotenPeriode.map { saldo ->
-                val betaling = betalingenGedurendePeilPeriode
-                    .filter { it.rekening.naam == saldo.rekening.naam }
-                    .sumOf { it.betaling }
-                val budgetMaandBedrag =
-                    if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
-                    else saldo.rekening.toDTO(periode, betaling).budgetMaandBedrag ?: BigDecimal.ZERO
-                val openingsBalansSaldo =
-                    if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
-                        saldo.openingsBalansSaldo + saldo.betaling + saldo.correctieBoeking
-                    else BigDecimal.ZERO
-                val achterstand = BigDecimal.ZERO
-//                    if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-//                        (saldo.betaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
-//                    else BigDecimal.ZERO
-
-                saldo.fullCopy(
-                    openingsBalansSaldo = openingsBalansSaldo,
-                    achterstand = achterstand,
-                    budgetMaandBedrag = budgetMaandBedrag,
-                    betaling = betaling,
-                    correctieBoeking = BigDecimal.ZERO,
-                    budgetVariabiliteit = saldo.rekening.budgetVariabiliteit,
-                    periode = periode
-                )
-            }
-            sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst.map { it.toDTO() })
+            val nieuweSaldiLijst = standInPeriodeService.berekenSaldiInPeriode(periode.periodeEindDatum, periode)
+            sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst)
         } else {
             sluitPeriodeIntern(gebruiker, periode, saldoLijst)
         }
@@ -108,10 +71,12 @@ class PeriodeUpdateService {
                     Saldo(
                         rekening = rekening,
                         openingsBalansSaldo = saldo.openingsBalansSaldo,
+                        openingsReserveSaldo = saldo.openingsReserveSaldo,
                         achterstand = saldo.achterstand,
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
                         correctieBoeking = BigDecimal.ZERO,
                         betaling = saldo.betaling,
+                        reservering = saldo.reservering,
                         budgetVariabiliteit = rekening.budgetVariabiliteit,
                         periode = periode,
                     )

@@ -40,8 +40,7 @@ class BetalingService {
     }
 
     fun creeerBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): BetalingDTO {
-        val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
-
+        val betalingList = findMatchingBetaling(gebruiker, betalingDTO)
         val betaling = if (betalingList.isNotEmpty()) {
             logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
             update(betalingList[0], betalingDTO)

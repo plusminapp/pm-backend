@@ -40,13 +40,23 @@ class ReserveringService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun creeerReservingen(gebruiker: Gebruiker) {
-        val periode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
-        if (periode == null || periode.periodeStatus != Periode.PeriodeStatus.HUIDIG) throw PM_HuidigePeriodeNotFoundException(listOf(gebruiker.bijnaam))
+    fun creeerReserveringen(gebruiker: Gebruiker) {
+        val periodes = periodeRepository
+            .getPeriodesVoorGebruiker(gebruiker)
+            .sortedBy { it.periodeStartDatum }
+            .drop(1)
+        periodes.forEach { periode ->
+            creeerReserveringenVoorPeriode(gebruiker, periode.id)
+        }
+    }
+
+    fun creeerReserveringenVoorPeriode(gebruiker: Gebruiker, periodeId: Long) {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
         val reserveringBufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(gebruiker)
             ?: throw PM_BufferRekeningNotFoundException(listOf(gebruiker.bijnaam))
 
+        val periode = periodeRepository.getPeriodeById(periodeId)
+        if (periode == null) throw PM_PeriodeNotFoundException(listOf(gebruiker.bijnaam))
         val initieleStartSaldiVanPeriode: List<Saldo> =
             startSaldiVanPeriodeService.berekenStartSaldiVanPeriode(periode)
         val initieleBuffer =

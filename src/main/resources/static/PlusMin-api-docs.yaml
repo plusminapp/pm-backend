@@ -258,9 +258,34 @@ paths:
     post:
       tags:
       - reservering-controller
-      operationId: creeerNieuweReserveringVoorPeriode
+      operationId: creeerReservering
       parameters:
       - name: hulpvragerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /reserveringen/hulpvrager/{hulpvragerId}/periode/{periodeId}:
+    post:
+      tags:
+      - reservering-controller
+      operationId: creeerReserveringVoorPeriode
+      parameters:
+      - name: hulpvragerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodeId
         in: path
         required: true
         schema:
