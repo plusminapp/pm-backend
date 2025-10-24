@@ -68,7 +68,7 @@ class StandService {
                     .filter { it.rekening.rekeningIsGeldigInPeriode(periode) }
                     .map { it.toDTO() }
             } else {
-                standInPeriodeService.berekenSaldiInPeriode(peilDatum, periode)
+                standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
             }
         val openingsReservePotjesVoorNuSaldo = saldiOpDatum
             .filter {

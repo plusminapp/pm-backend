@@ -16,7 +16,7 @@ import java.time.LocalDate
 import kotlin.plus
 
 @Service
-class StartSaldiVanPeriodeService {
+class StandStartVanPeriodeService {
     @Autowired
     lateinit var rekeningGroepRepository: RekeningGroepRepository
 
@@ -33,31 +33,6 @@ class StartSaldiVanPeriodeService {
     lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
-
-    fun updateOpeningsReserveringsSaldo(gebruiker: Gebruiker) {
-        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-        val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
-
-        val saldoBetaalMiddelen = basisPeriodeSaldi
-            .filter { betaalMiddelenRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-            .sumOf { it.openingsBalansSaldo + it.correctieBoeking}
-        val saldoPotjesVoorNu = basisPeriodeSaldi
-            .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
-            .sumOf { it.openingsReserveSaldo }
-        logger.info(
-            "Openings saldo betaalmiddelen: $saldoBetaalMiddelen, " +
-                    "openings saldo potjes voor nu: $saldoPotjesVoorNu, " +
-                    "totaal: ${saldoBetaalMiddelen - saldoPotjesVoorNu}"
-        )
-        val bufferReserveSaldo = basisPeriodeSaldi
-            .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
-            ?: throw PM_GeenBufferVoorSaldoException(listOf(basisPeriode.id.toString(), gebruiker.bijnaam))
-        saldoRepository.save(
-            bufferReserveSaldo.fullCopy(
-                openingsReserveSaldo = saldoBetaalMiddelen - saldoPotjesVoorNu
-            )
-        )
-    }
 
     fun berekenStartSaldiVanPeriode(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val periode = periodeRepository.findById(periodeId)
@@ -200,5 +175,30 @@ class StartSaldiVanPeriodeService {
         logger.info("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
 
         return opgenomenSaldoMutatie
+    }
+
+    fun updateOpeningsReserveringsSaldo(gebruiker: Gebruiker) {
+        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
+
+        val saldoBetaalMiddelen = basisPeriodeSaldi
+            .filter { betaalMiddelenRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            .sumOf { it.openingsBalansSaldo + it.correctieBoeking}
+        val saldoPotjesVoorNu = basisPeriodeSaldi
+            .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
+            .sumOf { it.openingsReserveSaldo }
+        logger.info(
+            "Openings saldo betaalmiddelen: $saldoBetaalMiddelen, " +
+                    "openings saldo potjes voor nu: $saldoPotjesVoorNu, " +
+                    "totaal: ${saldoBetaalMiddelen - saldoPotjesVoorNu}"
+        )
+        val bufferReserveSaldo = basisPeriodeSaldi
+            .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
+            ?: throw PM_GeenBufferVoorSaldoException(listOf(basisPeriode.id.toString(), gebruiker.bijnaam))
+        saldoRepository.save(
+            bufferReserveSaldo.fullCopy(
+                openingsReserveSaldo = saldoBetaalMiddelen - saldoPotjesVoorNu
+            )
+        )
     }
 }

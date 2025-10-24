@@ -30,7 +30,7 @@ class ReserveringService {
     lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var standInPeriodeService: StandInPeriodeService
@@ -58,7 +58,7 @@ class ReserveringService {
         val periode = periodeRepository.getPeriodeById(periodeId)
         if (periode == null) throw PM_PeriodeNotFoundException(listOf(gebruiker.bijnaam))
         val initieleStartSaldiVanPeriode: List<Saldo> =
-            startSaldiVanPeriodeService.berekenStartSaldiVanPeriode(periode)
+            standStartVanPeriodeService.berekenStartSaldiVanPeriode(periode)
         val initieleBuffer =
             initieleStartSaldiVanPeriode.find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }?.openingsReserveSaldo
                 ?: BigDecimal.ZERO
@@ -138,7 +138,7 @@ class ReserveringService {
         logger.info("POST: Buffer saldo op ${budgetHorizon} is $bufferSaldo, voor ${gebruiker.bijnaam}")
 
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        val mutatiesInPeilPeriode = startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
+        val mutatiesInPeilPeriode = standStartVanPeriodeService.berekenMutatieLijstTussenDatums(
             gebruiker, periode.periodeStartDatum, budgetHorizon
         )
         logger.info(

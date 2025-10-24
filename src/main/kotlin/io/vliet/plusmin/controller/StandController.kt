@@ -8,7 +8,7 @@ import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.UpdateSpaarSaldiService
 import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.StandService
-import io.vliet.plusmin.service.StartSaldiVanPeriodeService
+import io.vliet.plusmin.service.StandStartVanPeriodeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +28,7 @@ class StandController {
     lateinit var standService: StandService
 
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -64,7 +64,7 @@ class StandController {
     ): List<SaldoDTO> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.getOpeningsBalansVoorPeriode() voor ${hulpvrager.email} door ${vrijwilliger.email} voor periode datum $periodeId")
-        return startSaldiVanPeriodeService
+        return standStartVanPeriodeService
             .berekenStartSaldiVanPeriode(hulpvrager, periodeId)
     }
 

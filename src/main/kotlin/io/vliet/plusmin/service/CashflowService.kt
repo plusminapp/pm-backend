@@ -28,7 +28,7 @@ class CashflowService {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -124,13 +124,13 @@ class CashflowService {
     }
 
     fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
-        val startSaldiVanPeriode = startSaldiVanPeriodeService
-            .berekenStartSaldiVanPeriode(periode)
+        val startSaldiVanPeriode = standInPeriodeService
+            .berekenSaldiOpDatum(periode.gebruiker, periode.periodeStartDatum.minusDays(1))
         val saldoBetaalmiddelen = startSaldiVanPeriode
-            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }
         val saldoSpaartegoed = startSaldiVanPeriode
-            .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
+            .filter { it.budgetType == RekeningGroep.BudgetType.SPAREN }
             .sumOf { it.openingsReserveSaldo }
         logger.info(
             "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +

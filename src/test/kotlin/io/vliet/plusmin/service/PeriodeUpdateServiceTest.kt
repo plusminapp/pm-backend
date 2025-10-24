@@ -30,7 +30,7 @@ class PeriodeUpdateServiceTest {
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Mock
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Mock
     lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
@@ -139,7 +139,7 @@ class PeriodeUpdateServiceTest {
         val verwachteSaldi = listOf(testSaldoDTO)
 
         `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
-        `when`(standInPeriodeService.berekenSaldiInPeriode(
+        `when`(standInPeriodeService.berekenSaldiOpDatum(
             huidigePeriode.periodeEindDatum,
             huidigePeriode,
             true
@@ -285,7 +285,7 @@ class PeriodeUpdateServiceTest {
 
         `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
         doNothing().`when`(updateSpaarSaldiService).checkSpaarSaldi(testGebruiker)
-        doNothing().`when`(startSaldiVanPeriodeService).updateOpeningsReserveringsSaldo(testGebruiker)
+        doNothing().`when`(standStartVanPeriodeService).updateOpeningsReserveringsSaldo(testGebruiker)
         `when`(saldoRepository.findAllByPeriode(vorigePeriode)).thenReturn(bestaandeSaldi)
         `when`(saldoRepository.save(org.mockito.ArgumentMatchers.any<Saldo>())).thenAnswer {
             it.arguments[0] as Saldo

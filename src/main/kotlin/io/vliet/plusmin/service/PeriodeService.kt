@@ -3,6 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.PM_LaatsteGeslotenPeriodeNotFoundException
 import io.vliet.plusmin.domain.PM_NoOpenPeriodException
+import io.vliet.plusmin.domain.PM_NoPeriodException
 import io.vliet.plusmin.domain.PM_PeriodeNotFoundException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -24,7 +25,7 @@ class PeriodeService {
 
     fun getPeriode(gebruiker: Gebruiker, datum: LocalDate): Periode {
         return periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
-            ?: throw PM_NoOpenPeriodException(listOf(gebruiker.email, datum.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+            ?: throw PM_NoPeriodException(listOf(gebruiker.email, datum.format(DateTimeFormatter.ISO_LOCAL_DATE)))
     }
 
     fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode {

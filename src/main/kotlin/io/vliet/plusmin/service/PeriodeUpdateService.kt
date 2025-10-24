@@ -10,8 +10,6 @@ import io.vliet.plusmin.domain.PM_RekeningNotFoundException
 import io.vliet.plusmin.domain.PM_VorigePeriodeNietGeslotenException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
-import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesRekeningGroepSoort
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -41,7 +39,7 @@ class PeriodeUpdateService {
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -54,7 +52,7 @@ class PeriodeUpdateService {
     fun sluitPeriode(gebruiker: Gebruiker, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
         val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         if (saldoLijst.isEmpty()) {
-            val nieuweSaldiLijst = standInPeriodeService.berekenSaldiInPeriode(periode.periodeEindDatum, periode)
+            val nieuweSaldiLijst = standInPeriodeService.berekenSaldiOpDatum(periode.periodeEindDatum, periode)
             sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst)
         } else {
             sluitPeriodeIntern(gebruiker, periode, saldoLijst)
@@ -92,7 +90,7 @@ class PeriodeUpdateService {
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         return standInPeriodeService
-            .berekenSaldiInPeriode(periode.periodeEindDatum, periode, true)
+            .berekenSaldiOpDatum(periode.periodeEindDatum, periode, true)
     }
 
     fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {
@@ -190,7 +188,7 @@ class PeriodeUpdateService {
                 )
             ).toDTO()
         }
-        startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
+        standStartVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
         updateSpaarSaldiService.checkSpaarSaldi(gebruiker)
         return aangepasteOpeningsSaldi
     }

@@ -14,7 +14,10 @@ import java.time.LocalDate
 @Service
 class StandInPeriodeService {
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
+
+    @Autowired
+    lateinit var standEindeVanGeslotenPeriodeService: StandEindeVanGeslotenPeriodeService
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
@@ -32,36 +35,39 @@ class StandInPeriodeService {
         peilDatum: LocalDate,
     ): List<Saldo.SaldoDTO> {
         val periode = periodeService.getPeriode(gebruiker, peilDatum)
-        return berekenSaldiInPeriode(LocalDate.now(),periode)
+        return berekenSaldiOpDatum(LocalDate.now(),periode)
     }
 
-    fun berekenSaldiInPeriode(
+    fun berekenSaldiOpDatum(
         peilDatum: LocalDate,
         peilPeriode: Periode,
         inclusiefOngeldigeRekeningen: Boolean = false
     ): List<Saldo.SaldoDTO> {
+
         val gebruiker = peilPeriode.gebruiker
-        val startSaldiVanPeilPeriode = startSaldiVanPeriodeService.berekenStartSaldiVanPeriode(peilPeriode)
-        val mutatiesInPeilPeriode =
-            startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
+
+        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val eindSaldiVanBasisPeriode = standEindeVanGeslotenPeriodeService.berekenEindSaldiVanGeslotenPeriode(basisPeriode)
+
+        val mutatiesNaBasisPeriode =
+            standStartVanPeriodeService.berekenMutatieLijstTussenDatums(
                 gebruiker,
-                peilPeriode.periodeStartDatum,
+                basisPeriode.periodeEindDatum.plusDays(1),
                 peilDatum
             )
-        logger.info("mutatiesInPeilPeriode: van ${peilPeriode.periodeStartDatum}  ${mutatiesInPeilPeriode.joinToString { it.rekening.naam + ' ' + it.betaling + ' ' + it.reservering + ' ' + it.opgenomenSaldo }}")
 
-        return startSaldiVanPeilPeriode
+        return eindSaldiVanBasisPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
             .sortedBy { it.rekening.sortOrder }
             .map { saldo ->
                 val rekening = saldo.rekening
-                val betaling = mutatiesInPeilPeriode
+                val betaling = mutatiesNaBasisPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.betaling }
-                val reservering = mutatiesInPeilPeriode
+                val reservering = mutatiesNaBasisPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.reservering }
-                val opgenomenSaldo = mutatiesInPeilPeriode
+                val opgenomenSaldo = mutatiesNaBasisPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.opgenomenSaldo }
 

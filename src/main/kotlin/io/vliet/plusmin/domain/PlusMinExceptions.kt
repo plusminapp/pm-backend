@@ -64,6 +64,13 @@ class PM_NoOpenPeriodException(
     HttpStatus.BAD_REQUEST, "GEEN_OPEN_PERIODE", parameters
 )
 
+class PM_NoPeriodException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Op ${parameters[0]} is er geen periode voor ${parameters[1]}.",
+    HttpStatus.BAD_REQUEST, "GEEN_PERIODE", parameters
+)
+
 class PM_VorigePeriodeNietGeslotenException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(

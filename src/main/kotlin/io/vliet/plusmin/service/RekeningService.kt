@@ -23,7 +23,7 @@ import kotlin.jvm.optionals.getOrNull
 @Service
 class RekeningService {
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -85,7 +85,7 @@ class RekeningService {
         val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
 
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-            startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
+            standStartVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
         }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
