@@ -22,13 +22,13 @@ class CashflowService {
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
-    lateinit var rekeningService: RekeningService
+    lateinit var rekeningUtilitiesService: RekeningUtilitiesService
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
-    lateinit var standInPeriodeService: StandInPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -49,7 +49,7 @@ class CashflowService {
             }
         val laatsteBetalingDatum =
             betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager) ?: periode.periodeStartDatum
-        val rekeningGroepen = rekeningService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
+        val rekeningGroepen = rekeningUtilitiesService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
         val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val continueBudgetUitgaven = budgetContinueUitgaven(rekeningGroepen, periodeLengte)
         // "betaalde vaste lasten tot date (negatieve waarde)" + "verwachte vaste lasten tot date (negatieve waarde)"
@@ -124,13 +124,13 @@ class CashflowService {
     }
 
     fun openingsReserveringsSaldo(periode: Periode): BigDecimal {
-        val startSaldiVanPeriode = standInPeriodeService
-            .berekenSaldiOpDatum(periode.gebruiker, periode.periodeStartDatum.minusDays(1))
+        val startSaldiVanPeriode = standStartVanPeriodeService
+            .berekenStartSaldiVanPeriode(periode)
         val saldoBetaalmiddelen = startSaldiVanPeriode
-            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroepSoort) }
+            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }
         val saldoSpaartegoed = startSaldiVanPeriode
-            .filter { it.budgetType == RekeningGroep.BudgetType.SPAREN }
+            .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
             .sumOf { it.openingsReserveSaldo }
         logger.info(
             "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +

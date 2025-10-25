@@ -8,6 +8,7 @@ import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.service.CashflowService
 import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.RekeningService
+import io.vliet.plusmin.service.RekeningUtilitiesService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,6 +24,9 @@ class RekeningController {
 
     @Autowired
     lateinit var rekeningService: RekeningService
+
+    @Autowired
+    lateinit var rekeningUtilitiesService: RekeningUtilitiesService
 
     @Autowired
     lateinit var cashflowService: CashflowService
@@ -45,7 +49,7 @@ class RekeningController {
         logger.info("GET RekeningController.getAlleRekeningenPerBetalingsSoortVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(rekeningService.rekeningGroepenPerBetalingsSoort(hulpvrager, periode))
+        return ResponseEntity.ok().body(rekeningUtilitiesService.rekeningGroepenPerBetalingsSoort(hulpvrager, periode))
     }
 
     @Operation(summary = "GET de cashflow in een periode")

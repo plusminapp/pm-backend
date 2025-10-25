@@ -140,7 +140,7 @@ class BetalingService {
         val gekoppeldeSpaarRekening =
             rekeningRepository
                 .findSpaarPotRekeningenGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
-                .firstOrNull()
+                .firstOrNull() // gesorteerd op sortOrder
                 ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.gebruiker.bijnaam))
 
         return when (betalingsSoort) {

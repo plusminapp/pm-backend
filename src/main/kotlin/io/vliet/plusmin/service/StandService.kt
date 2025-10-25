@@ -42,16 +42,12 @@ class StandService {
     /*
     Algoritme:
     - bepaal de periode voor de peildatum
-    - resultaatOpDatum =
-        - als de periode gesloten is, haal de stand op uit de database en geef die terug
-        - anders (SaldoInPeriodeService):
-            - haal de laatste gesloten of opgeruimde periode op
-            - bereken de saldi bij de periode opening
-            - haal de mutaties tussen begin van de periode en de peildatum
-            - bereken de saldi op basis van de opening en de mutaties
-            - geef het resultaat terug
-        - aggregeer het resltaat per rekeningGroepNaam
+    - standOpDatum =
+        - bereken saldi op datum (standInPeriodeService)
+        - aggregeer het resultaat per rekeningGroepNaam
+        - bereken openingsReservePotjesVoorNuSaldo
         - bereken de resultaatSamenvatting
+        - bereken (reserveringsHorizon, budgetHorizon)
         - return de StandDTO met alle gegevens
      */
 
@@ -60,16 +56,11 @@ class StandService {
         peilDatum: LocalDate,
     ): StandController.StandDTO {
         val periode = periodeService.getPeriode(gebruiker, peilDatum)
-        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(gebruiker, periode)
-        val saldiOpDatum =
-            if (geslotenPeriodes.contains(periode.periodeStatus)) {
-                saldoRepository
-                    .findAllByPeriode(periode)
-                    .filter { it.rekening.rekeningIsGeldigInPeriode(periode) }
-                    .map { it.toDTO() }
-            } else {
-                standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
-            }
+        val saldiOpDatum = standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
+        val geaggregeerdeStandOpDatum = saldiOpDatum
+            .groupBy { it.rekeningGroepNaam }
+            .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }
+            .values.toList()
         val openingsReservePotjesVoorNuSaldo = saldiOpDatum
             .filter {
                 (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN && it.budgetType != RekeningGroep.BudgetType.SPAREN) ||
@@ -77,10 +68,6 @@ class StandService {
             }
             .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo }}") }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.openingsReserveSaldo) }
-        val geaggregeerdeStandOpDatum = saldiOpDatum
-            .groupBy { it.rekeningGroepNaam }
-            .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }
-            .values.toList()
         val standSamenvattingOpDatumDTO =
             berekenResultaatSamenvatting(
                 periode,
@@ -88,6 +75,9 @@ class StandService {
                 geaggregeerdeStandOpDatum,
                 openingsReservePotjesVoorNuSaldo
             )
+
+        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(gebruiker, periode)
+
         return StandController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findDatumLaatsteBetalingBijGebruiker(gebruiker),
             periodeStartDatum = periode.periodeStartDatum,

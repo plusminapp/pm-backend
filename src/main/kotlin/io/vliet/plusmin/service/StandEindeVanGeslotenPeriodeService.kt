@@ -7,6 +7,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import kotlin.plus
 
 @Service
@@ -38,7 +39,7 @@ class StandEindeVanGeslotenPeriodeService {
             val openingsBalansSaldo =
                 periodeSaldo.openingsBalansSaldo + periodeSaldo.betaling + periodeSaldo.correctieBoeking
             val openingsReserveSaldo =
-                periodeSaldo.openingsReserveSaldo + periodeSaldo.reservering + periodeSaldo.betaling
+                periodeSaldo.openingsReserveSaldo + periodeSaldo.reservering - periodeSaldo.betaling
             val openingsOpgenomenSaldo =
                 periodeSaldo.openingsOpgenomenSaldo + periodeSaldo.opgenomenSaldo + periodeSaldo.betaling
 
@@ -53,7 +54,7 @@ class StandEindeVanGeslotenPeriodeService {
         logger.info(
             "eindSaldi: ${periode.periodeStartDatum} ${
                 saldoLijst.joinToString
-                { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo}" }
+                { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }
             }"
         )
         return saldoLijst

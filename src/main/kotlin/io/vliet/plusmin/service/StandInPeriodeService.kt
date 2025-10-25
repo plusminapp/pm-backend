@@ -14,10 +14,10 @@ import java.time.LocalDate
 @Service
 class StandInPeriodeService {
     @Autowired
-    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
+    lateinit var standMutatiesTussenDatumsService: StandMutatiesTussenDatumsService
 
     @Autowired
-    lateinit var standEindeVanGeslotenPeriodeService: StandEindeVanGeslotenPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
@@ -40,34 +40,32 @@ class StandInPeriodeService {
 
     fun berekenSaldiOpDatum(
         peilDatum: LocalDate,
-        peilPeriode: Periode,
+        periode: Periode,
         inclusiefOngeldigeRekeningen: Boolean = false
     ): List<Saldo.SaldoDTO> {
 
-        val gebruiker = peilPeriode.gebruiker
+        val gebruiker = periode.gebruiker
+        val startSaldiVanPeriode = standStartVanPeriodeService.berekenStartSaldiVanPeriode(periode)
 
-        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-        val eindSaldiVanBasisPeriode = standEindeVanGeslotenPeriodeService.berekenEindSaldiVanGeslotenPeriode(basisPeriode)
-
-        val mutatiesNaBasisPeriode =
-            standStartVanPeriodeService.berekenMutatieLijstTussenDatums(
+        val mutatiesInPeriode =
+            standMutatiesTussenDatumsService.berekenMutatieLijstTussenDatums(
                 gebruiker,
-                basisPeriode.periodeEindDatum.plusDays(1),
+                periode.periodeStartDatum,
                 peilDatum
             )
 
-        return eindSaldiVanBasisPeriode
-            .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(peilPeriode) }
+        return startSaldiVanPeriode
+            .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(periode) }
             .sortedBy { it.rekening.sortOrder }
             .map { saldo ->
                 val rekening = saldo.rekening
-                val betaling = mutatiesNaBasisPeriode
+                val betaling = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.betaling }
-                val reservering = mutatiesNaBasisPeriode
+                val reservering = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.reservering }
-                val opgenomenSaldo = mutatiesNaBasisPeriode
+                val opgenomenSaldo = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.opgenomenSaldo }
 
@@ -89,10 +87,10 @@ class StandInPeriodeService {
                 // eventueel 0 als deze maand geen betaling wordt verwacht,
                 // EXCL een eventuele de achterstand
                 val budgetMaandBedrag =
-                    rekening.toDTO(peilPeriode, betaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
+                    rekening.toDTO(periode, betaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
 
                 val budgetOpPeilDatum =
-                    berekenBudgetOpPeilDatum(rekening, peilDatum, budgetMaandBedrag, betaling, peilPeriode)
+                    berekenBudgetOpPeilDatum(rekening, peilDatum, budgetMaandBedrag, betaling, periode)
                         ?: BigDecimal.ZERO
 
                 val betaaldBinnenBudget = if (rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)

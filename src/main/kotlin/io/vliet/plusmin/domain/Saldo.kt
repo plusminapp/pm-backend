@@ -28,15 +28,15 @@ class Saldo(
     @JsonIgnore
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,                                         // bevat de betaaldag en de rekeningGroep
-    val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,          //saldo aan het begin van de periode
-    val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,         //reserve aan het begin van de periode
-    val openingsOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,       //opgenomen saldo  aan het begin van de periode
+    val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,          // saldo aan het begin van de periode
+    val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,         // reserve aan het begin van de periode
+    val openingsOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,       // opgenomen saldo  aan het begin van de periode
     val achterstand: BigDecimal = BigDecimal.ZERO,                  // achterstand aan het begin van de periode
     val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,            // verwachte bedrag per maand
     val betaling: BigDecimal = BigDecimal.ZERO,                     // betaling deze periode
     val reservering: BigDecimal = BigDecimal.ZERO,                  // reservering deze periode
     val opgenomenSaldo: BigDecimal = BigDecimal.ZERO,               // opgenomen saldo deze periode
-    val correctieBoeking: BigDecimal = BigDecimal.ZERO,      // betaling deze periode
+    val correctieBoeking: BigDecimal = BigDecimal.ZERO,             // correctieBoeking om de eindsaldi kloppend te maken
     val budgetVariabiliteit: Int? = null,                           // variabiliteit als percentage van budgetMaandBedrag
     @ManyToOne
     @JsonIgnore
