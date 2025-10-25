@@ -26,6 +26,9 @@ class RekeningService {
     lateinit var reserveringService: ReserveringService
 
     @Autowired
+    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
@@ -86,6 +89,9 @@ class RekeningService {
 
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
             reserveringService.updateOpeningsReserveringsSaldo(gebruiker)
+        }
+        if (spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
+            updateSpaarSaldiService.updateSpaarpotSaldo(gebruiker)
         }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)

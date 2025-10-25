@@ -69,13 +69,11 @@ class Betaling(
             BetalingsSoort.SP2P,
         )
         val reserveringSpaarBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.RENTE,
             BetalingsSoort.SPAREN,
             BetalingsSoort.BESTEDEN,
         )
         val inkomstenBetalingsSoorten = listOf<BetalingsSoort>(
             BetalingsSoort.INKOMSTEN,
-            BetalingsSoort.RENTE,
         )
     }
 
@@ -165,7 +163,6 @@ class Betaling(
         val omschrijving: String
     ) {
         INKOMSTEN("Inkomsten"),
-        RENTE("Rente"),
         UITGAVEN("Uitgaven"),
         BESTEDEN("besteden"),
         AFLOSSEN("aflossen"),
@@ -196,7 +193,6 @@ class Betaling(
             BetalingsSoort.INCASSO_CREDITCARD, BetalingsSoort.OPNEMEN_CONTANT, BetalingsSoort.STORTEN_CONTANT ->
                 boeking.first!!
 
-            BetalingsSoort.RENTE,
             BetalingsSoort.TERUGSTORTEN,
             BetalingsSoort.SPAREN ->
                 Boeking(boeking.first!!.bron, boeking.second!!.bestemming)

@@ -155,20 +155,6 @@ class BetalingService {
                 else
                     Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
 
-            Betaling.BetalingsSoort.RENTE -> Pair(
-                Boeking(
-                    dtoBoeking.bron,
-                    dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bestemming.naam,
-                                dtoBoeking.bron.rekeningGroep.gebruiker.email
-                            )
-                        )
-                ),
-                dtoBoeking,
-            )
-
             Betaling.BetalingsSoort.UITGAVEN, Betaling.BetalingsSoort.BESTEDEN, Betaling.BetalingsSoort.AFLOSSEN -> Pair(
                 dtoBoeking, null
             )

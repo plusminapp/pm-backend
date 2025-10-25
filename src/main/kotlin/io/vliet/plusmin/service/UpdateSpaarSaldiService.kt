@@ -34,7 +34,7 @@ class UpdateSpaarSaldiService {
 
     }
 
-    fun checkSpaarSaldi(gebruiker: Gebruiker) {
+    fun updateSpaarpotSaldo(gebruiker: Gebruiker) {
         val saldi = standInPeriodeService.berekenSaldiOpDatum(gebruiker, LocalDate.now())
 
         val spaarrekeningSaldo = saldi

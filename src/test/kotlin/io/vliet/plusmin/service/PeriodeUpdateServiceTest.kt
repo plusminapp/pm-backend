@@ -284,7 +284,7 @@ class PeriodeUpdateServiceTest {
         )
 
         `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
-        doNothing().`when`(updateSpaarSaldiService).checkSpaarSaldi(testGebruiker)
+        doNothing().`when`(updateSpaarSaldiService).updateSpaarpotSaldo(testGebruiker)
         doNothing().`when`(reserveringService).updateOpeningsReserveringsSaldo(testGebruiker)
         `when`(saldoRepository.findAllByPeriode(vorigePeriode)).thenReturn(bestaandeSaldi)
         `when`(saldoRepository.save(org.mockito.ArgumentMatchers.any<Saldo>())).thenAnswer {
