@@ -75,7 +75,7 @@ class StandController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.checkSaldi() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        updateSpaarSaldiService.checkSpaarSaldi(hulpvrager)
+        updateSpaarSaldiService.updateSpaarpotSaldo(hulpvrager)
         return ResponseEntity.ok().build()
     }
 

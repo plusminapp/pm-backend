@@ -189,7 +189,7 @@ class PeriodeUpdateService {
             ).toDTO()
         }
         reserveringService.updateOpeningsReserveringsSaldo(gebruiker)
-        updateSpaarSaldiService.checkSpaarSaldi(gebruiker)
+        updateSpaarSaldiService.updateSpaarpotSaldo(gebruiker)
         return aangepasteOpeningsSaldi
     }
 }
