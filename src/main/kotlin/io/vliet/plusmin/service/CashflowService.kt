@@ -4,6 +4,7 @@ import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
+import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -130,7 +131,7 @@ class CashflowService {
             .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }
         val saldoSpaartegoed = startSaldiVanPeriode
-            .filter { it.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN }
+            .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT }
             .sumOf { it.openingsReserveSaldo }
         logger.info(
             "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +
@@ -143,7 +144,8 @@ class CashflowService {
         return rekeningGroepen.flatMap { it.rekeningen }
             .filter {
                 it.rekeningGroep.budgetType == RekeningGroep.BudgetType.INKOMSTEN &&
-                        it.budgetBetaalDag == date.dayOfMonth
+                        it.budgetBetaalDag == date.dayOfMonth &&
+                        it.betaalMethoden.all { bm -> betaalMiddelenRekeningGroepSoort.contains(bm.rekeningGroep.rekeningGroepSoort) }
             }
             .sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
     }
@@ -183,6 +185,9 @@ class CashflowService {
     fun eerderOntvangenInkomsten(betalingenInPeriode: List<Betaling>, date: LocalDate): BigDecimal {
         return betalingenInPeriode
             .filter { it.bron?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN } // inkomsten
+            .filter {
+                it.bron?.betaalMethoden?.all { bm -> betaalMiddelenRekeningGroepSoort.contains(bm.rekeningGroep.rekeningGroepSoort) }!!
+            }
             .filter { it.bron?.budgetBetaalDag == date.dayOfMonth } // date is NA de laatstebetaaldatum
             .sumOf { it.bedrag }
     }
@@ -201,6 +206,9 @@ class CashflowService {
         return betalingen
             .filter { it.boekingsdatum.equals(date) }
             .filter { it.bron?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
+            .filter {
+                it.bron?.betaalMethoden?.all { bm -> betaalMiddelenRekeningGroepSoort.contains(bm.rekeningGroep.rekeningGroepSoort) }!!
+            }
             .sumOf { it.bedrag }
     }
 
@@ -255,7 +263,9 @@ class CashflowService {
             .filter { it.boekingsdatum.equals(date) }
             .sumOf {
                 BigDecimal.ZERO +
-                        if (it.betalingsSoort == Betaling.BetalingsSoort.SPAREN) -it.bedrag else BigDecimal.ZERO
+                        if (it.betalingsSoort == Betaling.BetalingsSoort.SPAREN) -it.bedrag else BigDecimal.ZERO +
+                        if (it.betalingsSoort == Betaling.BetalingsSoort.SP2P) it.bedrag else BigDecimal.ZERO +
+                        if (it.betalingsSoort == Betaling.BetalingsSoort.P2SP) -it.bedrag else BigDecimal.ZERO
             }
     }
 
