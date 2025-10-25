@@ -5,10 +5,10 @@ import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.domain.Saldo.SaldoDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.service.CheckSaldiService
+import io.vliet.plusmin.service.UpdateSpaarSaldiService
 import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.StandService
-import io.vliet.plusmin.service.StartSaldiVanPeriodeService
+import io.vliet.plusmin.service.StandStartVanPeriodeService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +28,7 @@ class StandController {
     lateinit var standService: StandService
 
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -40,7 +40,7 @@ class StandController {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
-    lateinit var checkSaldiService: CheckSaldiService
+    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -64,7 +64,7 @@ class StandController {
     ): List<SaldoDTO> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.getOpeningsBalansVoorPeriode() voor ${hulpvrager.email} door ${vrijwilliger.email} voor periode datum $periodeId")
-        return startSaldiVanPeriodeService
+        return standStartVanPeriodeService
             .berekenStartSaldiVanPeriode(hulpvrager, periodeId)
     }
 
@@ -75,7 +75,8 @@ class StandController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.checkSaldi() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok(checkSaldiService.checkSpaarSaldi(hulpvrager))
+        updateSpaarSaldiService.checkSpaarSaldi(hulpvrager)
+        return ResponseEntity.ok().build()
     }
 
     data class StandDTO(

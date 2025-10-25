@@ -64,6 +64,13 @@ class PM_NoOpenPeriodException(
     HttpStatus.BAD_REQUEST, "GEEN_OPEN_PERIODE", parameters
 )
 
+class PM_NoPeriodException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Op ${parameters[0]} is er geen periode voor ${parameters[1]}.",
+    HttpStatus.BAD_REQUEST, "GEEN_PERIODE", parameters
+)
+
 class PM_VorigePeriodeNietGeslotenException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
@@ -112,6 +119,13 @@ class PM_BufferRekeningNotFoundException(
 ) : PlusMinException(
     "Buffer rekening niet gevonden voor ${parameters[0]}.",
     HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_NOT_FOUND", parameters
+)
+
+class PM_SpaarRekeningNotFoundException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Geen spaarrekening gevonden voor ${parameters[0]}.",
+    HttpStatus.INTERNAL_SERVER_ERROR, "SPAAR_REKENING_NOT_FOUND", parameters
 )
 
 class PM_GeenBetaaldagException(

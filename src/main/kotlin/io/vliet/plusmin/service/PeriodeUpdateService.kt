@@ -10,7 +10,6 @@ import io.vliet.plusmin.domain.PM_RekeningNotFoundException
 import io.vliet.plusmin.domain.PM_VorigePeriodeNietGeslotenException
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Periode.Companion.openPeriodes
-import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
 import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -34,10 +33,13 @@ class PeriodeUpdateService {
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
+    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
+
+    @Autowired
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var reserveringService: ReserveringService
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -48,48 +50,10 @@ class PeriodeUpdateService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun sluitPeriode(gebruiker: Gebruiker, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
-        val (basisPeriode, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+        val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         if (saldoLijst.isEmpty()) {
-            val eindSaldiVanVorigeGeslotenPeriode = saldoRepository.findAllByPeriode(basisPeriode)
-            val betalingenGedurendePeilPeriode = startSaldiVanPeriodeService.berekenMutatieLijstTussenDatums(
-                gebruiker,
-                periode.periodeStartDatum,
-                periode.periodeEindDatum
-            )
-            logger.info(
-                "sluitperiode: eindSaldiVanVorigeGeslotenPeriode: ${
-                    eindSaldiVanVorigeGeslotenPeriode
-                        .filter { it.rekening.naam == "Greenchoice" }
-                        .joinToString { it.rekening.naam + " | OS: " + it.openingsBalansSaldo + " | A: " + it.achterstand + " | BMB: " + it.budgetMaandBedrag + " | BBt: " + it.betaling }
-                }"
-            )
-            val nieuweSaldiLijst = eindSaldiVanVorigeGeslotenPeriode.map { saldo ->
-                val betaling = betalingenGedurendePeilPeriode
-                    .filter { it.rekening.naam == saldo.rekening.naam }
-                    .sumOf { it.betaling }
-                val budgetMaandBedrag =
-                    if (saldo.rekening.budgetBedrag == null) BigDecimal.ZERO
-                    else saldo.rekening.toDTO(periode, betaling).budgetMaandBedrag ?: BigDecimal.ZERO
-                val openingsBalansSaldo =
-                    if (balansRekeningGroepSoort.contains(saldo.rekening.rekeningGroep.rekeningGroepSoort))
-                        saldo.openingsBalansSaldo + saldo.betaling
-                    else BigDecimal.ZERO
-                val achterstand = BigDecimal.ZERO
-//                    if (saldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-//                        (saldo.betaling - saldo.budgetMaandBedrag - saldo.achterstand.abs()).min(BigDecimal.ZERO)
-//                    else BigDecimal.ZERO
-
-                saldo.fullCopy(
-                    openingsBalansSaldo = openingsBalansSaldo,
-                    achterstand = achterstand,
-                    budgetMaandBedrag = budgetMaandBedrag,
-                    betaling = betaling,
-                    correctieBoeking = BigDecimal.ZERO,
-                    budgetVariabiliteit = saldo.rekening.budgetVariabiliteit,
-                    periode = periode
-                )
-            }
-            sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst.map { it.toDTO() })
+            val nieuweSaldiLijst = standInPeriodeService.berekenSaldiOpDatum(periode.periodeEindDatum, periode)
+            sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst)
         } else {
             sluitPeriodeIntern(gebruiker, periode, saldoLijst)
         }
@@ -105,10 +69,12 @@ class PeriodeUpdateService {
                     Saldo(
                         rekening = rekening,
                         openingsBalansSaldo = saldo.openingsBalansSaldo,
+                        openingsReserveSaldo = saldo.openingsReserveSaldo,
                         achterstand = saldo.achterstand,
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
                         correctieBoeking = BigDecimal.ZERO,
                         betaling = saldo.betaling,
+                        reservering = saldo.reservering,
                         budgetVariabiliteit = rekening.budgetVariabiliteit,
                         periode = periode,
                     )
@@ -124,7 +90,7 @@ class PeriodeUpdateService {
     fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
         val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
         return standInPeriodeService
-            .berekenSaldiInPeriode(periode.periodeEindDatum, periode, true)
+            .berekenSaldiOpDatum(periode.periodeEindDatum, periode, true)
     }
 
     fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {
@@ -199,27 +165,31 @@ class PeriodeUpdateService {
         periodeId: Long,
         nieuweOpeningsSaldi: List<Saldo.SaldoDTO>
     ): List<Saldo.SaldoDTO> {
-        // LET OP: de opening van een periode wordt opgeslagen als sluiting van de vorige periode
-        // om de opening aan te passen worden de betalingen in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
+        // LET OP:
+        // - de alleen gesloten periodes hebben opgeslagen saldi
+        // - het aanpassen van de opening van een periode kan alleen bij een OPEN periode waarbij de vorige periode gesloten is
+        // om de opening aan te passen worden de correctieboekingen daarom in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
         val (vorigePeriode, _) = checkPeriodeSluiten(gebruiker, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
-        return nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
-            val saldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
+        val aangepasteOpeningsSaldi = nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
+            val vorigePeriodeSaldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
                 ?: throw PM_GeenSaldoVoorRekeningException(
                     listOf(
                         nieuweOpeningsBalansSaldo.rekeningNaam,
                         gebruiker.bijnaam
                     )
                 )
-            // Update de bestaande Saldo met de nieuwe openingsBalansSaldo
-            val correctieboeking = nieuweOpeningsBalansSaldo.openingsBalansSaldo - saldo.openingsBalansSaldo
-            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${saldo.openingsBalansSaldo} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
+            // Update de correctieBoeking
+            val correctieboeking = nieuweOpeningsBalansSaldo.openingsBalansSaldo - (vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.betaling)
+            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${vorigePeriodeSaldo.openingsBalansSaldo+vorigePeriodeSaldo.betaling} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
             saldoRepository.save(
-                saldo.fullCopy(
-                    correctieBoeking = saldo.correctieBoeking + correctieboeking,
-                    openingsBalansSaldo = nieuweOpeningsBalansSaldo.openingsBalansSaldo
+                vorigePeriodeSaldo.fullCopy(
+                    correctieBoeking = correctieboeking,
                 )
             ).toDTO()
         }
+        reserveringService.updateOpeningsReserveringsSaldo(gebruiker)
+        updateSpaarSaldiService.checkSpaarSaldi(gebruiker)
+        return aangepasteOpeningsSaldi
     }
 }

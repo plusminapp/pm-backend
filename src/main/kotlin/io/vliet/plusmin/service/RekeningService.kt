@@ -23,7 +23,7 @@ import kotlin.jvm.optionals.getOrNull
 @Service
 class RekeningService {
     @Autowired
-    lateinit var startSaldiVanPeriodeService: StartSaldiVanPeriodeService
+    lateinit var reserveringService: ReserveringService
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -85,7 +85,7 @@ class RekeningService {
         val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
 
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-            startSaldiVanPeriodeService.updateOpeningsReserveringsSaldo(gebruiker)
+            reserveringService.updateOpeningsReserveringsSaldo(gebruiker)
         }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
@@ -120,7 +120,7 @@ class RekeningService {
         val gekoppeldeRekeningIsSpaarRekening =
             gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING
         if ((!gekoppeldeRekeningIsBetaalMiddel && potjesVoorNuRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
-            !gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)
+            (!gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
         )
             throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))
         logger.info("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
@@ -273,35 +273,5 @@ class RekeningService {
 
     fun geldigeBetaalDag(dag: Int?): Boolean {
         return (dag != null && (dag in 1..28))
-    }
-
-    fun rekeningGroepenPerBetalingsSoort(
-        gebruiker: Gebruiker,
-        periode: Periode
-    ): List<RekeningGroep.RekeningGroepPerBetalingsSoort> {
-        val rekeningGroepenMetGeldigeRekeningen = findRekeningGroepenMetGeldigeRekeningen(gebruiker, periode)
-        return RekeningGroep.betaalSoort2RekeningGroepSoort.map { (betalingsSoort, rekeningGroepSoort) ->
-            RekeningGroep.RekeningGroepPerBetalingsSoort(
-                betalingsSoort = betalingsSoort,
-                rekeningGroepen = rekeningGroepenMetGeldigeRekeningen
-                    .map { it.toDTO(periode) }
-                    .filter { it.rekeningGroepSoort == rekeningGroepSoort.name }
-                    .sortedBy { it.sortOrder }
-            )
-        }.filter { it.rekeningGroepen.isNotEmpty() }
-    }
-
-    fun findRekeningGroepenMetGeldigeRekeningen(
-        gebruiker: Gebruiker,
-        periode: Periode
-    ): List<RekeningGroep> {
-        return rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
-            .map { rekeningGroep ->
-                rekeningGroep.fullCopy(
-                    rekeningen = rekeningGroep.rekeningen
-                        .filter { it.rekeningIsGeldigInPeriode(periode) }
-                        .sortedBy { it.sortOrder }
-                )
-            }.filter { it.rekeningen.isNotEmpty() }
     }
 }

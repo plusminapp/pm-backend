@@ -40,8 +40,7 @@ class BetalingService {
     }
 
     fun creeerBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): BetalingDTO {
-        val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
-
+        val betalingList = findMatchingBetaling(gebruiker, betalingDTO)
         val betaling = if (betalingList.isNotEmpty()) {
             logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
             update(betalingList[0], betalingDTO)
@@ -49,7 +48,12 @@ class BetalingService {
             val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
             val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
             if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
-                throw PM_NoOpenPeriodException(listOf(boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE), gebruiker.bijnaam))
+                throw PM_NoOpenPeriodException(
+                    listOf(
+                        boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        gebruiker.bijnaam
+                    )
+                )
             }
             val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
                 ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bron, gebruiker.bijnaam))
@@ -92,7 +96,12 @@ class BetalingService {
         val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
         val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
         if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
-            throw PM_NoOpenPeriodException(listOf(boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE), gebruiker.bijnaam))
+            throw PM_NoOpenPeriodException(
+                listOf(
+                    boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    gebruiker.bijnaam
+                )
+            )
         }
         val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
             ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bron, gebruiker.bijnaam))
@@ -128,14 +137,34 @@ class BetalingService {
     ): Pair<Boeking?, Boeking?> {
         val bufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
             ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.gebruiker.bijnaam))
+        val gekoppeldeSpaarRekening =
+            rekeningRepository
+                .findSpaarPotRekeningenGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
+                .firstOrNull() // gesorteerd op sortOrder
+                ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.gebruiker.bijnaam))
+
         return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN -> Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
+            Betaling.BetalingsSoort.INKOMSTEN ->
+                if (dtoBoeking.bestemming.rekeningGroep.rekeningGroepSoort == io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort.SPAARREKENING)
+                    Pair(
+                        dtoBoeking, Boeking(
+                            dtoBoeking.bron,
+                            gekoppeldeSpaarRekening
+                        )
+                    )
+                else
+                    Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
 
             Betaling.BetalingsSoort.RENTE -> Pair(
                 Boeking(
                     dtoBoeking.bron,
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bestemming.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email))
+                        ?: throw PM_RekeningNotLinkedException(
+                            listOf(
+                                dtoBoeking.bestemming.naam,
+                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                            )
+                        )
                 ),
                 dtoBoeking,
             )
@@ -148,7 +177,12 @@ class BetalingService {
                 Boeking(
                     dtoBoeking.bron,
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bestemming.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email))
+                        ?: throw PM_RekeningNotLinkedException(
+                            listOf(
+                                dtoBoeking.bestemming.naam,
+                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                            )
+                        )
                 ), Boeking(
                     bufferRekening, dtoBoeking.bestemming
                 )
@@ -157,7 +191,12 @@ class BetalingService {
             Betaling.BetalingsSoort.OPNEMEN -> Pair(
                 Boeking(
                     dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bron.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email)),
+                        ?: throw PM_RekeningNotLinkedException(
+                            listOf(
+                                dtoBoeking.bron.naam,
+                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                            )
+                        ),
                     dtoBoeking.bestemming,
                 ),
                 Boeking(
@@ -169,7 +208,12 @@ class BetalingService {
                 Boeking(
                     dtoBoeking.bron,
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bron.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email)),
+                        ?: throw PM_RekeningNotLinkedException(
+                            listOf(
+                                dtoBoeking.bron.naam,
+                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                            )
+                        ),
                 ),
                 Boeking(
                     dtoBoeking.bestemming, dtoBoeking.bestemming
@@ -185,9 +229,19 @@ class BetalingService {
             Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P -> Pair(
                 Boeking(
                     dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bron.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email)),
+                        ?: throw PM_RekeningNotLinkedException(
+                            listOf(
+                                dtoBoeking.bron.naam,
+                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                            )
+                        ),
                     dtoBoeking.bestemming.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(listOf(dtoBoeking.bestemming.naam, dtoBoeking.bron.rekeningGroep.gebruiker.email))
+                        ?: throw PM_RekeningNotLinkedException(
+                            listOf(
+                                dtoBoeking.bestemming.naam,
+                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                            )
+                        )
                 ), dtoBoeking
             )
         }
