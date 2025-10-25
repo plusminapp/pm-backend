@@ -1230,7 +1230,6 @@ components:
           type: string
           enum:
           - INKOMSTEN
-          - RENTE
           - UITGAVEN
           - BESTEDEN
           - AFLOSSEN

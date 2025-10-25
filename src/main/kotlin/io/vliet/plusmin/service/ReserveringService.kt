@@ -201,7 +201,7 @@ class ReserveringService {
             reserveringBestemming = rekening
         )
         if (bedrag > BigDecimal.ZERO) {
-            if (opgeslagenReservering.isEmpty) {
+            if (opgeslagenReservering.isEmpty()) {
                 logger.info("Nieuwe reservering voor ${rekening.naam} op ${periode.periodeStartDatum} van $bedrag voor ${gebruiker.bijnaam}")
                 betalingRepository.save(
                     Betaling(
@@ -221,7 +221,7 @@ class ReserveringService {
             } else {
                 logger.info("Update reservering voor ${rekening.naam} op ${periode.periodeStartDatum} van $bedrag voor ${gebruiker.bijnaam}")
                 betalingRepository.save(
-                    opgeslagenReservering.get().fullCopy(
+                    opgeslagenReservering[0].fullCopy(
                         bedrag = maxOf(bedrag, BigDecimal.ZERO), reserveringsHorizon = budgetHorizon
                     )
                 )

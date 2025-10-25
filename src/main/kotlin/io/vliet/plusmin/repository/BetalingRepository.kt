@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.util.Optional
 
 @Repository
 @Transactional
@@ -136,7 +135,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         datum: LocalDate,
         reserveringBron: Rekening,
         reserveringBestemming: Rekening
-    ): Optional<Betaling>
+    ): List<Betaling>
 
     @Modifying
     @Query(

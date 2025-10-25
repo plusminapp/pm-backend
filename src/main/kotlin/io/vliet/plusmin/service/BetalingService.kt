@@ -111,7 +111,6 @@ class BetalingService {
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
             Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
-        val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
         logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = boekingsDatum,
@@ -122,7 +121,6 @@ class BetalingService {
             bestemming = getransformeerdeBoeking.first?.bestemming,
             reserveringBron = getransformeerdeBoeking.second?.bron,
             reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
-            sortOrder = sortOrder,
         )
         return betalingRepository.save(newBetaling)
     }
