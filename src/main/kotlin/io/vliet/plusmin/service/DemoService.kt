@@ -69,15 +69,14 @@ class DemoService {
                         (betaling.bestemming?.maanden.isNullOrEmpty() || betaling.bestemming.maanden!!.contains(
                             boekingsDatum.monthValue
                         ))
-            if (wordtDezeMaandBetalingVerwacht && boekingsDatum <= LocalDate.now()) {
+            val vergelijkbareBetalingen = betalingRepository.findVergelijkbareBetalingen(
+                gebruiker,
+                boekingsDatum,
+                betaling.bedrag
+            )
+            if (boekingsDatum <= LocalDate.now() && wordtDezeMaandBetalingVerwacht && vergelijkbareBetalingen.isEmpty()) {
                 val sortOrder = betalingService.berekenSortOrder(gebruiker, boekingsDatum)
 
-//                val reservering = betalingRepository.findByGebruikerOpDatumBronBestemming(
-//                    gebruiker,
-//                    datum = doelPeriode.periodeStartDatum,
-//                    reserveringBron = TODO(),
-//                    reserveringBestemming = TODO(),
-//                )
                 val nieuweBetaling = Betaling(
                     boekingsdatum = boekingsDatum,
                     bedrag = betaling.bedrag,
