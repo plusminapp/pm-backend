@@ -209,9 +209,9 @@ class ReserveringService {
                         boekingsdatum = periode.periodeStartDatum,
                         reserveringsHorizon = budgetHorizon,
                         bedrag = maxOf(bedrag, BigDecimal.ZERO),
-                        omschrijving = "Buffer voor ${rekening.naam} in periode " + "${
-                            periode.periodeStartDatum.format(dateTimeFormatter)
-                        }/" + "${periode.periodeEindDatum.format(dateTimeFormatter)}",
+                        omschrijving = "Reservering voor ${rekening.naam} in periode " +
+                                "${periode.periodeStartDatum.format(dateTimeFormatter)}/" +
+                                "${periode.periodeEindDatum.format(dateTimeFormatter)}",
                         reserveringBron = reserveringBufferRekening,
                         reserveringBestemming = rekening,
                         sortOrder = berekenSortOrder(gebruiker, periode.periodeStartDatum),
@@ -238,13 +238,14 @@ class ReserveringService {
             "$sortOrderDatum.$sortOrderTeller"
         }
     }
+
     fun updateOpeningsReserveringsSaldo(gebruiker: Gebruiker) {
         val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
         val basisPeriodeSaldi = saldoRepository.findAllByPeriode(basisPeriode)
 
         val saldoBetaalMiddelen = basisPeriodeSaldi
             .filter { betaalMiddelenRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
-            .sumOf { it.openingsBalansSaldo + it.correctieBoeking}
+            .sumOf { it.openingsBalansSaldo + it.correctieBoeking }
         val saldoPotjesVoorNu = basisPeriodeSaldi
             .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
             .sumOf { it.openingsReserveSaldo }
