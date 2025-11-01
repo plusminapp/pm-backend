@@ -1,0 +1,425 @@
+[
+  {
+    "naam": "Betaalrekening",
+    "rekeningGroepSoort": "BETAALREKENING",
+    "sortOrder": 100,
+    "rekeningen": [
+      {
+        "naam": "Betaalrekening 1",
+        "bankNaam": "ASN",
+        "saldo": 500,
+        "sortOrder": 100
+      },
+      {
+        "naam": "Betaalrekening 2",
+        "bankNaam": "ASN",
+        "saldo": 600,
+        "sortOrder": 200
+      }
+    ]
+  },
+  {
+    "naam": "Spaarrekening",
+    "rekeningGroepSoort": "SPAARREKENING",
+    "sortOrder": 110,
+    "rekeningen": [
+      {
+        "naam": "Spaarrekening",
+        "bankNaam": "ASN",
+        "saldo": 750,
+        "sortOrder": 100,
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Creditcard",
+    "rekeningGroepSoort": "CREDITCARD",
+    "sortOrder": 120,
+    "rekeningen": [
+      {
+        "naam": "Visa Creditcard",
+        "saldo": -100,
+        "bankNaam": "ICS",
+        "sortOrder": 200,
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Inkomsten",
+    "rekeningGroepSoort": "INKOMSTEN",
+    "rekeningGroepIcoonNaam": "inkomsten",
+    "sortOrder": 200,
+    "budgetType": "INKOMSTEN",
+    "rekeningen": [
+      {
+        "naam": "Salaris",
+        "sortOrder": 100,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 1445,
+        "budgetBetaalDag": 24,
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Toeslagen",
+        "sortOrder": 100,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 678,
+        "budgetBetaalDag": 8,
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Leefgeld",
+    "rekeningGroepSoort": "UITGAVEN",
+    "rekeningGroepIcoonNaam": "boodschappen",
+    "sortOrder": 300,
+    "budgetType": "CONTINU",
+    "rekeningen": [
+      {
+        "naam": "Boodschappen",
+        "sortOrder": 110,
+        "budgetPeriodiciteit": "WEEK",
+        "budgetBedrag": 85,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Andere uitgaven",
+        "sortOrder": 120,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 250,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 1"
+          },
+          {
+            "naam": "Visa Creditcard"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Vaste lasten",
+    "rekeningGroepSoort": "UITGAVEN",
+    "rekeningGroepIcoonNaam": "vaste lasten",
+    "sortOrder": 400,
+    "budgetType": "VAST",
+    "rekeningen": [
+      {
+        "naam": "Greenchoice",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 175,
+        "budgetBetaalDag": 8,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "VvE",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 120.07,
+        "budgetBetaalDag": 8,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Ziektekosten",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 147.50,
+        "budgetBetaalDag": 3,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Schadeverzekeringen",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 26.22,
+        "budgetBetaalDag": 1,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Huur",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 541.95,
+        "budgetBetaalDag": 28,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "GBLT",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 31.49,
+        "budgetBetaalDag": 28,
+        "budgetVariabiliteit": 1,
+        "maanden": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Regionale belasting",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 74.70,
+        "budgetBetaalDag": 26,
+        "budgetVariabiliteit": 1,
+        "maanden": [
+          1,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      },
+      {
+        "naam": "Vitens",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 8,
+        "budgetBetaalDag": 26,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Spaarpotten",
+    "rekeningGroepSoort": "SPAARPOT",
+    "budgetType": "SPAREN",
+    "rekeningGroepIcoonNaam": "spaartegoed",
+    "sortOrder": 900,
+    "rekeningen": [
+      {
+        "naam": "Vrij spaargeld",
+        "sortOrder": 300,
+        "reserve": 500,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Spaarrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ],
+        "spaartegoed": {
+          "startDatum": "2027-01-01",
+          "eindBedrag": 2000,
+          "notities": "notities bij 1ste"
+        }
+      },
+      {
+        "naam": "Kleding",
+        "sortOrder": 400,
+        "reserve": 200,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Spaarrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ],
+        "spaartegoed": {
+          "notities": "notities bij Kleding"
+        }
+      },
+      {
+        "naam": "Nieuwe wasmachine",
+        "sortOrder": 500,
+        "reserve": 50,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Spaarrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 1"
+          },
+          {
+            "naam": "Visa Creditcard"
+          }
+        ],
+        "spaartegoed": {
+          "doelDatum": "2026-07-01",
+          "doelBedrag": 2000,
+          "notities": "notities bij 3de"
+        }
+      }
+    ]
+  },
+  {
+    "naam": "Aflossing",
+    "rekeningGroepSoort": "AFLOSSING",
+    "budgetType": "VAST",
+    "rekeningGroepIcoonNaam": "aflossing",
+    "sortOrder": 600,
+    "rekeningen": [
+      {
+        "naam": "Demo aflossing",
+        "sortOrder": 500,
+        "saldo": -1400,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 100,
+        "budgetBetaalDag": 26,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ],
+        "aflossing": {
+          "startDatum": "2025-01-01",
+          "eindBedrag": 2000,
+          "dossierNummer": "dossiernummer10",
+          "notities": "notities1"
+        }
+      },
+      {
+        "naam": "Andere aflossing",
+        "sortOrder": 600,
+        "saldo": -500,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 50,
+        "budgetBetaalDag": 28,
+        "gekoppeldeRekening": "Betaalrekening 1",
+        "betaalMethoden": [
+          {
+            "naam": "Betaalrekening 2"
+          },
+          {
+            "naam": "Betaalrekening 1"
+          }
+        ],
+        "aflossing": {
+          "startDatum": "2025-02-01",
+          "eindBedrag": 1200,
+          "dossierNummer": "dossiernummer2",
+          "notities": "notities2"
+        }
+      }
+    ]
+  }
+]

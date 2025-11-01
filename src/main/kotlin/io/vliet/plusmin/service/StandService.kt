@@ -6,7 +6,6 @@ import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,10 +16,10 @@ import java.time.LocalDate
 @Service
 class StandService {
     @Autowired
-    lateinit var saldoRepository: SaldoRepository
+    lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
-    lateinit var standInPeriodeService: StandInPeriodeService
+    lateinit var standEindeVanGeslotenPeriodeService: StandEindeVanGeslotenPeriodeService
 
     @Autowired
     lateinit var cashflowService: CashflowService
@@ -56,7 +55,12 @@ class StandService {
         peilDatum: LocalDate,
     ): StandController.StandDTO {
         val periode = periodeService.getPeriode(gebruiker, peilDatum)
-        val saldiOpDatum = standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
+        val saldiOpDatum =
+            if (geslotenPeriodes.contains(periode.periodeStatus) && peilDatum.equals(periode.periodeEindDatum))
+                standEindeVanGeslotenPeriodeService
+                    .berekenEindSaldiVanGeslotenPeriode(periode)
+                    .map { it.toDTO() }
+            else standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
         val geaggregeerdeStandOpDatum = saldiOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }

@@ -40,44 +40,38 @@ class BetalingService {
     }
 
     fun creeerBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): BetalingDTO {
-        val betalingList = findMatchingBetaling(gebruiker, betalingDTO)
-        val betaling = if (betalingList.isNotEmpty()) {
-            logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
-            update(betalingList[0], betalingDTO)
-        } else {
-            val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
-            val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
-            if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
-                throw PM_NoOpenPeriodException(
-                    listOf(
-                        boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                        gebruiker.bijnaam
-                    )
+        val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
+        val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
+        if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
+            throw PM_NoOpenPeriodException(
+                listOf(
+                    boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    gebruiker.bijnaam
                 )
-            }
-            val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-                ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bron, gebruiker.bijnaam))
-            val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
-                ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bestemming, gebruiker.bijnaam))
-
-            val getransformeerdeBoeking = transformeerVanDtoBoeking(
-                Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
-            )
-            val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
-            logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
-            Betaling(
-                gebruiker = gebruiker,
-                boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                bedrag = betalingDTO.bedrag,
-                omschrijving = betalingDTO.omschrijving,
-                betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
-                bron = getransformeerdeBoeking.first?.bron,
-                bestemming = getransformeerdeBoeking.first?.bestemming,
-                reserveringBron = getransformeerdeBoeking.second?.bron,
-                reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
-                sortOrder = sortOrder,
             )
         }
+        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
+            ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bron, gebruiker.bijnaam))
+        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
+            ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bestemming, gebruiker.bijnaam))
+
+        val getransformeerdeBoeking = transformeerVanDtoBoeking(
+            Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
+        )
+        val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
+        logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
+        val betaling = Betaling(
+            gebruiker = gebruiker,
+            boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
+            bedrag = betalingDTO.bedrag,
+            omschrijving = betalingDTO.omschrijving,
+            betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
+            bron = getransformeerdeBoeking.first?.bron,
+            bestemming = getransformeerdeBoeking.first?.bestemming,
+            reserveringBron = getransformeerdeBoeking.second?.bron,
+            reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
+            sortOrder = sortOrder,
+        )
         return betalingRepository.save(betaling).toDTO()
     }
 
@@ -230,16 +224,6 @@ class BetalingService {
             )
         }
 
-    }
-
-    fun findMatchingBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): List<Betaling> {
-        return betalingRepository.findMatchingBetaling(
-            gebruiker = gebruiker,
-            boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-            bedrag = betalingDTO.bedrag,
-            omschrijving = betalingDTO.omschrijving,
-            betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
-        )
     }
 
     fun valideerBetalingenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
