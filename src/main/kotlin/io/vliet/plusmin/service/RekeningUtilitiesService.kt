@@ -1,24 +1,11 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
-import io.vliet.plusmin.domain.Rekening.RekeningDTO
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.spaarPotjesRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.vastBudgetType
-import io.vliet.plusmin.domain.RekeningGroep.Companion.zonderBetaalMethodenRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class RekeningUtilitiesService {
@@ -28,10 +15,10 @@ class RekeningUtilitiesService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun rekeningGroepenPerBetalingsSoort(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         periode: Periode
     ): List<RekeningGroep.RekeningGroepPerBetalingsSoort> {
-        val rekeningGroepenMetGeldigeRekeningen = findRekeningGroepenMetGeldigeRekeningen(gebruiker, periode)
+        val rekeningGroepenMetGeldigeRekeningen = findRekeningGroepenMetGeldigeRekeningen(administratie, periode)
         return RekeningGroep.betaalSoort2RekeningGroepSoort.map { (betalingsSoort, rekeningGroepSoort) ->
             RekeningGroep.RekeningGroepPerBetalingsSoort(
                 betalingsSoort = betalingsSoort,
@@ -44,10 +31,10 @@ class RekeningUtilitiesService {
     }
 
     fun findRekeningGroepenMetGeldigeRekeningen(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         periode: Periode
     ): List<RekeningGroep> {
-        return rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
+        return rekeningGroepRepository.findRekeningGroepenVoorAdministratie(administratie)
             .map { rekeningGroep ->
                 rekeningGroep.fullCopy(
                     rekeningen = rekeningGroep.rekeningen

@@ -44,9 +44,9 @@ class BetalingController {
         summary = "Get betalingen hulpvrager",
         description = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)"
     )
-    @GetMapping("/hulpvrager/{hulpvragerId}")
+    @GetMapping("/administratie/{administratieId}")
     fun getAlleBetalingenVanHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @RequestParam("size", defaultValue = "25", required = false) sizeAsString: String,
         @RequestParam("page", defaultValue = "0", required = false) pageAsString: String,
         @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
@@ -57,11 +57,11 @@ class BetalingController {
         @Parameter(description = "Formaat: yyyy-mm-dd")
         @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         val betalingen =
             betalingDao
-                .search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
+                .search(administratie, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
     }
 
@@ -74,30 +74,30 @@ class BetalingController {
             logger.warn("Betaling met id $betalingId niet gevonden.")
             return ResponseEntity("Betaling met id $betalingId niet gevonden.", HttpStatus.NOT_FOUND)
         }
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(betaling.gebruiker.id)
-        logger.info("DELETE BetalingController.deleteBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(betaling.administratie.id)
+        logger.info("DELETE BetalingController.deleteBetaling met id $betalingId voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         return ResponseEntity.ok().body(betalingRepository.delete(betaling))
     }
 
-    @PostMapping("/hulpvrager/{hulpvragerId}/list")
+    @PostMapping("/administratie/{administratieId}/list")
     fun creeerNieuweBetalingenVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @Valid @RequestBody betalingList: List<BetalingDTO>,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val betalingen = betalingService.creeerBetalingLijst(hulpvrager, betalingList)
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        val betalingen = betalingService.creeerBetalingLijst(administratie, betalingList)
         return ResponseEntity.ok().body(betalingen)
     }
 
-  @PostMapping("/hulpvrager/{hulpvragerId}")
+  @PostMapping("/administratie/{administratieId}")
     fun creeerNieuweBetalingVoorHulpvrager(
-      @PathVariable("hulpvragerId") hulpvragerId: Long,
+      @PathVariable("administratieId") administratieId: Long,
       @Valid @RequestBody betalingDTO: BetalingDTO,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val betaling = betalingService.creeerBetaling(hulpvrager, betalingDTO)
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        val betaling = betalingService.creeerBetaling(administratie, betalingDTO)
         return ResponseEntity.ok().body(betaling)
     }
 
@@ -112,79 +112,37 @@ class BetalingController {
             return ResponseEntity("Betaling met id $betalingId niet gevonden.", HttpStatus.NOT_FOUND)
         }
         val betaling = betalingOpt.get()
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(betaling.gebruiker.id)
-        logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(betaling.administratie.id)
+        logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
     }
 
-    @GetMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")
+    @GetMapping("/administratie/{administratieId}/betalingvalidatie")
     fun getDatumLaatsteBetaling(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<LocalDate?> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("GET BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager))
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET BetalingController.getDatumLaatsteBetaling voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return ResponseEntity.ok().body(betalingRepository.findDatumLaatsteBetalingBijAdministratie(administratie))
     }
 
-    @PutMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")
+    @PutMapping("/administratie/{administratieId}/betalingvalidatie")
     fun valideerOcrBetalingen(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @Valid @RequestBody betalingValidatieWrapper: Betaling.BetalingValidatieWrapper,
     ): ResponseEntity<Betaling.BetalingValidatieWrapper> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("PUT BetalingController.valideerOcrBetalingen voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(hulpvrager, betalingValidatieWrapper))
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT BetalingController.valideerOcrBetalingen voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(administratie, betalingValidatieWrapper))
     }
 
     @Operation(summary = "GET valideer betalingen voor hulpvrager")
-    @GetMapping("/hulpvrager/{hulpvragerId}/valideer-betalingen")
+    @GetMapping("/administratie/{administratieId}/valideer-betalingen")
     fun valideerBetalingenVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
     ): List<Betaling> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("GET BetalingController.valideerBetalingenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return betalingService.valideerBetalingenVoorGebruiker(hulpvrager)
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET BetalingController.valideerBetalingenVoorHulpvrager() voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return betalingService.valideerBetalingenVoorGebruiker(administratie)
     }
-
-//    @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")
-//    @PostMapping("/camt053/{hulpvragerId}", consumes = ["multipart/form-data"])
-//    fun verwerkCamt053(
-//        @PathVariable("hulpvragerId") hulpvragerId: Long,
-//        @RequestParam("file") file: MultipartFile,
-//        @RequestParam("debug") debug: Boolean
-//    ): ResponseEntity<Any> {
-//        if (file.size > 4000000) {
-//            logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker $hulpvragerId")
-//            return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
-//        }
-//        val hulpvrager = gebruikerRepository.selectById(hulpvragerId) ?: run {
-//            logger.error("BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet")
-//            return ResponseEntity(
-//                "BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet",
-//                HttpStatus.NOT_FOUND
-//            )
-//        }
-//
-//        val jwtGebruiker = gebruikerController.getJwtGebruiker()
-//        if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id && !jwtGebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
-//            logger.error("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}")
-//            return ResponseEntity(
-//                "BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}",
-//                HttpStatus.FORBIDDEN
-//            )
-//        }
-//        logger.info("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} upload camt053 bestand voor ${hulpvrager.email}")
-//        val result = camt053Service.loadCamt053File(
-//            hulpvrager,
-//            BufferedReader(
-//                InputStreamReader(
-//                    BOMInputStream.builder()
-//                        .setInputStream(file.inputStream)
-//                        .get()
-//                )
-//            ),
-//            debug
-//        )
-//        return ResponseEntity.ok().body(result)
-//    }
 }

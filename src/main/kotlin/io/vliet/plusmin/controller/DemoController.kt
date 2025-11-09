@@ -24,33 +24,33 @@ class DemoController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    @PutMapping("/hulpvrager/{hulpvragerId}/configureer")
+    @PutMapping("/administratie/{administratieId}/configureer")
     fun configureerPeriode(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("PUT DemoController.configureerPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT DemoController.configureerPeriode voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
         demoService.configureerDemoBetalingen(hulpvrager)
         return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("/hulpvrager/{hulpvragerId}/verwijderVanPeriode/{periodeId}")
+    @DeleteMapping("/administratie/{administratieId}/verwijderVanPeriode/{periodeId}")
     fun deleteBetalingenInPeriode(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<String> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("DELETE DemoController.deleteBetalingenInPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("DELETE DemoController.deleteBetalingenInPeriode voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
         demoService.deleteBetalingenInPeriode(hulpvrager, periodeId)
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping("/hulpvrager/{hulpvragerId}/reset")
+    @PutMapping("/administratie/{administratieId}/reset")
     fun resetGebruikerData(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<String> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("PUT DemoController.resetGebruikerData voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT DemoController.resetGebruikerData voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
             demoRepository.resetGebruikerData(hulpvrager.id)
         return ResponseEntity.ok().build()
     }

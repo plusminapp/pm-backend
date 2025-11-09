@@ -51,10 +51,10 @@ class StandService {
      */
 
     fun getStandOpDatum(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         peilDatum: LocalDate,
     ): StandController.StandDTO {
-        val periode = periodeService.getPeriode(gebruiker, peilDatum)
+        val periode = periodeService.getPeriode(administratie, peilDatum)
         val saldiOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus) && peilDatum.equals(periode.periodeEindDatum))
                 standEindeVanGeslotenPeriodeService
@@ -80,10 +80,10 @@ class StandService {
                 openingsReservePotjesVoorNuSaldo
             )
 
-        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(gebruiker, periode)
+        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(administratie, periode)
 
         return StandController.StandDTO(
-            datumLaatsteBetaling = betalingRepository.findDatumLaatsteBetalingBijGebruiker(gebruiker),
+            datumLaatsteBetaling = betalingRepository.findDatumLaatsteBetalingBijAdministratie(administratie),
             periodeStartDatum = periode.periodeStartDatum,
             peilDatum = peilDatum,
             budgetHorizon = budgetHorizon,
@@ -165,7 +165,7 @@ class StandService {
 
         val gespaardTotPeilDatum = betalingRepository
             .findSpaarReserveringenInPeriode(
-                gebruiker = periode.gebruiker,
+                administratie = periode.administratie,
                 startDatum = periode.periodeStartDatum,
                 eindDatum = peilDatum
             )

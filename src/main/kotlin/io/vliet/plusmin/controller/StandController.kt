@@ -45,36 +45,36 @@ class StandController {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     @Operation(summary = "GET de stand voor hulpvrager op datum")
-    @GetMapping("/hulpvrager/{hulpvragerId}/datum/{datum}")
+    @GetMapping("/administratie/{administratieId}/datum/{datum}")
     fun getStandOpDatumVoorHulpvrager(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @PathVariable("datum") datum: String,
     ): StandDTO {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} op datum $datum")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject} op datum $datum")
         val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
         return standService.getStandOpDatum(hulpvrager, peilDatum)
     }
 
     @Operation(summary = "GET de stand voor hulpvrager op datum")
-    @GetMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}/openingsbalans")
+    @GetMapping("/administratie/{administratieId}/periode/{periodeId}/openingsbalans")
     fun getOpeningsBalansVoorPeriode(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): List<SaldoDTO> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("GET SaldoController.getOpeningsBalansVoorPeriode() voor ${hulpvrager.email} door ${vrijwilliger.email} voor periode datum $periodeId")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET SaldoController.getOpeningsBalansVoorPeriode() voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject} voor periode datum $periodeId")
         return standStartVanPeriodeService
             .berekenStartSaldiVanPeriode(hulpvrager, periodeId)
     }
 
     @Operation(summary = "GET de spaarsaldi controle voor hulpvrager")
-    @GetMapping("/hulpvrager/{hulpvragerId}/checkspaarsaldi")
+    @GetMapping("/administratie/{administratieId}/checkspaarsaldi")
     fun checkSaldi(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("GET SaldoController.checkSaldi() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET SaldoController.checkSaldi() voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
         updateSpaarSaldiService.updateSpaarpotSaldo(hulpvrager)
         return ResponseEntity.ok().build()
     }

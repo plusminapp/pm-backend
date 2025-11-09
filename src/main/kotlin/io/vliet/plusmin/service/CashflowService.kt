@@ -37,20 +37,20 @@ class CashflowService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun getCashflow(
-        hulpvrager: Gebruiker,
+        administratie: Administratie,
         periode: Periode,
         metInkomsten: Boolean? = false,
     ): List<CashFlow> {
-        logger.info("GET RekeningCashflowService.getCashflowVoorHulpvrager voor ${hulpvrager.email} in periode ${periode.periodeStartDatum}")
+        logger.info("GET RekeningCashflowService.getCashflowVoorHulpvrager voor ${administratie.naam} in periode ${periode.periodeStartDatum}")
         val betalingenInPeriode = betalingRepository
-            .findAllByGebruikerTussenDatums(hulpvrager, periode.periodeStartDatum, periode.periodeEindDatum)
+            .findAllByAdministratieTussenDatums(administratie, periode.periodeStartDatum, periode.periodeEindDatum)
             .filter {
                 it.bron?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN &&
                         it.bestemming?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN
             }
         val laatsteBetalingDatum =
-            betalingRepository.findDatumLaatsteBetalingBijGebruiker(hulpvrager) ?: periode.periodeStartDatum
-        val rekeningGroepen = rekeningUtilitiesService.findRekeningGroepenMetGeldigeRekeningen(hulpvrager, periode)
+            betalingRepository.findDatumLaatsteBetalingBijAdministratie(administratie) ?: periode.periodeStartDatum
+        val rekeningGroepen = rekeningUtilitiesService.findRekeningGroepenMetGeldigeRekeningen(administratie, periode)
         val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val continueBudgetUitgaven = budgetContinueUitgaven(rekeningGroepen, periodeLengte)
         // "betaalde vaste lasten tot date (negatieve waarde)" + "verwachte vaste lasten tot date (negatieve waarde)"
@@ -235,7 +235,7 @@ class CashflowService {
             .filter {
                 it.boekingsdatum.equals(date) &&
                         periode.berekenDagInPeriode(
-                            it.bestemming?.budgetBetaalDag ?: (periode.gebruiker.periodeDag - 1)
+                            it.bestemming?.budgetBetaalDag ?: (periode.administratie.periodeDag - 1)
                         ) <= laatsteBetalingDatum // het had al betaald moeten zijn
             }
             .onEach {
@@ -281,14 +281,14 @@ class CashflowService {
     }
 
     fun getReserveringEnBudgetHorizon(
-        hulpvrager: Gebruiker,
+        hulpvrager: Administratie,
         periode: Periode,
         openingPotjesVoorNuSaldo: BigDecimal = BigDecimal.ZERO,
     ): Pair<LocalDate, LocalDate> {
         val reserveringsHorizon =
             betalingRepository.getReserveringsHorizon(hulpvrager)
                 ?: run {
-                    logger.warn("Geen reserveringsHorizon gevonden voor ${hulpvrager.bijnaam}")
+                    logger.warn("Geen reserveringsHorizon gevonden voor ${hulpvrager.naam}")
                     periode.periodeStartDatum.minusDays(1)
                 }
 
@@ -301,10 +301,10 @@ class CashflowService {
             .maxByOrNull { it.datum }
             ?.datum
             ?: run {
-                logger.warn("Geen budgetHorizon gevonden voor ${hulpvrager.bijnaam}")
+                logger.warn("Geen budgetHorizon gevonden voor ${hulpvrager.naam}")
                 periode.periodeStartDatum.minusDays(1)
             }
-        logger.info("Budget horizon voor ${hulpvrager.email} in periode ${periode.periodeStartDatum} is PVNR ${openingPotjesVoorNuSaldo}, RH $reserveringsHorizon, BH $budgetHorizon")
+        logger.info("Budget horizon voor ${hulpvrager.naam} in periode ${periode.periodeStartDatum} is PVNR ${openingPotjesVoorNuSaldo}, RH $reserveringsHorizon, BH $budgetHorizon")
         return Pair(reserveringsHorizon, budgetHorizon)
     }
 }

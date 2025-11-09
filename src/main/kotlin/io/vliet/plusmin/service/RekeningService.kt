@@ -48,24 +48,24 @@ class RekeningService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruiker: Gebruiker, rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>): Set<RekeningGroep> {
+    fun saveAll(administratie: Administratie, rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>): Set<RekeningGroep> {
         val rekeningGroepen = rekeningGroepLijst
-            .map { rekeningGroepDTO -> save(gebruiker, rekeningGroepDTO) }
+            .map { rekeningGroepDTO -> save(administratie, rekeningGroepDTO) }
         return rekeningGroepen.toSet()
     }
 
     fun save(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         rekeningGroepDTO: RekeningGroep.RekeningGroepDTO,
         syscall: Boolean = false
     ): RekeningGroep {
         if (!syscall && rekeningGroepDTO.rekeningGroepSoort == RekeningGroepSoort.RESERVERING_BUFFER.name)
             throw PM_BufferRekeningImmutableException()
         val rekeningGroep = rekeningGroepRepository
-            .findRekeningGroepOpNaam(gebruiker, rekeningGroepDTO.naam)
+            .findRekeningGroepOpNaam(administratie, rekeningGroepDTO.naam)
             .getOrNull() ?: RekeningGroep(
             naam = rekeningGroepDTO.naam,
-            gebruiker = gebruiker,
+            administratie = administratie,
             rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningGroepDTO.rekeningGroepSoort),
             rekeningGroepIcoonNaam = rekeningGroepDTO.rekeningGroepIcoonNaam,
             sortOrder = rekeningGroepDTO.sortOrder,
@@ -76,7 +76,7 @@ class RekeningService {
         val savedRekeningGroep = rekeningGroepRepository.save(
             rekeningGroep.fullCopy(
                 naam = rekeningGroepDTO.naam,
-                gebruiker = gebruiker,
+                administratie = administratie,
                 rekeningGroepSoort = enumValueOf<RekeningGroepSoort>(rekeningGroepDTO.rekeningGroepSoort),
                 rekeningGroepIcoonNaam = rekeningGroepDTO.rekeningGroepIcoonNaam,
                 sortOrder = rekeningGroepDTO.sortOrder,
@@ -85,25 +85,25 @@ class RekeningService {
                 ) else null,
             )
         )
-        val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(gebruiker, savedRekeningGroep, it) }
+        val rekeningen = rekeningGroepDTO.rekeningen.map { saveRekening(administratie, savedRekeningGroep, it) }
 
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-            reserveringService.updateOpeningsReserveringsSaldo(gebruiker)
+            reserveringService.updateOpeningsReserveringsSaldo(administratie)
         }
         if (spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-            updateSpaarSaldiService.updateSpaarpotSaldo(gebruiker)
+            updateSpaarSaldiService.updateSpaarpotSaldo(administratie)
         }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
 
-    fun saveRekening(gebruiker: Gebruiker, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
-        logger.info("Opslaan rekening ${rekeningDTO.naam} voor ${gebruiker.bijnaam} in groep ${rekeningGroep.naam}.")
+    fun saveRekening(administratie: Administratie, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
+        logger.info("Opslaan rekening ${rekeningDTO.naam} voor ${administratie.naam} in groep ${rekeningGroep.naam}.")
 
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
-                rekeningRepository.findRekeningGebruikerEnNaam(
-                    gebruiker,
+                rekeningRepository.findRekeningAdministratieEnNaam(
+                    administratie,
                     it.naam
                 )
             }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
@@ -116,8 +116,8 @@ class RekeningService {
             else null
 
         val gekoppeldeRekening =
-            if (rekeningDTO.gekoppeldeRekening != null) rekeningRepository.findRekeningGebruikerEnNaam(
-                gebruiker,
+            if (rekeningDTO.gekoppeldeRekening != null) rekeningRepository.findRekeningAdministratieEnNaam(
+                administratie,
                 rekeningDTO.gekoppeldeRekening
             )
             else null
@@ -136,13 +136,13 @@ class RekeningService {
                 listOf(
                     rekeningDTO.naam,
                     rekeningGroep.budgetType?.name ?: "null",
-                    gebruiker.bijnaam
+                    administratie.naam
                 )
             )
 
-        val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, rekeningDTO.naam)
+        val rekeningOpt = rekeningRepository.findRekeningAdministratieEnNaam(administratie, rekeningDTO.naam)
         val rekening = if (rekeningOpt != null) {
-            logger.info("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${gebruiker.bijnaam}")
+            logger.info("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${administratie.naam}")
             val aflossing = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.AFLOSSING) {
                 if (rekeningOpt.aflossing == null) {
                     aflossingRepository.save(
@@ -247,7 +247,7 @@ class RekeningService {
 
             savedRekening
         }
-        val periode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val periode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(administratie)
         val saldoOpt = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         if (saldoOpt == null) {
             saldoRepository.save(
@@ -271,7 +271,7 @@ class RekeningService {
             )
         }
         logger.info(
-            "Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag} " +
+            "Opslaan rekening ${rekening.naam} voor ${administratie.naam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag} " +
                     "openingsBalansSaldo: ${rekeningDTO.saldo ?: BigDecimal.ZERO}, openingsReserveSaldo: ${rekeningDTO.reserve ?: BigDecimal.ZERO}."
         )
         return rekening

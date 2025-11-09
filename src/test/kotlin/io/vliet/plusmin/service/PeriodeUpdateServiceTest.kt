@@ -1,6 +1,6 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.TestFixtures.testGebruiker
+import io.vliet.plusmin.TestFixtures.testAdministratie
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.repository.*
 import org.junit.jupiter.api.BeforeEach
@@ -56,7 +56,7 @@ class PeriodeUpdateServiceTest {
         MockitoAnnotations.openMocks(this)
         
         testRekeningGroep = RekeningGroep(
-            gebruiker = testGebruiker,
+            administratie = testAdministratie,
             naam = "Test Groep",
             rekeningGroepSoort = RekeningGroep.RekeningGroepSoort.UITGAVEN,
             sortOrder = 1,
@@ -74,7 +74,7 @@ class PeriodeUpdateServiceTest {
 
         vorigePeriode = Periode(
             id = 1L,
-            gebruiker = testGebruiker,
+            administratie = testAdministratie,
             periodeStartDatum = LocalDate.of(2023, 1, 1),
             periodeEindDatum = LocalDate.of(2023, 1, 31),
             periodeStatus = Periode.PeriodeStatus.GESLOTEN
@@ -82,7 +82,7 @@ class PeriodeUpdateServiceTest {
 
         huidigePeriode = Periode(
             id = 2L,
-            gebruiker = testGebruiker,
+            administratie = testAdministratie,
             periodeStartDatum = LocalDate.of(2023, 2, 1),
             periodeEindDatum = LocalDate.of(2023, 2, 28),
             periodeStatus = Periode.PeriodeStatus.OPEN
@@ -119,13 +119,13 @@ class PeriodeUpdateServiceTest {
         val periodeLijst = listOf(vorigePeriode, huidigePeriode)
         val saldoLijst = listOf(testSaldoDTO)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
-        `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Test Rekening")).thenReturn(testRekening)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
+        `when`(rekeningRepository.findRekeningAdministratieEnNaam(testAdministratie, "Test Rekening")).thenReturn(testRekening)
         `when`(saldoRepository.save(org.mockito.ArgumentMatchers.any<Saldo>())).thenAnswer { it.arguments[0] }
         `when`(periodeRepository.save(org.mockito.ArgumentMatchers.any<Periode>())).thenAnswer { it.arguments[0] }
 
         // Act
-        periodeUpdateService.sluitPeriode(testGebruiker, 2L, saldoLijst)
+        periodeUpdateService.sluitPeriode(testAdministratie, 2L, saldoLijst)
 
         // Assert
         verify(saldoRepository, times(1)).save(org.mockito.ArgumentMatchers.any<Saldo>())
@@ -138,7 +138,7 @@ class PeriodeUpdateServiceTest {
         val periodeLijst = listOf(vorigePeriode, huidigePeriode)
         val verwachteSaldi = listOf(testSaldoDTO)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
         `when`(standInPeriodeService.berekenSaldiOpDatum(
             huidigePeriode.periodeEindDatum,
             huidigePeriode,
@@ -146,7 +146,7 @@ class PeriodeUpdateServiceTest {
         )).thenReturn(verwachteSaldi)
 
         // Act
-        val result = periodeUpdateService.voorstelPeriodeSluiten(testGebruiker, 2L)
+        val result = periodeUpdateService.voorstelPeriodeSluiten(testAdministratie, 2L)
 
         // Assert
         assertEquals(verwachteSaldi, result)
@@ -158,11 +158,11 @@ class PeriodeUpdateServiceTest {
         val openVorigePeriode = vorigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN)
         val periodeLijst = listOf(openVorigePeriode, huidigePeriode)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
 
         // Act & Assert
         assertThrows<PM_VorigePeriodeNietGeslotenException> {
-            periodeUpdateService.checkPeriodeSluiten(testGebruiker, 2L)
+            periodeUpdateService.checkPeriodeSluiten(testAdministratie, 2L)
         }
     }
 
@@ -172,11 +172,11 @@ class PeriodeUpdateServiceTest {
         val geslotenPeriode = huidigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.GESLOTEN)
         val periodeLijst = listOf(vorigePeriode, geslotenPeriode)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
 
         // Act & Assert
         assertThrows<PM_PeriodeNietOpenException> {
-            periodeUpdateService.checkPeriodeSluiten(testGebruiker, 2L)
+            periodeUpdateService.checkPeriodeSluiten(testAdministratie, 2L)
         }
     }
 
@@ -185,11 +185,11 @@ class PeriodeUpdateServiceTest {
         // Arrange
         val periodeLijst = listOf(vorigePeriode, huidigePeriode)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
 
         // Act & Assert
         assertThrows<PM_PeriodeNotFoundException> {
-            periodeUpdateService.checkPeriodeSluiten(testGebruiker, 999L)
+            periodeUpdateService.checkPeriodeSluiten(testAdministratie, 999L)
         }
     }
 
@@ -199,14 +199,14 @@ class PeriodeUpdateServiceTest {
         val geslotenPeriode = huidigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.GESLOTEN)
         val periodeLijst = listOf(vorigePeriode, geslotenPeriode)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
         `when`(periodeRepository.save(org.mockito.ArgumentMatchers.any<Periode>())).thenAnswer { it.arguments[0] }
 
         // Act
-        periodeUpdateService.ruimPeriodeOp(testGebruiker, geslotenPeriode)
+        periodeUpdateService.ruimPeriodeOp(testAdministratie, geslotenPeriode)
 
         // Assert
-        verify(betalingRepository, times(1)).deleteAllByGebruikerTotEnMetDatum(testGebruiker, geslotenPeriode.periodeEindDatum)
+        verify(betalingRepository, times(1)).deleteAllByAdministratieTotEnMetDatum(testAdministratie, geslotenPeriode.periodeEindDatum)
         verify(periodeRepository, times(2)).save(org.mockito.ArgumentMatchers.any<Periode>()) // Voor beide periodes
     }
 
@@ -217,7 +217,7 @@ class PeriodeUpdateServiceTest {
 
         // Act & Assert
         assertThrows<PM_PeriodeNietGeslotenException> {
-            periodeUpdateService.ruimPeriodeOp(testGebruiker, openPeriode)
+            periodeUpdateService.ruimPeriodeOp(testAdministratie, openPeriode)
         }
     }
 
@@ -226,11 +226,11 @@ class PeriodeUpdateServiceTest {
         // Arrange
         val geslotenPeriode = huidigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.GESLOTEN)
 
-        `when`(periodeService.getLaatstGeslotenOfOpgeruimdePeriode(testGebruiker)).thenReturn(geslotenPeriode)
+        `when`(periodeService.getLaatstGeslotenOfOpgeruimdePeriode(testAdministratie)).thenReturn(geslotenPeriode)
         `when`(periodeRepository.save(org.mockito.ArgumentMatchers.any<Periode>())).thenAnswer { it.arguments[0] }
 
         // Act
-        periodeUpdateService.heropenPeriode(testGebruiker, geslotenPeriode)
+        periodeUpdateService.heropenPeriode(testAdministratie, geslotenPeriode)
 
         // Assert
         verify(saldoRepository, times(1)).deleteByPeriode(geslotenPeriode)
@@ -244,7 +244,7 @@ class PeriodeUpdateServiceTest {
 
         // Act & Assert
         assertThrows<PM_PeriodeNietGeslotenException> {
-            periodeUpdateService.heropenPeriode(testGebruiker, openPeriode)
+            periodeUpdateService.heropenPeriode(testAdministratie, openPeriode)
         }
     }
 
@@ -254,17 +254,17 @@ class PeriodeUpdateServiceTest {
         val geslotenPeriode = huidigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.GESLOTEN)
         val anderePeriode = Periode(
             id = 3L,
-            gebruiker = testGebruiker,
+            administratie = testAdministratie,
             periodeStartDatum = LocalDate.of(2023, 3, 1),
             periodeEindDatum = LocalDate.of(2023, 3, 31),
             periodeStatus = Periode.PeriodeStatus.GESLOTEN
         )
 
-        `when`(periodeService.getLaatstGeslotenOfOpgeruimdePeriode(testGebruiker)).thenReturn(anderePeriode)
+        `when`(periodeService.getLaatstGeslotenOfOpgeruimdePeriode(testAdministratie)).thenReturn(anderePeriode)
 
         // Act & Assert
         assertThrows<PM_PeriodeNietLaatstGeslotenException> {
-            periodeUpdateService.heropenPeriode(testGebruiker, geslotenPeriode)
+            periodeUpdateService.heropenPeriode(testAdministratie, geslotenPeriode)
         }
     }
 
@@ -283,16 +283,16 @@ class PeriodeUpdateServiceTest {
             )
         )
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
-        doNothing().`when`(updateSpaarSaldiService).updateSpaarpotSaldo(testGebruiker)
-        doNothing().`when`(reserveringService).updateOpeningsReserveringsSaldo(testGebruiker)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
+        doNothing().`when`(updateSpaarSaldiService).updateSpaarpotSaldo(testAdministratie)
+        doNothing().`when`(reserveringService).updateOpeningsReserveringsSaldo(testAdministratie)
         `when`(saldoRepository.findAllByPeriode(vorigePeriode)).thenReturn(bestaandeSaldi)
         `when`(saldoRepository.save(org.mockito.ArgumentMatchers.any<Saldo>())).thenAnswer {
             it.arguments[0] as Saldo
         }
 
         // Act
-        val result = periodeUpdateService.wijzigPeriodeOpening(testGebruiker, 2L, nieuweOpeningsSaldi)
+        val result = periodeUpdateService.wijzigPeriodeOpening(testAdministratie, 2L, nieuweOpeningsSaldi)
 
         // Assert
         assertNotNull(result)
@@ -315,12 +315,12 @@ class PeriodeUpdateServiceTest {
             )
         )
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
         `when`(saldoRepository.findAllByPeriode(vorigePeriode)).thenReturn(bestaandeSaldi)
 
         // Act & Assert
         assertThrows<PM_GeenSaldoVoorRekeningException> {
-            periodeUpdateService.wijzigPeriodeOpening(testGebruiker, 2L, nieuweOpeningsSaldi)
+            periodeUpdateService.wijzigPeriodeOpening(testAdministratie, 2L, nieuweOpeningsSaldi)
         }
     }
 
@@ -330,12 +330,12 @@ class PeriodeUpdateServiceTest {
         val periodeLijst = listOf(vorigePeriode, huidigePeriode)
         val saldoLijst = listOf(testSaldoDTO)
 
-        `when`(periodeRepository.getPeriodesVoorGebruiker(testGebruiker)).thenReturn(periodeLijst)
-        `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Test Rekening")).thenReturn(null)
+        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
+        `when`(rekeningRepository.findRekeningAdministratieEnNaam(testAdministratie, "Test Rekening")).thenReturn(null)
 
         // Act & Assert
         assertThrows<PM_RekeningNotFoundException> {
-            periodeUpdateService.sluitPeriode(testGebruiker, 2L, saldoLijst)
+            periodeUpdateService.sluitPeriode(testAdministratie, 2L, saldoLijst)
         }
     }
 }

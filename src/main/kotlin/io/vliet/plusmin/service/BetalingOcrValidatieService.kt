@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class BetalingvalidatieService {
@@ -26,27 +25,27 @@ class BetalingvalidatieService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun valideerBetalingen(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         betalingvalidatieWrapper: Betaling.BetalingValidatieWrapper
     ): Betaling.BetalingValidatieWrapper {
         val rekening = betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.let {
-            rekeningRepository.findRekeningGebruikerEnNaam(
-                gebruiker,
+            rekeningRepository.findRekeningAdministratieEnNaam(
+                administratie,
                 it.rekeningNaam
             )
         } ?: throw PM_RekeningNotFoundException(
             listOf(
                 betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam,
-                gebruiker.bijnaam
+                administratie.naam
             )
         )
         val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening(rekening.id)
-            ?: throw PM_GeenSaldoVoorRekeningException(listOf(rekening.naam, gebruiker.bijnaam))
+            ?: throw PM_GeenSaldoVoorRekeningException(listOf(rekening.naam, administratie.naam))
         val betalingen = if (openingsBalansSaldo.periode == null) {
-            throw PM_GeenPeriodeVoorSaldoException(listOf(openingsBalansSaldo.id.toString(), gebruiker.email))
+            throw PM_GeenPeriodeVoorSaldoException(listOf(openingsBalansSaldo.id.toString(), administratie.naam))
         } else {
-            betalingRepository.findAllByGebruikerTussenDatums(
-                gebruiker,
+            betalingRepository.findAllByAdministratieTussenDatums(
+                administratie,
                 openingsBalansSaldo.periode!!.periodeStartDatum,
                 LocalDate.now()
             )
@@ -55,9 +54,9 @@ class BetalingvalidatieService {
             saldo + berekenMutaties(betaling, rekening)
         }
         val validatedBetalingen = betalingvalidatieWrapper.betalingen.map { betaling ->
-            valideerOcrBetaling(gebruiker, betaling)
+            valideerOcrBetaling(administratie, betaling)
         }
-        val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatumBijRekening(gebruiker, rekening)
+        val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatumBijRekening(administratie, rekening)
             ?: openingsBalansSaldo.periode!!.periodeStartDatum
 
         return Betaling.BetalingValidatieWrapper(
@@ -79,9 +78,9 @@ class BetalingvalidatieService {
                 if (betaling.bestemming?.id == rekening.id) betaling.bedrag else BigDecimal.ZERO
     }
 
-    fun valideerOcrBetaling(gebruiker: Gebruiker, betaling: Betalingvalidatie): Betalingvalidatie {
+    fun valideerOcrBetaling(administratie: Administratie, betaling: Betalingvalidatie): Betalingvalidatie {
         val vergelijkbareBetalingen = betalingRepository.findVergelijkbareBetalingen(
-            gebruiker,
+            administratie,
             LocalDate.parse(betaling.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             betaling.bedrag.abs(),
         )

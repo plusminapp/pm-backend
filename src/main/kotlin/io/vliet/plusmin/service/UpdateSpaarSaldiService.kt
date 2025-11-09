@@ -34,8 +34,8 @@ class UpdateSpaarSaldiService {
 
     }
 
-    fun updateSpaarpotSaldo(gebruiker: Gebruiker) {
-        val saldi = standInPeriodeService.berekenSaldiOpDatum(gebruiker, LocalDate.now())
+    fun updateSpaarpotSaldo(administratie: Administratie) {
+        val saldi = standInPeriodeService.berekenSaldiOpDatum(administratie, LocalDate.now())
 
         val spaarrekeningSaldo = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
@@ -45,22 +45,22 @@ class UpdateSpaarSaldiService {
             .sumOf { it.openingsReserveSaldo - it.openingsOpgenomenSaldo + it.reservering - it.opgenomenSaldo - it.betaling }
 
         if (spaarrekeningSaldo != spaarpotSaldo) {
-            updateSpaarpotSaldo(spaarrekeningSaldo - spaarpotSaldo, saldi, gebruiker)
-            logger.warn("SpaarrekeningSaldo ($spaarrekeningSaldo) komt niet overeen met spaarpotSaldo ($spaarpotSaldo) voor ${gebruiker.bijnaam}")
+            updateSpaarpotSaldo(spaarrekeningSaldo - spaarpotSaldo, saldi, administratie)
+            logger.warn("SpaarrekeningSaldo ($spaarrekeningSaldo) komt niet overeen met spaarpotSaldo ($spaarpotSaldo) voor ${administratie.naam}")
         }
     }
 
-    fun updateSpaarpotSaldo(correctieBoeking: BigDecimal, saldi: List<Saldo.SaldoDTO>, gebruiker: Gebruiker) {
+    fun updateSpaarpotSaldo(correctieBoeking: BigDecimal, saldi: List<Saldo.SaldoDTO>, administratie: Administratie) {
         val spaarRekeningNaam = saldi
             .firstOrNull { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
             ?.rekeningNaam
-            ?: throw PM_SpaarRekeningNotFoundException(listOf(gebruiker.bijnaam))
+            ?: throw PM_SpaarRekeningNotFoundException(listOf(administratie.naam))
         val gekoppeldeSpaarPot = rekeningRepository
-            .findGekoppeldeRekeningenGebruikerEnNaam(gebruiker, spaarRekeningNaam)
+            .findGekoppeldeRekeningenAdministratieEnNaam(administratie, spaarRekeningNaam)
             .firstOrNull()
-            ?: throw PM_RekeningNotLinkedException(listOf(gebruiker.bijnaam, spaarRekeningNaam))
+            ?: throw PM_RekeningNotLinkedException(listOf(administratie.naam, spaarRekeningNaam))
         val spaarSaldo = saldoRepository.findLaatsteSaldoBijRekening(gekoppeldeSpaarPot.id)
-            ?: throw PM_GeenSaldoVoorRekeningException(listOf(gekoppeldeSpaarPot.naam, gebruiker.bijnaam))
+            ?: throw PM_GeenSaldoVoorRekeningException(listOf(gekoppeldeSpaarPot.naam, administratie.naam))
         saldoRepository.save(
             spaarSaldo.fullCopy(
                 openingsReserveSaldo = spaarSaldo.openingsReserveSaldo + correctieBoeking

@@ -18,16 +18,19 @@ class Gebruiker(
     )
     val id: Long = 0,
     @Column(unique = true)
-    val email: String,
+    val subject: String,
+    val email: String? = null,
     val bijnaam: String = "Gebruiker zonder bijnaam",
-    val periodeDag: Int = 20,
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
     val roles: MutableSet<Role> = mutableSetOf(),
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "vrijwilliger_id", referencedColumnName = "id")
-    val vrijwilliger: Gebruiker? = null,
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "gebruiker_administratie",
+        joinColumns = [JoinColumn(name = "gebruiker_id")],
+        inverseJoinColumns = [JoinColumn(name = "administratie_id")]
+    )
+    var administraties: List<Administratie> = emptyList(),
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -38,47 +41,36 @@ class Gebruiker(
     override fun getPassword(): String = ""
 
     @JsonIgnore
-    override fun getUsername(): String = email
+    override fun getUsername(): String = this@Gebruiker.subject
 
     fun fullCopy(
-        email: String = this.email,
+        subject: String = this.subject,
+        email: String? = this.email,
         bijnaam: String = this.bijnaam,
-        periodeDag: Int = this.periodeDag,
         roles: MutableSet<Role> = this.roles,
-        vrijwilliger: Gebruiker? = this.vrijwilliger,
-    ) = Gebruiker(this.id, email, bijnaam, periodeDag, roles, vrijwilliger)
+        administraties: List<Administratie> = this.administraties,
+    ) = Gebruiker(this.id, subject, email, bijnaam, roles, administraties)
 
      enum class Role {
         ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
     }
     data class GebruikerDTO(
         val id: Long = 0,
-        val email: String,
+        val subject: String,
+        val email: String? = null,
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-        val periodeDag: Int = 20,
         val roles: List<String> = emptyList(),
-        val vrijwilligerEmail: String = "",
-        val vrijwilligerBijnaam: String = "",
-        val periodes: List<Periode.PeriodeDTO>? = emptyList(),
+        val administraties: List<Administratie.AdministratieDTO> = emptyList(),
     )
 
     fun toDTO(periodes: List<Periode> = emptyList()): GebruikerDTO {
         return GebruikerDTO(
             this.id,
+            this.subject,
             this.email,
             this.bijnaam,
-            this.periodeDag,
             this.roles.map { it.toString() },
-            this.vrijwilliger?.email ?: "",
-            this.vrijwilliger?.bijnaam ?: "",
-            periodes= periodes.map { it.toDTO() },
+            administraties = administraties.map { it.toDTO(periodes) },
         )
     }
-
-
-    data class GebruikerMetHulpvragersDTO(
-        val gebruiker: GebruikerDTO,
-        val hulpvragers: List<GebruikerDTO>
-    )
-
 }

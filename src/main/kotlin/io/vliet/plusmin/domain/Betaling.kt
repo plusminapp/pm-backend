@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "betaling",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "sortOrder"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["administratie_id", "sortOrder"])]
 )
 class Betaling(
     @Id
@@ -24,8 +24,8 @@ class Betaling(
     val id: Long = 0,
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "gebruiker_id", referencedColumnName = "id")
-    val gebruiker: Gebruiker,
+    @JoinColumn(name = "administratie_id", referencedColumnName = "id")
+    val administratie: Administratie,
     val boekingsdatum: LocalDate,
     val reserveringsHorizon: LocalDate? = null,
     val bedrag: BigDecimal,
@@ -78,7 +78,7 @@ class Betaling(
     }
 
     fun fullCopy(
-        gebruiker: Gebruiker = this.gebruiker,
+        administratie: Administratie = this.administratie,
         boekingsdatum: LocalDate = this.boekingsdatum,
         reserveringsHorizon: LocalDate? = this.reserveringsHorizon,
         bedrag: BigDecimal = this.bedrag,
@@ -91,7 +91,7 @@ class Betaling(
         reserveringBestemming: Rekening? = this.reserveringBestemming,
     ) = Betaling(
         this.id,
-        gebruiker,
+        administratie,
         boekingsdatum,
         reserveringsHorizon,
         bedrag,

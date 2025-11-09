@@ -1,14 +1,24 @@
 package io.vliet.plusmin
 
-import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Rekening
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Betaling
+import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
 import java.math.BigDecimal
 import java.time.LocalDate
 
 object TestFixtures {
-    val testGebruiker = Gebruiker(bijnaam = "testUser1", email = "testUser1@example.com")
+
+    val testGebruiker = Gebruiker(
+        subject = "testgebruiker",
+        bijnaam = "testgebruiker",
+    )
+
+    val testAdministratie = Administratie(
+        naam = "testUser1",
+        periodeDag = 20,
+        eigenaar = testGebruiker
+    )
 
 //    val testBetaalrekening = Rekening(
 //        gebruiker = testGebruiker,
@@ -50,7 +60,7 @@ object TestFixtures {
 
     val testPeriode = Periode(
         id = 1,
-        gebruiker = testGebruiker,
+        administratie = testAdministratie,
         periodeStartDatum = LocalDate.MAX,
         periodeEindDatum = LocalDate.MAX,
         periodeStatus = Periode.PeriodeStatus.OPEN

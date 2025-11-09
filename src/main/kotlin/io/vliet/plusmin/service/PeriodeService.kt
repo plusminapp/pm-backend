@@ -1,8 +1,7 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.PM_LaatsteGeslotenPeriodeNotFoundException
-import io.vliet.plusmin.domain.PM_NoOpenPeriodException
 import io.vliet.plusmin.domain.PM_NoPeriodException
 import io.vliet.plusmin.domain.PM_PeriodeNotFoundException
 import io.vliet.plusmin.domain.Periode
@@ -23,20 +22,20 @@ class PeriodeService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun getPeriode(gebruiker: Gebruiker, datum: LocalDate): Periode {
-        return periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
-            ?: throw PM_NoPeriodException(listOf(gebruiker.email, datum.format(DateTimeFormatter.ISO_LOCAL_DATE)))
+    fun getPeriode(administratie: Administratie, datum: LocalDate): Periode {
+        return periodeRepository.getPeriodeAdministratieEnDatum(administratie.id, datum)
+            ?: throw PM_NoPeriodException(listOf(administratie.naam, datum.format(DateTimeFormatter.ISO_LOCAL_DATE)))
     }
 
-    fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode {
-        return periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-            ?: throw PM_LaatsteGeslotenPeriodeNotFoundException(listOf(gebruiker.email))
+    fun getLaatstGeslotenOfOpgeruimdePeriode(administratie: Administratie): Periode {
+        return periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(administratie)
+            ?: throw PM_LaatsteGeslotenPeriodeNotFoundException(listOf(administratie.naam))
     }
 
-    fun getPeriode(periodeId: Long, gebruiker: Gebruiker): Periode {
+    fun getPeriode(periodeId: Long, administratie: Administratie): Periode {
 
         val periode = periodeRepository.getPeriodeById(periodeId)
-        if (periode == null || periode.gebruiker.id != gebruiker.id) {
+        if (periode == null || periode.administratie.id != administratie.id) {
             throw PM_PeriodeNotFoundException(listOf(periodeId.toString()))
         }
         return periode
@@ -59,22 +58,22 @@ class PeriodeService {
         check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    fun checkPeriodesVoorGebruiker(gebruiker: Gebruiker) {
-        val laatstePeriode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
+    fun checkPeriodesVoorGebruiker(administratie: Administratie) {
+        val laatstePeriode = periodeRepository.getLaatstePeriodeVoorAdministratie(administratie.id)
         logger.debug(
             "laatstePeriode voor {}: {} -> {} {}",
-            gebruiker.email,
+            administratie.naam,
             laatstePeriode?.periodeStartDatum,
             laatstePeriode?.periodeEindDatum,
             laatstePeriode?.periodeStatus
         )
-        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
-        logger.debug("periodes voor ${gebruiker.email}: ${periodes.map { it.periodeStartDatum }.joinToString(", ")} ")
+        val periodes = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
+        logger.debug("periodes voor ${administratie.naam}: ${periodes.map { it.periodeStartDatum }.joinToString(", ")} ")
         if (laatstePeriode == null) {
-            logger.warn("voor ${gebruiker.email}: laatstePeriode == null")
-            creeerInitielePeriode(gebruiker, berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now()).first)
+            logger.warn("voor ${administratie.naam}: laatstePeriode == null")
+            creeerInitielePeriode(administratie, berekenPeriodeDatums(administratie.periodeDag, LocalDate.now()).first)
         } else if (laatstePeriode.periodeEindDatum < LocalDate.now()) {
-            logger.info("creeerVolgendePeriodes voor ${gebruiker.email}: ${laatstePeriode.periodeStartDatum}->${laatstePeriode.periodeEindDatum}")
+            logger.info("creeerVolgendePeriodes voor ${administratie.naam}: ${laatstePeriode.periodeStartDatum}->${laatstePeriode.periodeEindDatum}")
             creeerVolgendePeriodes(laatstePeriode)
         }
     }
@@ -85,7 +84,7 @@ class PeriodeService {
         }
         val nieuwePeriode = periodeRepository.save(
             Periode(
-                gebruiker = vorigePeriode.gebruiker,
+                administratie = vorigePeriode.administratie,
                 periodeStartDatum = vorigePeriode.periodeEindDatum.plusDays(1),
                 periodeEindDatum = vorigePeriode.periodeEindDatum.plusMonths(1),
                 periodeStatus = Periode.PeriodeStatus.HUIDIG
@@ -96,14 +95,14 @@ class PeriodeService {
         }
     }
 
-    fun creeerInitielePeriode(gebruiker: Gebruiker, startDatum: LocalDate) {
-        if (periodeRepository.getPeriodesVoorGebruiker(gebruiker).size == 0) {
-            val periodeStartDatum = berekenPeriodeDatums(gebruiker.periodeDag, startDatum).first
-            logger.info("Initiële periode gecreëerd voor ${gebruiker.email} op ${periodeStartDatum}")
+    fun creeerInitielePeriode(administratie: Administratie, startDatum: LocalDate) {
+        if (periodeRepository.getPeriodesVoorAdministrtatie(administratie).size == 0) {
+            val periodeStartDatum = berekenPeriodeDatums(administratie.periodeDag, startDatum).first
+            logger.info("Initiële periode gecreëerd voor ${administratie.naam} op ${periodeStartDatum}")
             val initielePeriode = periodeRepository.save(
                 Periode(
                     0,
-                    gebruiker,
+                    administratie,
                     periodeStartDatum.minusDays(1),
                     periodeStartDatum.minusDays(1),
                     Periode.PeriodeStatus.OPGERUIMD
@@ -115,15 +114,15 @@ class PeriodeService {
         }
     }
 
-    fun pasPeriodeDagAan(gebruiker: Gebruiker, gebruikerDTO: Gebruiker.GebruikerDTO) {
-        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
+    fun pasPeriodeDagAan(administratie: Administratie, administratieDTO: Administratie.AdministratieDTO) {
+        val periodes = periodeRepository.getPeriodesVoorAdministrtatie(administratie).sortedBy { it.periodeStartDatum }
         if (periodes.size == 2 &&
             periodes[0].periodeStartDatum.equals(periodes[0].periodeEindDatum) &&
             periodes[1].periodeStatus.equals(Periode.PeriodeStatus.HUIDIG)
         ) { // initiële periode + huidige periode
             val initielePeriodeEindDatum =
-                berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first.minusDays(1)
-            logger.info("Initiele PeriodeDag aanpassen voor ${gebruiker.email} van ${periodes[0].periodeStartDatum} naar ${initielePeriodeEindDatum}")
+                berekenPeriodeDatums(administratieDTO.periodeDag, LocalDate.now()).first.minusDays(1)
+            logger.info("Initiele PeriodeDag aanpassen voor ${administratie.naam} van ${periodes[0].periodeStartDatum} naar ${initielePeriodeEindDatum}")
             periodeRepository.save(
                 periodes[0].fullCopy(
                     periodeStartDatum = initielePeriodeEindDatum,
@@ -141,11 +140,11 @@ class PeriodeService {
                 periodes.filter { it.periodeStatus == Periode.PeriodeStatus.OPEN || it.periodeStatus == Periode.PeriodeStatus.HUIDIG }
                     .sortedBy { it.periodeStartDatum }
             logger.debug(
-                "PeriodeDag aanpassen voor ${gebruiker.email}: teVerschuivenPeriodes: " +
+                "PeriodeDag aanpassen voor ${administratie.naam}: teVerschuivenPeriodes: " +
                         teVerschuivenPeriodes.joinToString(", ") { "${it.periodeStartDatum} (${it.periodeStatus})" }
             )
             val periodeEindDatum1stePeriode =
-                berekenPeriodeDatums(gebruikerDTO.periodeDag, teVerschuivenPeriodes[0].periodeEindDatum).second
+                berekenPeriodeDatums(administratieDTO.periodeDag, teVerschuivenPeriodes[0].periodeEindDatum).second
             logger.debug("periodeEindDatum1stePeriode: {}", periodeEindDatum1stePeriode)
             logger.debug(
                 "Periode verschuiven van {}/{} -> {}/{}",
@@ -162,7 +161,7 @@ class PeriodeService {
             )
             teVerschuivenPeriodes.drop(1).forEach {
                 val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(
-                    gebruikerDTO.periodeDag,
+                    administratieDTO.periodeDag,
                     it.periodeEindDatum
                 )
                 logger.debug(

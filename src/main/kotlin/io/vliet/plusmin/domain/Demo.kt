@@ -14,15 +14,15 @@ class Demo(
     )
     val id: Long = 0,
     @OneToOne
-    @JoinColumn(name = "gebruiker_id")
-    val gebruiker: Gebruiker,
+    @JoinColumn(name = "administratie_id")
+    val administratie: Administratie,
     @OneToOne
     @JoinColumn(name = "periode_id")
     val bronPeriode: Periode
 ) {
     fun fullCopy(
-        gebruiker: Gebruiker = this.gebruiker,
+        administratie: Administratie = this.administratie,
         bronPeriode: Periode = this.bronPeriode,
-    ) = Demo(this.id, gebruiker, bronPeriode)
+    ) = Demo(this.id, administratie, bronPeriode)
 }
 

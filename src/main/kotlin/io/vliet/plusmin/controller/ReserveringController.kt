@@ -20,24 +20,24 @@ class ReserveringController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    @PostMapping("/hulpvrager/{hulpvragerId}/periode/{periodeId}")
+    @PostMapping("/administratie/{administratieId}/periode/{periodeId}")
     fun creeerReserveringVoorPeriode(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        reserveringService.creeerReserveringenVoorPeriode(hulpvrager, periodeId)
-        return ResponseEntity.ok().body("Reserveringen aangemaakt voor de periode ${periodeId} voor ${hulpvrager.email}.")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        reserveringService.creeerReserveringenVoorPeriode(administratie, periodeId)
+        return ResponseEntity.ok().body("Reserveringen aangemaakt voor de periode ${periodeId} voor ${administratie.naam}.")
     }
 
-    @PostMapping("/hulpvrager/{hulpvragerId}")
+    @PostMapping("/administratie/{administratieId}")
     fun creeerReservering(
-        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(hulpvragerId)
-        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        reserveringService.creeerReserveringen(hulpvrager)
-        return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periode voor ${hulpvrager.email}.")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        reserveringService.creeerReserveringen(administratie)
+        return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periode voor ${administratie.naam}.")
     }
 }

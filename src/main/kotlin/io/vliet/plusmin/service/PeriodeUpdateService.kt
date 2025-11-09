@@ -1,6 +1,6 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.PM_GeenSaldoVoorRekeningException
 import io.vliet.plusmin.domain.PM_PeriodeNietGeslotenException
 import io.vliet.plusmin.domain.PM_PeriodeNietLaatstGeslotenException
@@ -49,22 +49,22 @@ class PeriodeUpdateService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun sluitPeriode(gebruiker: Gebruiker, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
-        val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+    fun sluitPeriode(administratie: Administratie, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
+        val (_, periode) = checkPeriodeSluiten(administratie, periodeId)
         if (saldoLijst.isEmpty()) {
             val nieuweSaldiLijst = standInPeriodeService.berekenSaldiOpDatum(periode.periodeEindDatum, periode)
-            sluitPeriodeIntern(gebruiker, periode, nieuweSaldiLijst)
+            sluitPeriodeIntern(administratie, periode, nieuweSaldiLijst)
         } else {
-            sluitPeriodeIntern(gebruiker, periode, saldoLijst)
+            sluitPeriodeIntern(administratie, periode, saldoLijst)
         }
     }
 
-    private fun sluitPeriodeIntern(gebruiker: Gebruiker, periode: Periode, saldoLijst: List<Saldo.SaldoDTO>) {
+    private fun sluitPeriodeIntern(administratie: Administratie, periode: Periode, saldoLijst: List<Saldo.SaldoDTO>) {
         saldoLijst
             .forEach { saldo ->
                 val rekening = rekeningRepository
-                    .findRekeningGebruikerEnNaam(gebruiker, saldo.rekeningNaam)
-                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekeningNaam, gebruiker.bijnaam))
+                    .findRekeningAdministratieEnNaam(administratie, saldo.rekeningNaam)
+                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekeningNaam, administratie.naam))
                 saldoRepository.save(
                     Saldo(
                         rekening = rekening,
@@ -87,15 +87,15 @@ class PeriodeUpdateService {
         )
     }
 
-    fun voorstelPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
-        val (_, periode) = checkPeriodeSluiten(gebruiker, periodeId)
+    fun voorstelPeriodeSluiten(administratie: Administratie, periodeId: Long): List<Saldo.SaldoDTO> {
+        val (_, periode) = checkPeriodeSluiten(administratie, periodeId)
         return standInPeriodeService
             .berekenSaldiOpDatum(periode.periodeEindDatum, periode, true)
     }
 
-    fun checkPeriodeSluiten(gebruiker: Gebruiker, periodeId: Long): Pair<Periode, Periode> {
+    fun checkPeriodeSluiten(administratie: Administratie, periodeId: Long): Pair<Periode, Periode> {
         val periodeLijst = periodeRepository
-            .getPeriodesVoorGebruiker(gebruiker)
+            .getPeriodesVoorAdministrtatie(administratie)
             .sortedBy { it.periodeStartDatum }
         val index = periodeLijst.indexOfFirst { it.id == periodeId }
 
@@ -110,23 +110,23 @@ class PeriodeUpdateService {
                 listOf(
                     periode.id.toString(),
                     vorigePeriode.id.toString(),
-                    gebruiker.bijnaam
+                    administratie.naam
                 )
             )
         }
         if (!openPeriodes.contains(periode.periodeStatus))
-            throw PM_PeriodeNietOpenException(listOf(periode.id.toString(), gebruiker.bijnaam))
+            throw PM_PeriodeNietOpenException(listOf(periode.id.toString(), administratie.naam))
 
         return Pair(vorigePeriode, periode)
     }
 
-    fun ruimPeriodeOp(gebruiker: Gebruiker, periode: Periode) {
+    fun ruimPeriodeOp(administratie: Administratie, periode: Periode) {
         if (periode.periodeStatus != Periode.PeriodeStatus.GESLOTEN) {
-            throw PM_PeriodeNietGeslotenException(listOf(periode.id.toString(), "opgeruimd", gebruiker.bijnaam))
+            throw PM_PeriodeNietGeslotenException(listOf(periode.id.toString(), "opgeruimd", administratie.naam))
         }
-        betalingRepository.deleteAllByGebruikerTotEnMetDatum(gebruiker, periode.periodeEindDatum)
+        betalingRepository.deleteAllByAdministratieTotEnMetDatum(administratie, periode.periodeEindDatum)
         val periodeLijst = periodeRepository
-            .getPeriodesVoorGebruiker(gebruiker)
+            .getPeriodesVoorAdministrtatie(administratie)
             .filter { it.periodeStartDatum <= periode.periodeStartDatum }
         periodeLijst.forEach {
             periodeRepository.save(
@@ -138,17 +138,17 @@ class PeriodeUpdateService {
     }
 
     @org.springframework.transaction.annotation.Transactional
-    fun heropenPeriode(gebruiker: Gebruiker, periode: Periode) {
+    fun heropenPeriode(administratie: Administratie, periode: Periode) {
         if (periode.periodeStatus != Periode.PeriodeStatus.GESLOTEN) {
-            throw PM_PeriodeNietGeslotenException(listOf(periode.id.toString(), "heropend", gebruiker.bijnaam))
+            throw PM_PeriodeNietGeslotenException(listOf(periode.id.toString(), "heropend", administratie.naam))
         }
-        val laatstGeslotenOfOpgeruimdePeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val laatstGeslotenOfOpgeruimdePeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(administratie)
         if (laatstGeslotenOfOpgeruimdePeriode.id != periode.id) {
             throw PM_PeriodeNietLaatstGeslotenException(
                 listOf(
                     periode.id.toString(),
                     laatstGeslotenOfOpgeruimdePeriode.id.toString(),
-                    gebruiker.bijnaam
+                    administratie.naam
                 )
             )
         }
@@ -161,7 +161,7 @@ class PeriodeUpdateService {
     }
 
     fun wijzigPeriodeOpening(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         periodeId: Long,
         nieuweOpeningsSaldi: List<Saldo.SaldoDTO>
     ): List<Saldo.SaldoDTO> {
@@ -169,14 +169,14 @@ class PeriodeUpdateService {
         // - de alleen gesloten periodes hebben opgeslagen saldi
         // - het aanpassen van de opening van een periode kan alleen bij een OPEN periode waarbij de vorige periode gesloten is
         // om de opening aan te passen worden de correctieboekingen daarom in de opgeslagen Saldo's van die vorige (gesloten!) periode aangepast
-        val (vorigePeriode, _) = checkPeriodeSluiten(gebruiker, periodeId)
+        val (vorigePeriode, _) = checkPeriodeSluiten(administratie, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
         val aangepasteOpeningsSaldi = nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
             val vorigePeriodeSaldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
                 ?: throw PM_GeenSaldoVoorRekeningException(
                     listOf(
                         nieuweOpeningsBalansSaldo.rekeningNaam,
-                        gebruiker.bijnaam
+                        administratie.naam
                     )
                 )
             // Update de correctieBoeking
@@ -188,8 +188,8 @@ class PeriodeUpdateService {
                 )
             ).toDTO()
         }
-        reserveringService.updateOpeningsReserveringsSaldo(gebruiker)
-        updateSpaarSaldiService.updateSpaarpotSaldo(gebruiker)
+        reserveringService.updateOpeningsReserveringsSaldo(administratie)
+        updateSpaarSaldiService.updateSpaarpotSaldo(administratie)
         return aangepasteOpeningsSaldi
     }
 }

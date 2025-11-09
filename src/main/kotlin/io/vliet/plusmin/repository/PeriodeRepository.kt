@@ -1,6 +1,6 @@
 package io.vliet.plusmin.repository
 
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Periode
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -10,44 +10,44 @@ import java.time.LocalDate
 @Repository
 interface PeriodeRepository : JpaRepository<Periode, Long> {
 
-    /*  Haalt de Periode voor een gebruiker op waar datum in valt */
+    /*  Haalt de Periode voor een administratie op waar datum in valt */
     @Query(
-        value = "SELECT * FROM periode p WHERE p.gebruiker_id = :gebruikerId AND p.periode_start_datum = " +
+        value = "SELECT * FROM periode p WHERE p.administratie_id = :administratieId AND p.periode_start_datum = " +
                 "(SELECT MAX(periode_start_datum) FROM periode p " +
-                "WHERE p.gebruiker_id = :gebruikerId " +
+                "WHERE p.administratie_id = :administratieId " +
                 "AND p.periode_start_datum <= :datum " +
                 "AND p.periode_eind_datum >= :datum)",
         nativeQuery = true
     )
-    fun getPeriodeGebruikerEnDatum(gebruikerId: Long, datum: LocalDate): Periode?
+    fun getPeriodeAdministratieEnDatum(administratieId: Long, datum: LocalDate): Periode?
 
-    /*  Haalt de laatste Periode voor een gebruiker op */
+    /*  Haalt de laatste Periode voor een administratie op */
     @Query(
-        value = "SELECT * FROM periode p WHERE p.gebruiker_id = :gebruikerId AND p.periode_start_datum = " +
-                "(SELECT MAX(periode_start_datum) FROM periode p WHERE p.gebruiker_id = :gebruikerId)",
+        value = "SELECT * FROM periode p WHERE p.administratie_id = :administratieId AND p.periode_start_datum = " +
+                "(SELECT MAX(periode_start_datum) FROM periode p WHERE p.administratie_id = :administratieId)",
         nativeQuery = true
     )
-    fun getLaatstePeriodeVoorGebruiker(gebruikerId: Long): Periode?
+    fun getLaatstePeriodeVoorAdministratie(administratieId: Long): Periode?
 
-    @Query(value = "SELECT p FROM Periode p WHERE p.gebruiker = :gebruiker")
-    fun getPeriodesVoorGebruiker(gebruiker: Gebruiker): List<Periode>
+    @Query(value = "SELECT p FROM Periode p WHERE p.administratie = :administratie")
+    fun getPeriodesVoorAdministrtatie(administratie: Administratie): List<Periode>
 
     @Query(
         value = "SELECT p FROM Periode p  " +
                 "WHERE p.periodeStatus IN ('GESLOTEN', 'OPGERUIMD') " +
-                "AND p.gebruiker = :gebruiker " +
+                "AND p.administratie = :administratie " +
                 "ORDER BY p.periodeStartDatum DESC LIMIT 1"
     )
-    fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode?
+    fun getLaatstGeslotenOfOpgeruimdePeriode(administratie: Administratie): Periode?
 
     @Query(
         value = "SELECT p FROM Periode p  " +
                 "WHERE p.periodeStartDatum >= :start " +
                 "AND p.periodeEindDatum <= :eind " +
-                "AND p.gebruiker = :gebruiker " +
+                "AND p.administratie = :administratie " +
                 "ORDER BY p.periodeStartDatum ASC"
     )
-    fun getPeriodesTussenDatums(gebruiker: Gebruiker, start: LocalDate, eind: LocalDate): List<Periode>
+    fun getPeriodesTussenDatums(administratie: Administratie, start: LocalDate, eind: LocalDate): List<Periode>
 
     fun getPeriodeById(periodeId: Long): Periode?
 }

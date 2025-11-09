@@ -27,11 +27,11 @@ class StandStartVanPeriodeService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenStartSaldiVanPeriode(gebruiker: Gebruiker, periodeId: Long): List<Saldo.SaldoDTO> {
+    fun berekenStartSaldiVanPeriode(administratie: Administratie, periodeId: Long): List<Saldo.SaldoDTO> {
         val periode = periodeRepository.findById(periodeId)
-            .orElseThrow { PM_PeriodeNotFoundException(listOf(periodeId.toString(), gebruiker.bijnaam)) }
-        if (periode.gebruiker.id != gebruiker.id)
-            throw PM_PeriodeNotFoundException(listOf(periodeId.toString(), gebruiker.bijnaam))
+            .orElseThrow { PM_PeriodeNotFoundException(listOf(periodeId.toString(), administratie.naam)) }
+        if (periode.administratie.id != administratie.id)
+            throw PM_PeriodeNotFoundException(listOf(periodeId.toString(), administratie.naam))
         return berekenStartSaldiVanPeriode(periode)
             .filter { balansRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sortedBy { it.rekening.sortOrder }
@@ -40,11 +40,11 @@ class StandStartVanPeriodeService {
 
     fun berekenStartSaldiVanPeriode(periode: Periode): List<Saldo> {
 
-        val gebruiker = periode.gebruiker
-        logger.info("berekenStartSaldiVanPeriode: periode: ${periode.periodeStartDatum} voor gebruiker ${gebruiker.bijnaam}")
+        val gebruiker = periode.administratie
+        logger.info("berekenStartSaldiVanPeriode: periode: ${periode.periodeStartDatum} voor gebruiker ${gebruiker.naam}")
         val vorigePeriode = periodeRepository
-            .getPeriodeGebruikerEnDatum(gebruiker.id, periode.periodeStartDatum.minusDays(1))
-            ?: throw PM_NoPeriodException(listOf(periode.periodeStartDatum.minusDays(1).toString(), gebruiker.bijnaam))
+            .getPeriodeAdministratieEnDatum(gebruiker.id, periode.periodeStartDatum.minusDays(1))
+            ?: throw PM_NoPeriodException(listOf(periode.periodeStartDatum.minusDays(1).toString(), gebruiker.naam))
         if (geslotenPeriodes.contains(vorigePeriode.periodeStatus))
             return standEindeVanGeslotenPeriodeService.berekenEindSaldiVanGeslotenPeriode(vorigePeriode)
 

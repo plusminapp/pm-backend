@@ -1,7 +1,7 @@
 package io.vliet.plusmin.repository
 
 import io.vliet.plusmin.domain.Betaling
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.service.PagingService
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
@@ -26,7 +26,7 @@ class BetalingDao {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun search(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         sizeAsString: String,
         pageAsString: String,
         sort: String,
@@ -38,7 +38,7 @@ class BetalingDao {
         val selectClause = "SELECT b FROM Betaling b "
         val countClause = "SELECT COUNT(*) FROM Betaling b "
 
-        val gebruikerSelectBody = "b.gebruiker.id = ${gebruiker.id}"
+        val administratieSelectBody = "b.administratie.id = ${administratie.id}"
 
         val queryTokens = queryString.trim().split(" ")
         val fields = listOf(
@@ -80,7 +80,7 @@ class BetalingDao {
         else null
 
         val queryBodyList = listOf(
-            gebruikerSelectBody,
+            administratieSelectBody,
             querySelectBody,
             statusSelectBody,
             fromDateSelectBody,
@@ -127,9 +127,9 @@ class BetalingDao {
         val page = PageImpl(content, pageRequest, count)
         return PagingService.ContentWrapper(
             data = page as Page<out Any>,
-            gebruikersId = gebruiker.id,
-            gebruikersEmail = gebruiker.email,
-            gebruikersBijnaam = gebruiker.bijnaam
+            gebruikersId = administratie.id,
+            gebruikersEmail = administratie.naam,
+            gebruikersBijnaam = administratie.naam
         )
     }
 }
