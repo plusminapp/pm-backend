@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 @Entity
 @Table(
     name = "periode",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "periodeStartDatum"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["administratie_id", "periodeStartDatum"])]
 )
 class Periode(
     @Id
@@ -26,19 +26,19 @@ class Periode(
     val id: Long = 0,
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "gebruiker_id")
-    val gebruiker: Gebruiker,
+    @JoinColumn(name = "administratie_id")
+    val administratie: Administratie,
     val periodeStartDatum: LocalDate,
     val periodeEindDatum: LocalDate,
     @Enumerated(EnumType.STRING)
     val periodeStatus: PeriodeStatus = PeriodeStatus.HUIDIG,
 ) {
     fun fullCopy(
-        gebruiker: Gebruiker = this.gebruiker,
+        administratie: Administratie = this.administratie,
         periodeStartDatum: LocalDate = this.periodeStartDatum,
         periodeEindDatum: LocalDate = this.periodeEindDatum,
         periodeStatus: PeriodeStatus = this.periodeStatus,
-    ) = Periode(this.id, gebruiker, periodeStartDatum, periodeEindDatum, periodeStatus)
+    ) = Periode(this.id, administratie, periodeStartDatum, periodeEindDatum, periodeStatus)
 
     data class PeriodeDTO(
         val id: Long = 0,

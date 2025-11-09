@@ -7,7 +7,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 import kotlin.plus
 
 @Service
@@ -20,18 +19,18 @@ class StandEindeVanGeslotenPeriodeService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenEindSaldiVanGeslotenPeriode(gebruiker: Gebruiker, periodeId: Long): List<Saldo> {
+    fun berekenEindSaldiVanGeslotenPeriode(administratie: Administratie, periodeId: Long): List<Saldo> {
         val periode = periodeRepository.findById(periodeId)
-            .orElseThrow { PM_PeriodeNotFoundException(listOf(periodeId.toString(), gebruiker.bijnaam)) }
-        if (periode.gebruiker.id != gebruiker.id)
-            throw PM_PeriodeNotFoundException(listOf(periodeId.toString(), gebruiker.bijnaam))
+            .orElseThrow { PM_PeriodeNotFoundException(listOf(periodeId.toString(), administratie.naam)) }
+        if (periode.administratie.id != administratie.id)
+            throw PM_PeriodeNotFoundException(listOf(periodeId.toString(), administratie.naam))
         return berekenEindSaldiVanGeslotenPeriode(periode)
             .sortedBy { it.rekening.sortOrder }
     }
 
     fun berekenEindSaldiVanGeslotenPeriode(periode: Periode): List<Saldo> {
         if (!geslotenPeriodes.contains(periode.periodeStatus)) {
-            throw PM_PeriodeNietGeslotenException(listOf("vorige", periode.gebruiker.bijnaam))
+            throw PM_PeriodeNietGeslotenException(listOf("vorige", periode.administratie.naam))
         }
         val periodeSaldi = saldoRepository.findAllByPeriode(periode)
 

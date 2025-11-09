@@ -8,14 +8,14 @@ servers:
 security:
 - bearerAuth: []
 paths:
-  /periodes/hulpvrager/{hulpvragerId}/wijzig-periode-opening/{periodeId}:
+  /periodes/administratie/{administratieId}/wijzig-periode-opening/{periodeId}:
     put:
       tags:
       - periode-controller
       summary: PUT wijzig een periode voor hulpvrager
       operationId: wijzigPeriodeOpeningVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -42,14 +42,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/hulpvrager/{hulpvragerId}/sluiten/{periodeId}:
+  /periodes/administratie/{administratieId}/sluiten/{periodeId}:
     put:
       tags:
       - periode-controller
       summary: PUT sluit een periode voor hulpvrager
       operationId: sluitPeriodeVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -76,14 +76,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/hulpvrager/{hulpvragerId}/opruimen/{periodeId}:
+  /periodes/administratie/{administratieId}/opruimen/{periodeId}:
     put:
       tags:
       - periode-controller
       summary: PUT ruim een periode op (verwijder de betalingen) voor hulpvrager
       operationId: ruimPeriodesOpVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -102,14 +102,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/hulpvrager/{hulpvragerId}/heropenen/{periodeId}:
+  /periodes/administratie/{administratieId}/heropenen/{periodeId}:
     put:
       tags:
       - periode-controller
       summary: PUT heropen een periode (en verwijder de saldi) voor hulpvrager
       operationId: heropenPeriodeVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -128,13 +128,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /demo/hulpvrager/{hulpvragerId}/reset:
+  /demo/administratie/{administratieId}/reset:
     put:
       tags:
       - demo-controller
       operationId: resetGebruikerData
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -147,13 +147,13 @@ paths:
             '*/*':
               schema:
                 type: string
-  /demo/hulpvrager/{hulpvragerId}/configureer:
+  /demo/administratie/{administratieId}/configureer:
     put:
       tags:
       - demo-controller
       operationId: configureerPeriode
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -210,13 +210,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /betalingen/hulpvrager/{hulpvragerId}/betalingvalidatie:
+  /betalingen/administratie/{administratieId}/betalingvalidatie:
     get:
       tags:
       - betaling-controller
       operationId: getDatumLaatsteBetaling
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -235,7 +235,7 @@ paths:
       - betaling-controller
       operationId: valideerOcrBetalingen
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -254,13 +254,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BetalingValidatieWrapper"
-  /reserveringen/hulpvrager/{hulpvragerId}:
+  /reserveringen/administratie/{administratieId}:
     post:
       tags:
       - reservering-controller
       operationId: creeerReservering
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -273,13 +273,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /reserveringen/hulpvrager/{hulpvragerId}/periode/{periodeId}:
+  /reserveringen/administratie/{administratieId}/periode/{periodeId}:
     post:
       tags:
       - reservering-controller
       operationId: creeerReserveringVoorPeriode
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -298,13 +298,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /rekeningen/hulpvrager/{hulpvragerId}:
+  /rekeningen/administratie/{administratieId}:
     post:
       tags:
       - rekening-controller
       operationId: creeerNieuweRekeningVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -361,7 +361,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Gebruiker"
-  /betalingen/hulpvrager/{hulpvragerId}:
+  /betalingen/administratie/{administratieId}:
     get:
       tags:
       - betaling-controller
@@ -369,7 +369,7 @@ paths:
       description: GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)
       operationId: getAlleBetalingenVanHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -430,7 +430,7 @@ paths:
       - betaling-controller
       operationId: creeerNieuweBetalingVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -449,13 +449,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /betalingen/hulpvrager/{hulpvragerId}/list:
+  /betalingen/administratie/{administratieId}/list:
     post:
       tags:
       - betaling-controller
       operationId: creeerNieuweBetalingenVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -476,14 +476,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /stand/hulpvrager/{hulpvragerId}/periode/{periodeId}/openingsbalans:
+  /stand/administratie/{administratieId}/periode/{periodeId}/openingsbalans:
     get:
       tags:
       - stand-controller
       summary: GET de stand voor hulpvrager op datum
       operationId: getOpeningsBalansVoorPeriode
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -504,14 +504,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SaldoDTO"
-  /stand/hulpvrager/{hulpvragerId}/datum/{datum}:
+  /stand/administratie/{administratieId}/datum/{datum}:
     get:
       tags:
       - stand-controller
       summary: GET de stand voor hulpvrager op datum
       operationId: getStandOpDatumVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -529,14 +529,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/StandDTO"
-  /stand/hulpvrager/{hulpvragerId}/checkspaarsaldi:
+  /stand/administratie/{administratieId}/checkspaarsaldi:
     get:
       tags:
       - stand-controller
       summary: GET de spaarsaldi controle voor hulpvrager
       operationId: checkSaldi
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -549,14 +549,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /rekeningen/hulpvrager/{hulpvragerId}/periode/{periodeId}:
+  /rekeningen/administratie/{administratieId}/periode/{periodeId}:
     get:
       tags:
       - rekening-controller
       summary: GET de geldige rekeningen in een periode
       operationId: getAlleRekeningenPerBetalingsSoortVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -575,14 +575,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /rekeningen/hulpvrager/{hulpvragerId}/periode/{periodeId}/cashflow:
+  /rekeningen/administratie/{administratieId}/periode/{periodeId}/cashflow:
     get:
       tags:
       - rekening-controller
       summary: GET de cashflow in een periode
       operationId: getCashflowVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -601,14 +601,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/hulpvrager/{hulpvragerId}:
+  /periodes/administratie/{administratieId}:
     get:
       tags:
       - periode-controller
       summary: GET de periodes voor hulpvrager
       operationId: getPeriodesVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -621,14 +621,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/hulpvrager/{hulpvragerId}/sluitvoorstel/{periodeId}:
+  /periodes/administratie/{administratieId}/sluitvoorstel/{periodeId}:
     get:
       tags:
       - periode-controller
       summary: GET voorstel voor het sluiten van een periode voor hulpvrager
       operationId: sluitPeriodeVoorstelVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -661,14 +661,14 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/GebruikerMetHulpvragersDTO"
-  /betalingen/hulpvrager/{hulpvragerId}/valideer-betalingen:
+  /betalingen/administratie/{administratieId}/valideer-betalingen:
     get:
       tags:
       - betaling-controller
       summary: GET valideer betalingen voor hulpvrager
       operationId: valideerBetalingenVoorHulpvrager
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -683,13 +683,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Betaling"
-  /demo/hulpvrager/{hulpvragerId}/verwijderVanPeriode/{periodeId}:
+  /demo/administratie/{administratieId}/verwijderVanPeriode/{periodeId}:
     delete:
       tags:
       - demo-controller
       operationId: deleteBetalingenInPeriode
       parameters:
-      - name: hulpvragerId
+      - name: administratieId
         in: path
         required: true
         schema:

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.PM_CreateUserAuthorizationException
-import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -23,6 +23,9 @@ class GebruikerController {
     lateinit var gebruikerRepository: GebruikerRepository
 
     @Autowired
+    lateinit var administratieRepository: AdministratieRepository
+
+    @Autowired
     lateinit var gebruikerService: GebruikerService
 
     @Autowired
@@ -38,24 +41,22 @@ class GebruikerController {
     @GetMapping("")
     fun getAlleGebruikers(): List<GebruikerDTO> {
         val gebruiker = gebruikerService.getJwtGebruiker()
-        logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
+        logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject} met rollen ${gebruiker.roles}.")
         return gebruikerRepository.findAll().map { toDTO(it) }
     }
 
     // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen; ADMIN krijgt iedereen terug als hulpvrager
     @Operation(summary = "GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van een gebruiker")
     @GetMapping("/zelf")
-    fun findGebruikerInclusiefHulpvragers(): Gebruiker.GebruikerMetHulpvragersDTO {
+    fun findGebruikerInclusiefHulpvragers(): Gebruiker.GebruikerMetAdministratiesDTO {
         val gebruiker = gebruikerService.getJwtGebruiker()
-        logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.email}.")
-        val hulpvragers = if (gebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
-            gebruikerRepository.findAll().filter { it.id != gebruiker.id }
-        } else {
-            gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker)
-        }
-        periodeService.checkPeriodesVoorGebruiker(gebruiker)
-        hulpvragers.forEach { periodeService.checkPeriodesVoorGebruiker(it) }
-        return Gebruiker.GebruikerMetHulpvragersDTO(toDTO(gebruiker), hulpvragers.map { toDTO(it) })
+        logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.bijnaam}/${gebruiker.subject}.")
+        val hulpvragers =
+            administratieRepository.findAdministratiesVoorGebruiker(gebruiker)
+
+//        periodeService.checkPeriodesVoorGebruiker(gebruiker)
+//        hulpvragers.forEach { periodeService.checkPeriodesVoorGebruiker(it) }
+        return Gebruiker.GebruikerMetAdministratiesDTO(toDTO(gebruiker), hulpvragers.map { it.toDTO() })
     }
 
     @PostMapping("")
@@ -72,16 +73,14 @@ class GebruikerController {
     }
 
     fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
-        val periodes: List<Periode> = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
         return GebruikerDTO(
             gebruiker.id,
+            gebruiker.subject,
             gebruiker.email,
             gebruiker.bijnaam,
-            gebruiker.periodeDag,
             gebruiker.roles.map { it.toString() },
-            gebruiker.vrijwilliger?.email ?: "",
-            gebruiker.vrijwilliger?.bijnaam ?: "",
-            periodes = periodes.map { it.toDTO() }
+            gebruiker.administraties.map { it.toDTO() },
+            periodes = emptyList()
         )
     }
 }

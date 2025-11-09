@@ -35,6 +35,14 @@ class PM_HulpvragerNotFoundException(
     HttpStatus.NOT_FOUND, "GEBRUIKER_NOTFOUND", parameters
 )
 
+// Administratie exception
+class PM_AdministratieNotFoundException(
+    parameters: List<String>
+) : PlusMinException(
+    "Administratie met Id ${parameters[0]} bestaat niet.",
+    HttpStatus.NOT_FOUND, "ADMINISTRATIE_NOTFOUND", parameters
+)
+
 // Periode exceptions
 class PM_PeriodeNotFoundException(
     parameters: List<String> = emptyList()

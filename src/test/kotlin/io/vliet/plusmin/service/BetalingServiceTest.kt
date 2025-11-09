@@ -1,7 +1,7 @@
 package io.vliet.plusmin
 
 import io.vliet.plusmin.TestFixtures.testBetalingenLijst
-import io.vliet.plusmin.TestFixtures.testGebruiker
+import io.vliet.plusmin.TestFixtures.testAdministratie
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -57,10 +57,10 @@ class BetalingServiceTest {
 
     @Test
     fun testCreeerBetalingLijstThrowsExceptionWhenRekeningNotFound() {
-        `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Rekening1")).thenReturn(null)
+        `when`(rekeningRepository.findRekeningAdministratieEnNaam(testAdministratie, "Rekening1")).thenReturn(null)
 
         assertThrows<Exception> {
-            betalingService.creeerBetalingLijst(testGebruiker, testBetalingenLijst)
+            betalingService.creeerBetalingLijst(testAdministratie, testBetalingenLijst)
         }
     }
 }

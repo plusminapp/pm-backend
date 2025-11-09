@@ -28,21 +28,21 @@ class DemoService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun configureerDemoBetalingen(gebruiker: Gebruiker) {
-        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
+    fun configureerDemoBetalingen(administratie: Administratie) {
+        val periodes = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
         val bronPeriode = periodes
             .filter { !it.periodeStartDatum.equals(it.periodeEindDatum) }
             .sortedBy { it.periodeStartDatum }[0]
-        val demo = demoRepository.findByGebruiker(gebruiker)
+        val demo = demoRepository.findByAdministratie(administratie)
         if (demo != null) {
             demoRepository.save(demo.fullCopy(bronPeriode = bronPeriode))
         } else {
-            demoRepository.save(Demo(gebruiker = gebruiker, bronPeriode = bronPeriode))
+            demoRepository.save(Demo(administratie = administratie, bronPeriode = bronPeriode))
         }
         periodes.filter { it.periodeStartDatum > bronPeriode.periodeStartDatum }
             .forEach { doelPeriode ->
-                logger.info("Kopieer betalingen van ${bronPeriode.periodeStartDatum} naar ${doelPeriode.periodeStartDatum} voor ${gebruiker.bijnaam}")
-                kopieerPeriodeBetalingen(gebruiker, bronPeriode, doelPeriode)
+                logger.info("Kopieer betalingen van ${bronPeriode.periodeStartDatum} naar ${doelPeriode.periodeStartDatum} voor ${administratie.naam}")
+                kopieerPeriodeBetalingen(administratie, bronPeriode, doelPeriode)
             }
     }
 
@@ -50,15 +50,15 @@ class DemoService {
     fun nachtelijkeUpdate() {
         val parameters = demoRepository.findAll()
         parameters.forEach { demo ->
-            val doelPeriode = periodeRepository.getPeriodeGebruikerEnDatum(demo.gebruiker.id, LocalDate.now())
-                ?: throw PM_NoOpenPeriodException(listOf(demo.gebruiker.email, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)))
-            kopieerPeriodeBetalingen(demo.gebruiker, demo.bronPeriode, doelPeriode)
+            val doelPeriode = periodeRepository.getPeriodeAdministratieEnDatum(demo.administratie.id, LocalDate.now())
+                ?: throw PM_NoOpenPeriodException(listOf(demo.administratie.naam, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)))
+            kopieerPeriodeBetalingen(demo.administratie, demo.bronPeriode, doelPeriode)
         }
     }
 
-    fun kopieerPeriodeBetalingen(gebruiker: Gebruiker, bronPeriode: Periode, doelPeriode: Periode): List<BetalingDTO> {
-        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(
-            gebruiker,
+    fun kopieerPeriodeBetalingen(administratie: Administratie, bronPeriode: Periode, doelPeriode: Periode): List<BetalingDTO> {
+        val betalingen = betalingRepository.findAllByAdministratieTussenDatums(
+            administratie,
             bronPeriode.periodeStartDatum,
             bronPeriode.periodeEindDatum
         ).filter { !reserveringBetalingsSoorten.contains(it.betalingsSoort) }
@@ -70,12 +70,12 @@ class DemoService {
                             boekingsDatum.monthValue
                         ))
             val vergelijkbareBetalingen = betalingRepository.findVergelijkbareBetalingen(
-                gebruiker,
+                administratie,
                 boekingsDatum,
                 betaling.bedrag
             )
             if (boekingsDatum <= LocalDate.now() && wordtDezeMaandBetalingVerwacht && vergelijkbareBetalingen.isEmpty()) {
-                val sortOrder = betalingService.berekenSortOrder(gebruiker, boekingsDatum)
+                val sortOrder = betalingService.berekenSortOrder(administratie, boekingsDatum)
 
                 val nieuweBetaling = Betaling(
                     boekingsdatum = boekingsDatum,
@@ -85,7 +85,7 @@ class DemoService {
                     bron = betaling.bron,
                     bestemming = betaling.bestemming,
                     betalingsSoort = betaling.betalingsSoort,
-                    gebruiker = gebruiker,
+                    administratie = administratie,
                     reserveringsHorizon = betaling.reserveringsHorizon,
                     reserveringBron = betaling.reserveringBron,
                     reserveringBestemming = betaling.reserveringBestemming
@@ -115,14 +115,14 @@ class DemoService {
         }
     }
 
-    fun deleteBetalingenInPeriode(gebruiker: Gebruiker, periodeId: Long) {
+    fun deleteBetalingenInPeriode(administratie: Administratie, periodeId: Long) {
         val periode = periodeRepository.findById(periodeId)
             .orElseGet { throw PM_PeriodeNotFoundException(listOf(periodeId.toString())) }
-        if (periode.gebruiker.id != gebruiker.id) {
+        if (periode.administratie.id != administratie.id) {
             throw PM_PeriodeNotFoundException(listOf(periodeId.toString()))
         }
-        betalingRepository.deleteAllByGebruikerTussenDatums(
-            gebruiker,
+        betalingRepository.deleteAllByAdministratieTussenDatums(
+            administratie,
             periode.periodeStartDatum,
             periode.periodeEindDatum
         )

@@ -31,10 +31,10 @@ class StandInPeriodeService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun berekenSaldiOpDatum(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         peilDatum: LocalDate,
     ): List<Saldo.SaldoDTO> {
-        val periode = periodeService.getPeriode(gebruiker, peilDatum)
+        val periode = periodeService.getPeriode(administratie, peilDatum)
         return berekenSaldiOpDatum(LocalDate.now(),periode)
     }
 
@@ -44,7 +44,7 @@ class StandInPeriodeService {
         inclusiefOngeldigeRekeningen: Boolean = false
     ): List<Saldo.SaldoDTO> {
 
-        val gebruiker = periode.gebruiker
+        val gebruiker = periode.administratie
         val startSaldiVanPeriode = standStartVanPeriodeService.berekenStartSaldiVanPeriode(periode)
 
         val mutatiesInPeriode =
@@ -160,7 +160,7 @@ class StandInPeriodeService {
                             listOf(
                                 rekening.naam,
                                 rekening.rekeningGroep.budgetType.name,
-                                rekening.rekeningGroep.gebruiker.bijnaam
+                                rekening.rekeningGroep.administratie.naam
                             )
                         )
                     }

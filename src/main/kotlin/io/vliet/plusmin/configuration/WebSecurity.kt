@@ -1,6 +1,6 @@
 package io.vliet.plusmin.configuration
 
-import io.vliet.plusmin.controller.GebruikerController
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -43,9 +43,10 @@ class SecurityConfig(
     fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
         val converter = JwtAuthenticationConverter()
         converter.setJwtGrantedAuthoritiesConverter {
+            val subject = it.claims["sub"] as String
             val username = it.claims["username"] as String
-            val user = gebruikerRepository.findByEmail(username)
-                ?: gebruikerService.save(Gebruiker.GebruikerDTO(email = username))
+            val user = gebruikerRepository.findBySubject(subject)
+                ?: gebruikerService.save(Gebruiker.GebruikerDTO(subject = subject , email = username))
             logger.debug("In SecurityConfig.jwtAuthenticationConverter voor ${user.username} met ${user.authorities}")
             user.authorities
         }

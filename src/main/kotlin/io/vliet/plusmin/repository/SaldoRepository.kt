@@ -1,6 +1,5 @@
 package io.vliet.plusmin.repository
 
-import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Saldo
@@ -8,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.util.*
 
 @Repository
 interface SaldoRepository : JpaRepository<Saldo, Long> {

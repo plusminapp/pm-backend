@@ -2,10 +2,6 @@ package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.Companion.opgenomenSaldoBetalingsSoorten
-import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
-import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,9 +21,9 @@ class StandMutatiesTussenDatumsService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenMutatieLijstTussenDatums(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
-        val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorGebruiker(gebruiker)
-        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
+    fun berekenMutatieLijstTussenDatums(administratie: Administratie, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
+        val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorAdministratie(administratie)
+        val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->
                 val betaling =

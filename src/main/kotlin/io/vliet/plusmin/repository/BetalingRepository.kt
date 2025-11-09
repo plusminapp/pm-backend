@@ -2,7 +2,7 @@ package io.vliet.plusmin.repository
 
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingsSoort
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Rekening
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -16,75 +16,75 @@ import java.time.LocalDate
 @Transactional
 interface BetalingRepository : JpaRepository<Betaling, Long> {
     override fun findAll(): List<Betaling>
-    fun findAllByGebruiker(gebruiker: Gebruiker): List<Betaling>
+    fun findAllByAdministratie(administratie: Administratie): List<Betaling>
 
     @Query(value = "SELECT b FROM Betaling b WHERE b.id = :id")
     fun findById2(id: Long): Betaling?
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum <= :datum"
     )
-    fun findAllByGebruikerTotEnMetDatum(gebruiker: Gebruiker, datum: LocalDate): List<Betaling>
+    fun findAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate): List<Betaling>
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
                 "b.boekingsdatum <= :eindDatum"
     )
-    fun findAllByGebruikerTussenDatums(
-        gebruiker: Gebruiker,
+    fun findAllByAdministratieTussenDatums(
+        administratie: Administratie,
         openingsDatum: LocalDate,
         eindDatum: LocalDate
     ): List<Betaling>
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :startDatum AND " +
                 "b.boekingsdatum <= :eindDatum AND " +
                 "b.reserveringBron.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' AND " +
                 "b.reserveringBestemming.rekeningGroep.budgetType = 'SPAREN'"
     )
     fun findSpaarReserveringenInPeriode(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         startDatum: LocalDate,
         eindDatum: LocalDate
     ): List<Betaling>
     
     @Query(
         value = "SELECT MAX(b.reserveringsHorizon) FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker"
+                "WHERE b.administratie = :administratie"
     )
     fun getReserveringsHorizon(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
     ): LocalDate?
 
     @Modifying
     @Query(
         value = "DELETE FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
                 "b.boekingsdatum <= :eindDatum"
     )
-    fun deleteAllByGebruikerTussenDatums(
-        gebruiker: Gebruiker,
+    fun deleteAllByAdministratieTussenDatums(
+        administratie: Administratie,
         openingsDatum: LocalDate,
         eindDatum: LocalDate
     )
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
                 "ABS(b.bedrag) = ABS(:bedrag) AND " +
                 "b.omschrijving = :omschrijving AND " +
                 "b.betalingsSoort = :betalingsSoort"
     )
     fun findMatchingBetaling(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         boekingsdatum: LocalDate,
         bedrag: BigDecimal,
         omschrijving: String,
@@ -93,45 +93,45 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
                 "ABS(b.bedrag) = ABS(:bedrag)"
     )
     fun findVergelijkbareBetalingen(
-        gebruiker: Gebruiker,
+        administratie: Administratie,
         boekingsdatum: LocalDate,
         bedrag: BigDecimal,
     ): List<Betaling>
 
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "(b.bron = :rekening OR b.bestemming = :rekening)"
     )
-    fun findLaatsteBetalingDatumBijRekening(gebruiker: Gebruiker, rekening: Rekening): LocalDate?
+    fun findLaatsteBetalingDatumBijRekening(administratie: Administratie, rekening: Rekening): LocalDate?
 
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker"
+                "WHERE b.administratie = :administratie"
     )
-    fun findDatumLaatsteBetalingBijGebruiker(gebruiker: Gebruiker): LocalDate?
+    fun findDatumLaatsteBetalingBijAdministratie(administratie: Administratie): LocalDate?
 
     @Query(
         value = "SELECT MAX(b.sortOrder) FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :datum"
     )
-    fun findLaatsteSortOrder(gebruiker: Gebruiker, datum: LocalDate): String?
+    fun findLaatsteSortOrder(administratie: Administratie, datum: LocalDate): String?
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.gebruiker = :gebruiker AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :datum AND " +
                 "b.reserveringBron = :reserveringBron AND " +
                 "b.reserveringBestemming = :reserveringBestemming"
     )
-    fun findByGebruikerOpDatumBronBestemming(
-        gebruiker: Gebruiker,
+    fun findByAdministratieOpDatumBronBestemming(
+        administratie: Administratie,
         datum: LocalDate,
         reserveringBron: Rekening,
         reserveringBestemming: Rekening
@@ -139,7 +139,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Modifying
     @Query(
-        value = "DELETE FROM Betaling b WHERE b.gebruiker = :gebruiker AND b.boekingsdatum <= :datum"
+        value = "DELETE FROM Betaling b WHERE b.administratie = :administratie AND b.boekingsdatum <= :datum"
     )
-    fun deleteAllByGebruikerTotEnMetDatum(gebruiker: Gebruiker, datum: LocalDate)
+    fun deleteAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate)
 }

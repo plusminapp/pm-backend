@@ -1,6 +1,6 @@
 package io.vliet.plusmin.repository
 
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import org.springframework.data.jpa.repository.JpaRepository
@@ -12,16 +12,16 @@ import java.util.*
 interface RekeningRepository : JpaRepository<Rekening, Long> {
     @Query(
         value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.gebruiker = :gebruiker"
+                "WHERE r.rekeningGroep.administratie = :administratie"
     )
-    fun findRekeningenVoorGebruiker(gebruiker: Gebruiker): List<Rekening>
+    fun findRekeningenVoorAdministratie(administratie: Administratie): List<Rekening>
 
     @Query(
         value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.rekeningGroep.budgetType = 'SPAREN' "
     )
-    fun findSpaarpottenVoorGebruiker(gebruiker: Gebruiker): List<Rekening>
+    fun findSpaarpottenVoorAdministratie(administratie: Administratie): List<Rekening>
 
     @Query(
         value = "SELECT r FROM Rekening r " +
@@ -31,33 +31,33 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
 
     @Query(
         value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.naam = :rekeningNaam"
     )
-    fun findRekeningGebruikerEnNaam(gebruiker: Gebruiker, rekeningNaam: String): Rekening?
+    fun findRekeningAdministratieEnNaam(administratie: Administratie, rekeningNaam: String): Rekening?
 
     @Query(
         value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.gekoppeldeRekening.naam = :rekeningNaam " +
                 "ORDER BY r.sortOrder ASC "
     )
-    fun findGekoppeldeRekeningenGebruikerEnNaam(gebruiker: Gebruiker, rekeningNaam: String): List<Rekening>
+    fun findGekoppeldeRekeningenAdministratieEnNaam(administratie: Administratie, rekeningNaam: String): List<Rekening>
 
     @Query(
         value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.rekeningGroep.rekeningGroepSoort = 'SPAARPOT' " +
                 "ORDER BY r.sortOrder ASC "
     )
-    fun findSpaarPotRekeningenGebruiker(gebruiker: Gebruiker): List<Rekening>
+    fun findSpaarPotRekeningenAdministratie(administratie: Administratie): List<Rekening>
 
     @Query(
         value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.gebruiker = :gebruiker " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' "
     )
-    fun findBufferRekeningVoorGebruiker(gebruiker: Gebruiker): Rekening?
+    fun findBufferRekeningVoorAdministratie(administratie: Administratie): Rekening?
 
 
     @Query(

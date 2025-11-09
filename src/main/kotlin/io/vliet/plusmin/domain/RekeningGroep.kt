@@ -7,7 +7,7 @@ import jakarta.persistence.*
 @Entity
 @Table(
     name = "rekening_groep",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "naam"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["administratie_id", "naam"])]
 )
 @JsonInclude( JsonInclude.Include.NON_EMPTY)
 class RekeningGroep(
@@ -22,8 +22,8 @@ class RekeningGroep(
     val naam: String,
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "gebruiker_id")
-    val gebruiker: Gebruiker,
+    @JoinColumn(name = "administratie_id")
+    val administratie: Administratie,
     @Enumerated(EnumType.STRING)
     val rekeningGroepSoort: RekeningGroepSoort,
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -110,7 +110,7 @@ class RekeningGroep(
 
     fun fullCopy(
         naam: String = this.naam,
-        gebruiker: Gebruiker = this.gebruiker,
+        administratie: Administratie = this.administratie,
         rekeningGroepSoort: RekeningGroepSoort = this.rekeningGroepSoort,
         rekeningGroepIcoonNaam: String? = this.rekeningGroepIcoonNaam,
         sortOrder: Int = this.sortOrder,
@@ -119,7 +119,7 @@ class RekeningGroep(
     ) = RekeningGroep(
         this.id,
         naam,
-        gebruiker,
+        administratie,
         rekeningGroepSoort,
         rekeningGroepIcoonNaam,
         sortOrder,

@@ -3,7 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Betaling.Boeking
-import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.PM_BufferRekeningNotFoundException
 import io.vliet.plusmin.domain.PM_NoOpenPeriodException
 import io.vliet.plusmin.domain.PM_RekeningNotFoundException
@@ -33,35 +33,35 @@ class BetalingService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun creeerBetalingLijst(gebruiker: Gebruiker, betalingenLijst: List<BetalingDTO>): List<BetalingDTO> {
+    fun creeerBetalingLijst(administratie: Administratie, betalingenLijst: List<BetalingDTO>): List<BetalingDTO> {
         return betalingenLijst.map { betalingDTO ->
-            creeerBetaling(gebruiker, betalingDTO)
+            creeerBetaling(administratie, betalingDTO)
         }
     }
 
-    fun creeerBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): BetalingDTO {
+    fun creeerBetaling(administratie: Administratie, betalingDTO: BetalingDTO): BetalingDTO {
         val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
-        val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
+        val periode = periodeRepository.getPeriodeAdministratieEnDatum(administratie.id, boekingsDatum)
         if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
             throw PM_NoOpenPeriodException(
                 listOf(
                     boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    gebruiker.bijnaam
+                    administratie.naam
                 )
             )
         }
-        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-            ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bron, gebruiker.bijnaam))
-        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
-            ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bestemming, gebruiker.bijnaam))
+        val bron = rekeningRepository.findRekeningAdministratieEnNaam(administratie, betalingDTO.bron)
+            ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bron, administratie.naam))
+        val bestemming = rekeningRepository.findRekeningAdministratieEnNaam(administratie, betalingDTO.bestemming)
+            ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bestemming, administratie.naam))
 
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
             Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
-        val sortOrder = berekenSortOrder(gebruiker, boekingsDatum)
-        logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
+        val sortOrder = berekenSortOrder(administratie, boekingsDatum)
+        logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
         val betaling = Betaling(
-            gebruiker = gebruiker,
+            administratie = administratie,
             boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             bedrag = betalingDTO.bedrag,
             omschrijving = betalingDTO.omschrijving,
@@ -75,8 +75,8 @@ class BetalingService {
         return betalingRepository.save(betaling).toDTO()
     }
 
-    fun berekenSortOrder(gebruiker: Gebruiker, boekingsDatum: LocalDate): String {
-        val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
+    fun berekenSortOrder(administratie: Administratie, boekingsDatum: LocalDate): String {
+        val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(administratie, boekingsDatum)
         val sortOrderDatum = boekingsDatum.toString().replace("-", "")
         return if (laatsteSortOrder == null) "$sortOrderDatum.100"
         else {
@@ -86,26 +86,26 @@ class BetalingService {
     }
 
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
-        val gebruiker = oldBetaling.gebruiker
+        val gebruiker = oldBetaling.administratie
         val boekingsDatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
-        val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
+        val periode = periodeRepository.getPeriodeAdministratieEnDatum(gebruiker.id, boekingsDatum)
         if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
             throw PM_NoOpenPeriodException(
                 listOf(
                     boekingsDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    gebruiker.bijnaam
+                    gebruiker.naam
                 )
             )
         }
-        val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
-            ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bron, gebruiker.bijnaam))
-        val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
-            ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bestemming, gebruiker.bijnaam))
+        val bron = rekeningRepository.findRekeningAdministratieEnNaam(gebruiker, newBetalingDTO.bron)
+            ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bron, gebruiker.naam))
+        val bestemming = rekeningRepository.findRekeningAdministratieEnNaam(gebruiker, newBetalingDTO.bestemming)
+            ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bestemming, gebruiker.naam))
 
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
             Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
-        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} ")
+        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.naam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = boekingsDatum,
             bedrag = newBetalingDTO.bedrag,
@@ -127,13 +127,13 @@ class BetalingService {
         betalingsSoort: Betaling.BetalingsSoort,
         dtoBoeking: Boeking
     ): Pair<Boeking?, Boeking?> {
-        val bufferRekening = rekeningRepository.findBufferRekeningVoorGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
-            ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.gebruiker.bijnaam))
+        val bufferRekening = rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
+            ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
         val gekoppeldeSpaarRekening =
             rekeningRepository
-                .findSpaarPotRekeningenGebruiker(dtoBoeking.bron.rekeningGroep.gebruiker)
+                .findSpaarPotRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
                 .firstOrNull() // gesorteerd op sortOrder
-                ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.gebruiker.bijnaam))
+                ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
 
         return when (betalingsSoort) {
             Betaling.BetalingsSoort.INKOMSTEN ->
@@ -158,7 +158,7 @@ class BetalingService {
                         ?: throw PM_RekeningNotLinkedException(
                             listOf(
                                 dtoBoeking.bestemming.naam,
-                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                                dtoBoeking.bron.rekeningGroep.administratie.naam
                             )
                         )
                 ), Boeking(
@@ -172,7 +172,7 @@ class BetalingService {
                         ?: throw PM_RekeningNotLinkedException(
                             listOf(
                                 dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                                dtoBoeking.bron.rekeningGroep.administratie.naam
                             )
                         ),
                     dtoBoeking.bestemming,
@@ -189,7 +189,7 @@ class BetalingService {
                         ?: throw PM_RekeningNotLinkedException(
                             listOf(
                                 dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                                dtoBoeking.bron.rekeningGroep.administratie.naam
                             )
                         ),
                 ),
@@ -210,14 +210,14 @@ class BetalingService {
                         ?: throw PM_RekeningNotLinkedException(
                             listOf(
                                 dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                                dtoBoeking.bron.rekeningGroep.administratie.naam
                             )
                         ),
                     dtoBoeking.bestemming.gekoppeldeRekening
                         ?: throw PM_RekeningNotLinkedException(
                             listOf(
                                 dtoBoeking.bestemming.naam,
-                                dtoBoeking.bron.rekeningGroep.gebruiker.email
+                                dtoBoeking.bron.rekeningGroep.administratie.naam
                             )
                         )
                 ), dtoBoeking
@@ -226,9 +226,9 @@ class BetalingService {
 
     }
 
-    fun valideerBetalingenVoorGebruiker(gebruiker: Gebruiker): List<Betaling> {
-        val betalingenLijst = betalingRepository.findAllByGebruiker(gebruiker).filter { betaling: Betaling ->
-            val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, betaling.boekingsdatum)
+    fun valideerBetalingenVoorGebruiker(administratie: Administratie): List<Betaling> {
+        val betalingenLijst = betalingRepository.findAllByAdministratie(administratie).filter { betaling: Betaling ->
+            val periode = periodeRepository.getPeriodeAdministratieEnDatum(administratie.id, betaling.boekingsdatum)
             periode != null && betaling.bron != null && betaling.bestemming != null && (!betaling.bron.rekeningIsGeldigInPeriode(
                 periode
             ) || !betaling.bestemming.rekeningIsGeldigInPeriode(periode))
