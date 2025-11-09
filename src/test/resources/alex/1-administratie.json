@@ -1,6 +1,11 @@
 [
   {
     "naam": "Demo admin",
-    "periodeDag": 20
+    "periodeDag": 20,
+    "periodes": [
+      {
+        "periodeStartDatum": "2025-07-20"
+      }
+    ]
   }
 ]
