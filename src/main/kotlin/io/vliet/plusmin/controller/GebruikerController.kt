@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.PM_CreateUserAuthorizationException
-import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -21,9 +20,6 @@ import org.springframework.web.bind.annotation.*
 class GebruikerController {
     @Autowired
     lateinit var gebruikerRepository: GebruikerRepository
-
-    @Autowired
-    lateinit var administratieRepository: AdministratieRepository
 
     @Autowired
     lateinit var gebruikerService: GebruikerService
@@ -48,15 +44,11 @@ class GebruikerController {
     // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen; ADMIN krijgt iedereen terug als hulpvrager
     @Operation(summary = "GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van een gebruiker")
     @GetMapping("/zelf")
-    fun findGebruikerInclusiefHulpvragers(): Gebruiker.GebruikerMetAdministratiesDTO {
+    fun findGebruiker(): GebruikerDTO {
         val gebruiker = gebruikerService.getJwtGebruiker()
-        logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.bijnaam}/${gebruiker.subject}.")
-        val hulpvragers =
-            administratieRepository.findAdministratiesVoorGebruiker(gebruiker)
-
-//        periodeService.checkPeriodesVoorGebruiker(gebruiker)
-//        hulpvragers.forEach { periodeService.checkPeriodesVoorGebruiker(it) }
-        return Gebruiker.GebruikerMetAdministratiesDTO(toDTO(gebruiker), hulpvragers.map { it.toDTO() })
+        logger.info("GET GebruikerController.findGebruiker() voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}.")
+        gebruiker.administraties.map { (periodeService.checkPeriodesVoorGebruiker(it)) }
+        return toDTO(gebruiker)
     }
 
     @PostMapping("")
@@ -79,8 +71,10 @@ class GebruikerController {
             gebruiker.email,
             gebruiker.bijnaam,
             gebruiker.roles.map { it.toString() },
-            gebruiker.administraties.map { it.toDTO() },
-            periodes = emptyList()
+            gebruiker.administraties.map {
+                val periodes = periodeRepository.getPeriodesVoorAdministrtatie(it)
+                it.toDTO(periodes)
+            },
         )
     }
 }

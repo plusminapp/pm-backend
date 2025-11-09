@@ -27,8 +27,8 @@ class Gebruiker(
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "gebruiker_administratie",
-        joinColumns = [JoinColumn(name = "administratie_id")],
-        inverseJoinColumns = [JoinColumn(name = "gebruiker_id")]
+        joinColumns = [JoinColumn(name = "gebruiker_id")],
+        inverseJoinColumns = [JoinColumn(name = "administratie_id")]
     )
     var administraties: List<Administratie> = emptyList(),
 ) : UserDetails {
@@ -61,7 +61,6 @@ class Gebruiker(
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
         val roles: List<String> = emptyList(),
         val administraties: List<Administratie.AdministratieDTO> = emptyList(),
-        val periodes: List<Periode.PeriodeDTO> = emptyList(),
     )
 
     fun toDTO(periodes: List<Periode> = emptyList()): GebruikerDTO {
@@ -71,14 +70,7 @@ class Gebruiker(
             this.email,
             this.bijnaam,
             this.roles.map { it.toString() },
-            administraties = administraties.map { it.toDTO() },
-            periodes= periodes.map { it.toDTO() },
+            administraties = administraties.map { it.toDTO(periodes) },
         )
     }
-
-    data class GebruikerMetAdministratiesDTO(
-        val gebruiker: GebruikerDTO,
-        val hulpvragers: List<Administratie.AdministratieDTO>
-    )
-
 }

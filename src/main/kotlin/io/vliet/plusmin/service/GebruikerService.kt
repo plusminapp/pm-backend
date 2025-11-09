@@ -6,20 +6,14 @@ import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker.Role
 import io.vliet.plusmin.domain.PM_AdministratieNotFoundException
 import io.vliet.plusmin.domain.PM_GeneralAuthorizationException
-import io.vliet.plusmin.domain.Rekening
-import io.vliet.plusmin.domain.RekeningGroep
-import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
 import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.GebruikerRepository
-import io.vliet.plusmin.repository.RekeningGroepRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import java.time.LocalDate
 
 @Service
 class GebruikerService {
@@ -31,12 +25,6 @@ class GebruikerService {
 
     @Autowired
     lateinit var periodeService: PeriodeService
-
-    @Autowired
-    lateinit var rekeningGroepRepository: RekeningGroepRepository
-
-    @Autowired
-    lateinit var rekeningService: RekeningService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -54,9 +42,14 @@ class GebruikerService {
         val administratie = administratieOpt.get()
 
         val gebruiker = getJwtGebruiker()
-        if (!gebruiker.administraties.contains(administratie) &&
-            !gebruiker.roles.contains(Role.ROLE_ADMIN)
-        ) throw PM_GeneralAuthorizationException(listOf(gebruiker.bijnaam, administratie.naam))
+        logger.info("checkAccess administratie ${administratie.naam} voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}: " +
+                "adminId: ${administratie.id}  " +
+                "administraties ${gebruiker.administraties.joinToString { it.id.toString() }}  " +
+                "toegang: ${gebruiker.administraties.map { it.id }.contains(administratie.id)}")
+        if (!(gebruiker.administraties.map { it.id }.contains(administratie.id) ||
+                    gebruiker.roles.contains(Role.ROLE_ADMIN))
+        )
+            throw PM_GeneralAuthorizationException(listOf(gebruiker.bijnaam, administratie.naam))
         return Pair(administratie, gebruiker)
     }
 
@@ -88,47 +81,6 @@ class GebruikerService {
                     )
                 )
             }
-
-//        if (gebruikerOpt != null) {
-//            if (Gebruiker.periodeDag != gebruikerDTO.periodeDag) {
-//                if (gebruikerDTO.periodeDag > 28) {
-//                    logger.warn("Periodedag moet kleiner of gelijk zijn aan 28 (gevraagd: ${gebruikerDTO.periodeDag})")
-//                } else {
-//                    logger.info("Periodedag wordt aangepast voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject} van ${Gebruiker.periodeDag} -> ${gebruikerDTO.periodeDag}")
-////                    periodeService.pasPeriodeDagAan(Gebruiker, gebruikerDTO)
-//                    gebruikerRepository.save(Gebruiker.fullCopy(periodeDag = gebruikerDTO.periodeDag))
-//                }
-//            }
-//        } else {
-//            val initielePeriodeStartDatum: LocalDate = if (!gebruikerDTO.periodes.isNullOrEmpty()) {
-//                LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
-//            } else {
-//                periodeService.berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first
-//            }
-////            TODO periodeService.creeerInitielePeriode(Gebruiker, initielePeriodeStartDatum)
-//        }
-//
-//        val bufferRekeningen = rekeningGroepRepository
-//            .findRekeningGroepenOpSoort(Gebruiker, RekeningGroepSoort.RESERVERING_BUFFER)
-//        if (bufferRekeningen.size == 0)
-//            rekeningService.save(
-//                Gebruiker,
-//                RekeningGroep.RekeningGroepDTO(
-//                    naam = "Buffer",
-//                    rekeningGroepSoort = RekeningGroepSoort.RESERVERING_BUFFER.name,
-//                    sortOrder = 0,
-//                    rekeningen = listOf(
-//                        Rekening.RekeningDTO(
-//                            naam = "Buffer IN",
-//                            saldo = BigDecimal(0),
-//                            rekeningGroepNaam = "Buffer",
-//                            budgetAanvulling = Rekening.BudgetAanvulling.IN
-//                        )
-//                    )
-//                ),
-//                syscall = true
-//            )
-
         return gebruiker
     }
 }
