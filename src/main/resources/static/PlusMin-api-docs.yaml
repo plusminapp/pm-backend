@@ -254,6 +254,69 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BetalingValidatieWrapper"
+  /administraties/{administratieId}/gebruiker/{gebruikerId}/toegang-verstrekken:
+    put:
+      tags:
+      - administratie-controller
+      operationId: toegangVerstrekken
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gebruikerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /administraties/{administratieId}/gebruiker/{gebruikerId}/toegang-intrekken:
+    put:
+      tags:
+      - administratie-controller
+      operationId: toegangIntrekken
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gebruikerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /administraties/{administratieId}/gebruiker/{gebruikerId}/eigenaar-overdagen:
+    put:
+      tags:
+      - administratie-controller
+      operationId: eigenaarOverdragen
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gebruikerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
   /reserveringen/administratie/{administratieId}:
     post:
       tags:
@@ -705,6 +768,27 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Betaling"
+  /administraties/{administratieId}:
+    get:
+      tags:
+      - administratie-controller
+      operationId: gebruikersMetToegang
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Gebruiker"
   /demo/administratie/{administratieId}/verwijderVanPeriode/{periodeId}:
     delete:
       tags:
@@ -1049,6 +1133,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PeriodeDTO"
+        gebruikers:
+          type: array
+          items:
+            $ref: "#/components/schemas/GebruikerDTO"
       required:
       - id
       - naam

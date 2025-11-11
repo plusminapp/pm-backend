@@ -70,7 +70,7 @@ class Gebruiker(
             this.email,
             this.bijnaam,
             this.roles.map { it.toString() },
-            administraties = administraties.map { it.toDTO(periodes) },
+            administraties.map { it.toDTO(periodes) },
         )
     }
 }

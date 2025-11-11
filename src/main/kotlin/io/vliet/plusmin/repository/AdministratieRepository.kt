@@ -15,5 +15,8 @@ interface AdministratieRepository : JpaRepository<Administratie, Long> {
             "where g = :gebruiker " +
             "and a.naam = :administratieNaam")
     fun findAdministratieOpNaamEnGebruiker(administratieNaam: String, gebruiker: Gebruiker): Administratie?
+
+    @Query("select distinct g from Gebruiker g join g.administraties a where a = :administratie")
+    fun findGebruikersMetToegangTotAdministratie(administratie: Administratie): List<Gebruiker>
 }
 

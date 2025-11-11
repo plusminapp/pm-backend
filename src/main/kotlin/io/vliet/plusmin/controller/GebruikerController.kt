@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.PM_CreateUserAuthorizationException
+import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/gebruikers")
 class GebruikerController {
+    @Autowired
+    lateinit var administratieRepository: AdministratieRepository
+
     @Autowired
     lateinit var gebruikerRepository: GebruikerRepository
 
@@ -73,7 +77,10 @@ class GebruikerController {
             gebruiker.roles.map { it.toString() },
             gebruiker.administraties.map {
                 val periodes = periodeRepository.getPeriodesVoorAdministrtatie(it)
-                it.toDTO(periodes)
+                val gebruikers = administratieRepository
+                    .findGebruikersMetToegangTotAdministratie(it)
+                    .map { it.fullCopy(administraties = emptyList()) }
+                it.toDTO(periodes, gebruikers)
             },
         )
     }
