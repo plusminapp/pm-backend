@@ -72,7 +72,7 @@ class GebruikerController {
         return GebruikerDTO(
             gebruiker.id,
             gebruiker.subject,
-            gebruiker.email,
+//            gebruiker.email,
             gebruiker.bijnaam,
             gebruiker.roles.map { it.toString() },
             gebruiker.administraties.map {

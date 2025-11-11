@@ -60,7 +60,7 @@ class GebruikerService {
     }
 
     fun save(gebruikerDTO: GebruikerDTO): Gebruiker {
-        logger.info("gebruiker: ${gebruikerDTO.email}/${gebruikerDTO.subject}")
+        logger.info("gebruiker: ${gebruikerDTO.bijnaam}/${gebruikerDTO.subject}")
         val gebruikerOpt = gebruikerRepository.findBySubject(gebruikerDTO.subject)
         val gebruiker =
             if (gebruikerOpt != null) {
@@ -75,7 +75,7 @@ class GebruikerService {
                 gebruikerRepository.save(
                     Gebruiker(
                         subject = gebruikerDTO.subject,
-                        email = gebruikerDTO.email,
+//                        email = gebruikerDTO.email,
                         bijnaam = gebruikerDTO.bijnaam,
                         roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                     )

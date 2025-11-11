@@ -46,7 +46,7 @@ class SecurityConfig(
             val subject = it.claims["sub"] as String
             val username = it.claims["username"] as String
             val user = gebruikerRepository.findBySubject(subject)
-                ?: gebruikerService.save(Gebruiker.GebruikerDTO(subject = subject , email = username))
+                ?: gebruikerService.save(Gebruiker.GebruikerDTO(subject = subject))
             logger.debug("In SecurityConfig.jwtAuthenticationConverter voor ${user.username} met ${user.authorities}")
             user.authorities
         }
