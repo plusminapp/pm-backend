@@ -149,7 +149,7 @@ class RekeningService {
                         Aflossing(
                             0,
                             LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            BigDecimal(rekeningDTO.aflossing.eindBedrag),
+                            BigDecimal(rekeningDTO.aflossing.schuldOpStartDatum),
                             rekeningDTO.aflossing.dossierNummer,
                             rekeningDTO.aflossing.notities
                         )
@@ -158,7 +158,7 @@ class RekeningService {
                     aflossingRepository.save(
                         rekeningOpt.aflossing.fullCopy(
                             LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            BigDecimal(rekeningDTO.aflossing.eindBedrag),
+                            BigDecimal(rekeningDTO.aflossing.schuldOpStartDatum),
                             rekeningDTO.aflossing.dossierNummer,
                             rekeningDTO.aflossing.notities
                         )
@@ -219,7 +219,7 @@ class RekeningService {
                     Aflossing(
                         0,
                         LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                        BigDecimal(rekeningDTO.aflossing.eindBedrag),
+                        BigDecimal(rekeningDTO.aflossing.schuldOpStartDatum),
                         rekeningDTO.aflossing.dossierNummer,
                         rekeningDTO.aflossing.notities
                     )

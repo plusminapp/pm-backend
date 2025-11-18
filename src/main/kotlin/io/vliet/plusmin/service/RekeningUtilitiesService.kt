@@ -39,8 +39,18 @@ class RekeningUtilitiesService {
                 rekeningGroep.fullCopy(
                     rekeningen = rekeningGroep.rekeningen
                         .filter { it.rekeningIsGeldigInPeriode(periode) }
-                        .sortedBy { it.sortOrder }
+                        .map {
+                            it.fullCopy(
+                                betaalMethoden = it.betaalMethoden.map {
+                                    it.fullCopy(
+                                        betaalMethoden = emptyList()
+                                    )
+                                }.sortedBy { it.sortOrder }
+                            )
+                        }
                 )
-            }.filter { it.rekeningen.isNotEmpty() }
+            }
+            .sortedBy { it.sortOrder }
+            .filter { it.rekeningen.isNotEmpty() }
     }
 }

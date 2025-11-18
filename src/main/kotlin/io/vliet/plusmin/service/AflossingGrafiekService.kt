@@ -47,7 +47,7 @@ class AflossingGrafiekService {
 //        val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
 //        val aflossingGrafiekDataLijst = mutableListOf<AflossingGrafiekData>()
 //        var huidigeMaand = aflossing.startDatum.withDayOfMonth(1)
-//        var huidigeBedrag = aflossing.eindBedrag
+//        var huidigeBedrag = aflossing.schuldOpStartDatum
 //        while (huidigeBedrag > BigDecimal.ZERO) {
 //            aflossingGrafiekDataLijst.add(
 //                AflossingGrafiekData(

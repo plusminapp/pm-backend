@@ -768,27 +768,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Betaling"
-  /administraties/{administratieId}:
-    get:
-      tags:
-      - administratie-controller
-      operationId: gebruikersMetToegang
-      parameters:
-      - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Gebruiker"
   /demo/administratie/{administratieId}/verwijderVanPeriode/{periodeId}:
     delete:
       tags:
@@ -824,7 +803,7 @@ components:
           format: int64
         startDatum:
           type: string
-        eindBedrag:
+        schuldOpStartDatum:
           type: string
         dossierNummer:
           type: string
@@ -832,9 +811,9 @@ components:
           type: string
       required:
       - dossierNummer
-      - eindBedrag
       - id
       - notities
+      - schuldOpStartDatum
       - startDatum
     SaldoDTO:
       type: object
@@ -1149,8 +1128,6 @@ components:
           format: int64
         subject:
           type: string
-        email:
-          type: string
         bijnaam:
           type: string
         roles:
@@ -1213,8 +1190,6 @@ components:
           type: integer
           format: int64
         subject:
-          type: string
-        email:
           type: string
         bijnaam:
           type: string
@@ -1330,7 +1305,7 @@ components:
         startDatum:
           type: string
           format: date
-        eindBedrag:
+        schuldOpStartDatum:
           type: number
         dossierNummer:
           type: string
@@ -1338,9 +1313,9 @@ components:
           type: string
       required:
       - dossierNummer
-      - eindBedrag
       - id
       - notities
+      - schuldOpStartDatum
       - startDatum
     Betaling:
       type: object
