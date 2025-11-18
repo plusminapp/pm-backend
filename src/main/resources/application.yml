@@ -21,6 +21,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://api.eu.asgardeo.io/t/plusmin/oauth2/token
+          jwk-set-uri: https://api.eu.asgardeo.io/t/plusmin/oauth2/jwks
 
 server:
   servlet:

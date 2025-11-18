@@ -254,6 +254,69 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BetalingValidatieWrapper"
+  /administraties/{administratieId}/gebruiker/{gebruikerId}/toegang-verstrekken:
+    put:
+      tags:
+      - administratie-controller
+      operationId: toegangVerstrekken
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gebruikerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /administraties/{administratieId}/gebruiker/{gebruikerId}/toegang-intrekken:
+    put:
+      tags:
+      - administratie-controller
+      operationId: toegangIntrekken
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gebruikerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+  /administraties/{administratieId}/gebruiker/{gebruikerId}/eigenaar-overdagen:
+    put:
+      tags:
+      - administratie-controller
+      operationId: eigenaarOverdragen
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gebruikerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
   /reserveringen/administratie/{administratieId}:
     post:
       tags:
@@ -740,7 +803,7 @@ components:
           format: int64
         startDatum:
           type: string
-        eindBedrag:
+        schuldOpStartDatum:
           type: string
         dossierNummer:
           type: string
@@ -748,9 +811,9 @@ components:
           type: string
       required:
       - dossierNummer
-      - eindBedrag
       - id
       - notities
+      - schuldOpStartDatum
       - startDatum
     SaldoDTO:
       type: object
@@ -1049,6 +1112,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PeriodeDTO"
+        gebruikers:
+          type: array
+          items:
+            $ref: "#/components/schemas/GebruikerDTO"
       required:
       - id
       - naam
@@ -1060,8 +1127,6 @@ components:
           type: integer
           format: int64
         subject:
-          type: string
-        email:
           type: string
         bijnaam:
           type: string
@@ -1125,8 +1190,6 @@ components:
           type: integer
           format: int64
         subject:
-          type: string
-        email:
           type: string
         bijnaam:
           type: string
@@ -1242,7 +1305,7 @@ components:
         startDatum:
           type: string
           format: date
-        eindBedrag:
+        schuldOpStartDatum:
           type: number
         dossierNummer:
           type: string
@@ -1250,9 +1313,9 @@ components:
           type: string
       required:
       - dossierNummer
-      - eindBedrag
       - id
       - notities
+      - schuldOpStartDatum
       - startDatum
     Betaling:
       type: object

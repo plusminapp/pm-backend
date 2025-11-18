@@ -20,7 +20,7 @@ class Administratie(
     @JsonIgnore
     @JoinColumn(name = "eigenaar_id", referencedColumnName = "id")
     val eigenaar: Gebruiker,
-)  {
+) {
 
     fun fullCopy(
         naam: String = this.naam,
@@ -35,16 +35,21 @@ class Administratie(
         val eigenaarNaam: String? = null,
         val eigenaarSubject: String? = null,
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
+        val gebruikers: List<Gebruiker.GebruikerDTO>? = emptyList(),
     )
 
-    fun toDTO(periodes: List<Periode> = emptyList()): AdministratieDTO {
+    fun toDTO(
+        periodes: List<Periode> = emptyList(),
+        gebruikers: List<Gebruiker> = emptyList()
+    ): AdministratieDTO {
         return AdministratieDTO(
             this.id,
             this.naam,
             this.periodeDag,
             this.eigenaar.bijnaam,
             this.eigenaar.subject,
-            periodes= periodes.map { it.toDTO() },
+            periodes = periodes.map { it.toDTO() },
+            gebruikers = gebruikers.map { it.toDTO() },
         )
     }
 }

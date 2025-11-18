@@ -21,6 +21,20 @@ class PM_GeneralAuthorizationException(
     HttpStatus.FORBIDDEN, "GENERAL_AUTHORIZATION_FAILED", parameters
 )
 
+class PM_EigenaarAuthorizationException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "${parameters[0]} vraagt wijziging van de toegang voor gebruiker ${parameters[1]} tot administratie ${parameters[2]} maar moet daarvoor eigenaar zijn.",
+    HttpStatus.FORBIDDEN, "EIGENAAR_AUTHORIZATION_FAILED", parameters
+)
+
+class PM_EigenaarZichzelfAuthorizationException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "${parameters[0]} vraagt toegang in te trekken voor zichzelf tot administratie ${parameters[1]} maar is de eigenaar.",
+    HttpStatus.FORBIDDEN, "EIGENAAR_ZICHZELF_AUTHORIZATION_FAILED", parameters
+)
+
 class PM_CreateUserAuthorizationException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
@@ -28,10 +42,10 @@ class PM_CreateUserAuthorizationException(
     HttpStatus.FORBIDDEN, "CREATE_USER_AUTHORIZATION_FAILED", parameters
 )
 
-class PM_HulpvragerNotFoundException(
+class PM_GebruikerNotFoundException(
     parameters: List<String>
 ) : PlusMinException(
-    "Hulpvrager met Id ${parameters[0]} bestaat niet.",
+    "Gebruiker met Id ${parameters[0]} bestaat niet.",
     HttpStatus.NOT_FOUND, "GEBRUIKER_NOTFOUND", parameters
 )
 

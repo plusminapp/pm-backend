@@ -122,7 +122,7 @@ class Betaling(
                 this.bron?.let { Boeking(it, this.bestemming!!) },
                 this.reserveringBron?.let { Boeking(it, this.reserveringBestemming!!) })
         )
-        Betaling.logger.debug("Betaling.toDTO: bron: ${bron.naam}, bestemming: ${bestemming.naam}")
+        Betaling.logger.debug("Betaling.toDTO: bron: ${bron.naam}, bestemming: ${bestemming?.naam}")
         return BetalingDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -131,7 +131,7 @@ class Betaling(
             this.betalingsSoort.toString(),
             this.sortOrder,
             bron.naam,
-            bestemming.naam,
+            bestemming?.naam ?: "",
         )
     }
 
@@ -180,7 +180,7 @@ class Betaling(
 
     data class Boeking(
         val bron: Rekening,
-        val bestemming: Rekening,
+        val bestemming: Rekening?,
     )
 
     fun transformeerNaarDtoBoeking(

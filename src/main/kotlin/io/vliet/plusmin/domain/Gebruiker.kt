@@ -19,7 +19,7 @@ class Gebruiker(
     val id: Long = 0,
     @Column(unique = true)
     val subject: String,
-    val email: String? = null,
+//    val email: String? = null,
     val bijnaam: String = "Gebruiker zonder bijnaam",
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
@@ -45,11 +45,11 @@ class Gebruiker(
 
     fun fullCopy(
         subject: String = this.subject,
-        email: String? = this.email,
+//        email: String? = this.email,
         bijnaam: String = this.bijnaam,
         roles: MutableSet<Role> = this.roles,
         administraties: List<Administratie> = this.administraties,
-    ) = Gebruiker(this.id, subject, email, bijnaam, roles, administraties)
+    ) = Gebruiker(this.id, subject, bijnaam, roles, administraties)
 
      enum class Role {
         ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
@@ -57,7 +57,7 @@ class Gebruiker(
     data class GebruikerDTO(
         val id: Long = 0,
         val subject: String,
-        val email: String? = null,
+//        val email: String? = null,
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
         val roles: List<String> = emptyList(),
         val administraties: List<Administratie.AdministratieDTO> = emptyList(),
@@ -67,10 +67,10 @@ class Gebruiker(
         return GebruikerDTO(
             this.id,
             this.subject,
-            this.email,
+//            this.email,
             this.bijnaam,
             this.roles.map { it.toString() },
-            administraties = administraties.map { it.toDTO(periodes) },
+            administraties.map { it.toDTO(periodes) },
         )
     }
 }

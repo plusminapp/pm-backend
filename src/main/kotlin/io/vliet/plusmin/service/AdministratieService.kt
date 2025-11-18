@@ -3,6 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.PM_GebruikerNotFoundException
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.AdministratieRepository
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.collections.plus
+import kotlin.collections.toSet
 
 @Service
 class AdministratieService {
@@ -34,16 +37,16 @@ class AdministratieService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruiker: Gebruiker, administratiesLijst: List<AdministratieDTO>): List<Administratie> {
+    fun saveAll(eigenaar: Gebruiker, administratiesLijst: List<AdministratieDTO>): List<Administratie> {
         return administratiesLijst.map { administratieDTO ->
-            save(gebruiker, administratieDTO)
+            save(eigenaar, administratieDTO)
         }
     }
 
-    fun save(gebruiker: Gebruiker, administratieDTO: AdministratieDTO): Administratie {
-        logger.info("administratie: ${administratieDTO.naam} voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}")
+    fun save(eigenaar: Gebruiker, administratieDTO: AdministratieDTO): Administratie {
+        logger.info("administratie: ${administratieDTO.naam} voor gebruiker ${eigenaar.bijnaam}/${eigenaar.subject}")
         val administratieOpt =
-            administratieRepository.findAdministratieOpNaamEnGebruiker(administratieDTO.naam, gebruiker)
+            administratieRepository.findAdministratieOpNaamEnGebruiker(administratieDTO.naam, eigenaar)
         val administratie =
             if (administratieOpt != null) {
                 administratieOpt
@@ -52,24 +55,13 @@ class AdministratieService {
                     Administratie(
                         naam = administratieDTO.naam,
                         periodeDag = administratieDTO.periodeDag,
-                        eigenaar = gebruiker
+                        eigenaar = eigenaar
                     )
                 )
             }
 
-        gebruikerRepository.save(gebruiker.fullCopy(administraties = gebruiker.administraties + administratie))
-
-        if (administratieOpt != null) {
-            if (administratie.periodeDag != administratieDTO.periodeDag) {
-                if (administratieDTO.periodeDag > 28) {
-                    logger.warn("Periodedag moet kleiner of gelijk zijn aan 28 (gevraagd: ${administratieDTO.periodeDag})")
-                } else {
-                    logger.info("Periodedag wordt aangepast voor administratie ${administratie.naam}/${gebruiker.subject} van ${administratie.periodeDag} -> ${administratieDTO.periodeDag}")
-//                    periodeService.pasPeriodeDagAan(administratie, administratieDTO)
-                    administratieRepository.save(administratie.fullCopy(periodeDag = administratieDTO.periodeDag))
-                }
-            }
-        } else {
+        if (administratieOpt == null) {
+            gebruikerRepository.save(eigenaar.fullCopy(administraties = eigenaar.administraties + administratie))
             val initielePeriodeStartDatum = if (!administratieDTO.periodes.isNullOrEmpty()) {
                 LocalDate.parse(administratieDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
             } else {
@@ -102,4 +94,39 @@ class AdministratieService {
         return administratie
     }
 
+    fun toegangVerstrekken(gebruikerId: Long, administratie: Administratie) {
+        val gebruikerOpt = gebruikerRepository.findById(gebruikerId)
+        if (gebruikerOpt.isEmpty) {
+            throw PM_GebruikerNotFoundException(listOf(gebruikerId.toString()))
+        }
+        val gebruiker = gebruikerOpt.get()
+        val administraties = if (gebruiker.administraties.any { it.id == administratie.id })
+            gebruiker.administraties
+        else
+            (gebruiker.administraties + administratie)
+        gebruikerRepository.save(gebruiker.fullCopy(administraties = administraties))
+    }
+
+    fun toegangIntrekken(gebruikerId: Long, administratie: Administratie) {
+        val gebruikerOpt = gebruikerRepository.findById(gebruikerId)
+        if (gebruikerOpt.isEmpty) {
+            throw PM_GebruikerNotFoundException(listOf(gebruikerId.toString()))
+        }
+        val gebruiker = gebruikerOpt.get()
+        gebruikerRepository.save(gebruiker.fullCopy(administraties = gebruiker.administraties.filter { it.id != administratie.id }))
+    }
+
+    fun eigenaarOverdragen(gebruikerId: Long, administratie: Administratie) {
+        val gebruikerOpt = gebruikerRepository.findById(gebruikerId)
+        if (gebruikerOpt.isEmpty) {
+            throw PM_GebruikerNotFoundException(listOf(gebruikerId.toString()))
+        }
+        val nieuweEigenaar = gebruikerOpt.get()
+        val administraties = if (nieuweEigenaar.administraties.any { it.id == administratie.id })
+            nieuweEigenaar.administraties
+        else
+            (nieuweEigenaar.administraties + administratie)
+        gebruikerRepository.save(nieuweEigenaar.fullCopy(administraties = administraties))
+        administratieRepository.save(administratie.fullCopy(eigenaar = nieuweEigenaar))
+    }
 }

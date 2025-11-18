@@ -282,8 +282,8 @@
           }
         ],
         "spaartegoed": {
-          "startDatum": "2027-01-01",
-          "eindBedrag": 2000,
+          "doelDatum": "2027-01-01",
+          "doelBedrag": 2000,
           "notities": "notities bij 1ste"
         }
       },
@@ -350,7 +350,7 @@
         ],
         "aflossing": {
           "startDatum": "2025-01-01",
-          "eindBedrag": 2000,
+          "schuldOpStartDatum": 2000,
           "dossierNummer": "dossiernummer10",
           "notities": "notities1"
         }
@@ -370,7 +370,7 @@
         ],
         "aflossing": {
           "startDatum": "2025-02-01",
-          "eindBedrag": 1200,
+          "schuldOpStartDatum": 1200,
           "dossierNummer": "dossiernummer2",
           "notities": "notities2"
         }
