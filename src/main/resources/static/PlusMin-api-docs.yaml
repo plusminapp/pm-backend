@@ -151,7 +151,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
+              $ref: "#/components/schemas/GebruikerDTO"
         required: true
       responses:
         "200":
@@ -160,6 +160,31 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/GebruikerDTO"
+  /demo/administratie/{administratieId}/vandaag/{vandaag}:
+    put:
+      tags:
+      - demo-controller
+      operationId: putVandaag
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: vandaag
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32
   /demo/administratie/{administratieId}/reset:
     put:
       tags:
@@ -764,6 +789,25 @@ paths:
             '*/*':
               schema:
                 type: object
+  /demo/administratie/{administratieId}/vandaag:
+    get:
+      tags:
+      - demo-controller
+      operationId: getVandaag
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
   /betalingen/administratie/{administratieId}/valideer-betalingen:
     get:
       tags:
@@ -953,6 +997,8 @@ components:
         periodeDag:
           type: integer
           format: int32
+        vandaag:
+          type: string
         eigenaarNaam:
           type: string
         eigenaarSubject:
@@ -1197,6 +1243,8 @@ components:
         periodeDag:
           type: integer
           format: int32
+        vandaag:
+          type: string
       required:
       - id
       - naam

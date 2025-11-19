@@ -2,6 +2,7 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import java.time.LocalDate
 
 @Entity
 @Table(name = "administratie")
@@ -16,6 +17,7 @@ class Administratie(
     val id: Long = 0,
     val naam: String = "Administratie zonder naam",
     val periodeDag: Int = 20,
+    val vandaag: LocalDate? = null, // Toegevoegd voor tijdreizen
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "eigenaar_id", referencedColumnName = "id")
@@ -25,13 +27,15 @@ class Administratie(
     fun fullCopy(
         naam: String = this.naam,
         periodeDag: Int = this.periodeDag,
+        vandaag: LocalDate? = this.vandaag,
         eigenaar: Gebruiker = this.eigenaar,
-    ) = Administratie(this.id, naam, periodeDag, eigenaar)
+    ) = Administratie(this.id, naam, periodeDag, vandaag, eigenaar)
 
     data class AdministratieDTO(
         val id: Long = 0,
         val naam: String = "Administratie zonder naam :-)",
         val periodeDag: Int = 20,
+        val vandaag: String? = null, // Toegevoegd voor tijdreizen
         val eigenaarNaam: String? = null,
         val eigenaarSubject: String? = null,
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
@@ -46,6 +50,7 @@ class Administratie(
             this.id,
             this.naam,
             this.periodeDag,
+            this.vandaag?.toString(),
             this.eigenaar.bijnaam,
             this.eigenaar.subject,
             periodes = periodes.map { it.toDTO() },

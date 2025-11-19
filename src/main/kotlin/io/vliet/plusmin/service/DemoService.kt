@@ -7,6 +7,7 @@ import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -16,6 +17,9 @@ import java.time.format.DateTimeFormatter
 class DemoService {
     @Autowired
     lateinit var demoRepository: DemoRepository
+
+    @Autowired
+    lateinit var administratieRepository: AdministratieRepository
 
     @Autowired
     lateinit var betalingRepository: BetalingRepository
@@ -51,12 +55,21 @@ class DemoService {
         val parameters = demoRepository.findAll()
         parameters.forEach { demo ->
             val doelPeriode = periodeRepository.getPeriodeAdministratieEnDatum(demo.administratie.id, LocalDate.now())
-                ?: throw PM_NoOpenPeriodException(listOf(demo.administratie.naam, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                ?: throw PM_NoOpenPeriodException(
+                    listOf(
+                        demo.administratie.naam,
+                        LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    )
+                )
             kopieerPeriodeBetalingen(demo.administratie, demo.bronPeriode, doelPeriode)
         }
     }
 
-    fun kopieerPeriodeBetalingen(administratie: Administratie, bronPeriode: Periode, doelPeriode: Periode): List<BetalingDTO> {
+    fun kopieerPeriodeBetalingen(
+        administratie: Administratie,
+        bronPeriode: Periode,
+        doelPeriode: Periode
+    ): List<BetalingDTO> {
         val betalingen = betalingRepository.findAllByAdministratieTussenDatums(
             administratie,
             bronPeriode.periodeStartDatum,
@@ -126,5 +139,24 @@ class DemoService {
             periode.periodeStartDatum,
             periode.periodeEindDatum
         )
+    }
+
+    fun getVandaag(administratieId: Long): String? {
+        return administratieRepository.getVandaag(administratieId)?.vandaag.toString()
+    }
+
+    fun getVandaag(administratie: Administratie): LocalDate {
+        return administratie.vandaag ?: LocalDate.now()
+    }
+
+    fun putVandaag(administratieId: Long, vandaag: String?): Int {
+        val vandaagAsLocalDate = if (vandaag != null) {
+            try {
+                LocalDate.parse(vandaag, DateTimeFormatter.ISO_LOCAL_DATE)
+            } catch (e: Exception) {
+                throw PM_InvalidDateFormatException(listOf(vandaag))
+            }
+        } else null
+        return administratieRepository.putVandaag(administratieId, vandaagAsLocalDate)
     }
 }

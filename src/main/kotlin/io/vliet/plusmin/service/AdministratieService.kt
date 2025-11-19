@@ -44,9 +44,13 @@ class AdministratieService {
     }
 
     fun save(eigenaar: Gebruiker, administratieDTO: AdministratieDTO): Administratie {
-        logger.info("administratie: ${administratieDTO.naam} voor gebruiker ${eigenaar.bijnaam}/${eigenaar.subject}")
+        logger.info("administratie: ${administratieDTO.naam} voor gebruiker ${eigenaar.bijnaam}/${eigenaar.subject} vandaag=${administratieDTO.vandaag} periodeDag=${administratieDTO.periodeDag}")
         val administratieOpt =
             administratieRepository.findAdministratieOpNaamEnGebruiker(administratieDTO.naam, eigenaar)
+        val vandaag = if (administratieDTO.vandaag.isNullOrEmpty())
+            null
+        else
+            LocalDate.parse(administratieDTO.vandaag)
         val administratie =
             if (administratieOpt != null) {
                 administratieOpt
@@ -55,6 +59,7 @@ class AdministratieService {
                     Administratie(
                         naam = administratieDTO.naam,
                         periodeDag = administratieDTO.periodeDag,
+                        vandaag = vandaag,
                         eigenaar = eigenaar
                     )
                 )
@@ -65,7 +70,7 @@ class AdministratieService {
             val initielePeriodeStartDatum = if (!administratieDTO.periodes.isNullOrEmpty()) {
                 LocalDate.parse(administratieDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
             } else {
-                periodeService.berekenPeriodeDatums(administratieDTO.periodeDag, LocalDate.now()).first
+                periodeService.berekenPeriodeDatums(administratieDTO.periodeDag, vandaag ?: LocalDate.now()).first
             }
             periodeService.creeerInitielePeriode(administratie, initielePeriodeStartDatum)
         }

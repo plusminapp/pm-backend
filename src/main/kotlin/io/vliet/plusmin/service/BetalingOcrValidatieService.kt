@@ -47,7 +47,7 @@ class BetalingvalidatieService {
             betalingRepository.findAllByAdministratieTussenDatums(
                 administratie,
                 openingsBalansSaldo.periode!!.periodeStartDatum,
-                LocalDate.now()
+                administratie.vandaag ?: LocalDate.now()
             )
         }
         val saldoOpDatum = betalingen.fold(openingsBalansSaldo.openingsBalansSaldo) { saldo, betaling ->
