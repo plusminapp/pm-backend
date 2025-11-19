@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.PM_CreateUserAuthorizationException
+import io.vliet.plusmin.domain.PM_GebruikerNotFoundException
 import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
@@ -52,6 +53,19 @@ class GebruikerController {
         val gebruiker = gebruikerService.getJwtGebruiker()
         logger.info("GET GebruikerController.findGebruiker() voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}.")
         gebruiker.administraties.map { (periodeService.checkPeriodesVoorGebruiker(it)) }
+        return toDTO(gebruiker)
+    }
+
+    @Operation(summary = "PUT de bijnaam van de gebruiker")
+    @PutMapping("/zelf")
+    fun updateGebruiker(@Valid @RequestBody gebruikerDTO: GebruikerDTO): GebruikerDTO {
+        val gebruiker = gebruikerService.getJwtGebruiker()
+        logger.info("GET GebruikerController.updateGebruiker() voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}.")
+        val updatedGebruiker = gebruikerRepository.updateBijnaamById(gebruiker.id, gebruikerDTO.bijnaam)
+        if (updatedGebruiker == 0) {
+            logger.error("Fout bij updaten gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}.")
+            throw PM_GebruikerNotFoundException(listOf(gebruiker.id.toString()))
+        }
         return toDTO(gebruiker)
     }
 
