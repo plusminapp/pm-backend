@@ -20,9 +20,6 @@ class PeriodeService {
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
-    @Autowired
-    lateinit var demoService: DemoService
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun getPeriode(administratie: Administratie, datum: LocalDate): Periode {
@@ -71,7 +68,7 @@ class PeriodeService {
             laatstePeriode?.periodeStatus
         )
         val periodes = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
-        val vandaag = demoService.getVandaag(administratie)
+        val vandaag = administratie.vandaag ?: LocalDate.now()
         logger.debug("periodes voor ${administratie.naam}: ${periodes.map { it.periodeStartDatum }.joinToString(", ")} ")
         if (laatstePeriode == null) {
             logger.warn("voor ${administratie.naam}: laatstePeriode == null")
@@ -94,7 +91,7 @@ class PeriodeService {
                 periodeStatus = Periode.PeriodeStatus.HUIDIG
             )
         )
-        val vandaag = demoService.getVandaag(vorigePeriode.administratie)
+        val vandaag = vorigePeriode.administratie.vandaag ?: LocalDate.now()
         if (nieuwePeriode.periodeEindDatum < vandaag) {
             creeerVolgendePeriodes(nieuwePeriode)
         }
@@ -113,7 +110,7 @@ class PeriodeService {
                     Periode.PeriodeStatus.OPGERUIMD
                 )
             )
-            if (initielePeriode.periodeEindDatum.isBefore(demoService.getVandaag(administratie))) {
+            if (initielePeriode.periodeEindDatum.isBefore(administratie.vandaag ?: LocalDate.now())) {
                 creeerVolgendePeriodes(initielePeriode)
             }
         }
@@ -126,7 +123,7 @@ class PeriodeService {
             periodes[1].periodeStatus.equals(Periode.PeriodeStatus.HUIDIG)
         ) { // initiële periode + huidige periode
             val initielePeriodeEindDatum =
-                berekenPeriodeDatums(administratieDTO.periodeDag, demoService.getVandaag(administratie)).first.minusDays(1)
+                berekenPeriodeDatums(administratieDTO.periodeDag, administratie.vandaag ?: LocalDate.now()).first.minusDays(1)
             logger.info("Initiele PeriodeDag aanpassen voor ${administratie.naam} van ${periodes[0].periodeStartDatum} naar ${initielePeriodeEindDatum}")
             periodeRepository.save(
                 periodes[0].fullCopy(

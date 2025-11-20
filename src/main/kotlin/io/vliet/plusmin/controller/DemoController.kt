@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/demo")
@@ -61,7 +62,7 @@ class DemoController {
     ): ResponseEntity<String?> {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         logger.info("GET DemoController.getVandaag voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
-        return ResponseEntity.ok(demoService.getVandaag(administratie.id))
+        return ResponseEntity.ok(administratie.vandaag?.toString())
     }
 
     @PutMapping("/administratie/{administratieId}/vandaag/{vandaag}")
@@ -71,6 +72,7 @@ class DemoController {
     ): ResponseEntity<Int> {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         logger.info("PUT DemoController.putVandaag voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
-        return ResponseEntity.ok(demoService.putVandaag(administratie.id, vandaag))
+        demoService.putVandaag(administratie, vandaag)
+        return ResponseEntity.ok().build()
     }
 }

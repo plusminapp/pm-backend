@@ -7,7 +7,6 @@ import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -26,6 +25,9 @@ class DemoService {
 
     @Autowired
     lateinit var betalingService: BetalingService
+
+    @Autowired
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -141,15 +143,7 @@ class DemoService {
         )
     }
 
-    fun getVandaag(administratieId: Long): String? {
-        return administratieRepository.getVandaag(administratieId)?.vandaag.toString()
-    }
-
-    fun getVandaag(administratie: Administratie): LocalDate {
-        return administratie.vandaag ?: LocalDate.now()
-    }
-
-    fun putVandaag(administratieId: Long, vandaag: String?): Int {
+    fun putVandaag(administratie: Administratie, vandaag: String?) {
         val vandaagAsLocalDate = if (vandaag != null) {
             try {
                 LocalDate.parse(vandaag, DateTimeFormatter.ISO_LOCAL_DATE)
@@ -157,6 +151,20 @@ class DemoService {
                 throw PM_InvalidDateFormatException(listOf(vandaag))
             }
         } else null
-        return administratieRepository.putVandaag(administratieId, vandaagAsLocalDate)
+        val laatstePeriodeStartDatum = periodeRepository
+            .getPeriodesVoorAdministrtatie(administratie)
+            .maxBy { it.periodeStartDatum }
+            .periodeStartDatum
+
+        if (
+            // je mag alleen vooruit in de tijd reizen
+            (vandaagAsLocalDate != null && vandaagAsLocalDate > (administratie.vandaag ?: LocalDate.now())) ||
+            // je mag alleen terug naar nu als het na de start van de laatste periode is
+            (vandaagAsLocalDate == null && laatstePeriodeStartDatum < LocalDate.now())
+        )
+            administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
+        else
+            throw PM_InvalidDateFormatException(listOf(vandaag ?: "null"))
+        periodeService.checkPeriodesVoorGebruiker(administratie)
     }
 }

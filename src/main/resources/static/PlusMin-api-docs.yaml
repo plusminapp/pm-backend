@@ -419,10 +419,28 @@ paths:
               schema:
                 type: object
   /rekeningen/administratie/{administratieId}:
+    get:
+      tags:
+      - rekening-controller
+      operationId: getRekeningen
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
     post:
       tags:
       - rekening-controller
-      operationId: creeerNieuweRekeningVoorHulpvrager
+      operationId: creeerNieuweRekeningVoorAdministratie
       parameters:
       - name: administratieId
         in: path
@@ -696,7 +714,7 @@ paths:
       tags:
       - rekening-controller
       summary: GET de geldige rekeningen in een periode
-      operationId: getAlleRekeningenPerBetalingsSoortVoorHulpvrager
+      operationId: getAlleRekeningenPerBetalingsSoortVoorAdministratie
       parameters:
       - name: administratieId
         in: path
@@ -722,7 +740,7 @@ paths:
       tags:
       - rekening-controller
       summary: GET de cashflow in een periode
-      operationId: getCashflowVoorHulpvrager
+      operationId: getCashflowVoorAdministratie
       parameters:
       - name: administratieId
         in: path
@@ -1245,6 +1263,7 @@ components:
           format: int32
         vandaag:
           type: string
+          format: date
       required:
       - id
       - naam

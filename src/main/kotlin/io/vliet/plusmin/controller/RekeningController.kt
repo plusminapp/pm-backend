@@ -41,38 +41,47 @@ class RekeningController {
 
     @Operation(summary = "GET de geldige rekeningen in een periode")
     @GetMapping("/administratie/{administratieId}/periode/{periodeId}")
-    fun getAlleRekeningenPerBetalingsSoortVoorHulpvrager(
+    fun getAlleRekeningenPerBetalingsSoortVoorAdministratie(
         @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("GET RekeningController.getAlleRekeningenPerBetalingsSoortVoorHulpvrager voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET RekeningController.getAlleRekeningenPerBetalingsSoortVoorAdministratie voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(rekeningUtilitiesService.rekeningGroepenPerBetalingsSoort(hulpvrager, periode))
+        return ResponseEntity.ok().body(rekeningUtilitiesService.rekeningGroepenPerBetalingsSoort(administratie, periode))
     }
 
     @Operation(summary = "GET de cashflow in een periode")
     @GetMapping("/administratie/{administratieId}/periode/{periodeId}/cashflow")
-    fun getCashflowVoorHulpvrager(
+    fun getCashflowVoorAdministratie(
         @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("GET RekeningController.getCashflowVoorHulpvrager voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET RekeningController.getCashflowVoorAdministratie voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(cashflowService.getCashflow(hulpvrager, periode, true))
+        return ResponseEntity.ok().body(cashflowService.getCashflow(administratie, periode, true))
     }
 
     @PostMapping("/administratie/{administratieId}")
-    fun creeerNieuweRekeningVoorHulpvrager(
+    fun creeerNieuweRekeningVoorAdministratie(
         @PathVariable("administratieId") administratieId: Long,
         @RequestBody rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>,
     ): ResponseEntity<Any>  {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("POST RekeningController.creeerNieuweRekeningVoorHulpvrager voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
-        return ResponseEntity.ok().body(rekeningService.saveAll(hulpvrager, rekeningGroepLijst))
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("POST RekeningController.creeerNieuweRekeningVoorAdministratie voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return ResponseEntity.ok().body(rekeningService.saveAll(administratie, rekeningGroepLijst))
+    }
+
+    @GetMapping("/administratie/{administratieId}")
+    fun getRekeningen(
+        @PathVariable("administratieId") administratieId: Long,
+    ): ResponseEntity<Any>  {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("POST RekeningController.getRekeningen voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return ResponseEntity.ok().body(rekeningRepository.findRekeningGroepenVoorAdministratie(administratie))
     }
 }
 

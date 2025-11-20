@@ -38,7 +38,7 @@ class UpdateSpaarSaldiService {
     }
 
     fun updateSpaarpotSaldo(administratie: Administratie) {
-        val saldi = standInPeriodeService.berekenSaldiOpDatum(administratie, demoService.getVandaag(administratie))
+        val saldi = standInPeriodeService.berekenSaldiOpDatum(administratie, administratie.vandaag ?: LocalDate.now())
 
         val spaarrekeningSaldo = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
