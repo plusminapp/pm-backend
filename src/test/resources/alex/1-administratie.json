@@ -1,10 +1,11 @@
 [
   {
-    "naam": "Demo admin",
-    "periodeDag": 20,
+    "naam": "Alex spel admin",
+    "periodeDag": 1,
+    "vandaag": "2025-07-15",
     "periodes": [
       {
-        "periodeStartDatum": "2025-07-20"
+        "periodeStartDatum": "2025-07-01"
       }
     ]
   }

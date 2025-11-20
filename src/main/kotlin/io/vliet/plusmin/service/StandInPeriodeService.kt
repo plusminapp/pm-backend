@@ -35,7 +35,8 @@ class StandInPeriodeService {
         peilDatum: LocalDate,
     ): List<Saldo.SaldoDTO> {
         val periode = periodeService.getPeriode(administratie, peilDatum)
-        return berekenSaldiOpDatum(LocalDate.now(),periode)
+        val vandaag = administratie.vandaag ?: LocalDate.now()
+        return berekenSaldiOpDatum(vandaag, periode)
     }
 
     fun berekenSaldiOpDatum(

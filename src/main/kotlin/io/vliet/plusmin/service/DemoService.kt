@@ -18,10 +18,16 @@ class DemoService {
     lateinit var demoRepository: DemoRepository
 
     @Autowired
+    lateinit var administratieRepository: AdministratieRepository
+
+    @Autowired
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
     lateinit var betalingService: BetalingService
+
+    @Autowired
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
@@ -51,12 +57,21 @@ class DemoService {
         val parameters = demoRepository.findAll()
         parameters.forEach { demo ->
             val doelPeriode = periodeRepository.getPeriodeAdministratieEnDatum(demo.administratie.id, LocalDate.now())
-                ?: throw PM_NoOpenPeriodException(listOf(demo.administratie.naam, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)))
+                ?: throw PM_NoOpenPeriodException(
+                    listOf(
+                        demo.administratie.naam,
+                        LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    )
+                )
             kopieerPeriodeBetalingen(demo.administratie, demo.bronPeriode, doelPeriode)
         }
     }
 
-    fun kopieerPeriodeBetalingen(administratie: Administratie, bronPeriode: Periode, doelPeriode: Periode): List<BetalingDTO> {
+    fun kopieerPeriodeBetalingen(
+        administratie: Administratie,
+        bronPeriode: Periode,
+        doelPeriode: Periode
+    ): List<BetalingDTO> {
         val betalingen = betalingRepository.findAllByAdministratieTussenDatums(
             administratie,
             bronPeriode.periodeStartDatum,
@@ -126,5 +141,30 @@ class DemoService {
             periode.periodeStartDatum,
             periode.periodeEindDatum
         )
+    }
+
+    fun putVandaag(administratie: Administratie, vandaag: String?) {
+        val vandaagAsLocalDate = if (vandaag != null) {
+            try {
+                LocalDate.parse(vandaag, DateTimeFormatter.ISO_LOCAL_DATE)
+            } catch (e: Exception) {
+                throw PM_InvalidDateFormatException(listOf(vandaag))
+            }
+        } else null
+        val laatstePeriodeStartDatum = periodeRepository
+            .getPeriodesVoorAdministrtatie(administratie)
+            .maxBy { it.periodeStartDatum }
+            .periodeStartDatum
+
+        if (
+            // je mag alleen vooruit in de tijd reizen
+            (vandaagAsLocalDate != null && vandaagAsLocalDate > (administratie.vandaag ?: LocalDate.now())) ||
+            // je mag alleen terug naar nu als het na de start van de laatste periode is
+            (vandaagAsLocalDate == null && laatstePeriodeStartDatum < LocalDate.now())
+        )
+            administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
+        else
+            throw PM_InvalidDateFormatException(listOf(vandaag ?: "null"))
+        periodeService.checkPeriodesVoorGebruiker(administratie)
     }
 }

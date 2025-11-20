@@ -22,6 +22,9 @@ class UpdateSpaarSaldiService {
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
+    lateinit var demoService: DemoService
+
+    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
@@ -35,7 +38,7 @@ class UpdateSpaarSaldiService {
     }
 
     fun updateSpaarpotSaldo(administratie: Administratie) {
-        val saldi = standInPeriodeService.berekenSaldiOpDatum(administratie, LocalDate.now())
+        val saldi = standInPeriodeService.berekenSaldiOpDatum(administratie, administratie.vandaag ?: LocalDate.now())
 
         val spaarrekeningSaldo = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }

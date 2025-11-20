@@ -128,6 +128,63 @@ paths:
             '*/*':
               schema:
                 type: object
+  /gebruikers/zelf:
+    get:
+      tags:
+      - gebruiker-controller
+      summary: GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van
+        een gebruiker
+      operationId: findGebruiker
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GebruikerDTO"
+    put:
+      tags:
+      - gebruiker-controller
+      summary: PUT de bijnaam van de gebruiker
+      operationId: updateGebruiker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GebruikerDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GebruikerDTO"
+  /demo/administratie/{administratieId}/vandaag/{vandaag}:
+    put:
+      tags:
+      - demo-controller
+      operationId: putVandaag
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: vandaag
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32
   /demo/administratie/{administratieId}/reset:
     put:
       tags:
@@ -362,10 +419,28 @@ paths:
               schema:
                 type: object
   /rekeningen/administratie/{administratieId}:
+    get:
+      tags:
+      - rekening-controller
+      operationId: getRekeningen
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
     post:
       tags:
       - rekening-controller
-      operationId: creeerNieuweRekeningVoorHulpvrager
+      operationId: creeerNieuweRekeningVoorAdministratie
       parameters:
       - name: administratieId
         in: path
@@ -639,7 +714,7 @@ paths:
       tags:
       - rekening-controller
       summary: GET de geldige rekeningen in een periode
-      operationId: getAlleRekeningenPerBetalingsSoortVoorHulpvrager
+      operationId: getAlleRekeningenPerBetalingsSoortVoorAdministratie
       parameters:
       - name: administratieId
         in: path
@@ -665,7 +740,7 @@ paths:
       tags:
       - rekening-controller
       summary: GET de cashflow in een periode
-      operationId: getCashflowVoorHulpvrager
+      operationId: getCashflowVoorAdministratie
       parameters:
       - name: administratieId
         in: path
@@ -732,20 +807,25 @@ paths:
             '*/*':
               schema:
                 type: object
-  /gebruikers/zelf:
+  /demo/administratie/{administratieId}/vandaag:
     get:
       tags:
-      - gebruiker-controller
-      summary: GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van
-        een gebruiker
-      operationId: findGebruiker
+      - demo-controller
+      operationId: getVandaag
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/GebruikerDTO"
+                type: string
   /betalingen/administratie/{administratieId}/valideer-betalingen:
     get:
       tags:
@@ -924,6 +1004,83 @@ components:
       required:
       - id
       - notities
+    AdministratieDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        naam:
+          type: string
+        periodeDag:
+          type: integer
+          format: int32
+        vandaag:
+          type: string
+        eigenaarNaam:
+          type: string
+        eigenaarSubject:
+          type: string
+        periodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/PeriodeDTO"
+        gebruikers:
+          type: array
+          items:
+            $ref: "#/components/schemas/GebruikerDTO"
+      required:
+      - id
+      - naam
+      - periodeDag
+    GebruikerDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        subject:
+          type: string
+        bijnaam:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        administraties:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdministratieDTO"
+      required:
+      - administraties
+      - bijnaam
+      - id
+      - roles
+      - subject
+    PeriodeDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        periodeStartDatum:
+          type: string
+        periodeEindDatum:
+          type: string
+        periodeStatus:
+          type: string
+          enum:
+          - HUIDIG
+          - OPEN
+          - GESLOTEN
+          - OPGERUIMD
+        saldoLijst:
+          type: array
+          items:
+            $ref: "#/components/schemas/SaldoDTO"
+      required:
+      - id
+      - periodeStartDatum
     BetalingDTO:
       type: object
       properties:
@@ -1093,81 +1250,6 @@ components:
       - rekeningGroepSoort
       - rekeningen
       - sortOrder
-    AdministratieDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        naam:
-          type: string
-        periodeDag:
-          type: integer
-          format: int32
-        eigenaarNaam:
-          type: string
-        eigenaarSubject:
-          type: string
-        periodes:
-          type: array
-          items:
-            $ref: "#/components/schemas/PeriodeDTO"
-        gebruikers:
-          type: array
-          items:
-            $ref: "#/components/schemas/GebruikerDTO"
-      required:
-      - id
-      - naam
-      - periodeDag
-    GebruikerDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        subject:
-          type: string
-        bijnaam:
-          type: string
-        roles:
-          type: array
-          items:
-            type: string
-        administraties:
-          type: array
-          items:
-            $ref: "#/components/schemas/AdministratieDTO"
-      required:
-      - administraties
-      - bijnaam
-      - id
-      - roles
-      - subject
-    PeriodeDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        periodeStartDatum:
-          type: string
-        periodeEindDatum:
-          type: string
-        periodeStatus:
-          type: string
-          enum:
-          - HUIDIG
-          - OPEN
-          - GESLOTEN
-          - OPGERUIMD
-        saldoLijst:
-          type: array
-          items:
-            $ref: "#/components/schemas/SaldoDTO"
-      required:
-      - id
-      - periodeStartDatum
     Administratie:
       type: object
       properties:
@@ -1179,6 +1261,9 @@ components:
         periodeDag:
           type: integer
           format: int32
+        vandaag:
+          type: string
+          format: date
       required:
       - id
       - naam

@@ -2,7 +2,6 @@ package io.vliet.plusmin.controller
 
 import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
-import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.PM_EigenaarAuthorizationException
 import io.vliet.plusmin.domain.PM_EigenaarZichzelfAuthorizationException
 import io.vliet.plusmin.repository.AdministratieRepository
@@ -14,13 +13,7 @@ import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/administraties")
@@ -101,6 +94,7 @@ class AdministratieController {
             administratie.id,
             administratie.naam,
             administratie.periodeDag,
+            administratie.vandaag.toString(),
             administratie.eigenaar.bijnaam,
             administratie.eigenaar.subject,
             periodeRepository.getPeriodesVoorAdministrtatie(administratie).map { it.toDTO() },

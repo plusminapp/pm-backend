@@ -17,6 +17,12 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
     fun findRekeningenVoorAdministratie(administratie: Administratie): List<Rekening>
 
     @Query(
+        value = "SELECT r FROM RekeningGroep r " +
+                "WHERE r.administratie = :administratie"
+    )
+    fun findRekeningGroepenVoorAdministratie(administratie: Administratie): List<RekeningGroep>
+
+    @Query(
         value = "SELECT r FROM Rekening r " +
                 "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.rekeningGroep.budgetType = 'SPAREN' "

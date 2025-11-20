@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/demo")
@@ -28,9 +29,9 @@ class DemoController {
     fun configureerPeriode(
         @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("PUT DemoController.configureerPeriode voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
-        demoService.configureerDemoBetalingen(hulpvrager)
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT DemoController.configureerPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        demoService.configureerDemoBetalingen(administratie)
         return ResponseEntity.ok().build()
     }
 
@@ -39,9 +40,9 @@ class DemoController {
         @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
     ): ResponseEntity<String> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("DELETE DemoController.deleteBetalingenInPeriode voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
-        demoService.deleteBetalingenInPeriode(hulpvrager, periodeId)
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("DELETE DemoController.deleteBetalingenInPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        demoService.deleteBetalingenInPeriode(administratie, periodeId)
         return ResponseEntity.ok().build()
     }
 
@@ -49,9 +50,29 @@ class DemoController {
     fun resetGebruikerData(
         @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<String> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("PUT DemoController.resetGebruikerData voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
-            demoRepository.resetGebruikerData(hulpvrager.id)
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT DemoController.resetGebruikerData voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        demoRepository.resetGebruikerData(administratie.id)
+        return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/administratie/{administratieId}/vandaag")
+    fun getVandaag(
+        @PathVariable("administratieId") administratieId: Long,
+    ): ResponseEntity<String?> {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET DemoController.getVandaag voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return ResponseEntity.ok(administratie.vandaag?.toString())
+    }
+
+    @PutMapping("/administratie/{administratieId}/vandaag/{vandaag}")
+    fun putVandaag(
+        @PathVariable("administratieId") administratieId: Long,
+        @PathVariable("vandaag") vandaag: String? = null,
+    ): ResponseEntity<Int> {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT DemoController.putVandaag voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        demoService.putVandaag(administratie, vandaag)
         return ResponseEntity.ok().build()
     }
 }
