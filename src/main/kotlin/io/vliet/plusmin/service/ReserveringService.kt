@@ -67,6 +67,11 @@ class ReserveringService {
         creeerReserveringenVoorPeriode(administratie, periode)
     }
 
+    /*
+    * Creëert reserveringen voor alle rekeningen van het type 'potje voor nu' voor de gegeven periode.
+    * Als er tekorten uit vorige periodes zijn in de potjes, worden deze eerst aangevuld vanuit de buffer.
+    * Berekent de reserveringen op basis van de start saldi, mutaties in de periode, en de budgetten van de rekeningen.
+     */
     fun creeerReserveringenVoorPeriode(administratie: Administratie, periode: Periode) {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
         val reserveringBufferRekening = rekeningRepository.findBufferRekeningVoorAdministratie(administratie)
