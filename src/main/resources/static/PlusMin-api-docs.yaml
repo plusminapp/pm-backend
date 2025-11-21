@@ -8,6 +8,50 @@ servers:
 security:
 - bearerAuth: []
 paths:
+  /reserveringen/administratie/{administratieId}:
+    put:
+      tags:
+      - reservering-controller
+      operationId: creeerReservering
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /reserveringen/administratie/{administratieId}/periode/{periodeId}:
+    put:
+      tags:
+      - reservering-controller
+      operationId: creeerReserveringVoorPeriode
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /periodes/administratie/{administratieId}/wijzig-periode-opening/{periodeId}:
     put:
       tags:
@@ -374,50 +418,6 @@ paths:
       responses:
         "200":
           description: OK
-  /reserveringen/administratie/{administratieId}:
-    post:
-      tags:
-      - reservering-controller
-      operationId: creeerReservering
-      parameters:
-      - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /reserveringen/administratie/{administratieId}/periode/{periodeId}:
-    post:
-      tags:
-      - reservering-controller
-      operationId: creeerReserveringVoorPeriode
-      parameters:
-      - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /rekeningen/administratie/{administratieId}:
     get:
       tags:

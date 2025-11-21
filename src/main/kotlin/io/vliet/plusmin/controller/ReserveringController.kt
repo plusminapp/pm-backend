@@ -20,7 +20,7 @@ class ReserveringController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    @PostMapping("/administratie/{administratieId}/periode/{periodeId}")
+    @PutMapping("/administratie/{administratieId}/periode/{periodeId}")
     fun creeerReserveringVoorPeriode(
         @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long,
@@ -28,16 +28,16 @@ class ReserveringController {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         reserveringService.creeerReserveringenVoorPeriode(administratie, periodeId)
-        return ResponseEntity.ok().body("Reserveringen aangemaakt voor de periode ${periodeId} voor ${administratie.naam}.")
+        return ResponseEntity.ok().build()
     }
 
-    @PostMapping("/administratie/{administratieId}")
+    @PutMapping("/administratie/{administratieId}")
     fun creeerReservering(
         @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any> {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         reserveringService.creeerReserveringen(administratie)
-        return ResponseEntity.ok().body("Reserveringen aangemaakt voor alle periode voor ${administratie.naam}.")
+        return ResponseEntity.ok().build()
     }
 }
