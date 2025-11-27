@@ -56,11 +56,25 @@ class PM_AdministratieNotFoundException(
     "Administratie met Id ${parameters[0]} bestaat niet.",
     HttpStatus.NOT_FOUND, "ADMINISTRATIE_NOTFOUND", parameters
 )
+class PM_AdministratieBestaatAlException(
+    parameters: List<String>
+) : PlusMinException(
+    "Administratie ${parameters[0]} bestaat al.",
+    HttpStatus.BAD_REQUEST, "ADMINISTRATIE_BESTAAT_AL", parameters
+)
 class PM_InvalidDateFormatException(
     parameters: List<String>
 ) : PlusMinException(
     "${parameters[0]} is geen geldige datum.",
     HttpStatus.BAD_REQUEST, "ONGELDIGE_DATUM", parameters
+)
+
+// Demo exceptions
+class PM_GeenSpelException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Adminstraie $parameters[0] is geen SPEL administratie.",
+    HttpStatus.NOT_FOUND, "GEEN_SPEL", parameters
 )
 
 // Periode exceptions

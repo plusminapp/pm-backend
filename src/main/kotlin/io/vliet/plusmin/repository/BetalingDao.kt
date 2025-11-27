@@ -87,7 +87,7 @@ class BetalingDao {
             toDateSelectBody
         ).mapNotNull { it }
         val queryBody = if (queryBodyList.isNotEmpty())
-            queryBodyList.joinToString(prefix = " WHERE (", separator = ") AND (", postfix = ") ")
+            queryBodyList.joinToString(prefix = " WHERE b.isVerborgen IS FALSE AND (", separator = ") AND (", postfix = ") ")
         else ""
 
         val sortSplitted = sort.trim().split(":")

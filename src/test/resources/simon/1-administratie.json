@@ -1,0 +1,12 @@
+[
+  {
+    "naam": "Simons spel admin",
+    "periodeDag": 20,
+    "vandaag": "2025-09-20",
+    "periodes": [
+      {
+        "periodeStartDatum": "2025-09-20"
+      }
+    ]
+  }
+]

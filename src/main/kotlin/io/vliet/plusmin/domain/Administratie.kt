@@ -5,7 +5,9 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
-@Table(name = "administratie")
+@Table(name = "administratie",
+        uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker_id", "naam"])]
+)
 class Administratie(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -32,7 +34,7 @@ class Administratie(
     ) = Administratie(this.id, naam, periodeDag, vandaag, eigenaar)
 
     data class AdministratieDTO(
-        val id: Long = 0,
+        val id: Long? = 0,
         val naam: String = "Administratie zonder naam :-)",
         val periodeDag: Int = 20,
         val vandaag: String? = null, // Toegevoegd voor tijdreizen

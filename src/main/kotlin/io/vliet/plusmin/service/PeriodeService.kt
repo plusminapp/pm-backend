@@ -87,7 +87,7 @@ class PeriodeService {
             Periode(
                 administratie = vorigePeriode.administratie,
                 periodeStartDatum = vorigePeriode.periodeEindDatum.plusDays(1),
-                periodeEindDatum = vorigePeriode.periodeEindDatum.plusMonths(1),
+                periodeEindDatum = vorigePeriode.periodeEindDatum.plusDays(1).plusMonths(1).minusDays(1),
                 periodeStatus = Periode.PeriodeStatus.HUIDIG
             )
         )

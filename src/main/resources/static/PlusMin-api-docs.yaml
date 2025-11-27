@@ -204,7 +204,27 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/GebruikerDTO"
-  /demo/administratie/{administratieId}/vandaag/{vandaag}:
+  /demo/administratie/{administratieId}:
+    put:
+      tags:
+      - demo-controller
+      operationId: resetSpel
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32
+  /demo/administratie/{administratieId}/vandaag/{vandaag}/betalingen/{toon-betalingen}:
     put:
       tags:
       - demo-controller
@@ -221,6 +241,11 @@ paths:
         required: true
         schema:
           type: string
+      - name: toon-betalingen
+        in: path
+        required: true
+        schema:
+          type: boolean
       responses:
         "200":
           description: OK
@@ -267,6 +292,25 @@ paths:
             '*/*':
               schema:
                 type: object
+  /demo/administratie/upload:
+    put:
+      tags:
+      - demo-controller
+      operationId: putAdministratieWrapper
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdministratieWrapper"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32
   /betalingen/{betalingId}:
     put:
       tags:
@@ -873,6 +917,25 @@ paths:
             '*/*':
               schema:
                 type: string
+  /administraties/{administratieId}:
+    delete:
+      tags:
+      - administratie-controller
+      operationId: verwijderAdministratie
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
 components:
   schemas:
     AflossingDTO:
@@ -1030,7 +1093,6 @@ components:
           items:
             $ref: "#/components/schemas/GebruikerDTO"
       required:
-      - id
       - naam
       - periodeDag
     GebruikerDTO:
@@ -1081,6 +1143,26 @@ components:
       required:
       - id
       - periodeStartDatum
+    AdministratieWrapper:
+      type: object
+      properties:
+        administratie:
+          $ref: "#/components/schemas/AdministratieDTO"
+        rekeningGroepen:
+          type: array
+          items:
+            $ref: "#/components/schemas/RekeningGroepDTO"
+        betalingen:
+          type: array
+          items:
+            $ref: "#/components/schemas/BetalingDTO"
+        overschrijfBestaande:
+          type: boolean
+      required:
+      - administratie
+      - betalingen
+      - overschrijfBestaande
+      - rekeningGroepen
     BetalingDTO:
       type: object
       properties:
@@ -1097,6 +1179,8 @@ components:
           type: string
         sortOrder:
           type: string
+        isVerborgen:
+          type: boolean
         bron:
           type: string
         bestemming:
@@ -1108,40 +1192,8 @@ components:
       - boekingsdatum
       - bron
       - id
+      - isVerborgen
       - omschrijving
-    BetalingValidatieWrapper:
-      type: object
-      properties:
-        laatsteBetalingDatum:
-          type: string
-          format: date
-        saldoOpLaatsteBetalingDatum:
-          $ref: "#/components/schemas/SaldoDTO"
-        betalingen:
-          type: array
-          items:
-            $ref: "#/components/schemas/Betalingvalidatie"
-      required:
-      - betalingen
-      - saldoOpLaatsteBetalingDatum
-    Betalingvalidatie:
-      type: object
-      properties:
-        boekingsdatum:
-          type: string
-        bedrag:
-          type: number
-        omschrijving:
-          type: string
-        ocrOmschrijving:
-          type: string
-        sortOrder:
-          type: string
-        bestaatAl:
-          type: boolean
-      required:
-      - bedrag
-      - boekingsdatum
     Periode:
       type: object
       properties:
@@ -1250,6 +1302,39 @@ components:
       - rekeningGroepSoort
       - rekeningen
       - sortOrder
+    BetalingValidatieWrapper:
+      type: object
+      properties:
+        laatsteBetalingDatum:
+          type: string
+          format: date
+        saldoOpLaatsteBetalingDatum:
+          $ref: "#/components/schemas/SaldoDTO"
+        betalingen:
+          type: array
+          items:
+            $ref: "#/components/schemas/Betalingvalidatie"
+      required:
+      - betalingen
+      - saldoOpLaatsteBetalingDatum
+    Betalingvalidatie:
+      type: object
+      properties:
+        boekingsdatum:
+          type: string
+        bedrag:
+          type: number
+        omschrijving:
+          type: string
+        ocrOmschrijving:
+          type: string
+        sortOrder:
+          type: string
+        bestaatAl:
+          type: boolean
+      required:
+      - bedrag
+      - boekingsdatum
     Administratie:
       type: object
       properties:
@@ -1437,6 +1522,8 @@ components:
           - SP2P
         sortOrder:
           type: string
+        isVerborgen:
+          type: boolean
         bron:
           $ref: "#/components/schemas/Rekening"
         bestemming:
@@ -1450,6 +1537,7 @@ components:
       - betalingsSoort
       - boekingsdatum
       - id
+      - isVerborgen
       - omschrijving
       - sortOrder
     Rekening:

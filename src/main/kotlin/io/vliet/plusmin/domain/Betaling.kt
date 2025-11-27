@@ -34,6 +34,7 @@ class Betaling(
     @Enumerated(EnumType.STRING)
     val betalingsSoort: BetalingsSoort,
     val sortOrder: String,
+    val isVerborgen: Boolean = false,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening? = null,
@@ -98,6 +99,7 @@ class Betaling(
         omschrijving,
         betalingsSoort,
         sortOrder,
+        isVerborgen,
         bron,
         bestemming,
         reserveringBron,
@@ -111,6 +113,7 @@ class Betaling(
         val omschrijving: String,
         val betalingsSoort: String,
         val sortOrder: String? = null,
+        val isVerborgen: Boolean = false,
         val bron: String,
         val bestemming: String,
     )
@@ -130,6 +133,7 @@ class Betaling(
             this.omschrijving,
             this.betalingsSoort.toString(),
             this.sortOrder,
+            this.isVerborgen,
             bron.naam,
             bestemming?.naam ?: "",
         )

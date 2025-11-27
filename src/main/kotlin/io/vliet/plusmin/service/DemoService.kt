@@ -3,7 +3,10 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Betaling.Companion.reserveringBetalingsSoorten
-import io.vliet.plusmin.repository.*
+import io.vliet.plusmin.repository.AdministratieRepository
+import io.vliet.plusmin.repository.BetalingRepository
+import io.vliet.plusmin.repository.DemoRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -143,7 +146,7 @@ class DemoService {
         )
     }
 
-    fun putVandaag(administratie: Administratie, vandaag: String?) {
+    fun putVandaag(administratie: Administratie, vandaag: String?, toonBetalingen: Boolean) {
         val vandaagAsLocalDate = if (vandaag != null) {
             try {
                 LocalDate.parse(vandaag, DateTimeFormatter.ISO_LOCAL_DATE)
@@ -157,14 +160,28 @@ class DemoService {
             .periodeStartDatum
 
         if (
-            // je mag alleen vooruit in de tijd reizen
+        // je mag alleen vooruit in de tijd reizen
             (vandaagAsLocalDate != null && vandaagAsLocalDate > (administratie.vandaag ?: LocalDate.now())) ||
             // je mag alleen terug naar nu als het na de start van de laatste periode is
             (vandaagAsLocalDate == null && laatstePeriodeStartDatum < LocalDate.now())
-        )
+        ) {
             administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
-        else
+            if (toonBetalingen) betalingRepository.unhideAllByAdministratieTotEnMetDatum(
+                administratie,
+                vandaagAsLocalDate ?: LocalDate.now()
+            )
+        } else
             throw PM_InvalidDateFormatException(listOf(vandaag ?: "null"))
         periodeService.checkPeriodesVoorGebruiker(administratie)
+    }
+
+    fun resetSpel(administratie: Administratie) {
+        if (administratie.vandaag == null)
+            throw PM_GeenSpelException(listOf(administratie.naam.toString()))
+
+        val eerstePeriode = periodeRepository.getEerstePeriodeVoorAdministratie(administratie.id)
+            ?: throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
+        administratieRepository.putVandaag(administratie.id, eerstePeriode.periodeEindDatum.plusDays(1))
+        betalingRepository.hideAllByAdministratie(administratie)
     }
 }

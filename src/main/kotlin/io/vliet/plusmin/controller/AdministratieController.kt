@@ -2,8 +2,10 @@ package io.vliet.plusmin.controller
 
 import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
+import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.PM_EigenaarAuthorizationException
 import io.vliet.plusmin.domain.PM_EigenaarZichzelfAuthorizationException
+import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.AdministratieService
@@ -13,6 +15,7 @@ import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -34,7 +37,7 @@ class AdministratieController {
     lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
-    
+
     @PostMapping("")
     fun creeerNieuweAdministratie(@Valid @RequestBody administratieList: List<AdministratieDTO>): List<Administratie> {
         val eigenaar = gebruikerService.getJwtGebruiker()
@@ -52,7 +55,13 @@ class AdministratieController {
     ) {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         if (!administratie.eigenaar.id.equals(gebruiker.id)) {
-            throw PM_EigenaarAuthorizationException(listOf(gebruiker.bijnaam, toegangGebruikerId.toString(), administratie.naam))
+            throw PM_EigenaarAuthorizationException(
+                listOf(
+                    gebruiker.bijnaam,
+                    toegangGebruikerId.toString(),
+                    administratie.naam
+                )
+            )
         }
         return administratieService.toegangVerstrekken(toegangGebruikerId, administratie)
     }
@@ -64,7 +73,13 @@ class AdministratieController {
     ) {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         if (!administratie.eigenaar.id.equals(gebruiker.id)) {
-            throw PM_EigenaarAuthorizationException(listOf(gebruiker.bijnaam, toegangGebruikerId.toString(), administratie.naam))
+            throw PM_EigenaarAuthorizationException(
+                listOf(
+                    gebruiker.bijnaam,
+                    toegangGebruikerId.toString(),
+                    administratie.naam
+                )
+            )
         }
         if (toegangGebruikerId.equals(gebruiker.id)) {
             throw PM_EigenaarZichzelfAuthorizationException(
@@ -84,9 +99,33 @@ class AdministratieController {
     ) {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         if (!administratie.eigenaar.id.equals(gebruiker.id)) {
-            throw PM_EigenaarAuthorizationException(listOf(gebruiker.bijnaam, toegangGebruikerId.toString(), administratie.naam))
+            throw PM_EigenaarAuthorizationException(
+                listOf(
+                    gebruiker.bijnaam,
+                    toegangGebruikerId.toString(),
+                    administratie.naam
+                )
+            )
         }
         return administratieService.eigenaarOverdragen(toegangGebruikerId, administratie)
+    }
+
+    @DeleteMapping("{administratieId}")
+    fun verwijderAdministratie(
+        @PathVariable("administratieId") administratieId: Long,
+    ): ResponseEntity<Any> {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        if (!administratie.eigenaar.id.equals(gebruiker.id)) {
+            throw PM_EigenaarAuthorizationException(
+                listOf(
+                    gebruiker.bijnaam,
+                    gebruiker.subject,
+                    administratie.naam
+                )
+            )
+        }
+        administratieRepository.deleteAdministratie(administratie.id)
+        return ResponseEntity.ok().build()
     }
 
     fun toDTO(administratie: Administratie): AdministratieDTO {
