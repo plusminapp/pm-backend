@@ -29,6 +29,14 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
     )
     fun getLaatstePeriodeVoorAdministratie(administratieId: Long): Periode?
 
+    /*  Haalt de eerste Periode voor een administratie op */
+    @Query(
+        value = "SELECT * FROM periode p WHERE p.administratie_id = :administratieId AND p.periode_start_datum = " +
+                "(SELECT MIN(periode_start_datum) FROM periode p WHERE p.administratie_id = :administratieId)",
+        nativeQuery = true
+    )
+    fun getEerstePeriodeVoorAdministratie(administratieId: Long): Periode?
+
     @Query(value = "SELECT p FROM Periode p WHERE p.administratie = :administratie")
     fun getPeriodesVoorAdministrtatie(administratie: Administratie): List<Periode>
 

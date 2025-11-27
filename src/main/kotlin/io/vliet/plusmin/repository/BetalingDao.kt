@@ -87,7 +87,7 @@ class BetalingDao {
             toDateSelectBody
         ).mapNotNull { it }
         val queryBody = if (queryBodyList.isNotEmpty())
-            queryBodyList.joinToString(prefix = " WHERE (", separator = ") AND (", postfix = ") ")
+            queryBodyList.joinToString(prefix = " WHERE b.isVerborgen IS FALSE AND (", separator = ") AND (", postfix = ") ")
         else ""
 
         val sortSplitted = sort.trim().split(":")
@@ -127,9 +127,8 @@ class BetalingDao {
         val page = PageImpl(content, pageRequest, count)
         return PagingService.ContentWrapper(
             data = page as Page<out Any>,
-            gebruikersId = administratie.id,
-            gebruikersEmail = administratie.naam,
-            gebruikersBijnaam = administratie.naam
+            administratieId = administratie.id,
+            administratieNaam = administratie.naam,
         )
     }
 }

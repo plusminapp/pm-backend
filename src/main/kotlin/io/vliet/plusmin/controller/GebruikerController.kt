@@ -6,6 +6,7 @@ import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.PM_CreateUserAuthorizationException
 import io.vliet.plusmin.domain.PM_GebruikerNotFoundException
 import io.vliet.plusmin.repository.AdministratieRepository
+import io.vliet.plusmin.repository.DemoRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.*
 class GebruikerController {
     @Autowired
     lateinit var administratieRepository: AdministratieRepository
+
+    @Autowired
+    lateinit var demoRepository: DemoRepository
 
     @Autowired
     lateinit var gebruikerRepository: GebruikerRepository
@@ -86,15 +90,15 @@ class GebruikerController {
         return GebruikerDTO(
             gebruiker.id,
             gebruiker.subject,
-//            gebruiker.email,
             gebruiker.bijnaam,
             gebruiker.roles.map { it.toString() },
             gebruiker.administraties.map {
+                val isInDemoModus =demoRepository.findByAdministratie(it) != null
                 val periodes = periodeRepository.getPeriodesVoorAdministrtatie(it)
                 val gebruikers = administratieRepository
                     .findGebruikersMetToegangTotAdministratie(it)
                     .map { it.fullCopy(administraties = emptyList()) }
-                it.toDTO(periodes, gebruikers)
+                it.toDTO(periodes, gebruikers, isInDemoModus)
             },
         )
     }

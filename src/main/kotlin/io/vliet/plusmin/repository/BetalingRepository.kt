@@ -23,14 +23,8 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
-                "b.boekingsdatum <= :datum"
-    )
-    fun findAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate): List<Betaling>
-
-    @Query(
-        value = "SELECT b FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
                 "b.boekingsdatum <= :eindDatum"
     )
@@ -42,7 +36,8 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :startDatum AND " +
                 "b.boekingsdatum <= :eindDatum AND " +
                 "b.reserveringBron.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' AND " +
@@ -53,10 +48,11 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         startDatum: LocalDate,
         eindDatum: LocalDate
     ): List<Betaling>
-    
+
     @Query(
         value = "SELECT MAX(b.reserveringsHorizon) FROM Betaling b " +
-                "WHERE b.administratie = :administratie"
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie"
     )
     fun getReserveringsHorizon(
         administratie: Administratie,
@@ -65,7 +61,8 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
     @Modifying
     @Query(
         value = "DELETE FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
                 "b.boekingsdatum <= :eindDatum"
     )
@@ -77,7 +74,8 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
                 "ABS(b.bedrag) = ABS(:bedrag) AND " +
                 "b.omschrijving = :omschrijving AND " +
@@ -93,7 +91,8 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
                 "ABS(b.bedrag) = ABS(:bedrag)"
     )
@@ -105,27 +104,31 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "(b.bron = :rekening OR b.bestemming = :rekening)"
     )
     fun findLaatsteBetalingDatumBijRekening(administratie: Administratie, rekening: Rekening): LocalDate?
 
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
-                "WHERE b.administratie = :administratie"
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie"
     )
     fun findDatumLaatsteBetalingBijAdministratie(administratie: Administratie): LocalDate?
 
     @Query(
         value = "SELECT MAX(b.sortOrder) FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum = :datum"
     )
     fun findLaatsteSortOrder(administratie: Administratie, datum: LocalDate): String?
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.administratie = :administratie AND " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
                 "b.boekingsdatum = :datum AND " +
                 "b.reserveringBron = :reserveringBron AND " +
                 "b.reserveringBestemming = :reserveringBestemming"
@@ -139,7 +142,27 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Modifying
     @Query(
-        value = "DELETE FROM Betaling b WHERE b.administratie = :administratie AND b.boekingsdatum <= :datum"
+        value = "DELETE FROM Betaling b " +
+                "WHERE b.isVerborgen IS FALSE AND " +
+                "b.administratie = :administratie AND " +
+                "boekingsdatum <= :datum"
     )
+
     fun deleteAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate)
+
+    @Modifying
+    @Query(
+        value = "UPDATE Betaling b " +
+                "SET b.isVerborgen = FALSE " +
+                "WHERE b.administratie = :administratie AND " +
+                "boekingsdatum <= :datum"
+    )
+    fun unhideAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate)
+    @Modifying
+    @Query(
+        value = "UPDATE Betaling b " +
+                "SET b.isVerborgen = TRUE " +
+                "WHERE b.administratie = :administratie"
+    )
+    fun hideAllByAdministratie(administratie: Administratie)
 }

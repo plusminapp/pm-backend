@@ -13,10 +13,12 @@ import java.time.LocalDate
 @Repository
 interface AdministratieRepository : JpaRepository<Administratie, Long> {
 
-    @Query("select distinct a from Gebruiker g " +
-            "join g.administraties a " +
-            "where g = :gebruiker " +
-            "and a.naam = :administratieNaam")
+    @Query(
+        "select distinct a from Gebruiker g " +
+                "join g.administraties a " +
+                "where g = :gebruiker " +
+                "and a.naam = :administratieNaam"
+    )
     fun findAdministratieOpNaamEnGebruiker(administratieNaam: String, gebruiker: Gebruiker): Administratie?
 
     @Query("select distinct g from Gebruiker g join g.administraties a where a = :administratie")
@@ -31,6 +33,33 @@ interface AdministratieRepository : JpaRepository<Administratie, Long> {
     @Query("UPDATE Administratie a SET a.vandaag = :vandaag WHERE a.id = :id")
     fun putVandaag(id: Long, vandaag: LocalDate?): Int
 
-    override fun deleteById(id: Long)
+    @Modifying
+    @Transactional
+    @Query(
+        "  DELETE FROM public.betaling WHERE administratie_id = :id;" +
+                "  DELETE FROM public.demo WHERE administratie_id = :id;" +
+                "  DELETE FROM public.saldo WHERE periode_id IN (" +
+                "    SELECT id FROM public.periode WHERE administratie_id = :id" +
+                "  );" +
+                "  DELETE FROM public.saldo WHERE rekening_id IN (" +
+                "    SELECT r.id FROM public.rekening r" +
+                "    JOIN public.rekening_groep rg ON r.rekening_groep_id = rg.id" +
+                "    WHERE rg.administratie_id = :id" +
+                "  );" +
+                "  DELETE FROM public.rekening_betaal_methoden WHERE rekening_id IN (" +
+                "    SELECT r.id FROM public.rekening r" +
+                "    JOIN public.rekening_groep rg ON r.rekening_groep_id = rg.id" +
+                "    WHERE rg.administratie_id = :id" +
+                "  );" +
+                "  DELETE FROM public.rekening WHERE rekening_groep_id IN (" +
+                "    SELECT id FROM public.rekening_groep WHERE administratie_id = :id" +
+                "  );" +
+                "  DELETE FROM public.rekening_groep WHERE administratie_id = :id;" +
+                "  DELETE FROM public.gebruiker_administratie WHERE administratie_id = :id;" +
+                "  DELETE FROM public.periode WHERE administratie_id = :id;" +
+                "  DELETE FROM public.administratie WHERE id = :id;",
+        nativeQuery = true
+    )
+    fun deleteAdministratie(id: Long): Int
 }
 

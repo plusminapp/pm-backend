@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository
 interface DemoRepository : JpaRepository<Demo, Long> {
     fun findByAdministratie(administratie: Administratie): Demo?
 
-    @Modifying
-    @Procedure("reset_gebruiker_data")
-    fun resetGebruikerData(gebruikerId: Long)
+//    @Modifying
+//    @Procedure("reset_gebruiker_data")
+//    fun resetGebruikerData(gebruikerId: Long)
 
 }

@@ -1,22 +1,26 @@
 package io.vliet.plusmin.service
 
+import io.vliet.plusmin.controller.AdministratieWrapper
 import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.PM_AdministratieBestaatAlException
 import io.vliet.plusmin.domain.PM_GebruikerNotFoundException
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.AdministratieRepository
+import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
+import jakarta.persistence.EntityManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDate
 import kotlin.collections.plus
-import kotlin.collections.toSet
 
 @Service
 class AdministratieService {
@@ -33,8 +37,16 @@ class AdministratieService {
     lateinit var rekeningGroepRepository: RekeningGroepRepository
 
     @Autowired
+    lateinit var betalingService: BetalingService
+
+    @Autowired
+    lateinit var betalingRepository: BetalingRepository
+
+    @Autowired
     lateinit var rekeningService: RekeningService
 
+    @Autowired
+    lateinit var entityManager: EntityManager
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun saveAll(eigenaar: Gebruiker, administratiesLijst: List<AdministratieDTO>): List<Administratie> {
@@ -43,6 +55,7 @@ class AdministratieService {
         }
     }
 
+    @Transactional
     fun save(eigenaar: Gebruiker, administratieDTO: AdministratieDTO): Administratie {
         logger.info("administratie: ${administratieDTO.naam} voor gebruiker ${eigenaar.bijnaam}/${eigenaar.subject} vandaag=${administratieDTO.vandaag} periodeDag=${administratieDTO.periodeDag}")
         val administratieOpt =
@@ -133,5 +146,40 @@ class AdministratieService {
             (nieuweEigenaar.administraties + administratie)
         gebruikerRepository.save(nieuweEigenaar.fullCopy(administraties = administraties))
         administratieRepository.save(administratie.fullCopy(eigenaar = nieuweEigenaar))
+    }
+
+
+    fun laadAdministratie(administratieWrapper: AdministratieWrapper, eigenaar: Gebruiker) {
+        val administratieDTO = administratieWrapper.administratie
+        val administratieBestaand = administratieRepository
+            .findAdministratieOpNaamEnGebruiker(administratieWrapper.administratie.naam, eigenaar)
+        if (administratieBestaand != null && !administratieWrapper.overschrijfBestaande) {
+            throw PM_AdministratieBestaatAlException(listOf(administratieDTO.naam))
+        }
+        val opgeschoondeEigenaar = if (administratieBestaand != null) {
+            verwijderAdministratie(administratieBestaand.id, eigenaar)
+            eigenaar.fullCopy(
+                administraties = eigenaar.administraties.filter { it.id != administratieBestaand.id }
+            )
+        } else eigenaar
+        maakNieuweAdministratie(administratieWrapper, opgeschoondeEigenaar)
+    }
+
+    @Transactional
+    fun verwijderAdministratie(administratieId: Long, gebruiker: Gebruiker) {
+        administratieRepository.deleteAdministratie(administratieId)
+//        gebruikerRepository.save(gebruiker.fullCopy(
+//            administraties = gebruiker.administraties.filter { it.id != administratieId }
+//        ))
+    }
+
+    @Transactional
+    fun maakNieuweAdministratie(administratieWrapper: AdministratieWrapper, eigenaar: Gebruiker) {
+        val administratie = save(eigenaar, administratieWrapper.administratie)
+        rekeningService.saveAll(administratie, administratieWrapper.rekeningGroepen)
+        betalingService.creeerBetalingLijst(administratie, administratieWrapper.betalingen)
+        if (administratie.vandaag != null) {
+            betalingRepository.hideAllByAdministratie(administratie)
+        }
     }
 }

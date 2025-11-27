@@ -1,0 +1,168 @@
+[
+  {
+    "naam": "Betaalrekening",
+    "rekeningGroepSoort": "BETAALREKENING",
+    "sortOrder": 100,
+    "rekeningen": [
+      {
+        "naam": "Simons betaalrekening",
+        "bankNaam": "ASN",
+        "saldo": 0,
+        "sortOrder": 100
+      }
+    ]
+  },
+  {
+    "naam": "Inkomsten",
+    "rekeningGroepSoort": "INKOMSTEN",
+    "rekeningGroepIcoonNaam": "inkomsten",
+    "sortOrder": 200,
+    "budgetType": "INKOMSTEN",
+    "rekeningen": [
+      {
+        "naam": "Salaris",
+        "sortOrder": 100,
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 1545,
+        "budgetBetaalDag": 21,
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Leefgeld",
+    "rekeningGroepSoort": "UITGAVEN",
+    "rekeningGroepIcoonNaam": "boodschappen",
+    "sortOrder": 300,
+    "budgetType": "CONTINU",
+    "rekeningen": [
+      {
+        "naam": "Boodschappen",
+        "sortOrder": 110,
+        "budgetPeriodiciteit": "WEEK",
+        "budgetBedrag": 84,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Andere uitgaven",
+        "sortOrder": 120,
+        "budgetPeriodiciteit": "WEEK",
+        "budgetBedrag": 42,
+        "budgetAanvulling": "MET",
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          },
+          {
+            "naam": "Visa Creditcard"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "naam": "Vaste lasten",
+    "rekeningGroepSoort": "UITGAVEN",
+    "rekeningGroepIcoonNaam": "vaste lasten",
+    "sortOrder": 400,
+    "budgetType": "VAST",
+    "rekeningen": [
+      {
+        "naam": "Greenchoice",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 175,
+        "budgetBetaalDag": 8,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Ziektekosten",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 145,
+        "budgetBetaalDag": 3,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Schadeverzekeringen",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 25,
+        "budgetBetaalDag": 1,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Huur",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 545,
+        "budgetBetaalDag": 28,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "GBLT",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 30,
+        "budgetBetaalDag": 28,
+        "budgetVariabiliteit": 1,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Regionale belasting",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 75,
+        "budgetBetaalDag": 26,
+        "budgetVariabiliteit": 1,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      },
+      {
+        "naam": "Vitens",
+        "budgetPeriodiciteit": "MAAND",
+        "budgetBedrag": 10,
+        "budgetBetaalDag": 26,
+        "gekoppeldeRekening": "Simons betaalrekening",
+        "betaalMethoden": [
+          {
+            "naam": "Simons betaalrekening"
+          }
+        ]
+      }
+    ]
+  }
+]

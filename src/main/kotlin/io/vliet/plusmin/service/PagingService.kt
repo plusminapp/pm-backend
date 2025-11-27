@@ -23,12 +23,12 @@ class PagingService {
     ): PageRequest {
         val page: Int = try {
             pageAsString.toInt()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             logger.warn("Invalid page paramater $pageAsString; using 0"); 0
         }
         val size: Int = try {
             if (sizeAsString.toInt() < 0) Integer.MAX_VALUE else sizeAsString.toInt()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             logger.warn("Invalid size paramater $sizeAsString; using 25"); 25
         }
 
@@ -50,8 +50,7 @@ class PagingService {
 
     data class ContentWrapper(
         val data: Page<out Any>,
-        val gebruikersId: Long = 0,
-        val gebruikersEmail: String = "",
-        val gebruikersBijnaam: String = "",
+        val administratieId: Long = 0,
+        val administratieNaam: String = "",
     )
 }

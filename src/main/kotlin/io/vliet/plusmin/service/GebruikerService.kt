@@ -75,7 +75,6 @@ class GebruikerService {
                 gebruikerRepository.save(
                     Gebruiker(
                         subject = gebruikerDTO.subject,
-//                        email = gebruikerDTO.email,
                         bijnaam = gebruikerDTO.bijnaam,
                         roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                     )
