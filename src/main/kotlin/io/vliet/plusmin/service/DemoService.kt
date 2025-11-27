@@ -21,6 +21,9 @@ class DemoService {
     lateinit var demoRepository: DemoRepository
 
     @Autowired
+    lateinit var reserveringService: ReserveringService
+
+    @Autowired
     lateinit var administratieRepository: AdministratieRepository
 
     @Autowired
@@ -53,6 +56,7 @@ class DemoService {
                 logger.info("Kopieer betalingen van ${bronPeriode.periodeStartDatum} naar ${doelPeriode.periodeStartDatum} voor ${administratie.naam}")
                 kopieerPeriodeBetalingen(administratie, bronPeriode, doelPeriode)
             }
+        reserveringService.creeerReserveringen(administratie)
     }
 
     @Scheduled(cron = "0 1 2 * * *")
@@ -150,7 +154,7 @@ class DemoService {
         val vandaagAsLocalDate = if (vandaag != null) {
             try {
                 LocalDate.parse(vandaag, DateTimeFormatter.ISO_LOCAL_DATE)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 throw PM_InvalidDateFormatException(listOf(vandaag))
             }
         } else null
@@ -177,7 +181,7 @@ class DemoService {
 
     fun resetSpel(administratie: Administratie) {
         if (administratie.vandaag == null)
-            throw PM_GeenSpelException(listOf(administratie.naam.toString()))
+            throw PM_GeenSpelException(listOf(administratie.naam))
 
         val eerstePeriode = periodeRepository.getEerstePeriodeVoorAdministratie(administratie.id)
             ?: throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))

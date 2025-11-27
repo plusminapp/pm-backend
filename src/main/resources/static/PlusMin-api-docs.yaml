@@ -1084,6 +1084,8 @@ components:
           type: string
         eigenaarSubject:
           type: string
+        isInDemoModus:
+          type: boolean
         periodes:
           type: array
           items:

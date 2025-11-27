@@ -2,11 +2,10 @@ package io.vliet.plusmin.controller
 
 import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
-import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.PM_EigenaarAuthorizationException
 import io.vliet.plusmin.domain.PM_EigenaarZichzelfAuthorizationException
-import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.AdministratieRepository
+import io.vliet.plusmin.repository.DemoRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.AdministratieService
 import io.vliet.plusmin.service.GebruikerService
@@ -29,6 +28,9 @@ class AdministratieController {
 
     @Autowired
     lateinit var administratieRepository: AdministratieRepository
+
+    @Autowired
+    lateinit var demoRepository: DemoRepository
 
     @Autowired
     lateinit var periodeService: PeriodeService
@@ -129,6 +131,7 @@ class AdministratieController {
     }
 
     fun toDTO(administratie: Administratie): AdministratieDTO {
+        val isInDemoModus = demoRepository.findByAdministratie(administratie) != null
         return AdministratieDTO(
             administratie.id,
             administratie.naam,
@@ -136,6 +139,7 @@ class AdministratieController {
             administratie.vandaag.toString(),
             administratie.eigenaar.bijnaam,
             administratie.eigenaar.subject,
+            isInDemoModus,
             periodeRepository.getPeriodesVoorAdministrtatie(administratie).map { it.toDTO() },
         )
     }

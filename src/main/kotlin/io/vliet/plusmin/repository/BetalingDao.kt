@@ -127,9 +127,8 @@ class BetalingDao {
         val page = PageImpl(content, pageRequest, count)
         return PagingService.ContentWrapper(
             data = page as Page<out Any>,
-            gebruikersId = administratie.id,
-            gebruikersEmail = administratie.naam,
-            gebruikersBijnaam = administratie.naam
+            administratieId = administratie.id,
+            administratieNaam = administratie.naam,
         )
     }
 }

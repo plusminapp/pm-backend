@@ -40,13 +40,15 @@ class Administratie(
         val vandaag: String? = null, // Toegevoegd voor tijdreizen
         val eigenaarNaam: String? = null,
         val eigenaarSubject: String? = null,
+        val isInDemoModus: Boolean? = false,
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
         val gebruikers: List<Gebruiker.GebruikerDTO>? = emptyList(),
     )
 
     fun toDTO(
         periodes: List<Periode> = emptyList(),
-        gebruikers: List<Gebruiker> = emptyList()
+        gebruikers: List<Gebruiker> = emptyList(),
+        isInDemoModus: Boolean? = false
     ): AdministratieDTO {
         return AdministratieDTO(
             this.id,
@@ -55,6 +57,7 @@ class Administratie(
             this.vandaag?.toString(),
             this.eigenaar.bijnaam,
             this.eigenaar.subject,
+            isInDemoModus,
             periodes = periodes.map { it.toDTO() },
             gebruikers = gebruikers.map { it.toDTO() },
         )
