@@ -37,6 +37,7 @@ interface AdministratieRepository : JpaRepository<Administratie, Long> {
     @Transactional
     @Query(
         "  DELETE FROM public.betaling WHERE administratie_id = :id;" +
+                "  DELETE FROM public.demo WHERE administratie_id = :id;" +
                 "  DELETE FROM public.saldo WHERE periode_id IN (" +
                 "    SELECT id FROM public.periode WHERE administratie_id = :id" +
                 "  );" +
