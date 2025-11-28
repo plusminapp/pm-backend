@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class GebruikerService {
@@ -36,11 +37,9 @@ class GebruikerService {
     }
 
     fun checkAccess(administratieId: Long): Pair<Administratie, Gebruiker> {
-        val administratieOpt = administratieRepository.findById(administratieId)
-        if (administratieOpt.isEmpty)
+        val administratie = administratieRepository.findById(administratieId).getOrElse {
             throw PM_AdministratieNotFoundException(listOf(administratieId.toString()))
-        val administratie = administratieOpt.get()
-
+        }
         val gebruiker = getJwtGebruiker()
         logger.info("checkAccess administratie ${administratie.naam} voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}: " +
                 "adminId: ${administratie.id}  " +

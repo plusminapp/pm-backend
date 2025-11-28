@@ -49,6 +49,14 @@ class PM_GebruikerNotFoundException(
     HttpStatus.NOT_FOUND, "GEBRUIKER_NOTFOUND", parameters
 )
 
+// Aflossing exception
+class PM_AflossingNotFoundException(
+    parameters: List<String>
+) : PlusMinException(
+    "Aflossing met Id ${parameters[0]} bestaat niet.",
+    HttpStatus.NOT_FOUND, "AFLOSSING_NOTFOUND", parameters
+)
+
 // Administratie exception
 class PM_AdministratieNotFoundException(
     parameters: List<String>

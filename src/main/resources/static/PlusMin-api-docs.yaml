@@ -399,6 +399,31 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BetalingValidatieWrapper"
+  /aflossingen/{aflossingId}:
+    put:
+      tags:
+      - aflossing-controller
+      operationId: wijzigAflossing
+      parameters:
+      - name: aflossingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AflossingDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /administraties/{administratieId}/gebruiker/{gebruikerId}/toegang-verstrekken:
     put:
       tags:
