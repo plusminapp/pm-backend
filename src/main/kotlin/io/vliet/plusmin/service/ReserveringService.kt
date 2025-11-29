@@ -62,11 +62,6 @@ class ReserveringService {
         }
     }
 
-    fun creeerReserveringenVoorPeriode(administratie: Administratie, periodeId: Long) {
-        val periode = periodeService.getPeriode(periodeId, administratie)
-        creeerReserveringenVoorPeriode(administratie, periode)
-    }
-
     /*
     * Creëert reserveringen voor alle rekeningen van het type 'potje voor nu' voor de gegeven periode.
     * Als er tekorten uit vorige periodes zijn in de potjes, worden deze eerst aangevuld vanuit de buffer.
@@ -102,7 +97,7 @@ class ReserveringService {
                     betalingRepository.save(
                         Betaling(
                             administratie = administratie,
-                            boekingsdatum = periode.periodeStartDatum.minusDays(1),
+                            boekingsdatum = periode.periodeStartDatum,
                             reserveringsHorizon = periode.periodeStartDatum.minusDays(1),
                             bedrag = -it.openingsReserveSaldo,
                             omschrijving = "Correctie voor ${it.rekening.naam} in periode ${
@@ -140,11 +135,11 @@ class ReserveringService {
                 .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
                 ?.openingsReserveSaldo
                 ?: BigDecimal.ZERO
-        while (bufferSaldo >= BigDecimal.ZERO && reserveringsDatum.isBefore(periode.periodeEindDatum.plusDays(1))) {
+        while (bufferSaldo > BigDecimal.ZERO && reserveringsDatum.isBefore(periode.periodeEindDatum.plusDays(1))) {
             val nextBufferSaldo = bufferSaldo + continueBudgetUitgaven +
                     cashflowService.budgetVasteLastenUitgaven(rekeningGroepen, reserveringsDatum) +
                     cashflowService.betaaldeInkomsten(betalingenInPeriode, reserveringsDatum)
-            if (nextBufferSaldo < BigDecimal.ZERO) break
+            if (nextBufferSaldo <= BigDecimal.ZERO) break
             bufferSaldo = nextBufferSaldo
             reserveringsDatum = reserveringsDatum.plusDays(1)
         }
@@ -158,7 +153,7 @@ class ReserveringService {
 
         rekeningen.filter { potjesVoorNuRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
             .map { rekening ->
-                creerReserveringVoorRekening(
+                creeerReserveringVoorRekening(
                     mutatiesInPeilPeriode,
                     rekening,
                     startSaldiVanPeriode,
@@ -171,7 +166,7 @@ class ReserveringService {
             }
     }
 
-    private fun creerReserveringVoorRekening(
+    private fun creeerReserveringVoorRekening(
         mutatiesInPeilPeriode: List<Saldo>,
         rekening: Rekening,
         startSaldiVanPeriode: List<Saldo>,
@@ -182,7 +177,7 @@ class ReserveringService {
         dateTimeFormatter: DateTimeFormatter?
     ) {
         val reserveringBlaat =
-            mutatiesInPeilPeriode.filter { it.rekening.naam == rekening.naam }.sumOf { it.reservering }
+            mutatiesInPeilPeriode.filter { it.rekening.naam == rekening.naam }.sumOf { it.periodeReservering }
 
         val verrekenbareStartReservering =
             if (rekening.budgetAanvulling == Rekening.BudgetAanvulling.MET) BigDecimal.ZERO

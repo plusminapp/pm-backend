@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.math.log
 
 @Service
 class DemoService {
@@ -165,17 +166,19 @@ class DemoService {
 
         if (
         // je mag alleen vooruit in de tijd reizen
-            (vandaagAsLocalDate != null && vandaagAsLocalDate > (administratie.vandaag ?: LocalDate.now())) ||
+            (vandaagAsLocalDate != null && vandaagAsLocalDate >= (administratie.vandaag ?: LocalDate.now())) ||
             // je mag alleen terug naar nu als het na de start van de laatste periode is
-            (vandaagAsLocalDate == null && laatstePeriodeStartDatum < LocalDate.now())
+            (vandaagAsLocalDate == null && laatstePeriodeStartDatum.isBefore(LocalDate.now()))
         ) {
             administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
             if (toonBetalingen) betalingRepository.unhideAllByAdministratieTotEnMetDatum(
                 administratie,
                 vandaagAsLocalDate ?: LocalDate.now()
             )
-        } else
+        } else {
+            logger.warn("Ongeldige datum voor vandaag: administratie.vandaag ${administratie.vandaag} vandaagAsLocalDate $vandaagAsLocalDate vooradministratie ${administratie.naam}")
             throw PM_InvalidDateFormatException(listOf(vandaag ?: "null"))
+        }
         periodeService.checkPeriodesVoorGebruiker(administratie)
     }
 
@@ -183,9 +186,14 @@ class DemoService {
         if (administratie.vandaag == null)
             throw PM_GeenSpelException(listOf(administratie.naam))
 
-        val eerstePeriode = periodeRepository.getEerstePeriodeVoorAdministratie(administratie.id)
-            ?: throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
-        administratieRepository.putVandaag(administratie.id, eerstePeriode.periodeEindDatum.plusDays(1))
+        val periodeLijst = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
+        if (periodeLijst.size == 0)
+            throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
+        // TODO maak het mogelijk een spel met meer dan 1 periode te resetten
+        if (periodeLijst.size > 1)
+            throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
+        administratieRepository.putVandaag(administratie.id, periodeLijst[0].periodeEindDatum.plusDays(1))
         betalingRepository.hideAllByAdministratie(administratie)
+        betalingRepository.deleteReserveringenByAdministratieTotEnMetDatum(administratie)
     }
 }

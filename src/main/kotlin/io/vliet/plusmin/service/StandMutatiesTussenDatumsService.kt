@@ -43,10 +43,10 @@ class StandMutatiesTussenDatumsService {
                             acc + berekenOpgenomenSaldoMutaties(betaling, rekening)
                         }
 
-                Saldo(0, rekening, betaling = betaling, reservering = reservering, opgenomenSaldo = opname)
+                Saldo(0, rekening, periodeBetaling = betaling, periodeReservering = reservering, periodeOpgenomenSaldo = opname)
             }
         }
-        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.betaling} + R ${it.reservering} + O ${it.opgenomenSaldo}" }}")
+        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
         return saldoLijst
     }
 

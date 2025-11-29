@@ -184,7 +184,7 @@
           ]
         },
         {
-          "naam": "Schadeverzekeringen",
+          "naam": "Schade verzekeringen",
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 26.22,
           "budgetBetaalDag": 1,
@@ -539,7 +539,7 @@
       "omschrijving": "Verzekeringen",
       "betalingsSoort": "UITGAVEN",
       "bron": "Alex' betaalrekening",
-      "bestemming": "Schadeverzekeringen"
+      "bestemming": "Schade verzekeringen"
     },
     {
       "boekingsdatum": "2025-07-04",

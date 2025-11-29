@@ -257,9 +257,9 @@ class RekeningService {
                     openingsBalansSaldo = rekeningDTO.saldo ?: BigDecimal.ZERO,
                     openingsReserveSaldo = rekeningDTO.reserve ?: BigDecimal.ZERO,
                     periode = periode,
-                    achterstand = BigDecimal.ZERO,
+                    openingsAchterstand = BigDecimal.ZERO,
                     budgetMaandBedrag = BigDecimal.ZERO,
-                    betaling = BigDecimal.ZERO
+                    periodeBetaling = BigDecimal.ZERO
                 )
             )
         } else {

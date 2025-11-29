@@ -60,13 +60,13 @@ class StandStartVanPeriodeService {
         val saldoLijst = basisPeriodeEindSaldi.map { basisPeriodeEindSaldo: Saldo ->
             val betaling = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
-                .sumOf { it.betaling }
+                .sumOf { it.periodeBetaling }
             val reservering = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
-                .sumOf { it.reservering }
+                .sumOf { it.periodeReservering }
             val opgenomenSaldo = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
-                .sumOf { it.opgenomenSaldo }
+                .sumOf { it.periodeOpgenomenSaldo }
 
             val openingsBalansSaldo =
                 basisPeriodeEindSaldo.openingsBalansSaldo + betaling
@@ -98,7 +98,7 @@ class StandStartVanPeriodeService {
                 openingsReserveSaldo = openingsReserveSaldo,
                 openingsOpgenomenSaldo = openingsOpgenomenSaldo,
                 correctieBoeking = BigDecimal.ZERO,
-                achterstand = BigDecimal.ZERO,
+                openingsAchterstand = BigDecimal.ZERO,
             )
         }
         logger.info("openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")

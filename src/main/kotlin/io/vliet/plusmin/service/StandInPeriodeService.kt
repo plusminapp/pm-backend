@@ -62,22 +62,22 @@ class StandInPeriodeService {
                 val rekening = saldo.rekening
                 val betaling = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.betaling }
+                    .sumOf { it.periodeBetaling }
                 val reservering = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.reservering }
+                    .sumOf { it.periodeReservering }
                 val opgenomenSaldo = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.opgenomenSaldo }
+                    .sumOf { it.periodeOpgenomenSaldo }
 
                 val openingsBalansSaldo = saldo.openingsBalansSaldo
                 val openingsReserveSaldo =
                     if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
-                        saldo.openingsBalansSaldo + saldo.opgenomenSaldo
+                        saldo.openingsBalansSaldo + saldo.periodeOpgenomenSaldo
                     else saldo.openingsReserveSaldo
-                val openingsOpgenomenSaldo = saldo.openingsOpgenomenSaldo + saldo.opgenomenSaldo
+                val openingsOpgenomenSaldo = saldo.openingsOpgenomenSaldo + saldo.periodeOpgenomenSaldo
 
-                val achterstand = saldo.achterstand
+                val achterstand = saldo.openingsAchterstand
 
                 // eerst de achterstand afbetalen, let op: achterstand is negatief
                 val achterstandOpPeilDatum = (achterstand + betaling.abs()).min(BigDecimal.ZERO)
@@ -122,22 +122,22 @@ class StandInPeriodeService {
                     openingsBalansSaldo = openingsBalansSaldo,
                     openingsReserveSaldo = openingsReserveSaldo,
                     openingsOpgenomenSaldo = openingsOpgenomenSaldo,
-                    achterstand = achterstand,
+                    openingsAchterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
                     budgetBetaalDag = rekening.budgetBetaalDag,
                     budgetAanvulling = rekening.budgetAanvulling,
-                    betaling = betaling,
-                    reservering = reservering,
-                    opgenomenSaldo = opgenomenSaldo,
+                    periodeBetaling = betaling,
+                    periodeReservering = reservering,
+                    periodeOpgenomenSaldo = opgenomenSaldo,
                     correctieBoeking = BigDecimal.ZERO,
-                    achterstandOpPeilDatum = achterstandOpPeilDatum,
-                    budgetPeilDatum = peilDatum.toString(),
+                    periodeAchterstand = achterstandOpPeilDatum,
+                    peilDatum = peilDatum.toString(),
                     budgetOpPeilDatum = budgetOpPeilDatum,
                     betaaldBinnenBudget = betaaldBinnenBudget,
                     minderDanBudget = minderDanBudget,
                     meerDanBudget = meerDanBudget,
                     meerDanMaandBudget = meerDanMaandBudget,
-                    restMaandBudget = restMaandBudget,
+                    komtNogNodig = restMaandBudget,
                 )
             }
     }

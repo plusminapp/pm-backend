@@ -27,31 +27,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /reserveringen/administratie/{administratieId}/periode/{periodeId}:
-    put:
-      tags:
-      - reservering-controller
-      operationId: creeerReserveringVoorPeriode
-      parameters:
-      - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /periodes/administratie/{administratieId}/wijzig-periode-opening/{periodeId}:
     put:
       tags:
@@ -105,14 +80,6 @@ paths:
         schema:
           type: integer
           format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/SaldoDTO"
-        required: true
       responses:
         "200":
           description: OK
@@ -403,7 +370,7 @@ paths:
     put:
       tags:
       - aflossing-controller
-      operationId: wijzigAflossing
+      operationId: wijzigAflossingDossierNotities
       parameters:
       - name: aflossingId
         in: path
@@ -850,32 +817,6 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/administratie/{administratieId}/sluitvoorstel/{periodeId}:
-    get:
-      tags:
-      - periode-controller
-      summary: GET voorstel voor het sluiten van een periode voor hulpvrager
-      operationId: sluitPeriodeVoorstelVoorHulpvrager
-      parameters:
-      - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
   /demo/administratie/{administratieId}/vandaag:
     get:
       tags:
@@ -1012,6 +953,16 @@ components:
           - SPAREN
         rekeningNaam:
           type: string
+        budgetBetaalDag:
+          type: integer
+          format: int32
+        budgetAanvulling:
+          type: string
+          enum:
+          - TOT
+          - MET
+          - IN
+          - UIT
         aflossing:
           $ref: "#/components/schemas/AflossingDTO"
         spaartegoed:
@@ -1025,32 +976,22 @@ components:
           type: number
         openingsOpgenomenSaldo:
           type: number
-        achterstand:
+        openingsAchterstand:
           type: number
+        peilDatum:
+          type: string
         budgetMaandBedrag:
           type: number
-        budgetBetaalDag:
-          type: integer
-          format: int32
-        budgetAanvulling:
-          type: string
-          enum:
-          - TOT
-          - MET
-          - IN
-          - UIT
-        betaling:
+        periodeBetaling:
           type: number
-        reservering:
+        periodeReservering:
           type: number
-        opgenomenSaldo:
+        periodeOpgenomenSaldo:
           type: number
         correctieBoeking:
           type: number
-        achterstandOpPeilDatum:
+        periodeAchterstand:
           type: number
-        budgetPeilDatum:
-          type: string
         budgetOpPeilDatum:
           type: number
         betaaldBinnenBudget:
@@ -1061,21 +1002,21 @@ components:
           type: number
         meerDanMaandBudget:
           type: number
-        restMaandBudget:
+        komtNogNodig:
           type: number
       required:
-      - achterstand
-      - betaling
       - budgetMaandBedrag
       - correctieBoeking
       - id
+      - openingsAchterstand
       - openingsBalansSaldo
       - openingsOpgenomenSaldo
       - openingsReserveSaldo
-      - opgenomenSaldo
+      - periodeBetaling
+      - periodeOpgenomenSaldo
+      - periodeReservering
       - rekeningGroepNaam
       - rekeningNaam
-      - reservering
       - sortOrder
     SpaartegoedDTO:
       type: object

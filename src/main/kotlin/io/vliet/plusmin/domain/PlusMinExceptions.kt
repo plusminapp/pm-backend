@@ -84,6 +84,12 @@ class PM_GeenSpelException(
     "Adminstraie $parameters[0] is geen SPEL administratie.",
     HttpStatus.NOT_FOUND, "GEEN_SPEL", parameters
 )
+class PM_PeriodeMoetHuidigZijnException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Periode voor $parameters[0] moet HUIDIGE periode zijn.",
+    HttpStatus.BAD_REQUEST, "PERIODE_MOET_HUIDIG_ZIJN", parameters
+)
 
 // Periode exceptions
 class PM_PeriodeNotFoundException(

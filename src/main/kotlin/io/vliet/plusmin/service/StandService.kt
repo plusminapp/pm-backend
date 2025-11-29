@@ -104,26 +104,26 @@ class StandService {
             sortOrder = saldoDTO1.sortOrder,
             openingsBalansSaldo = saldoDTO1.openingsBalansSaldo.plus(saldoDTO2.openingsBalansSaldo),
             openingsReserveSaldo = saldoDTO1.openingsReserveSaldo.plus(saldoDTO2.openingsReserveSaldo),
-            achterstand = BigDecimal.ZERO,
+            openingsAchterstand = BigDecimal.ZERO,
 //                if (saldoDTO1.budgetType == RekeningGroep.BudgetType.VAST)
 //                saldoDTO1.achterstand.plus(saldoDTO2.achterstand)
 //            else BigDecimal.ZERO,
 
-            achterstandOpPeilDatum = if (saldoDTO1.budgetType == RekeningGroep.BudgetType.VAST)
-                (saldoDTO1.achterstandOpPeilDatum ?: BigDecimal.ZERO).plus(
-                    saldoDTO2.achterstandOpPeilDatum ?: BigDecimal.ZERO
+            periodeAchterstand = if (saldoDTO1.budgetType == RekeningGroep.BudgetType.VAST)
+                (saldoDTO1.periodeAchterstand ?: BigDecimal.ZERO).plus(
+                    saldoDTO2.periodeAchterstand ?: BigDecimal.ZERO
                 )
             else BigDecimal.ZERO,
             budgetMaandBedrag = saldoDTO1.budgetMaandBedrag.plus(saldoDTO2.budgetMaandBedrag),
-            betaling = saldoDTO1.betaling.plus(saldoDTO2.betaling),
-            reservering = saldoDTO1.reservering.plus(saldoDTO2.reservering),
-            budgetPeilDatum = saldoDTO1.budgetPeilDatum ?: saldoDTO2.budgetPeilDatum,
+            periodeBetaling = saldoDTO1.periodeBetaling.plus(saldoDTO2.periodeBetaling),
+            periodeReservering = saldoDTO1.periodeReservering.plus(saldoDTO2.periodeReservering),
+            peilDatum = saldoDTO1.peilDatum ?: saldoDTO2.peilDatum,
             budgetOpPeilDatum = saldoDTO1.budgetOpPeilDatum?.plus(saldoDTO2.budgetOpPeilDatum ?: BigDecimal.ZERO),
             betaaldBinnenBudget = saldoDTO1.betaaldBinnenBudget?.plus(saldoDTO2.betaaldBinnenBudget ?: BigDecimal.ZERO),
             minderDanBudget = saldoDTO1.minderDanBudget?.plus(saldoDTO2.minderDanBudget ?: BigDecimal.ZERO),
             meerDanBudget = saldoDTO1.meerDanBudget?.plus(saldoDTO2.meerDanBudget ?: BigDecimal.ZERO),
             meerDanMaandBudget = saldoDTO1.meerDanMaandBudget?.plus(saldoDTO2.meerDanMaandBudget ?: BigDecimal.ZERO),
-            restMaandBudget = saldoDTO1.restMaandBudget?.plus(saldoDTO2.restMaandBudget ?: BigDecimal.ZERO)
+            komtNogNodig = saldoDTO1.komtNogNodig?.plus(saldoDTO2.komtNogNodig ?: BigDecimal.ZERO)
         )
     }
 
@@ -145,7 +145,7 @@ class StandService {
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.budgetMaandBedrag) }
         val werkelijkeMaandInkomsten = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
-            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc - (saldoDTO.betaling) }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc - (saldoDTO.periodeBetaling) }
         val maandInkomstenBedrag = if (isPeriodeVoorbij) werkelijkeMaandInkomsten else budgetMaandInkomsten
         logger.info("budgetMaandInkomsten: $budgetMaandInkomsten, werkelijkeMaandInkomsten: $werkelijkeMaandInkomsten, maandInkomstenBedrag: $maandInkomstenBedrag")
 
@@ -155,7 +155,7 @@ class StandService {
                         (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN &&
                                 it.budgetType != RekeningGroep.BudgetType.SPAREN)
             }
-            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.betaling) }
+            .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.periodeBetaling) }
 
         val maandSpaarBudget = saldi
             .filter {
@@ -178,8 +178,8 @@ class StandService {
                 .fold(BigDecimal.ZERO) { acc, saldoDTO ->
                     val restMaandRekening = if (saldoDTO.budgetType == RekeningGroep.BudgetType.CONTINU)
                         (saldoDTO.budgetMaandBedrag) - (saldoDTO.betaaldBinnenBudget ?: BigDecimal.ZERO)
-                    else (saldoDTO.restMaandBudget ?: BigDecimal.ZERO) + (saldoDTO.minderDanBudget
-                        ?: BigDecimal.ZERO) + (saldoDTO.achterstandOpPeilDatum ?: BigDecimal.ZERO).abs()
+                    else (saldoDTO.komtNogNodig ?: BigDecimal.ZERO) + (saldoDTO.minderDanBudget
+                        ?: BigDecimal.ZERO) + (saldoDTO.periodeAchterstand ?: BigDecimal.ZERO).abs()
                     logger.info("RekeningNodigNaPeilDatum: ${saldoDTO.rekeningGroepNaam} $restMaandRekening")
                     acc + restMaandRekening
                 }

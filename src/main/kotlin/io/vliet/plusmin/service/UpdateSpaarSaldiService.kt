@@ -42,10 +42,10 @@ class UpdateSpaarSaldiService {
 
         val spaarrekeningSaldo = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
-            .sumOf { it.openingsBalansSaldo + it.betaling }
+            .sumOf { it.openingsBalansSaldo + it.periodeBetaling }
         val spaarpotSaldo = saldi
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT }
-            .sumOf { it.openingsReserveSaldo - it.openingsOpgenomenSaldo + it.reservering - it.opgenomenSaldo - it.betaling }
+            .sumOf { it.openingsReserveSaldo - it.openingsOpgenomenSaldo + it.periodeReservering - it.periodeOpgenomenSaldo - it.periodeBetaling }
 
         if (spaarrekeningSaldo != spaarpotSaldo) {
             updateSpaarpotSaldo(spaarrekeningSaldo - spaarpotSaldo, saldi, administratie)
