@@ -20,7 +20,7 @@ class StandStartVanPeriodeService {
     lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
-    lateinit var standEindeVanGeslotenPeriodeService: StandEindeVanGeslotenPeriodeService
+    lateinit var standOpeningNaGeslotenPeriodeService: StandOpeningNaGeslotenPeriodeService
 
     @Autowired
     lateinit var standMutatiesTussenDatumsService: StandMutatiesTussenDatumsService
@@ -40,20 +40,18 @@ class StandStartVanPeriodeService {
 
     fun berekenStartSaldiVanPeriode(periode: Periode): List<Saldo> {
 
-        val gebruiker = periode.administratie
-        logger.info("berekenStartSaldiVanPeriode: periode: ${periode.periodeStartDatum} voor gebruiker ${gebruiker.naam}")
-        val vorigePeriode = periodeRepository
-            .getPeriodeAdministratieEnDatum(gebruiker.id, periode.periodeStartDatum.minusDays(1))
-            ?: throw PM_NoPeriodException(listOf(periode.periodeStartDatum.minusDays(1).toString(), gebruiker.naam))
-        if (geslotenPeriodes.contains(vorigePeriode.periodeStatus))
-            return standEindeVanGeslotenPeriodeService.berekenEindSaldiVanGeslotenPeriode(vorigePeriode)
+        val administratie = periode.administratie
+        logger.info("berekenStartSaldiVanPeriode: periode: ${periode.periodeStartDatum} voor administratie ${administratie.naam}")
 
-        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-//        val vorigPeriodeIsBasisPeriode = basisPeriode.periodeEindDatum.plusDays(1).equals(periode.periodeStartDatum)
+        val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(administratie)
+        val basisPeriodeEindSaldi = standOpeningNaGeslotenPeriodeService.berekenOpeningSaldiNaGeslotenPeriode(basisPeriode)
 
-        val basisPeriodeEindSaldi = standEindeVanGeslotenPeriodeService.berekenEindSaldiVanGeslotenPeriode(basisPeriode)
+        if (basisPeriode.periodeEindDatum.plusDays(1).equals(periode.periodeStartDatum) ) {
+            return basisPeriodeEindSaldi
+        }
+
         val betalingenTussenBasisEnPeilPeriode = standMutatiesTussenDatumsService.berekenMutatieLijstTussenDatums(
-            gebruiker,
+            administratie,
             basisPeriode.periodeEindDatum.plusDays(1),
             periode.periodeStartDatum.minusDays(1)
         )
@@ -67,6 +65,9 @@ class StandStartVanPeriodeService {
             val opgenomenSaldo = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
                 .sumOf { it.periodeOpgenomenSaldo }
+            val achterstand = betalingenTussenBasisEnPeilPeriode
+                .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
+                .sumOf { it.periodeAchterstand }
 
             val openingsBalansSaldo =
                 basisPeriodeEindSaldo.openingsBalansSaldo + betaling
@@ -74,31 +75,14 @@ class StandStartVanPeriodeService {
                 basisPeriodeEindSaldo.openingsReserveSaldo + reservering - betaling
             val openingsOpgenomenSaldo =
                 basisPeriodeEindSaldo.openingsOpgenomenSaldo + opgenomenSaldo - betaling
+            val openingsAchterstand =
+                basisPeriodeEindSaldo.openingsAchterstand + achterstand
 
-//            val aantalGeldigePeriodes = periodeRepository
-//                .getPeriodesTussenDatums(
-//                    basisPeriodeEindSaldo.rekening.rekeningGroep.gebruiker,
-//                    basisPeriode.periodeStartDatum,
-//                    peilPeriode.periodeStartDatum.minusDays(1)
-//                )
-//                .count {
-//                    basisPeriodeEindSaldo.rekening.rekeningIsGeldigInPeriode(it)
-//                            && basisPeriodeEindSaldo.rekening.rekeningVerwachtBetalingInPeriode(it)
-//                }
-//            val budgetMaandBedrag = basisPeriodeEindSaldo.rekening.toDTO(peilPeriode).budgetMaandBedrag ?: BigDecimal.ZERO
-//            val achterstand = BigDecimal.ZERO
-//                if (basisPeriodeEindSaldo.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-//                    (basisPeriodeEindSaldo.achterstand
-//                            - (BigDecimal(aantalGeldigePeriodes) * budgetMaandBedrag)
-//                            + basisPeriodeEindSaldo.betaling + betaling
-//                            ).min(BigDecimal.ZERO)
-//                else BigDecimal.ZERO
             basisPeriodeEindSaldo.fullCopy(
                 openingsBalansSaldo = openingsBalansSaldo,
                 openingsReserveSaldo = openingsReserveSaldo,
                 openingsOpgenomenSaldo = openingsOpgenomenSaldo,
-                correctieBoeking = BigDecimal.ZERO,
-                openingsAchterstand = BigDecimal.ZERO,
+                openingsAchterstand = openingsAchterstand,
             )
         }
         logger.info("openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")

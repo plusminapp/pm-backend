@@ -19,7 +19,7 @@ class StandService {
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
-    lateinit var standEindeVanGeslotenPeriodeService: StandEindeVanGeslotenPeriodeService
+    lateinit var standOpeningNaGeslotenPeriodeService: StandOpeningNaGeslotenPeriodeService
 
     @Autowired
     lateinit var cashflowService: CashflowService
@@ -38,18 +38,6 @@ class StandService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    /*
-    Algoritme:
-    - bepaal de periode voor de peildatum
-    - standOpDatum =
-        - bereken saldi op datum (standInPeriodeService)
-        - aggregeer het resultaat per rekeningGroepNaam
-        - bereken openingsReservePotjesVoorNuSaldo
-        - bereken de resultaatSamenvatting
-        - bereken (reserveringsHorizon, budgetHorizon)
-        - return de StandDTO met alle gegevens
-     */
-
     fun getStandOpDatum(
         administratie: Administratie,
         peilDatum: LocalDate,
@@ -57,8 +45,8 @@ class StandService {
         val periode = periodeService.getPeriode(administratie, peilDatum)
         val saldiOpDatum =
             if (geslotenPeriodes.contains(periode.periodeStatus) && peilDatum.equals(periode.periodeEindDatum))
-                standEindeVanGeslotenPeriodeService
-                    .berekenEindSaldiVanGeslotenPeriode(periode)
+                standOpeningNaGeslotenPeriodeService
+                    .berekenOpeningSaldiNaGeslotenPeriode(periode)
                     .map { it.toDTO() }
             else standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
         val geaggregeerdeStandOpDatum = saldiOpDatum

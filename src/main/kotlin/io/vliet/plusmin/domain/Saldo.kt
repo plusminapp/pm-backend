@@ -30,13 +30,13 @@ class Saldo(
     val rekening: Rekening,                                         // bevat de betaaldag en de rekeningGroep
     val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,          // saldo aan het begin van de periode
     val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,         // reserve aan het begin van de periode
-    val openingsOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,       // opgenomen saldo  aan het begin van de periode
+    val openingsOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,       // opgenomen saldo aan het begin van de periode
     val openingsAchterstand: BigDecimal = BigDecimal.ZERO,          // achterstand aan het begin van de periode
     val periodeBetaling: BigDecimal = BigDecimal.ZERO,              // betaling deze periode
     val periodeReservering: BigDecimal = BigDecimal.ZERO,           // reservering deze periode
     val periodeOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,        // opgenomen saldo deze periode
     val periodeAchterstand: BigDecimal = BigDecimal.ZERO,           // nieuwe/ingelopen achterstand saldo deze periode
-    val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,            // verwachte bedrag per maand obv de periode lengte
+    val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,            // verwachte bedrag per maand o.b.v. de periode lengte
     val correctieBoeking: BigDecimal = BigDecimal.ZERO,             // correctieBoeking om de eindsaldi kloppend te maken
     @ManyToOne
     @JsonIgnore
@@ -53,6 +53,7 @@ class Saldo(
         periodeBetaling: BigDecimal = this.periodeBetaling,
         periodeReservering: BigDecimal = this.periodeReservering,
         periodeOpgenomenSaldo: BigDecimal = this.periodeOpgenomenSaldo,
+        periodeAchterstand: BigDecimal = this.periodeAchterstand,
         correctieBoeking: BigDecimal = this.correctieBoeking,
         periode: Periode? = this.periode,
     ) = Saldo(
@@ -65,7 +66,7 @@ class Saldo(
         periodeBetaling,
         periodeReservering,
         periodeOpgenomenSaldo,
-        this@Saldo.periodeAchterstand,
+        periodeAchterstand,
         budgetMaandBedrag,
         correctieBoeking,
         periode

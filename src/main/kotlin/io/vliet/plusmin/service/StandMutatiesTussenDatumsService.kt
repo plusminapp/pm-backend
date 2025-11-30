@@ -26,24 +26,25 @@ class StandMutatiesTussenDatumsService {
         val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->
-                val betaling =
+                val periodeBetaling =
                     betalingen
                         .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenBetalingMutaties(betaling, rekening)
                         }
-                val reservering =
+                val periodeReservering =
                     betalingen.fold(BigDecimal.ZERO) { acc, betaling ->
                         acc + berekenReserveringMutaties(betaling, rekening)
                     }
 
-                val opname =
+                val periodeOpgenomenSaldo =
                     betalingen
                         .filter { opgenomenSaldoBetalingsSoorten.contains(it.betalingsSoort) }
                         .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenOpgenomenSaldoMutaties(betaling, rekening)
                         }
+                // TODO achterstand berekenen
 
-                Saldo(0, rekening, periodeBetaling = betaling, periodeReservering = reservering, periodeOpgenomenSaldo = opname)
+                Saldo(0, rekening, periodeBetaling = periodeBetaling, periodeReservering = periodeReservering, periodeOpgenomenSaldo = periodeOpgenomenSaldo)
             }
         }
         logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")

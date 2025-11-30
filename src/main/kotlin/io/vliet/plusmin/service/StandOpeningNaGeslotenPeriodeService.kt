@@ -7,10 +7,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import kotlin.plus
 
 @Service
-class StandEindeVanGeslotenPeriodeService {
+class StandOpeningNaGeslotenPeriodeService {
     @Autowired
     lateinit var saldoRepository: SaldoRepository
 
@@ -19,7 +20,7 @@ class StandEindeVanGeslotenPeriodeService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenEindSaldiVanGeslotenPeriode(periode: Periode): List<Saldo> {
+    fun berekenOpeningSaldiNaGeslotenPeriode(periode: Periode): List<Saldo> {
         if (!geslotenPeriodes.contains(periode.periodeStatus)) {
             throw PM_PeriodeNietGeslotenException(listOf("vorige", periode.administratie.naam))
         }
@@ -32,13 +33,19 @@ class StandEindeVanGeslotenPeriodeService {
                 periodeSaldo.openingsReserveSaldo + periodeSaldo.periodeReservering - periodeSaldo.periodeBetaling
             val openingsOpgenomenSaldo =
                 periodeSaldo.openingsOpgenomenSaldo + periodeSaldo.periodeOpgenomenSaldo + periodeSaldo.periodeBetaling
+            val openingsAchterstand =
+                periodeSaldo.openingsAchterstand + periodeSaldo.periodeAchterstand
 
             periodeSaldo.fullCopy(
                 openingsBalansSaldo = openingsBalansSaldo,
                 openingsReserveSaldo = openingsReserveSaldo,
                 openingsOpgenomenSaldo = openingsOpgenomenSaldo,
-                correctieBoeking = periodeSaldo.correctieBoeking,
-                openingsAchterstand = periodeSaldo.openingsAchterstand,
+                openingsAchterstand = openingsAchterstand,
+                periodeBetaling = BigDecimal.ZERO,
+                periodeReservering = BigDecimal.ZERO,
+                periodeOpgenomenSaldo = BigDecimal.ZERO,
+                periodeAchterstand = BigDecimal.ZERO,
+                correctieBoeking = BigDecimal.ZERO,
             )
         }
         logger.info(
