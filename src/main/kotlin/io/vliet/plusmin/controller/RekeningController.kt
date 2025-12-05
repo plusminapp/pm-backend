@@ -62,7 +62,7 @@ class RekeningController {
         logger.info("GET RekeningController.getCashflowVoorAdministratie voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         val periode = periodeRepository.findById(periodeId)
             .getOrElse { return ResponseEntity.notFound().build() }
-        return ResponseEntity.ok().body(cashflowService.getCashflow(administratie, periode, true))
+        return ResponseEntity.ok().body(cashflowService.getCashflow(administratie, periode.periodeStartDatum, periode.periodeEindDatum, true))
     }
 
     @PostMapping("/administratie/{administratieId}")
@@ -80,8 +80,18 @@ class RekeningController {
         @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any>  {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
-        logger.info("POST RekeningController.getRekeningen voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        logger.info("GET RekeningController.getRekeningen voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         return ResponseEntity.ok().body(rekeningRepository.findRekeningGroepenVoorAdministratie(administratie))
     }
+
+    @GetMapping("/administratie/{administratieId}/betaaldagen")
+    fun getBetaalDagen(
+        @PathVariable("administratieId") administratieId: Long,
+    ): ResponseEntity<Any>  {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET RekeningController.getBetaalDagen voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        return ResponseEntity.ok().body(rekeningRepository.findBetaalDagenVoorAdministratie(administratie))
+    }
+
 }
 

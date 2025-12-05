@@ -188,7 +188,7 @@ class PM_GeenBetaaldagException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
     "Geen budgetBetaalDag voor ${parameters[0]} met BudgetType ${parameters[1]} van ${parameters[2]}",
-    HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_NOT_FOUND", parameters
+    HttpStatus.INTERNAL_SERVER_ERROR, "GEEN_BETAAL_DAG", parameters
 )
 
 class PM_BufferRekeningImmutableException(

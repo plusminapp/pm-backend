@@ -48,7 +48,9 @@ class StandService {
                 standOpeningNaGeslotenPeriodeService
                     .berekenOpeningSaldiNaGeslotenPeriode(periode)
                     .map { it.toDTO() }
-            else standInPeriodeService.berekenSaldiOpDatum(peilDatum, periode)
+            else standInPeriodeService
+                .berekenSaldiOpDatum(peilDatum, periode)
+                .map { it.toDTO(peilDatum) }
         val geaggregeerdeStandOpDatum = saldiOpDatum
             .groupBy { it.rekeningGroepNaam }
             .mapValues { it.value.reduce { acc, budgetDTO -> fullAdd(acc, budgetDTO) } }
@@ -68,7 +70,11 @@ class StandService {
                 openingsReservePotjesVoorNuSaldo
             )
 
-        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(administratie, periode)
+        val (reserveringsHorizon, budgetHorizon) = cashflowService.getReserveringEnBudgetHorizon(
+            administratie,
+            periode.periodeStartDatum,
+            periode.periodeEindDatum
+        )
 
         return StandController.StandDTO(
             datumLaatsteBetaling = betalingRepository.findDatumLaatsteBetalingBijAdministratie(administratie),

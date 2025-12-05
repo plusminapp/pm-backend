@@ -78,7 +78,16 @@
             "naam": "Alex' betaalrekening"
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    "naam": "Rente",
+    "rekeningGroepSoort": "RENTE",
+    "rekeningGroepIcoonNaam": "spaartegoed",
+    "sortOrder": 200,
+    "budgetType": "INKOMSTEN",
+    "rekeningen": [
       {
         "naam": "Rente",
         "sortOrder": 200,

@@ -55,18 +55,18 @@ class PeriodeUpdateService {
         saldiLijst
             .forEach { saldo ->
                 val rekening = rekeningRepository
-                    .findRekeningAdministratieEnNaam(administratie, saldo.rekeningNaam)
-                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekeningNaam, administratie.naam))
+                    .findRekeningAdministratieEnNaam(administratie, saldo.rekening.naam)
+                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekening.naam, administratie.naam))
                 saldoRepository.save(
                     Saldo(
                         rekening = rekening,
                         openingsBalansSaldo = saldo.openingsBalansSaldo,
                         openingsReserveSaldo = saldo.openingsReserveSaldo,
                         openingsAchterstand = saldo.openingsAchterstand,
-                        budgetMaandBedrag = saldo.budgetMaandBedrag,
-                        correctieBoeking = BigDecimal.ZERO,
                         periodeBetaling = saldo.periodeBetaling,
                         periodeReservering = saldo.periodeReservering,
+                        budgetMaandBedrag = saldo.budgetMaandBedrag,
+                        correctieBoeking = BigDecimal.ZERO,
                         periode = periode,
                     )
                 )

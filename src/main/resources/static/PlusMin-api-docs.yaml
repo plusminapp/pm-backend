@@ -717,6 +717,35 @@ paths:
             '*/*':
               schema:
                 type: object
+  /reserveringen/administratie/{administratieId}/{vanafDatum}/{totDatum}:
+    get:
+      tags:
+      - reservering-controller
+      operationId: findVasteLasten
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: vanafDatum
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: totDatum
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /rekeningen/administratie/{administratieId}/periode/{periodeId}:
     get:
       tags:
@@ -757,6 +786,25 @@ paths:
           type: integer
           format: int64
       - name: periodeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /rekeningen/administratie/{administratieId}/betaaldagen:
+    get:
+      tags:
+      - rekening-controller
+      operationId: getBetaalDagen
+      parameters:
+      - name: administratieId
         in: path
         required: true
         schema:
@@ -912,6 +960,7 @@ components:
           - CONTANT
           - CREDITCARD
           - INKOMSTEN
+          - RENTE
           - UITGAVEN
           - AFLOSSING
           - SPAARPOT
@@ -1447,6 +1496,7 @@ components:
           type: string
           enum:
           - INKOMSTEN
+          - RENTE
           - UITGAVEN
           - BESTEDEN
           - AFLOSSEN

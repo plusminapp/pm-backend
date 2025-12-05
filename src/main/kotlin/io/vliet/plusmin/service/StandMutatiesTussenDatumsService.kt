@@ -21,7 +21,11 @@ class StandMutatiesTussenDatumsService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenMutatieLijstTussenDatums(administratie: Administratie, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
+    fun berekenMutatieLijstTussenDatums(
+        administratie: Administratie,
+        vanDatum: LocalDate,
+        totDatum: LocalDate
+    ): List<Saldo> {
         val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorAdministratie(administratie)
         val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
@@ -43,8 +47,14 @@ class StandMutatiesTussenDatumsService {
                             acc + berekenOpgenomenSaldoMutaties(betaling, rekening)
                         }
                 // TODO achterstand berekenen
-
-                Saldo(0, rekening, periodeBetaling = periodeBetaling, periodeReservering = periodeReservering, periodeOpgenomenSaldo = periodeOpgenomenSaldo)
+                Saldo(
+                    0,
+                    rekening,
+                    periodeBetaling = periodeBetaling,
+                    periodeReservering = periodeReservering,
+                    periodeOpgenomenSaldo = periodeOpgenomenSaldo,
+                    periode = Periode(0, administratie, vanDatum, totDatum)
+                )
             }
         }
         logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")

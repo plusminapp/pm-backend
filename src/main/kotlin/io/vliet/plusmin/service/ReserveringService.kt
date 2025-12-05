@@ -4,7 +4,6 @@ import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.isPotjeVoorNu
 import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -58,118 +57,243 @@ class ReserveringService {
             .sortedBy { it.periodeStartDatum }
             .drop(1)
         periodes.forEach { periode ->
-            creeerReserveringenVoorPeriode(administratie, periode)
+            creeerReserveringenVoorPeriode(administratie, periode.periodeStartDatum)
         }
     }
 
     /*
     * Creëert reserveringen voor alle rekeningen van het type 'potje voor nu' voor de gegeven periode.
-    * Als er tekorten uit vorige periodes zijn in de potjes, worden deze eerst aangevuld vanuit de buffer.
-    * Berekent de reserveringen op basis van de start saldi, mutaties in de periode, en de budgetten van de rekeningen.
+    *    vorigeReserveringsDatum = vorige reserveringsDatum
+    *    volgendeInkomstenDatum = de volgende inkomsten datum
+    *    ALS volgendeInkomstenDatum <= vorigeReserveringsDatum DAN return
+    *    bepaal de saldi op de peildatum
+    *    corrigeer de saldi op de peildatum
+    *    vasteLasten = bereken de som(vaste lasten) tot volgendeInkomstenDatum
+    *    aantalDagen = bereken aan dagen t/m volgendeInkomstenDatum
+    *    leefgeldPerDag = bereken leefgeld per dag
+    *    leefgeld = aantalDagen x leefgeldPerDag
+    *    ALS leefgeld + vasteLasten > saldo(bufferIN) DAN sla alarm
+    *    ANDERS vul alle potjes
      */
-    fun creeerReserveringenVoorPeriode(administratie: Administratie, periode: Periode) {
+    fun creeerReserveringenVoorPeriode(administratie: Administratie, peilDatum: LocalDate) {
+        val vorigeReserveringsDatum =
+            betalingRepository.getReserveringsHorizon(administratie)
+        val volgendeBetaalDatum =
+            rekeningUtilitiesService.bepaalVolgendeInkomstenBetaalDagVoorAdministratie(administratie, peilDatum)
+        if (volgendeBetaalDatum.isBefore(vorigeReserveringsDatum)) {
+            logger.info(
+                "Geen nieuwe reserveringen nodig voor periode vanaf $peilDatum voor ${administratie.naam}, " +
+                        "volgende betaal datum $volgendeBetaalDatum is voor vorige reserverings datum $vorigeReserveringsDatum"
+            )
+            return
+        }
         val dateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
         val reserveringBufferRekening = rekeningRepository.findBufferRekeningVoorAdministratie(administratie)
             ?: throw PM_BufferRekeningNotFoundException(listOf(administratie.naam))
+        val saldiOpPeilDatum =
+            corigeerStartSaldi(peilDatum, administratie, dateTimeFormatter, reserveringBufferRekening)
 
-        val initieleStartSaldiVanPeriode: List<Saldo> =
-            standStartVanPeriodeService.berekenStartSaldiVanPeriode(periode)
+        val vasteLastenRekeningen = findVasteLastenRekeningen(administratie, peilDatum, volgendeBetaalDatum)
+        val leefgeldPerDag = leefgeldPerDag(administratie, peilDatum)
+
+        val aantalDagen = java.time.temporal.ChronoUnit.DAYS.between(peilDatum, volgendeBetaalDatum).toInt()
+        val vasteLastenTotaal = vasteLastenRekeningen.sumOf { it.budgetBedrag ?: BigDecimal.ZERO }
+        val leefgeldTotaal = leefgeldPerDag.values.sumOf { it.multiply(BigDecimal(aantalDagen)) }
+        val saldoBufferIn = saldiOpPeilDatum
+            .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
+            ?.let { it.openingsReserveSaldo + it.periodeReservering } ?: BigDecimal.ZERO
+        if (vasteLastenTotaal + leefgeldTotaal > saldoBufferIn) {
+            logger.error(
+                "Onvoldoende buffer saldo bij het aanmaken van reserveringen voor periode vanaf $peilDatum voor ${administratie.naam}: " +
+                        "beschikbaar saldo bufferIn is $saldoBufferIn, " +
+                        "terwijl vaste lasten $vasteLastenTotaal en leefgeld $leefgeldTotaal bedraagt."
+            )
+            throw PM_OnvoldoendeBufferSaldoException(
+                listOf(
+                    saldoBufferIn.toString(),
+                    peilDatum.toString(),
+                    administratie.naam,
+                    (vasteLastenTotaal + leefgeldTotaal).toString(),
+                )
+            )
+        }
+        vasteLastenRekeningen.forEach { betalingRepository.save(Betaling(
+            administratie = administratie,
+            boekingsdatum = peilDatum,
+            reserveringsHorizon = volgendeBetaalDatum,
+            bedrag = it.budgetBedrag ?: BigDecimal.ZERO,
+            omschrijving = "Reservering voor vaste last ${it.naam}",
+            reserveringBron = reserveringBufferRekening,
+            reserveringBestemming = it,
+            sortOrder = berekenSortOrder(administratie, peilDatum),
+            betalingsSoort = Betaling.BetalingsSoort.P2P,
+        )) }
+        leefgeldPerDag.forEach { (rekening, bedragPerDag) ->
+            val totaalLeefgeld = bedragPerDag.multiply(BigDecimal(aantalDagen))
+            if (totaalLeefgeld > BigDecimal.ZERO) {
+                betalingRepository.save(Betaling(
+                    administratie = administratie,
+                    boekingsdatum = peilDatum,
+                    reserveringsHorizon = volgendeBetaalDatum,
+                    bedrag = totaalLeefgeld,
+                    omschrijving = "Reservering voor leefgeld op ${rekening.naam}",
+                    reserveringBron = reserveringBufferRekening,
+                    reserveringBestemming = rekening,
+                    sortOrder = berekenSortOrder(administratie, peilDatum),
+                    betalingsSoort = Betaling.BetalingsSoort.P2P,
+                ))
+            }
+        }
+    }
+
+    private fun findVasteLastenRekeningen(
+        administratie: Administratie,
+        peilDatum: LocalDate,
+        volgendeInkomstenDatum: LocalDate
+    ): List<Rekening> {
+        val vasteLastenTotVolgendeInkomstenDatum = rekeningRepository
+            .findRekeningenVoorAdministratie(administratie)
+            .filter { it.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST }
+            .filter { rekening ->
+                val rekeningBetaalDag = rekening.budgetBetaalDag ?: return@filter false
+                val volgendeBetaalMaand =
+                    if (peilDatum.dayOfMonth <= rekeningBetaalDag) peilDatum.monthValue
+                    else peilDatum.plusMonths(1).monthValue
+                val betaalDatum = LocalDate.of(
+                    peilDatum.year, volgendeBetaalMaand, rekeningBetaalDag
+                )
+                logger.info(
+                    "findVasteLastenRekeningen: rekening=${rekening.naam}, volgendeBetaalDatum=$betaalDatum, volgendeInkomstenDatum=$volgendeInkomstenDatum, ${
+                        !betaalDatum.isAfter(
+                            volgendeInkomstenDatum
+                        )
+                    }"
+                )
+                !betaalDatum.isAfter(volgendeInkomstenDatum)
+            }
+        return vasteLastenTotVolgendeInkomstenDatum
+    }
+
+    fun leefgeldPerDag(
+        administratie: Administratie,
+        peilDatum: LocalDate,
+    ): Map<Rekening, BigDecimal> {
+        val leefgeldRekeningen = rekeningRepository
+            .findRekeningenVoorAdministratie(administratie)
+            .filter { it.rekeningGroep.budgetType == RekeningGroep.BudgetType.CONTINU }
+        val aantalDagenInDeMaand = peilDatum.lengthOfMonth()
+        return leefgeldRekeningen
+            .associateWith {
+                (if (it.budgetPeriodiciteit == Rekening.BudgetPeriodiciteit.MAAND)
+                    it.budgetBedrag?.divide(BigDecimal(aantalDagenInDeMaand))
+                else it.budgetBedrag?.divide(BigDecimal(7))) ?: BigDecimal.ZERO
+            }
+    }
+
+    fun corigeerStartSaldi(
+        peilDatum: LocalDate,
+        administratie: Administratie,
+        dateTimeFormatter: DateTimeFormatter?,
+        reserveringBufferRekening: Rekening
+    ): List<Saldo> {
+        val initieleStartSaldiOpPeildatum: List<Saldo> =
+            standInPeriodeService.berekenSaldiOpDatum(administratie, peilDatum)
         val initieleBuffer =
-            initieleStartSaldiVanPeriode.find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }?.openingsReserveSaldo
+            initieleStartSaldiOpPeildatum.find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }?.openingsReserveSaldo
                 ?: BigDecimal.ZERO
         val initieleReserveringTekorten =
-            initieleStartSaldiVanPeriode.filter { potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            initieleStartSaldiOpPeildatum.filter { potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
                 .sumOf { if (it.openingsReserveSaldo < BigDecimal.ZERO) it.openingsReserveSaldo else BigDecimal.ZERO }
-        logger.info("Initiele buffer bij start van periode ${periode.periodeStartDatum} voor ${administratie.naam} is $initieleBuffer, reserveringstekorten $initieleReserveringTekorten, delta ${initieleBuffer + initieleReserveringTekorten}.")
-        if (initieleBuffer + initieleReserveringTekorten < BigDecimal.ZERO) throw PM_OnvoldoendeBufferSaldoException(
+        val initieleReserveringOverschot =
+            initieleStartSaldiOpPeildatum.filter { potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.rekening.budgetAanvulling == Rekening.BudgetAanvulling.TOT }
+                .sumOf { if (it.openingsReserveSaldo > BigDecimal.ZERO) it.openingsReserveSaldo else BigDecimal.ZERO }
+        logger.info("Initiele buffer bij start van periode ${peilDatum} voor ${administratie.naam} is $initieleBuffer, reserveringstekorten $initieleReserveringTekorten, delta ${initieleBuffer + initieleReserveringTekorten}.")
+        if (initieleBuffer + initieleReserveringTekorten + initieleReserveringOverschot < BigDecimal.ZERO) throw PM_OnvoldoendeBufferSaldoException(
             listOf(
                 initieleBuffer.toString(),
-                periode.periodeStartDatum.toString(),
+                peilDatum.toString(),
                 administratie.naam,
-                initieleReserveringTekorten.toString()
+                initieleReserveringTekorten.toString(),
             )
         )
-
-        val startSaldiVanPeriode = if (initieleReserveringTekorten == BigDecimal.ZERO) initieleStartSaldiVanPeriode
-        else {
-            initieleStartSaldiVanPeriode.map {
-                if (potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.openingsReserveSaldo < BigDecimal.ZERO) {
-                    betalingRepository.save(
-                        Betaling(
-                            administratie = administratie,
-                            boekingsdatum = periode.periodeStartDatum,
-                            reserveringsHorizon = periode.periodeStartDatum.minusDays(1),
-                            bedrag = -it.openingsReserveSaldo,
-                            omschrijving = "Correctie voor ${it.rekening.naam} in periode ${
-                                periode.periodeStartDatum.format(
-                                    dateTimeFormatter
-                                )
-                            }",
-                            reserveringBron = reserveringBufferRekening,
-                            reserveringBestemming = it.rekening,
-                            sortOrder = berekenSortOrder(administratie, periode.periodeStartDatum.minusDays(1)),
-                            betalingsSoort = Betaling.BetalingsSoort.P2P,
+        val startSaldiVanPeriode =
+            if (initieleReserveringTekorten == BigDecimal.ZERO && initieleReserveringOverschot == BigDecimal.ZERO) initieleStartSaldiOpPeildatum
+            else {
+                initieleStartSaldiOpPeildatum.map {
+                    if (potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.openingsReserveSaldo < BigDecimal.ZERO) {
+                        betalingRepository.save(
+                            Betaling(
+                                administratie = administratie,
+                                boekingsdatum = peilDatum.minusDays(1),
+                                reserveringsHorizon = peilDatum.minusDays(1),
+                                bedrag = -it.openingsReserveSaldo,
+                                omschrijving =
+                                    "Correctie voor tekort van ${it.rekening.naam} in periode ${
+                                        peilDatum.format(
+                                            dateTimeFormatter
+                                        )
+                                    }",
+                                reserveringBron = reserveringBufferRekening,
+                                reserveringBestemming = it.rekening,
+                                sortOrder = berekenSortOrder(administratie, peilDatum.minusDays(1)),
+                                betalingsSoort = Betaling.BetalingsSoort.P2P,
+                            )
                         )
-                    )
-                    logger.warn("Buffer reserveringstekort van ${-it.openingsReserveSaldo} voor ${it.rekening.naam} bij start van periode ${periode.periodeStartDatum} voor ${administratie.naam} aangevuld vanuit buffer.")
-                    it.fullCopy(openingsReserveSaldo = BigDecimal.ZERO)
-                } else if (it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER) {
-                    it.fullCopy(openingsReserveSaldo = it.openingsReserveSaldo + initieleReserveringTekorten)
-                } else it
+                        logger.warn("Buffer reserveringstekort van ${-it.openingsReserveSaldo} voor ${it.rekening.naam} bij start van periode ${peilDatum} voor ${administratie.naam} aangevuld vanuit buffer.")
+                        it.fullCopy(openingsReserveSaldo = BigDecimal.ZERO)
+                    } else if (potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.rekening.budgetAanvulling == Rekening.BudgetAanvulling.TOT && it.openingsReserveSaldo > BigDecimal.ZERO) {
+                        betalingRepository.save(
+                            Betaling(
+                                administratie = administratie,
+                                boekingsdatum = peilDatum.minusDays(1),
+                                reserveringsHorizon = peilDatum.minusDays(1),
+                                bedrag = it.openingsReserveSaldo,
+                                omschrijving =
+                                    "Correctie voor overschot van ${it.rekening.naam} in periode ${
+                                        peilDatum.format(
+                                            dateTimeFormatter
+                                        )
+                                    }",
+                                reserveringBron = it.rekening,
+                                reserveringBestemming = reserveringBufferRekening,
+                                sortOrder = berekenSortOrder(administratie, peilDatum.minusDays(1)),
+                                betalingsSoort = Betaling.BetalingsSoort.P2P,
+                            )
+                        )
+                        logger.warn("Buffer reserveringsoverschot van ${it.openingsReserveSaldo} voor ${it.rekening.naam} bij start van periode ${peilDatum} voor ${administratie.naam} overgeheveld naar de buffer.")
+                        it.fullCopy(openingsReserveSaldo = BigDecimal.ZERO)
+                    } else if (it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER) {
+                        it.fullCopy(openingsReserveSaldo = it.openingsReserveSaldo + initieleReserveringTekorten + initieleReserveringOverschot)
+                    } else it
+                }
             }
-        }
-        val rekeningGroepen = rekeningUtilitiesService.findRekeningGroepenMetGeldigeRekeningen(administratie, periode)
-        val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-        val continueBudgetUitgaven = cashflowService.budgetContinueUitgaven(rekeningGroepen, periodeLengte)
-        val betalingenInPeriode = betalingRepository.findAllByAdministratieTussenDatums(
-            administratie,
-            periode.periodeStartDatum,
-            periode.periodeEindDatum
-        ).filter {
-            it.bron?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN && it.bestemming?.rekeningGroep?.budgetType !== RekeningGroep.BudgetType.SPAREN
-        }
+        return listOf()
+    }
 
-        var reserveringsDatum = periode.periodeStartDatum
-        var bufferSaldo =
-            startSaldiVanPeriode
-                .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
-                ?.openingsReserveSaldo
-                ?: BigDecimal.ZERO
-        while (bufferSaldo > BigDecimal.ZERO && reserveringsDatum.isBefore(periode.periodeEindDatum.plusDays(1))) {
-            val nextBufferSaldo = bufferSaldo + continueBudgetUitgaven +
-                    cashflowService.budgetVasteLastenUitgaven(rekeningGroepen, reserveringsDatum) +
-                    cashflowService.betaaldeInkomsten(betalingenInPeriode, reserveringsDatum)
-            if (nextBufferSaldo <= BigDecimal.ZERO) break
-            bufferSaldo = nextBufferSaldo
-            reserveringsDatum = reserveringsDatum.plusDays(1)
-        }
-        val budgetHorizon = reserveringsDatum.minusDays(1)
-        logger.info("POST: Buffer saldo op ${budgetHorizon} is $bufferSaldo, voor ${administratie.naam}")
-
-        val rekeningen = rekeningRepository.findRekeningenVoorAdministratie(administratie)
-        val mutatiesInPeilPeriode = standMutatiesTussenDatumsService.berekenMutatieLijstTussenDatums(
-            administratie, periode.periodeStartDatum, budgetHorizon
+    fun creeerReserveringVoorVasteLast(
+        rekening: Rekening,
+        bedrag: BigDecimal,
+        datum: LocalDate,
+        reserveringBufferRekening: Rekening
+    ) {
+        betalingRepository.save(
+            Betaling(
+                administratie = rekening.rekeningGroep.administratie,
+                boekingsdatum = datum,
+                reserveringsHorizon = datum,
+                bedrag = bedrag,
+                omschrijving = "Reservering voor vaste last ${rekening.naam}",
+                reserveringBron = reserveringBufferRekening,
+                reserveringBestemming = rekening,
+                sortOrder = berekenSortOrder(rekening.rekeningGroep.administratie, LocalDate.now()),
+                betalingsSoort = Betaling.BetalingsSoort.P2P,
+            )
         )
-
-        rekeningen.filter { potjesVoorNuRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
-            .map { rekening ->
-                creeerReserveringVoorRekening(
-                    mutatiesInPeilPeriode,
-                    rekening,
-                    startSaldiVanPeriode,
-                    periode,
-                    budgetHorizon,
-                    administratie,
-                    reserveringBufferRekening,
-                    dateTimeFormatter
-                )
-            }
     }
 
     private fun creeerReserveringVoorRekening(
         mutatiesInPeilPeriode: List<Saldo>,
         rekening: Rekening,
-        startSaldiVanPeriode: List<Saldo>,
         periode: Periode,
         budgetHorizon: LocalDate,
         administratie: Administratie,
@@ -179,15 +303,10 @@ class ReserveringService {
         val reserveringBlaat =
             mutatiesInPeilPeriode.filter { it.rekening.naam == rekening.naam }.sumOf { it.periodeReservering }
 
-        val verrekenbareStartReservering =
-            if (rekening.budgetAanvulling == Rekening.BudgetAanvulling.MET) BigDecimal.ZERO
-            else startSaldiVanPeriode.find { it.rekening.id == rekening.id }?.openingsReserveSaldo ?: BigDecimal.ZERO
-
         val maandBedrag =
-            (rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO).minus(verrekenbareStartReservering)
+            (rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO)
         val budgetHorizonBedrag = (standInPeriodeService
             .berekenBudgetOpPeilDatum(rekening, budgetHorizon, maandBedrag, reserveringBlaat, periode)
-            ?.minus(verrekenbareStartReservering)
             ?: BigDecimal.ZERO).max(BigDecimal.ZERO)
         val bedrag = maxOf(budgetHorizonBedrag.min(maandBedrag), BigDecimal.ZERO)
         logger.info(
@@ -232,6 +351,7 @@ class ReserveringService {
     fun berekenSortOrder(administratie: Administratie, boekingsDatum: LocalDate): String {
         val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(administratie, boekingsDatum)
         val sortOrderDatum = boekingsDatum.toString().replace("-", "")
+        logger.info("berekenSortOrder: laatsteSortOrder=$laatsteSortOrder voor administratie=${administratie.naam} op datum=$boekingsDatum")
         return if (laatsteSortOrder == null) "$sortOrderDatum.100"
         else {
             val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) + 10).toString()

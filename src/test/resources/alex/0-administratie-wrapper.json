@@ -88,7 +88,16 @@
               "naam": "Alex' betaalrekening"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "naam": "Rente",
+      "rekeningGroepSoort": "RENTE",
+      "rekeningGroepIcoonNaam": "spaartegoed",
+      "sortOrder": 200,
+      "budgetType": "INKOMSTEN",
+      "rekeningen": [
         {
           "naam": "Rente",
           "sortOrder": 200,
@@ -657,7 +666,7 @@
       "boekingsdatum": "2025-07-03",
       "bedrag": "5.25",
       "omschrijving": "Rente",
-      "betalingsSoort": "INKOMSTEN",
+      "betalingsSoort": "RENTE",
       "bron": "Rente",
       "bestemming": "Alex' spaarrekening"
     },

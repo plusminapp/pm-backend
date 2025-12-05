@@ -97,7 +97,7 @@ class DemoService {
                 boekingsDatum,
                 betaling.bedrag
             )
-            if (boekingsDatum <= LocalDate.now() && wordtDezeMaandBetalingVerwacht && vergelijkbareBetalingen.isEmpty()) {
+            if (boekingsDatum <= (administratie.vandaag ?: LocalDate.now()) && wordtDezeMaandBetalingVerwacht && vergelijkbareBetalingen.isEmpty()) {
                 val sortOrder = betalingService.berekenSortOrder(administratie, boekingsDatum)
 
                 val nieuweBetaling = Betaling(
@@ -190,7 +190,7 @@ class DemoService {
         if (periodeLijst.size == 0)
             throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
         // TODO maak het mogelijk een spel met meer dan 1 periode te resetten
-        if (periodeLijst.size > 1)
+        if (periodeLijst.size > 2)
             throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
         administratieRepository.putVandaag(administratie.id, periodeLijst[0].periodeEindDatum.plusDays(1))
         betalingRepository.hideAllByAdministratie(administratie)

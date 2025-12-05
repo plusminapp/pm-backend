@@ -129,13 +129,17 @@ class BetalingService {
     ): Pair<Boeking?, Boeking?> {
         val bufferRekening = rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
             ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
+        val gekoppeldeBetaalRekening =
+            rekeningRepository
+                .findBetaalRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
+                .firstOrNull() // gesorteerd op sortOrder
         val gekoppeldeSpaarRekening =
             rekeningRepository
                 .findSpaarPotRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
                 .firstOrNull() // gesorteerd op sortOrder
 
         return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN ->
+            Betaling.BetalingsSoort.INKOMSTEN, Betaling.BetalingsSoort.RENTE ->
                 if (dtoBoeking.bestemming?.rekeningGroep?.rekeningGroepSoort == io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort.SPAARREKENING)
                     Pair(
                         dtoBoeking, Boeking(
@@ -205,20 +209,24 @@ class BetalingService {
 
             Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P -> Pair(
                 Boeking(
-                    dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
-                        ),
-                    dtoBoeking.bestemming?.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bestemming?.naam ?: "",
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
+                    (
+                            if (dtoBoeking.bron.id == bufferRekening.id) gekoppeldeBetaalRekening
+                            else dtoBoeking.bron.gekoppeldeRekening
+                            ) ?: throw PM_RekeningNotLinkedException(
+                        listOf(
+                            dtoBoeking.bron.naam,
+                            dtoBoeking.bron.rekeningGroep.administratie.naam
                         )
+                    ),
+                    (
+                            if (dtoBoeking.bestemming?.id == bufferRekening.id) gekoppeldeBetaalRekening
+                            else dtoBoeking.bestemming?.gekoppeldeRekening
+                            ) ?: throw PM_RekeningNotLinkedException(
+                        listOf(
+                            dtoBoeking.bestemming?.naam ?: "",
+                            dtoBoeking.bron.rekeningGroep.administratie.naam
+                        )
+                    )
                 ), dtoBoeking
             )
         }

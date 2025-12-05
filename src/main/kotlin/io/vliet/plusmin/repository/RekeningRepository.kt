@@ -28,7 +28,13 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
                 "AND r.rekeningGroep.budgetType = 'SPAREN' "
     )
     fun findSpaarpottenVoorAdministratie(administratie: Administratie): List<Rekening>
-
+    @Query(
+        value = "SELECT r.budgetBetaalDag FROM Rekening r " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
+                "AND r.rekeningGroep.rekeningGroepSoort = 'INKOMSTEN' " +
+                "ORDER BY r.budgetBetaalDag ASC "
+    )
+    fun findBetaalDagenVoorAdministratie(administratie: Administratie): List<Int?>
     @Query(
         value = "SELECT r FROM Rekening r " +
                 "WHERE r.rekeningGroep = :rekeningGroep AND r.naam = :naam"
@@ -49,6 +55,14 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
                 "ORDER BY r.sortOrder ASC "
     )
     fun findGekoppeldeRekeningenAdministratieEnNaam(administratie: Administratie, rekeningNaam: String): List<Rekening>
+
+    @Query(
+        value = "SELECT r FROM Rekening r " +
+                "WHERE r.rekeningGroep.administratie = :administratie " +
+                "AND r.rekeningGroep.rekeningGroepSoort = 'BETAALREKENING' " +
+                "ORDER BY r.sortOrder ASC "
+    )
+    fun findBetaalRekeningenAdministratie(administratie: Administratie): List<Rekening>
 
     @Query(
         value = "SELECT r FROM Rekening r " +

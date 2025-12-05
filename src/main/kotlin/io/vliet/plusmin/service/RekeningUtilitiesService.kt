@@ -6,11 +6,15 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class RekeningUtilitiesService {
     @Autowired
     lateinit var rekeningGroepRepository: RekeningGroepRepository
+
+    @Autowired
+    lateinit var rekeningRepository: RekeningRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -52,5 +56,21 @@ class RekeningUtilitiesService {
             }
             .sortedBy { it.sortOrder }
             .filter { it.rekeningen.isNotEmpty() }
+    }
+
+    fun bepaalVolgendeInkomstenBetaalDagVoorAdministratie(
+        administratie: Administratie,
+        vanafDatum: LocalDate
+    ): LocalDate {
+        val betaalDagen = rekeningRepository.findBetaalDagenVoorAdministratie(administratie)
+            .filterNotNull()
+            .ifEmpty { throw PM_GeenBetaaldagException(listOf("inkomsten", "inkomsten", administratie.naam)) }
+        val volgendeMaand = vanafDatum.plusMonths(1).withDayOfMonth(1)
+
+        return betaalDagen
+            .map { dag -> vanafDatum.withDayOfMonth(dag.coerceAtMost(vanafDatum.lengthOfMonth())) }
+            .firstOrNull { it.isAfter(vanafDatum) } ?: betaalDagen
+            .map { dag -> volgendeMaand.withDayOfMonth(dag.coerceAtMost(volgendeMaand.lengthOfMonth())) }
+            .first()
     }
 }

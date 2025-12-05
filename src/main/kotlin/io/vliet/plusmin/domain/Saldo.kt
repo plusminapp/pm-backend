@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.vliet.plusmin.domain.Rekening.BudgetAanvulling
 import jakarta.persistence.*
 import java.math.BigDecimal
+import java.time.LocalDate
 
 /*
     De Saldo tabel bevat het saldo van een rekening; door de relatie naar de Periode tabel
@@ -41,7 +42,7 @@ class Saldo(
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "periode_id", referencedColumnName = "id")
-    var periode: Periode? = null
+    var periode: Periode
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
@@ -55,7 +56,7 @@ class Saldo(
         periodeOpgenomenSaldo: BigDecimal = this.periodeOpgenomenSaldo,
         periodeAchterstand: BigDecimal = this.periodeAchterstand,
         correctieBoeking: BigDecimal = this.correctieBoeking,
-        periode: Periode? = this.periode,
+        periode: Periode = this.periode,
     ) = Saldo(
         this.id,
         rekening,
@@ -95,7 +96,7 @@ class Saldo(
         val periodeOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,
         val correctieBoeking: BigDecimal = BigDecimal.ZERO,
         val periodeAchterstand: BigDecimal? = null,
-        val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald zou moeten zijn op de peildatum
+        val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald/ontvangen zou moeten zijn op de peildatum
         val betaaldBinnenBudget: BigDecimal? = null,
         val minderDanBudget: BigDecimal? = null,
         val meerDanBudget: BigDecimal? = null,
@@ -103,10 +104,11 @@ class Saldo(
         val komtNogNodig: BigDecimal? = null,
     )
 
-    fun toDTO(): SaldoDTO {
-//         Saldo → SaldoDTO kan alleen voor periodes die zijn afgelopen
-        val peilDatum = periode?.periodeEindDatum.toString() // TODO wijzigen naar echte peildatum
-        val budgetOpPeilDatum = this.budgetMaandBedrag.abs() // TODO berekenen obv echte peildatum
+    fun toDTO(peilDatum: LocalDate = periode.periodeEindDatum): SaldoDTO {
+        val budgetOpPeilDatum =
+            if (this.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
+                this.budgetMaandBedrag.abs()
+            else berekendBudgetOpPeilDatum(peilDatum)
         val betaaldBinnenBudget = this.periodeBetaling.abs().min(this.budgetMaandBedrag)
         val minderDanBudget = BigDecimal.ZERO
         val meerDanMaandBudget = BigDecimal.ZERO
@@ -127,7 +129,7 @@ class Saldo(
             this.openingsReserveSaldo,
             this.openingsOpgenomenSaldo,
             this.openingsAchterstand,
-            peilDatum,
+            peilDatum.toString(),
             this.budgetMaandBedrag,
             this.periodeBetaling,
             this.periodeReservering,
@@ -141,6 +143,12 @@ class Saldo(
             meerDanMaandBudget,
             komtNogNodig,
         )
+    }
+
+    fun berekendBudgetOpPeilDatum(peilDatum: LocalDate): BigDecimal {
+        val periodeStartDatum = this.periode.periodeStartDatum
+        val maandenTussen = ((peilDatum.year - periodeStartDatum.year) * 12 + peilDatum.monthValue - periodeStartDatum.monthValue).coerceAtLeast(0)
+        return this.budgetMaandBedrag.multiply(BigDecimal(maandenTussen))
     }
 
     data class ResultaatSamenvattingOpDatumDTO(
