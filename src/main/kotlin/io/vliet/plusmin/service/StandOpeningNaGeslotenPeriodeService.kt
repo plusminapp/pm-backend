@@ -49,7 +49,7 @@ class StandOpeningNaGeslotenPeriodeService {
             )
         }
         logger.info(
-            "eindSaldi: ${periode.periodeStartDatum} ${
+            "berekenOpeningSaldiNaGeslotenPeriode eindSaldi: ${periode.periodeStartDatum} ${
                 saldoLijst.joinToString
                 { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }
             }"

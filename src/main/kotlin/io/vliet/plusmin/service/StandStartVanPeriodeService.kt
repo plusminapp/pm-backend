@@ -1,15 +1,15 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.Periode.Companion.geslotenPeriodes
+import io.vliet.plusmin.domain.Administratie
+import io.vliet.plusmin.domain.PM_PeriodeNotFoundException
+import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.RekeningGroep.Companion.balansRekeningGroepSoort
-import io.vliet.plusmin.repository.*
+import io.vliet.plusmin.domain.Saldo
+import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import kotlin.plus
 
 @Service
 class StandStartVanPeriodeService {
@@ -85,7 +85,7 @@ class StandStartVanPeriodeService {
                 openingsAchterstand = openingsAchterstand,
             )
         }
-        logger.info("openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")
+        logger.info("berekenStartSaldiVanPeriode openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")
         return saldoLijst
     }
 }

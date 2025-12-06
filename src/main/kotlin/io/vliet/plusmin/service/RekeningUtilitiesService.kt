@@ -62,6 +62,7 @@ class RekeningUtilitiesService {
         administratie: Administratie,
         vanafDatum: LocalDate
     ): LocalDate {
+        // TODO??? betaaldag als de betaling daadwerkelijk heft plaatsgevonden?
         val betaalDagen = rekeningRepository.findBetaalDagenVoorAdministratie(administratie)
             .filterNotNull()
             .ifEmpty { throw PM_GeenBetaaldagException(listOf("inkomsten", "inkomsten", administratie.naam)) }

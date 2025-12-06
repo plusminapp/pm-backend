@@ -17,7 +17,7 @@
         {
           "naam": "Alex' betaalrekening",
           "bankNaam": "ASN",
-          "saldo": 500,
+          "saldo": 1000,
           "sortOrder": 100
         }
       ]
@@ -123,7 +123,8 @@
           "naam": "Boodschappen",
           "sortOrder": 110,
           "budgetPeriodiciteit": "WEEK",
-          "budgetBedrag": 85,
+          "budgetBedrag": 84,
+          "budgetAanvulling": "TOT",
           "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
             {
@@ -245,7 +246,7 @@
           "naam": "Regionale belasting",
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 74.70,
-          "budgetBetaalDag": 26,
+          "budgetBetaalDag": 20,
           "budgetVariabiliteit": 1,
           "maanden": [
             1,
@@ -270,7 +271,7 @@
           "naam": "Vitens",
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 8,
-          "budgetBetaalDag": 26,
+          "budgetBetaalDag": 20,
           "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
             {

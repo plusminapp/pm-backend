@@ -161,7 +161,7 @@ class StandService {
             .findSpaarReserveringenInPeriode(
                 administratie = periode.administratie,
                 startDatum = periode.periodeStartDatum,
-                eindDatum = peilDatum
+                totEnMetDatum = peilDatum
             )
             .fold(BigDecimal.ZERO) { acc, reservering -> acc + (reservering.bedrag) }
         logger.info("besteedTotPeilDatum: $besteedTotPeilDatum, gespaardTotPeilDatum: $gespaardTotPeilDatum op $peilDatum")

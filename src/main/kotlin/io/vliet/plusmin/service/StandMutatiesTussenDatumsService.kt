@@ -24,10 +24,10 @@ class StandMutatiesTussenDatumsService {
     fun berekenMutatieLijstTussenDatums(
         administratie: Administratie,
         vanDatum: LocalDate,
-        totDatum: LocalDate
+        totEnMetDatum: LocalDate
     ): List<Saldo> {
         val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorAdministratie(administratie)
-        val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totDatum)
+        val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totEnMetDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->
                 val periodeBetaling =
@@ -53,11 +53,11 @@ class StandMutatiesTussenDatumsService {
                     periodeBetaling = periodeBetaling,
                     periodeReservering = periodeReservering,
                     periodeOpgenomenSaldo = periodeOpgenomenSaldo,
-                    periode = Periode(0, administratie, vanDatum, totDatum)
+                    periode = Periode(0, administratie, vanDatum, totEnMetDatum)
                 )
             }
         }
-        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
+        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totEnMetDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
         return saldoLijst
     }
 

@@ -33,7 +33,6 @@ class PeriodeService {
     }
 
     fun getPeriode(periodeId: Long, administratie: Administratie): Periode {
-
         val periode = periodeRepository.getPeriodeById(periodeId)
         if (periode == null || periode.administratie.id != administratie.id) {
             throw PM_PeriodeNotFoundException(listOf(periodeId.toString()))
@@ -52,6 +51,16 @@ class PeriodeService {
             LocalDate.of(jaar, maand, periodeWisselDag).minusMonths(1)
         }
         return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
+    }
+
+    fun getFakePeriode(administratie: Administratie, datum: LocalDate): Periode {
+        val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(administratie.periodeDag, datum)
+        return Periode(
+            administratie = administratie,
+            periodeStartDatum = periodeStartDatum,
+            periodeEindDatum = periodeEindDatum,
+            periodeStatus = Periode.PeriodeStatus.ONBEPAALD
+        )
     }
 
     /*

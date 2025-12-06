@@ -102,14 +102,14 @@ class PM_PeriodeNotFoundException(
 class PM_LaatsteGeslotenPeriodeNotFoundException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
-    "Er is geen laatst gesloten of opgeruimde periode voor gebruiker ${parameters[0]}",
+    "Er is geen laatst gesloten of opgeruimde periode voor administratie ${parameters[0]}",
     HttpStatus.NOT_FOUND, "LAATSTE_PERIODE_NOT_FOUND", parameters
 )
 
 class PM_HuidigePeriodeNotFoundException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
-    "Geen huidige periode gevonden voor gebruiker $parameters[1]",
+    "Geen huidige periode gevonden voor administratie $parameters[1]",
     HttpStatus.NOT_FOUND, "HUIDIGE_PERIODE_NOT_FOUND", parameters
 )
 
