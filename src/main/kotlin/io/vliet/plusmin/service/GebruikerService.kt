@@ -41,7 +41,7 @@ class GebruikerService {
             throw PM_AdministratieNotFoundException(listOf(administratieId.toString()))
         }
         val gebruiker = getJwtGebruiker()
-        logger.info("checkAccess administratie ${administratie.naam} voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}: " +
+        logger.debug("checkAccess administratie ${administratie.naam} voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}: " +
                 "adminId: ${administratie.id}  " +
                 "administraties ${gebruiker.administraties.joinToString { it.id.toString() }}  " +
                 "toegang: ${gebruiker.administraties.map { it.id }.contains(administratie.id)}")
@@ -59,7 +59,7 @@ class GebruikerService {
     }
 
     fun save(gebruikerDTO: GebruikerDTO): Gebruiker {
-        logger.info("gebruiker: ${gebruikerDTO.bijnaam}/${gebruikerDTO.subject}")
+        logger.debug("gebruiker: ${gebruikerDTO.bijnaam}/${gebruikerDTO.subject}")
         val gebruikerOpt = gebruikerRepository.findBySubject(gebruikerDTO.subject)
         val gebruiker =
             if (gebruikerOpt != null) {

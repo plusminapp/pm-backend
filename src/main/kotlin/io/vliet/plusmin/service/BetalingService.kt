@@ -59,7 +59,7 @@ class BetalingService {
             Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
         val sortOrder = berekenSortOrder(administratie, boekingsDatum)
-        logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
+        logger.debug("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
         val betaling = Betaling(
             administratie = administratie,
             boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
@@ -105,7 +105,7 @@ class BetalingService {
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
             Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
-        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.naam} ")
+        logger.debug("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.naam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = boekingsDatum,
             bedrag = newBetalingDTO.bedrag,
@@ -129,13 +129,17 @@ class BetalingService {
     ): Pair<Boeking?, Boeking?> {
         val bufferRekening = rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
             ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
+        val gekoppeldeBetaalRekening =
+            rekeningRepository
+                .findBetaalRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
+                .firstOrNull() // gesorteerd op sortOrder
         val gekoppeldeSpaarRekening =
             rekeningRepository
                 .findSpaarPotRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
                 .firstOrNull() // gesorteerd op sortOrder
 
         return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN ->
+            Betaling.BetalingsSoort.INKOMSTEN, Betaling.BetalingsSoort.RENTE ->
                 if (dtoBoeking.bestemming?.rekeningGroep?.rekeningGroepSoort == io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort.SPAARREKENING)
                     Pair(
                         dtoBoeking, Boeking(
@@ -205,20 +209,24 @@ class BetalingService {
 
             Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P -> Pair(
                 Boeking(
-                    dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
-                        ),
-                    dtoBoeking.bestemming?.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bestemming?.naam ?: "",
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
+                    (
+                            if (dtoBoeking.bron.id == bufferRekening.id) gekoppeldeBetaalRekening
+                            else dtoBoeking.bron.gekoppeldeRekening
+                            ) ?: throw PM_RekeningNotLinkedException(
+                        listOf(
+                            dtoBoeking.bron.naam,
+                            dtoBoeking.bron.rekeningGroep.administratie.naam
                         )
+                    ),
+                    (
+                            if (dtoBoeking.bestemming?.id == bufferRekening.id) gekoppeldeBetaalRekening
+                            else dtoBoeking.bestemming?.gekoppeldeRekening
+                            ) ?: throw PM_RekeningNotLinkedException(
+                        listOf(
+                            dtoBoeking.bestemming?.naam ?: "",
+                            dtoBoeking.bron.rekeningGroep.administratie.naam
+                        )
+                    )
                 ), dtoBoeking
             )
         }

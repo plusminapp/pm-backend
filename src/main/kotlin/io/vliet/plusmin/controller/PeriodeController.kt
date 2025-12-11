@@ -55,13 +55,12 @@ class PeriodeController {
     @Operation(summary = "PUT sluit een periode voor hulpvrager")
     @PutMapping("/administratie/{administratieId}/sluiten/{periodeId}")
     fun sluitPeriodeVoorHulpvrager(
-        @Valid @RequestBody saldoLijst: List<Saldo.SaldoDTO>,
         @PathVariable("administratieId") administratieId: Long,
         @PathVariable("periodeId") periodeId: Long
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
         logger.info("PUT PeriodeController.sluitPeriodeVoorHulpvrager() $periodeId voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}.")
-        periodeUpdateService.sluitPeriode(hulpvrager, periodeId, saldoLijst)
+        periodeUpdateService.sluitPeriode(hulpvrager, periodeId)
         return ResponseEntity.ok().build()
     }
 
@@ -102,17 +101,6 @@ class PeriodeController {
         logger.info("PUT PeriodeController.wijzigPeriodeOpeningVoorHulpvrager() $periodeId voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}.")
         periodeUpdateService.wijzigPeriodeOpening(hulpvrager, periodeId, nieuweOpeningsSaldi)
         return ResponseEntity.ok().build()
-    }
-
-    @Operation(summary = "GET voorstel voor het sluiten van een periode voor hulpvrager")
-    @GetMapping("/administratie/{administratieId}/sluitvoorstel/{periodeId}")
-    fun sluitPeriodeVoorstelVoorHulpvrager(
-        @PathVariable("administratieId") administratieId: Long,
-        @PathVariable("periodeId") periodeId: Long
-    ): ResponseEntity<Any> {
-        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
-        logger.info("GET PeriodeController.sluitPeriodeVoorstelVoorHulpvrager() $periodeId voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}.")
-        return ResponseEntity.ok().body(periodeUpdateService.voorstelPeriodeSluiten(hulpvrager, periodeId))
     }
 }
 

@@ -41,11 +41,11 @@ class UpdateSpaarSaldiService {
         val saldi = standInPeriodeService.berekenSaldiOpDatum(administratie, administratie.vandaag ?: LocalDate.now())
 
         val spaarrekeningSaldo = saldi
-            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
-            .sumOf { it.openingsBalansSaldo + it.betaling }
+            .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
+            .sumOf { it.openingsBalansSaldo + it.periodeBetaling }
         val spaarpotSaldo = saldi
-            .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT }
-            .sumOf { it.openingsReserveSaldo - it.openingsOpgenomenSaldo + it.reservering - it.opgenomenSaldo - it.betaling }
+            .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT }
+            .sumOf { it.openingsReserveSaldo - it.openingsOpgenomenSaldo + it.periodeReservering - it.periodeOpgenomenSaldo - it.periodeBetaling }
 
         if (spaarrekeningSaldo != spaarpotSaldo) {
             updateSpaarpotSaldo(spaarrekeningSaldo - spaarpotSaldo, saldi, administratie)
@@ -53,10 +53,10 @@ class UpdateSpaarSaldiService {
         }
     }
 
-    fun updateSpaarpotSaldo(correctieBoeking: BigDecimal, saldi: List<Saldo.SaldoDTO>, administratie: Administratie) {
+    fun updateSpaarpotSaldo(correctieBoeking: BigDecimal, saldi: List<Saldo>, administratie: Administratie) {
         val spaarRekeningNaam = saldi
-            .firstOrNull { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
-            ?.rekeningNaam
+            .firstOrNull { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING }
+            ?.rekening?.naam
             ?: throw PM_SpaarRekeningNotFoundException(listOf(administratie.naam))
         val gekoppeldeSpaarPot = rekeningRepository
             .findGekoppeldeRekeningenAdministratieEnNaam(administratie, spaarRekeningNaam)

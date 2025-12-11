@@ -41,15 +41,12 @@ class BetalingvalidatieService {
         )
         val openingsBalansSaldo = saldoRepository.findLaatsteSaldoBijRekening(rekening.id)
             ?: throw PM_GeenSaldoVoorRekeningException(listOf(rekening.naam, administratie.naam))
-        val betalingen = if (openingsBalansSaldo.periode == null) {
-            throw PM_GeenPeriodeVoorSaldoException(listOf(openingsBalansSaldo.id.toString(), administratie.naam))
-        } else {
+        val betalingen =
             betalingRepository.findAllByAdministratieTussenDatums(
                 administratie,
-                openingsBalansSaldo.periode!!.periodeStartDatum,
+                openingsBalansSaldo.periode.periodeStartDatum,
                 administratie.vandaag ?: LocalDate.now()
             )
-        }
         val saldoOpDatum = betalingen.fold(openingsBalansSaldo.openingsBalansSaldo) { saldo, betaling ->
             saldo + berekenMutaties(betaling, rekening)
         }
@@ -57,7 +54,7 @@ class BetalingvalidatieService {
             valideerOcrBetaling(administratie, betaling)
         }
         val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatumBijRekening(administratie, rekening)
-            ?: openingsBalansSaldo.periode!!.periodeStartDatum
+            ?: openingsBalansSaldo.periode.periodeStartDatum
 
         return Betaling.BetalingValidatieWrapper(
             laatsteBetalingDatum,

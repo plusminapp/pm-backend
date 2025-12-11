@@ -18,7 +18,7 @@
         {
           "naam": "Simons betaalrekening",
           "bankNaam": "ASN",
-          "saldo": 0,
+          "saldo": 500,
           "sortOrder": 100
         }
       ]

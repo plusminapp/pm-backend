@@ -26,12 +26,12 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "WHERE b.isVerborgen IS FALSE AND " +
                 "b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
-                "b.boekingsdatum <= :eindDatum"
+                "b.boekingsdatum <= :totEnMetDatum"
     )
     fun findAllByAdministratieTussenDatums(
         administratie: Administratie,
         openingsDatum: LocalDate,
-        eindDatum: LocalDate
+        totEnMetDatum: LocalDate
     ): List<Betaling>
 
     @Query(
@@ -39,14 +39,14 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "WHERE b.isVerborgen IS FALSE AND " +
                 "b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :startDatum AND " +
-                "b.boekingsdatum <= :eindDatum AND " +
+                "b.boekingsdatum <= :totEnMetDatum AND " +
                 "b.reserveringBron.rekeningGroep.rekeningGroepSoort = 'RESERVERING_BUFFER' AND " +
                 "b.reserveringBestemming.rekeningGroep.budgetType = 'SPAREN'"
     )
     fun findSpaarReserveringenInPeriode(
         administratie: Administratie,
         startDatum: LocalDate,
-        eindDatum: LocalDate
+        totEnMetDatum: LocalDate
     ): List<Betaling>
 
     @Query(
@@ -54,9 +54,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "WHERE b.isVerborgen IS FALSE AND " +
                 "b.administratie = :administratie"
     )
-    fun getReserveringsHorizon(
-        administratie: Administratie,
-    ): LocalDate?
+    fun getReserveringsHorizon(administratie: Administratie): LocalDate?
 
     @Modifying
     @Query(
@@ -64,12 +62,12 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "WHERE b.isVerborgen IS FALSE AND " +
                 "b.administratie = :administratie AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
-                "b.boekingsdatum <= :eindDatum"
+                "b.boekingsdatum <= :totEnMetDatum"
     )
     fun deleteAllByAdministratieTussenDatums(
         administratie: Administratie,
         openingsDatum: LocalDate,
-        eindDatum: LocalDate
+        totEnMetDatum: LocalDate
     )
 
     @Query(
@@ -113,14 +111,14 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
                 "WHERE b.isVerborgen IS FALSE AND " +
+                "b.bestemming IS NOT NULL AND " + // om reserveringen uit te sluiten
                 "b.administratie = :administratie"
     )
     fun findDatumLaatsteBetalingBijAdministratie(administratie: Administratie): LocalDate?
 
     @Query(
         value = "SELECT MAX(b.sortOrder) FROM Betaling b " +
-                "WHERE b.isVerborgen IS FALSE AND " +
-                "b.administratie = :administratie AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :datum"
     )
     fun findLaatsteSortOrder(administratie: Administratie, datum: LocalDate): String?
@@ -143,12 +141,18 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
     @Modifying
     @Query(
         value = "DELETE FROM Betaling b " +
-                "WHERE b.isVerborgen IS FALSE AND " +
-                "b.administratie = :administratie AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "boekingsdatum <= :datum"
     )
-
     fun deleteAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate)
+
+    @Modifying
+    @Query(
+        value = "DELETE FROM Betaling b " +
+                "WHERE b.administratie = :administratie AND " +
+                "b.betalingsSoort IN ('P2P', 'SP2P', 'P2SP', 'SP2SP')"
+    )
+    fun deleteReserveringenByAdministratie(administratie: Administratie)
 
     @Modifying
     @Query(
@@ -158,6 +162,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "boekingsdatum <= :datum"
     )
     fun unhideAllByAdministratieTotEnMetDatum(administratie: Administratie, datum: LocalDate)
+
     @Modifying
     @Query(
         value = "UPDATE Betaling b " +

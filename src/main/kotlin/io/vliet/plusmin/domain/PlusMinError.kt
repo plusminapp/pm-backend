@@ -2,7 +2,7 @@ package io.vliet.plusmin.domain
 
 import java.time.LocalDateTime
 
-data class ErrorResponse(
+data class PlusMinError(
     val errorCode: String,
     val message: String,
     val parameters: List<String> = emptyList(),

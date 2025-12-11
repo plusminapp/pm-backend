@@ -21,9 +21,6 @@ class DemoService {
     lateinit var demoRepository: DemoRepository
 
     @Autowired
-    lateinit var reserveringService: ReserveringService
-
-    @Autowired
     lateinit var administratieRepository: AdministratieRepository
 
     @Autowired
@@ -53,10 +50,9 @@ class DemoService {
         }
         periodes.filter { it.periodeStartDatum > bronPeriode.periodeStartDatum }
             .forEach { doelPeriode ->
-                logger.info("Kopieer betalingen van ${bronPeriode.periodeStartDatum} naar ${doelPeriode.periodeStartDatum} voor ${administratie.naam}")
+                logger.debug("Kopieer betalingen van ${bronPeriode.periodeStartDatum} naar ${doelPeriode.periodeStartDatum} voor ${administratie.naam}")
                 kopieerPeriodeBetalingen(administratie, bronPeriode, doelPeriode)
             }
-        reserveringService.creeerReserveringen(administratie)
     }
 
     @Scheduled(cron = "0 1 2 * * *")
@@ -84,6 +80,7 @@ class DemoService {
             bronPeriode.periodeStartDatum,
             bronPeriode.periodeEindDatum
         ).filter { !reserveringBetalingsSoorten.contains(it.betalingsSoort) }
+
         val betalingenDoelPeriode = betalingen.map { betaling ->
             val boekingsDatum = shiftDatumNaarPeriodeMetZelfdeDag(betaling.boekingsdatum, doelPeriode)
             val wordtDezeMaandBetalingVerwacht =
@@ -96,26 +93,27 @@ class DemoService {
                 boekingsDatum,
                 betaling.bedrag
             )
-            if (boekingsDatum <= LocalDate.now() && wordtDezeMaandBetalingVerwacht && vergelijkbareBetalingen.isEmpty()) {
+            if (wordtDezeMaandBetalingVerwacht && vergelijkbareBetalingen.isEmpty()) {
                 val sortOrder = betalingService.berekenSortOrder(administratie, boekingsDatum)
 
                 val nieuweBetaling = Betaling(
+                    administratie = administratie,
                     boekingsdatum = boekingsDatum,
+                    reserveringsHorizon = betaling.reserveringsHorizon,
                     bedrag = betaling.bedrag,
                     omschrijving = betaling.omschrijving,
+                    betalingsSoort = betaling.betalingsSoort,
                     sortOrder = sortOrder,
+                    isVerborgen = boekingsDatum >= (administratie.vandaag ?: LocalDate.now()),
                     bron = betaling.bron,
                     bestemming = betaling.bestemming,
-                    betalingsSoort = betaling.betalingsSoort,
-                    administratie = administratie,
-                    reserveringsHorizon = betaling.reserveringsHorizon,
                     reserveringBron = betaling.reserveringBron,
                     reserveringBestemming = betaling.reserveringBestemming
                 )
-                logger.info("Betaling op ${nieuweBetaling.boekingsdatum}  gekopieerd: ${nieuweBetaling.omschrijving}")
+                logger.debug("Betaling op ${nieuweBetaling.boekingsdatum}  gekopieerd: ${nieuweBetaling.omschrijving}")
                 betalingRepository.save(nieuweBetaling).toDTO()
             } else {
-                logger.info("Betaling op ${boekingsDatum} ${if (!wordtDezeMaandBetalingVerwacht) "nog" else ""} niet gekopieerd: ${betaling.omschrijving}")
+                logger.debug("Betaling met ${betaling.omschrijving} niet gekopieerd.")
                 betaling.toDTO()
             }
         }
@@ -165,27 +163,34 @@ class DemoService {
 
         if (
         // je mag alleen vooruit in de tijd reizen
-            (vandaagAsLocalDate != null && vandaagAsLocalDate > (administratie.vandaag ?: LocalDate.now())) ||
+            (vandaagAsLocalDate != null && vandaagAsLocalDate >= (administratie.vandaag ?: LocalDate.now())) ||
             // je mag alleen terug naar nu als het na de start van de laatste periode is
-            (vandaagAsLocalDate == null && laatstePeriodeStartDatum < LocalDate.now())
+            (vandaagAsLocalDate == null && laatstePeriodeStartDatum.isBefore(LocalDate.now()))
         ) {
             administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
             if (toonBetalingen) betalingRepository.unhideAllByAdministratieTotEnMetDatum(
                 administratie,
                 vandaagAsLocalDate ?: LocalDate.now()
             )
-        } else
+        } else {
+            logger.warn("Ongeldige datum voor vandaag: administratie.vandaag ${administratie.vandaag} vandaagAsLocalDate $vandaagAsLocalDate vooradministratie ${administratie.naam}")
             throw PM_InvalidDateFormatException(listOf(vandaag ?: "null"))
-        periodeService.checkPeriodesVoorGebruiker(administratie)
+        }
+        periodeService.checkPeriodesVoorAdministratie(administratie)
     }
 
     fun resetSpel(administratie: Administratie) {
         if (administratie.vandaag == null)
             throw PM_GeenSpelException(listOf(administratie.naam))
 
-        val eerstePeriode = periodeRepository.getEerstePeriodeVoorAdministratie(administratie.id)
-            ?: throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
-        administratieRepository.putVandaag(administratie.id, eerstePeriode.periodeEindDatum.plusDays(1))
+        val periodeLijst = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
+        if (periodeLijst.size == 0)
+            throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
+        // TODO maak het mogelijk een spel met meer dan 1 periode te resetten
+//        if (periodeLijst.size > 2)
+//            throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
+        administratieRepository.putVandaag(administratie.id, periodeLijst[0].periodeEindDatum.plusDays(1))
         betalingRepository.hideAllByAdministratie(administratie)
+        betalingRepository.deleteReserveringenByAdministratie(administratie)
     }
 }

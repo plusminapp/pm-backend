@@ -33,8 +33,8 @@ class StandInPeriodeService {
     fun berekenSaldiOpDatum(
         administratie: Administratie,
         peilDatum: LocalDate,
-    ): List<Saldo.SaldoDTO> {
-        val periode = periodeService.getPeriode(administratie, peilDatum)
+    ): List<Saldo> {
+        val periode = periodeService.getFakePeriode(administratie, peilDatum)
         val vandaag = administratie.vandaag ?: LocalDate.now()
         return berekenSaldiOpDatum(vandaag, periode)
     }
@@ -43,101 +43,54 @@ class StandInPeriodeService {
         peilDatum: LocalDate,
         periode: Periode,
         inclusiefOngeldigeRekeningen: Boolean = false
-    ): List<Saldo.SaldoDTO> {
-
-        val gebruiker = periode.administratie
+    ): List<Saldo> {
+        val administratie = periode.administratie
         val startSaldiVanPeriode = standStartVanPeriodeService.berekenStartSaldiVanPeriode(periode)
-
         val mutatiesInPeriode =
             standMutatiesTussenDatumsService.berekenMutatieLijstTussenDatums(
-                gebruiker,
+                administratie,
                 periode.periodeStartDatum,
-                peilDatum
+                peilDatum // inclusive
             )
-
         return startSaldiVanPeriode
             .filter { inclusiefOngeldigeRekeningen || it.rekening.rekeningIsGeldigInPeriode(periode) }
             .sortedBy { it.rekening.sortOrder }
             .map { saldo ->
                 val rekening = saldo.rekening
-                val betaling = mutatiesInPeriode
+                val periodeBetaling = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.betaling }
-                val reservering = mutatiesInPeriode
+                    .sumOf { it.periodeBetaling }
+                val periodeReservering = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.reservering }
-                val opgenomenSaldo = mutatiesInPeriode
+                    .sumOf { it.periodeReservering }
+                val periodeOpgenomenSaldo = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.opgenomenSaldo }
+                    .sumOf { it.periodeOpgenomenSaldo }
+                // TODO achterstand in periode berekenen
+                val achterstand = BigDecimal.ZERO
 
-                val openingsBalansSaldo = saldo.openingsBalansSaldo
                 val openingsReserveSaldo =
                     if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
-                        saldo.openingsBalansSaldo + saldo.opgenomenSaldo
+                        saldo.openingsBalansSaldo + saldo.periodeOpgenomenSaldo
                     else saldo.openingsReserveSaldo
-                val openingsOpgenomenSaldo = saldo.openingsOpgenomenSaldo + saldo.opgenomenSaldo
 
-                val achterstand = saldo.achterstand
-
-                // eerst de achterstand afbetalen, let op: achterstand is negatief
-                val achterstandOpPeilDatum = (achterstand + betaling.abs()).min(BigDecimal.ZERO)
-                val betalingNaAflossenAchterstand = (achterstand + betaling.abs()).max(BigDecimal.ZERO)
-
-                // budgetMaandBedrag is het bedrag dat deze periode moet worden betaald,
-                // eventueel aangepast aan de budgetVariabiliteit o.b.v. een betaling,
-                // eventueel 0 als deze maand geen betaling wordt verwacht,
-                // EXCL een eventuele de achterstand
                 val budgetMaandBedrag =
-                    rekening.toDTO(periode, betaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
+                    rekening.toDTO(periode, periodeBetaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
 
-                val budgetOpPeilDatum =
-                    berekenBudgetOpPeilDatum(rekening, peilDatum, budgetMaandBedrag, betaling, periode)
-                        ?: BigDecimal.ZERO
-
-                val betaaldBinnenBudget = if (rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                    (budgetMaandBedrag + achterstand.abs()).min(betaling.abs())
-                else {
-                    (budgetOpPeilDatum + achterstand.abs()).min(betaling.abs())
-                }
-                val meerDanMaandBudget = BigDecimal.ZERO.max(betalingNaAflossenAchterstand.abs() - budgetMaandBedrag)
-                val minderDanBudget = BigDecimal.ZERO.max(budgetOpPeilDatum - betalingNaAflossenAchterstand.abs())
-                val meerDanBudget = if (rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                    BigDecimal.ZERO.max(betalingNaAflossenAchterstand.abs() - budgetMaandBedrag - meerDanMaandBudget)
-                else
-                    BigDecimal.ZERO.max(betalingNaAflossenAchterstand.abs() - budgetOpPeilDatum - meerDanMaandBudget)
-                val restMaandBudget =
-                    if (saldo.rekening.rekeningGroep.budgetType != RekeningGroep.BudgetType.SPAREN)
-                        BigDecimal.ZERO.max(budgetMaandBedrag - betalingNaAflossenAchterstand.abs() - minderDanBudget + meerDanBudget + meerDanMaandBudget)
-                    else
-                        BigDecimal.ZERO
-                Saldo.SaldoDTO(
-                    id= 0,
-                    rekeningGroepNaam = rekening.rekeningGroep.naam,
-                    rekeningGroepSoort = rekening.rekeningGroep.rekeningGroepSoort,
-                    budgetType = rekening.rekeningGroep.budgetType,
-                    rekeningNaam = rekening.naam,
-                    aflossing = rekening.aflossing?.toDTO(),
-                    spaartegoed = rekening.spaartegoed?.toDTO(),
-                    sortOrder = rekening.rekeningGroep.sortOrder * 1000 + rekening.sortOrder,
-                    openingsBalansSaldo = openingsBalansSaldo,
+                Saldo(
+                    id = 0,
+                    rekening = rekening,
+                    openingsBalansSaldo = saldo.openingsBalansSaldo,
                     openingsReserveSaldo = openingsReserveSaldo,
-                    openingsOpgenomenSaldo = openingsOpgenomenSaldo,
-                    achterstand = achterstand,
+                    openingsOpgenomenSaldo = saldo.openingsOpgenomenSaldo,
+                    openingsAchterstand = saldo.openingsAchterstand,
+                    periodeBetaling = periodeBetaling,
+                    periodeReservering = periodeReservering,
+                    periodeOpgenomenSaldo = periodeOpgenomenSaldo,
+                    periodeAchterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
-                    budgetBetaalDag = rekening.budgetBetaalDag,
-                    budgetAanvulling = rekening.budgetAanvulling,
-                    betaling = betaling,
-                    reservering = reservering,
-                    opgenomenSaldo = opgenomenSaldo,
                     correctieBoeking = BigDecimal.ZERO,
-                    achterstandOpPeilDatum = achterstandOpPeilDatum,
-                    budgetPeilDatum = peilDatum.toString(),
-                    budgetOpPeilDatum = budgetOpPeilDatum,
-                    betaaldBinnenBudget = betaaldBinnenBudget,
-                    minderDanBudget = minderDanBudget,
-                    meerDanBudget = meerDanBudget,
-                    meerDanMaandBudget = meerDanMaandBudget,
-                    restMaandBudget = restMaandBudget,
+                    periode = periode
                 )
             }
     }
@@ -152,21 +105,14 @@ class StandInPeriodeService {
         val budgetOpPeilDatum =
             when (rekening.rekeningGroep.budgetType) {
                 RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
-                    val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
-                        peilPeriode.berekenDagInPeriode(rekening.budgetBetaalDag)
-                    else null
-
-                    if (betaaldagInPeriode == null) {
-                        throw PM_GeenBetaaldagException(
-                            listOf(
-                                rekening.naam,
-                                rekening.rekeningGroep.budgetType.name,
-                                rekening.rekeningGroep.administratie.naam
-                            )
-                        )
-                    }
-                    if (!peilDatum.isBefore(betaaldagInPeriode)) budgetMaandBedrag
-                    else (budgetMaandBedrag).min(betaling.abs())
+                    berekenVastBudgetOpPeildatum(
+                        rekening,
+                        peilPeriode,
+                        rekening.rekeningGroep.budgetType,
+                        peilDatum,
+                        budgetMaandBedrag,
+                        betaling
+                    )
                 }
 
                 RekeningGroep.BudgetType.CONTINU -> {
@@ -176,6 +122,31 @@ class StandInPeriodeService {
                 else -> BigDecimal.ZERO
             }
         return budgetOpPeilDatum
+    }
+
+    private fun berekenVastBudgetOpPeildatum(
+        rekening: Rekening,
+        peilPeriode: Periode,
+        budgetType: RekeningGroep.BudgetType,
+        peilDatum: LocalDate,
+        budgetMaandBedrag: BigDecimal,
+        betaling: BigDecimal
+    ): BigDecimal? {
+        val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
+            peilPeriode.berekenDagInPeriode(rekening.budgetBetaalDag)
+        else null
+
+        if (betaaldagInPeriode == null) {
+            throw PM_GeenBetaaldagException(
+                listOf(
+                    rekening.naam,
+                    budgetType.name,
+                    rekening.rekeningGroep.administratie.naam
+                )
+            )
+        }
+        return if (!peilDatum.isBefore(betaaldagInPeriode)) budgetMaandBedrag
+        else (budgetMaandBedrag).min(betaling.abs())
     }
 
     fun berekenContinuBudgetOpPeildatum(

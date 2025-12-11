@@ -166,7 +166,8 @@ class Betaling(
     enum class BetalingsSoort(
         val omschrijving: String
     ) {
-        INKOMSTEN("Inkomsten"),
+        INKOMSTEN("inkomsten"),
+        RENTE("rente"),
         UITGAVEN("Uitgaven"),
         BESTEDEN("besteden"),
         AFLOSSEN("aflossen"),
@@ -192,7 +193,7 @@ class Betaling(
         boeking: Pair<Boeking?, Boeking?>
     ): Boeking {
         return when (betalingsSoort) {
-            BetalingsSoort.INKOMSTEN,
+            BetalingsSoort.INKOMSTEN, BetalingsSoort.RENTE,
             BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN,
             BetalingsSoort.INCASSO_CREDITCARD, BetalingsSoort.OPNEMEN_CONTANT, BetalingsSoort.STORTEN_CONTANT ->
                 boeking.first!!

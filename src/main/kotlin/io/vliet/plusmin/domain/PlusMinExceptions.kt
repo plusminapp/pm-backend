@@ -84,6 +84,12 @@ class PM_GeenSpelException(
     "Adminstraie $parameters[0] is geen SPEL administratie.",
     HttpStatus.NOT_FOUND, "GEEN_SPEL", parameters
 )
+class PM_PeriodeMoetHuidigZijnException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Periode voor $parameters[0] moet HUIDIGE periode zijn.",
+    HttpStatus.BAD_REQUEST, "PERIODE_MOET_HUIDIG_ZIJN", parameters
+)
 
 // Periode exceptions
 class PM_PeriodeNotFoundException(
@@ -96,14 +102,14 @@ class PM_PeriodeNotFoundException(
 class PM_LaatsteGeslotenPeriodeNotFoundException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
-    "Er is geen laatst gesloten of opgeruimde periode voor gebruiker ${parameters[0]}",
+    "Er is geen laatst gesloten of opgeruimde periode voor administratie ${parameters[0]}",
     HttpStatus.NOT_FOUND, "LAATSTE_PERIODE_NOT_FOUND", parameters
 )
 
 class PM_HuidigePeriodeNotFoundException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
-    "Geen huidige periode gevonden voor gebruiker $parameters[1]",
+    "Geen huidige periode gevonden voor administratie $parameters[1]",
     HttpStatus.NOT_FOUND, "HUIDIGE_PERIODE_NOT_FOUND", parameters
 )
 
@@ -182,7 +188,7 @@ class PM_GeenBetaaldagException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
     "Geen budgetBetaalDag voor ${parameters[0]} met BudgetType ${parameters[1]} van ${parameters[2]}",
-    HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_NOT_FOUND", parameters
+    HttpStatus.INTERNAL_SERVER_ERROR, "GEEN_BETAAL_DAG", parameters
 )
 
 class PM_BufferRekeningImmutableException(

@@ -21,32 +21,43 @@ class StandMutatiesTussenDatumsService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun berekenMutatieLijstTussenDatums(administratie: Administratie, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
+    fun berekenMutatieLijstTussenDatums(
+        administratie: Administratie,
+        vanDatum: LocalDate,
+        totEnMetDatum: LocalDate
+    ): List<Saldo> {
         val rekeningGroepLijst = rekeningGroepRepository.findRekeningGroepenVoorAdministratie(administratie)
-        val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totDatum)
+        val betalingen = betalingRepository.findAllByAdministratieTussenDatums(administratie, vanDatum, totEnMetDatum)
         val saldoLijst = rekeningGroepLijst.flatMap { rekeningGroep ->
             rekeningGroep.rekeningen.map { rekening ->
-                val betaling =
+                val periodeBetaling =
                     betalingen
                         .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenBetalingMutaties(betaling, rekening)
                         }
-                val reservering =
+                val periodeReservering =
                     betalingen.fold(BigDecimal.ZERO) { acc, betaling ->
                         acc + berekenReserveringMutaties(betaling, rekening)
                     }
 
-                val opname =
+                val periodeOpgenomenSaldo =
                     betalingen
                         .filter { opgenomenSaldoBetalingsSoorten.contains(it.betalingsSoort) }
                         .fold(BigDecimal.ZERO) { acc, betaling ->
                             acc + berekenOpgenomenSaldoMutaties(betaling, rekening)
                         }
-
-                Saldo(0, rekening, betaling = betaling, reservering = reservering, opgenomenSaldo = opname)
+                // TODO achterstand berekenen
+                Saldo(
+                    0,
+                    rekening,
+                    periodeBetaling = periodeBetaling,
+                    periodeReservering = periodeReservering,
+                    periodeOpgenomenSaldo = periodeOpgenomenSaldo,
+                    periode = Periode(0, administratie, vanDatum, totEnMetDatum)
+                )
             }
         }
-        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.betaling} + R ${it.reservering} + O ${it.opgenomenSaldo}" }}")
+        logger.debug("berekenMutatieLijstTussenDatums van $vanDatum tot $totEnMetDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
         return saldoLijst
     }
 
@@ -71,7 +82,7 @@ class StandMutatiesTussenDatumsService {
                         }
                     } else BigDecimal.ZERO)
 
-        logger.info("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
+        logger.debug("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
 
         return opgenomenSaldoMutatie
     }

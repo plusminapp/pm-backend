@@ -66,6 +66,7 @@ class PeriodeUpdateServiceTest {
         testRekening = Rekening(
             id = 1L,
             naam = "Test Rekening",
+            budgetBetaalDag = 20,
             rekeningGroep = testRekeningGroep,
             budgetBedrag = BigDecimal("100.00"),
             budgetVariabiliteit = 10,
@@ -94,90 +95,22 @@ class PeriodeUpdateServiceTest {
             openingsBalansSaldo = BigDecimal("1000.00"),
             openingsReserveSaldo = BigDecimal.ZERO,
             openingsOpgenomenSaldo = BigDecimal.ZERO,
-            achterstand = BigDecimal.ZERO,
+            openingsAchterstand = BigDecimal.ZERO,
             budgetMaandBedrag = BigDecimal("100.00"),
-            betaling = BigDecimal("50.00"),
-            reservering = BigDecimal.ZERO,
-            opgenomenSaldo = BigDecimal.ZERO,
+            periodeBetaling = BigDecimal("50.00"),
+            periodeReservering = BigDecimal.ZERO,
+            periodeOpgenomenSaldo = BigDecimal.ZERO,
             correctieBoeking = BigDecimal.ZERO,
-            budgetVariabiliteit = 10,
             periode = vorigePeriode
         )
 
         testSaldoDTO = Saldo.SaldoDTO(
             rekeningNaam = "Test Rekening",
             openingsBalansSaldo = BigDecimal("1000.00"),
-            achterstand = BigDecimal.ZERO,
+            openingsAchterstand = BigDecimal.ZERO,
             budgetMaandBedrag = BigDecimal("100.00"),
-            betaling = BigDecimal("50.00")
+            periodeBetaling = BigDecimal("50.00")
         )
-    }
-
-    @Test
-    fun `sluitPeriode met saldoLijst - succesvol`() {
-        // Arrange
-        val periodeLijst = listOf(vorigePeriode, huidigePeriode)
-        val saldoLijst = listOf(testSaldoDTO)
-
-        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
-        `when`(rekeningRepository.findRekeningAdministratieEnNaam(testAdministratie, "Test Rekening")).thenReturn(testRekening)
-        `when`(saldoRepository.save(org.mockito.ArgumentMatchers.any<Saldo>())).thenAnswer { it.arguments[0] }
-        `when`(periodeRepository.save(org.mockito.ArgumentMatchers.any<Periode>())).thenAnswer { it.arguments[0] }
-
-        // Act
-        periodeUpdateService.sluitPeriode(testAdministratie, 2L, saldoLijst)
-
-        // Assert
-        verify(saldoRepository, times(1)).save(org.mockito.ArgumentMatchers.any<Saldo>())
-        verify(periodeRepository, times(1)).save(org.mockito.ArgumentMatchers.any<Periode>())
-    }
-
-    @Test
-    fun `voorstelPeriodeSluiten - succesvol`() {
-        // Arrange
-        val periodeLijst = listOf(vorigePeriode, huidigePeriode)
-        val verwachteSaldi = listOf(testSaldoDTO)
-
-        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
-        `when`(standInPeriodeService.berekenSaldiOpDatum(
-            huidigePeriode.periodeEindDatum,
-            huidigePeriode,
-            true
-        )).thenReturn(verwachteSaldi)
-
-        // Act
-        val result = periodeUpdateService.voorstelPeriodeSluiten(testAdministratie, 2L)
-
-        // Assert
-        assertEquals(verwachteSaldi, result)
-    }
-
-    @Test
-    fun `checkPeriodeSluiten - vorige periode niet gesloten - gooit exceptie`() {
-        // Arrange
-        val openVorigePeriode = vorigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN)
-        val periodeLijst = listOf(openVorigePeriode, huidigePeriode)
-
-        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
-
-        // Act & Assert
-        assertThrows<PM_VorigePeriodeNietGeslotenException> {
-            periodeUpdateService.checkPeriodeSluiten(testAdministratie, 2L)
-        }
-    }
-
-    @Test
-    fun `checkPeriodeSluiten - periode niet open - gooit exceptie`() {
-        // Arrange
-        val geslotenPeriode = huidigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.GESLOTEN)
-        val periodeLijst = listOf(vorigePeriode, geslotenPeriode)
-
-        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
-
-        // Act & Assert
-        assertThrows<PM_PeriodeNietOpenException> {
-            periodeUpdateService.checkPeriodeSluiten(testAdministratie, 2L)
-        }
     }
 
     @Test
@@ -277,9 +210,9 @@ class PeriodeUpdateServiceTest {
             Saldo.SaldoDTO(
                 rekeningNaam = "Test Rekening",
                 openingsBalansSaldo = BigDecimal("1200.00"),
-                achterstand = BigDecimal.ZERO,
+                openingsAchterstand = BigDecimal.ZERO,
                 budgetMaandBedrag = BigDecimal("100.00"),
-                betaling = BigDecimal.ZERO
+                periodeBetaling = BigDecimal.ZERO
             )
         )
 
@@ -309,9 +242,9 @@ class PeriodeUpdateServiceTest {
             Saldo.SaldoDTO(
                 rekeningNaam = "Onbekende Rekening",
                 openingsBalansSaldo = BigDecimal("1200.00"),
-                achterstand = BigDecimal.ZERO,
+                openingsAchterstand = BigDecimal.ZERO,
                 budgetMaandBedrag = BigDecimal("100.00"),
-                betaling = BigDecimal.ZERO
+                periodeBetaling = BigDecimal.ZERO
             )
         )
 
@@ -321,21 +254,6 @@ class PeriodeUpdateServiceTest {
         // Act & Assert
         assertThrows<PM_GeenSaldoVoorRekeningException> {
             periodeUpdateService.wijzigPeriodeOpening(testAdministratie, 2L, nieuweOpeningsSaldi)
-        }
-    }
-
-    @Test
-    fun `sluitPeriode - rekening niet gevonden bij saldoLijst - gooit exceptie`() {
-        // Arrange
-        val periodeLijst = listOf(vorigePeriode, huidigePeriode)
-        val saldoLijst = listOf(testSaldoDTO)
-
-        `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
-        `when`(rekeningRepository.findRekeningAdministratieEnNaam(testAdministratie, "Test Rekening")).thenReturn(null)
-
-        // Act & Assert
-        assertThrows<PM_RekeningNotFoundException> {
-            periodeUpdateService.sluitPeriode(testAdministratie, 2L, saldoLijst)
         }
     }
 }

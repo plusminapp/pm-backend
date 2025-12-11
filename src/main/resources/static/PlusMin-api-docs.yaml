@@ -27,19 +27,13 @@ paths:
             '*/*':
               schema:
                 type: object
-  /reserveringen/administratie/{administratieId}/periode/{periodeId}:
+  /reserveringen/administratie/{administratieId}/alle:
     put:
       tags:
       - reservering-controller
-      operationId: creeerReserveringVoorPeriode
+      operationId: creeerAlleReservering
       parameters:
       - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
         in: path
         required: true
         schema:
@@ -105,14 +99,6 @@ paths:
         schema:
           type: integer
           format: int64
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/SaldoDTO"
-        required: true
       responses:
         "200":
           description: OK
@@ -403,7 +389,7 @@ paths:
     put:
       tags:
       - aflossing-controller
-      operationId: wijzigAflossing
+      operationId: wijzigAflossingDossierNotities
       parameters:
       - name: aflossingId
         in: path
@@ -705,34 +691,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Administratie"
-  /stand/administratie/{administratieId}/periode/{periodeId}/openingsbalans:
-    get:
-      tags:
-      - stand-controller
-      summary: GET de stand voor hulpvrager op datum
-      operationId: getOpeningsBalansVoorPeriode
-      parameters:
-      - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/SaldoDTO"
   /stand/administratie/{administratieId}/datum/{datum}:
     get:
       tags:
@@ -830,12 +788,11 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/administratie/{administratieId}:
+  /rekeningen/administratie/{administratieId}/betaaldagen:
     get:
       tags:
-      - periode-controller
-      summary: GET de periodes voor hulpvrager
-      operationId: getPeriodesVoorHulpvrager
+      - rekening-controller
+      operationId: getBetaalDagen
       parameters:
       - name: administratieId
         in: path
@@ -850,20 +807,14 @@ paths:
             '*/*':
               schema:
                 type: object
-  /periodes/administratie/{administratieId}/sluitvoorstel/{periodeId}:
+  /periodes/administratie/{administratieId}:
     get:
       tags:
       - periode-controller
-      summary: GET voorstel voor het sluiten van een periode voor hulpvrager
-      operationId: sluitPeriodeVoorstelVoorHulpvrager
+      summary: GET de periodes voor hulpvrager
+      operationId: getPeriodesVoorHulpvrager
       parameters:
       - name: administratieId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      - name: periodeId
         in: path
         required: true
         schema:
@@ -999,6 +950,7 @@ components:
           - CONTANT
           - CREDITCARD
           - INKOMSTEN
+          - RENTE
           - UITGAVEN
           - AFLOSSING
           - SPAARPOT
@@ -1012,6 +964,16 @@ components:
           - SPAREN
         rekeningNaam:
           type: string
+        budgetBetaalDag:
+          type: integer
+          format: int32
+        budgetAanvulling:
+          type: string
+          enum:
+          - TOT
+          - MET
+          - IN
+          - UIT
         aflossing:
           $ref: "#/components/schemas/AflossingDTO"
         spaartegoed:
@@ -1025,32 +987,22 @@ components:
           type: number
         openingsOpgenomenSaldo:
           type: number
-        achterstand:
+        openingsAchterstand:
           type: number
+        peilDatum:
+          type: string
         budgetMaandBedrag:
           type: number
-        budgetBetaalDag:
-          type: integer
-          format: int32
-        budgetAanvulling:
-          type: string
-          enum:
-          - TOT
-          - MET
-          - IN
-          - UIT
-        betaling:
+        periodeBetaling:
           type: number
-        reservering:
+        periodeReservering:
           type: number
-        opgenomenSaldo:
+        periodeOpgenomenSaldo:
           type: number
         correctieBoeking:
           type: number
-        achterstandOpPeilDatum:
+        periodeAchterstand:
           type: number
-        budgetPeilDatum:
-          type: string
         budgetOpPeilDatum:
           type: number
         betaaldBinnenBudget:
@@ -1061,21 +1013,21 @@ components:
           type: number
         meerDanMaandBudget:
           type: number
-        restMaandBudget:
+        komtNogNodig:
           type: number
       required:
-      - achterstand
-      - betaling
       - budgetMaandBedrag
       - correctieBoeking
       - id
+      - openingsAchterstand
       - openingsBalansSaldo
       - openingsOpgenomenSaldo
       - openingsReserveSaldo
-      - opgenomenSaldo
+      - periodeBetaling
+      - periodeOpgenomenSaldo
+      - periodeReservering
       - rekeningGroepNaam
       - rekeningNaam
-      - reservering
       - sortOrder
     SpaartegoedDTO:
       type: object
@@ -1163,6 +1115,7 @@ components:
           - OPEN
           - GESLOTEN
           - OPGERUIMD
+          - ONBEPAALD
         saldoLijst:
           type: array
           items:
@@ -1240,6 +1193,7 @@ components:
           - OPEN
           - GESLOTEN
           - OPGERUIMD
+          - ONBEPAALD
       required:
       - id
       - periodeEindDatum
@@ -1534,6 +1488,7 @@ components:
           type: string
           enum:
           - INKOMSTEN
+          - RENTE
           - UITGAVEN
           - BESTEDEN
           - AFLOSSEN

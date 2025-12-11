@@ -49,33 +49,24 @@ class PeriodeUpdateService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun sluitPeriode(administratie: Administratie, periodeId: Long, saldoLijst: List<Saldo.SaldoDTO>) {
+    fun sluitPeriode(administratie: Administratie, periodeId: Long) {
         val (_, periode) = checkPeriodeSluiten(administratie, periodeId)
-        if (saldoLijst.isEmpty()) {
-            val nieuweSaldiLijst = standInPeriodeService.berekenSaldiOpDatum(periode.periodeEindDatum, periode)
-            sluitPeriodeIntern(administratie, periode, nieuweSaldiLijst)
-        } else {
-            sluitPeriodeIntern(administratie, periode, saldoLijst)
-        }
-    }
-
-    private fun sluitPeriodeIntern(administratie: Administratie, periode: Periode, saldoLijst: List<Saldo.SaldoDTO>) {
-        saldoLijst
+        val saldiLijst = standInPeriodeService.berekenSaldiOpDatum(periode.periodeEindDatum, periode)
+        saldiLijst
             .forEach { saldo ->
                 val rekening = rekeningRepository
-                    .findRekeningAdministratieEnNaam(administratie, saldo.rekeningNaam)
-                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekeningNaam, administratie.naam))
+                    .findRekeningAdministratieEnNaam(administratie, saldo.rekening.naam)
+                    ?: throw PM_RekeningNotFoundException(listOf(saldo.rekening.naam, administratie.naam))
                 saldoRepository.save(
                     Saldo(
                         rekening = rekening,
                         openingsBalansSaldo = saldo.openingsBalansSaldo,
                         openingsReserveSaldo = saldo.openingsReserveSaldo,
-                        achterstand = saldo.achterstand,
+                        openingsAchterstand = saldo.openingsAchterstand,
+                        periodeBetaling = saldo.periodeBetaling,
+                        periodeReservering = saldo.periodeReservering,
                         budgetMaandBedrag = saldo.budgetMaandBedrag,
                         correctieBoeking = BigDecimal.ZERO,
-                        betaling = saldo.betaling,
-                        reservering = saldo.reservering,
-                        budgetVariabiliteit = rekening.budgetVariabiliteit,
                         periode = periode,
                     )
                 )
@@ -85,12 +76,6 @@ class PeriodeUpdateService {
                 periodeStatus = Periode.PeriodeStatus.GESLOTEN
             )
         )
-    }
-
-    fun voorstelPeriodeSluiten(administratie: Administratie, periodeId: Long): List<Saldo.SaldoDTO> {
-        val (_, periode) = checkPeriodeSluiten(administratie, periodeId)
-        return standInPeriodeService
-            .berekenSaldiOpDatum(periode.periodeEindDatum, periode, true)
     }
 
     fun checkPeriodeSluiten(administratie: Administratie, periodeId: Long): Pair<Periode, Periode> {
@@ -172,16 +157,18 @@ class PeriodeUpdateService {
         val (vorigePeriode, _) = checkPeriodeSluiten(administratie, periodeId)
         val vorigePeriodeSaldi = saldoRepository.findAllByPeriode(vorigePeriode)
         val aangepasteOpeningsSaldi = nieuweOpeningsSaldi.map { nieuweOpeningsBalansSaldo ->
-            val vorigePeriodeSaldo = vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
-                ?: throw PM_GeenSaldoVoorRekeningException(
-                    listOf(
-                        nieuweOpeningsBalansSaldo.rekeningNaam,
-                        administratie.naam
+            val vorigePeriodeSaldo =
+                vorigePeriodeSaldi.firstOrNull { it.rekening.naam == nieuweOpeningsBalansSaldo.rekeningNaam }
+                    ?: throw PM_GeenSaldoVoorRekeningException(
+                        listOf(
+                            nieuweOpeningsBalansSaldo.rekeningNaam,
+                            administratie.naam
+                        )
                     )
-                )
             // Update de correctieBoeking
-            val correctieboeking = nieuweOpeningsBalansSaldo.openingsBalansSaldo - (vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.betaling)
-            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${vorigePeriodeSaldo.openingsBalansSaldo+vorigePeriodeSaldo.betaling} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
+            val correctieboeking =
+                nieuweOpeningsBalansSaldo.openingsBalansSaldo - (vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.periodeBetaling)
+            logger.debug("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.periodeBetaling} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
             saldoRepository.save(
                 vorigePeriodeSaldo.fullCopy(
                     correctieBoeking = correctieboeking,
