@@ -57,7 +57,7 @@ class StandMutatiesTussenDatumsService {
                 )
             }
         }
-        logger.info("berekenMutatieLijstTussenDatums van $vanDatum tot $totEnMetDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
+        logger.debug("berekenMutatieLijstTussenDatums van $vanDatum tot $totEnMetDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
         return saldoLijst
     }
 
@@ -82,7 +82,7 @@ class StandMutatiesTussenDatumsService {
                         }
                     } else BigDecimal.ZERO)
 
-        logger.info("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
+        logger.debug("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
 
         return opgenomenSaldoMutatie
     }

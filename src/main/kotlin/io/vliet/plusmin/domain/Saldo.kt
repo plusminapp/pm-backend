@@ -2,6 +2,7 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import io.vliet.plusmin.domain.Rekening.BudgetAanvulling
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -104,16 +105,25 @@ class Saldo(
         val komtNogNodig: BigDecimal? = null,
     )
 
-    fun toDTO(peilDatum: LocalDate = periode.periodeEindDatum): SaldoDTO {
-        val budgetOpPeilDatum =
-            if (this.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST)
-                this.budgetMaandBedrag.abs()
-            else berekendBudgetOpPeilDatum(peilDatum)
-        val betaaldBinnenBudget = this.periodeBetaling.abs().min(this.budgetMaandBedrag)
+    fun toDTO(peilDatum: LocalDate = this.periode.periodeEindDatum): SaldoDTO {
+        val budgetOpPeilDatum = berekenBudgetOpPeilDatum(
+            this.rekening,
+            peilDatum,
+            this.budgetMaandBedrag,
+            this.periodeBetaling,
+            this.periode
+        ) ?: BigDecimal.ZERO
+        val budgetMaandBedrag = rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO
+        val komtNogNodig = if (this.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST) {
+            budgetMaandBedrag - this.periodeBetaling
+        } else {
+            budgetMaandBedrag - budgetOpPeilDatum
+        }
+
+        val betaaldBinnenBudget = BigDecimal.ZERO
         val minderDanBudget = BigDecimal.ZERO
         val meerDanMaandBudget = BigDecimal.ZERO
         val meerDanBudget = BigDecimal.ZERO
-        val komtNogNodig = BigDecimal.ZERO
         return SaldoDTO(
             this.id,
             this.rekening.rekeningGroep.naam,
@@ -130,7 +140,7 @@ class Saldo(
             this.openingsOpgenomenSaldo,
             this.openingsAchterstand,
             peilDatum.toString(),
-            this.budgetMaandBedrag,
+            budgetMaandBedrag,
             this.periodeBetaling,
             this.periodeReservering,
             this.periodeOpgenomenSaldo,
@@ -150,6 +160,82 @@ class Saldo(
         val maandenTussen = ((peilDatum.year - periodeStartDatum.year) * 12 + peilDatum.monthValue - periodeStartDatum.monthValue).coerceAtLeast(0)
         return this.budgetMaandBedrag.multiply(BigDecimal(maandenTussen))
     }
+
+    fun berekenBudgetOpPeilDatum(
+        rekening: Rekening,
+        peilDatum: LocalDate,
+        budgetMaandBedrag: BigDecimal,
+        betaling: BigDecimal,
+        peilPeriode: Periode
+    ): BigDecimal? {
+        val budgetOpPeilDatum =
+            when (rekening.rekeningGroep.budgetType) {
+                RekeningGroep.BudgetType.VAST, RekeningGroep.BudgetType.INKOMSTEN -> {
+                    berekenVastBudgetOpPeildatum(
+                        rekening,
+                        peilPeriode,
+                        rekening.rekeningGroep.budgetType,
+                        peilDatum,
+                        budgetMaandBedrag,
+                        betaling
+                    )
+                }
+
+                RekeningGroep.BudgetType.CONTINU -> {
+                    berekenContinuBudgetOpPeildatum(rekening, peilPeriode, peilDatum)
+                }
+
+                else -> BigDecimal.ZERO
+            }
+        return budgetOpPeilDatum
+    }
+
+    private fun berekenVastBudgetOpPeildatum(
+        rekening: Rekening,
+        peilPeriode: Periode,
+        budgetType: RekeningGroep.BudgetType,
+        peilDatum: LocalDate,
+        budgetMaandBedrag: BigDecimal,
+        betaling: BigDecimal
+    ): BigDecimal? {
+        val betaaldagInPeriode = if (rekening.budgetBetaalDag != null)
+            peilPeriode.berekenDagInPeriode(rekening.budgetBetaalDag)
+        else null
+
+        if (betaaldagInPeriode == null) {
+            throw PM_GeenBetaaldagException(
+                listOf(
+                    rekening.naam,
+                    budgetType.name,
+                    rekening.rekeningGroep.administratie.naam
+                )
+            )
+        }
+        return if (!peilDatum.isBefore(betaaldagInPeriode)) budgetMaandBedrag
+        else (budgetMaandBedrag).min(betaling.abs())
+    }
+
+    fun berekenContinuBudgetOpPeildatum(
+        rekening: Rekening,
+        gekozenPeriode: Periode,
+        peilDatum: LocalDate
+    ): BigDecimal {
+        if (peilDatum < gekozenPeriode.periodeStartDatum) return BigDecimal.ZERO
+        val dagenInPeriode: Long =
+            gekozenPeriode.periodeEindDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
+        val budgetMaandBedrag = when (rekening.budgetPeriodiciteit) {
+            Rekening.BudgetPeriodiciteit.WEEK -> rekening.budgetBedrag
+                ?.times(BigDecimal(dagenInPeriode))
+                ?.div(BigDecimal(7)) ?: BigDecimal.ZERO
+
+            Rekening.BudgetPeriodiciteit.MAAND -> rekening.budgetBedrag ?: BigDecimal.ZERO
+            null -> BigDecimal.ZERO
+        }
+        if (peilDatum >= gekozenPeriode.periodeEindDatum) return budgetMaandBedrag
+        val dagenTotPeilDatum: Long = peilDatum.toEpochDay() - gekozenPeriode.periodeStartDatum.toEpochDay() + 1
+        return (budgetMaandBedrag.times(BigDecimal(dagenTotPeilDatum)).div(BigDecimal(dagenInPeriode)))
+    }
+
 
     data class ResultaatSamenvattingOpDatumDTO(
         val percentagePeriodeVoorbij: Long,

@@ -48,7 +48,7 @@ class StandOpeningNaGeslotenPeriodeService {
                 correctieBoeking = BigDecimal.ZERO,
             )
         }
-        logger.info(
+        logger.debug(
             "berekenOpeningSaldiNaGeslotenPeriode eindSaldi: ${periode.periodeStartDatum} ${
                 saldoLijst.joinToString
                 { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }

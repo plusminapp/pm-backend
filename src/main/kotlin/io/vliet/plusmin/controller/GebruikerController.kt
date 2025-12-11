@@ -56,7 +56,7 @@ class GebruikerController {
     fun findGebruiker(): GebruikerDTO {
         val gebruiker = gebruikerService.getJwtGebruiker()
         logger.info("GET GebruikerController.findGebruiker() voor gebruiker ${gebruiker.bijnaam}/${gebruiker.subject}.")
-        gebruiker.administraties.map { (periodeService.checkPeriodesVoorGebruiker(it)) }
+        gebruiker.administraties.map { (periodeService.checkPeriodesVoorAdministratie(it)) }
         return toDTO(gebruiker)
     }
 

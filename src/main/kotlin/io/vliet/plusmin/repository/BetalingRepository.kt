@@ -111,6 +111,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
     @Query(
         value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
                 "WHERE b.isVerborgen IS FALSE AND " +
+                "b.bestemming IS NOT NULL AND " + // om reserveringen uit te sluiten
                 "b.administratie = :administratie"
     )
     fun findDatumLaatsteBetalingBijAdministratie(administratie: Administratie): LocalDate?
@@ -151,7 +152,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
                 "WHERE b.administratie = :administratie AND " +
                 "b.betalingsSoort IN ('P2P', 'SP2P', 'P2SP', 'SP2SP')"
     )
-    fun deleteReserveringenByAdministratieTotEnMetDatum(administratie: Administratie)
+    fun deleteReserveringenByAdministratie(administratie: Administratie)
 
     @Modifying
     @Query(

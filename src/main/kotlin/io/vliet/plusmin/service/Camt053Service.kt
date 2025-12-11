@@ -33,14 +33,14 @@ class Camt053Service {
 //        try {
 //            val camt053Document = camt053Parser.parse(reader)
 //
-//            logger.info("Account IBAN: " + camt053Document.bkToCstmrStmt.stmt[0].acct.id.iban)
-//            logger.info("Bank afschrift volgnummer: " + camt053Document.bkToCstmrStmt.stmt[0].elctrncSeqNb.toInt())
+//            logger.debug("Account IBAN: " + camt053Document.bkToCstmrStmt.stmt[0].acct.id.iban)
+//            logger.debug("Bank afschrift volgnummer: " + camt053Document.bkToCstmrStmt.stmt[0].elctrncSeqNb.toInt())
 //
 //            val accountStatement2List = camt053Document.bkToCstmrStmt.stmt
 //
 //            for (accountStatement2 in accountStatement2List) {
 //                aantalBetalingen = accountStatement2.ntry.size
-//                logger.info("Aantal betalingen : ${aantalBetalingen}")
+//                logger.debug("Aantal betalingen : ${aantalBetalingen}")
 //                for (reportEntry2 in accountStatement2.ntry) {
 //                    if (reportEntry2.ntryDtls.isEmpty()) {
 //                        logger.warn("reportEntry2.ntryDtls is leeg ${reportEntry2.acctSvcrRef}  ")
@@ -59,7 +59,7 @@ class Camt053Service {
 //                        }
 //                    val omschrijving = naamTegenrekening + reportEntry2.addtlNtryInf
 //                    if (debug) {
-//                        logger.info(
+//                        logger.debug(
 //                            "${if (isDebit) "Af" else "Bij"}, " +
 //                                    "Bedrag: ${reportEntry2.amt.value}, " +
 //                                    "Boekingsdatum: ${boekingsDatum}, " +
@@ -86,7 +86,7 @@ class Camt053Service {
 //                        }
 //                    }
 //                }
-//                logger.info("Aantal opgeslagen betalingen: ${aantalOpgeslagenBetalingen}")
+//                logger.debug("Aantal opgeslagen betalingen: ${aantalOpgeslagenBetalingen}")
 //            }
 //        } catch (e: Exception) {
 //            e.printStackTrace()

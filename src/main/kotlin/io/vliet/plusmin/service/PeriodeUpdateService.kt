@@ -168,7 +168,7 @@ class PeriodeUpdateService {
             // Update de correctieBoeking
             val correctieboeking =
                 nieuweOpeningsBalansSaldo.openingsBalansSaldo - (vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.periodeBetaling)
-            logger.info("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.periodeBetaling} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
+            logger.debug("wijzigPeriodeOpening: rekening ${nieuweOpeningsBalansSaldo.rekeningNaam}: openingsbalans wordt aangepast van ${vorigePeriodeSaldo.openingsBalansSaldo + vorigePeriodeSaldo.periodeBetaling} naar ${nieuweOpeningsBalansSaldo.openingsBalansSaldo}; correctieboeking = $correctieboeking")
             saldoRepository.save(
                 vorigePeriodeSaldo.fullCopy(
                     correctieBoeking = correctieboeking,

@@ -98,7 +98,7 @@ class RekeningService {
     }
 
     fun saveRekening(administratie: Administratie, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
-        logger.info("Opslaan rekening ${rekeningDTO.naam} voor ${administratie.naam} in groep ${rekeningGroep.naam}.")
+        logger.debug("Opslaan rekening ${rekeningDTO.naam} voor ${administratie.naam} in groep ${rekeningGroep.naam}.")
 
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
@@ -129,7 +129,7 @@ class RekeningService {
             (!gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
         )
             throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))
-        logger.info("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
+        logger.debug("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
 
         if (vastBudgetType.contains(rekeningGroep.budgetType) && !geldigeBetaalDag(rekeningDTO.budgetBetaalDag))
             throw PM_GeenBetaaldagException(
@@ -142,7 +142,7 @@ class RekeningService {
 
         val rekeningOpt = rekeningRepository.findRekeningAdministratieEnNaam(administratie, rekeningDTO.naam)
         val rekening = if (rekeningOpt != null) {
-            logger.info("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${administratie.naam}")
+            logger.debug("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${administratie.naam}")
             val aflossing = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.AFLOSSING) {
                 if (rekeningOpt.aflossing == null) {
                     aflossingRepository.save(
@@ -270,7 +270,7 @@ class RekeningService {
                 )
             )
         }
-        logger.info(
+        logger.debug(
             "Opslaan rekening ${rekening.naam} voor ${administratie.naam} en periodiciteit ${rekening.budgetPeriodiciteit} met bedrag ${rekening.budgetBedrag} " +
                     "openingsBalansSaldo: ${rekeningDTO.saldo ?: BigDecimal.ZERO}, openingsReserveSaldo: ${rekeningDTO.reserve ?: BigDecimal.ZERO}."
         )

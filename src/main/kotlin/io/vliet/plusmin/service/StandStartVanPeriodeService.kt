@@ -41,7 +41,7 @@ class StandStartVanPeriodeService {
     fun berekenStartSaldiVanPeriode(periode: Periode): List<Saldo> {
 
         val administratie = periode.administratie
-        logger.info("berekenStartSaldiVanPeriode: periode: ${periode.periodeStartDatum} voor administratie ${administratie.naam}")
+        logger.debug("berekenStartSaldiVanPeriode: periode: ${periode.periodeStartDatum} voor administratie ${administratie.naam}")
 
         val basisPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(administratie)
         val basisPeriodeEindSaldi = standOpeningNaGeslotenPeriodeService.berekenOpeningSaldiNaGeslotenPeriode(basisPeriode)
@@ -85,7 +85,7 @@ class StandStartVanPeriodeService {
                 openingsAchterstand = openingsAchterstand,
             )
         }
-        logger.info("berekenStartSaldiVanPeriode openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")
+        logger.debug("berekenStartSaldiVanPeriode openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")
         return saldoLijst
     }
 }

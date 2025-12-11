@@ -1,6 +1,6 @@
 package io.vliet.plusmin.configuration
 
-import io.vliet.plusmin.domain.ErrorResponse
+import io.vliet.plusmin.domain.PlusMinError
 import jakarta.validation.ConstraintViolationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,14 +32,14 @@ class GlobalExceptionHandler {
     fun handlePlusMinException(
         ex: io.vliet.plusmin.domain.PlusMinException,
         request: WebRequest,
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         val location = extractLocationInfo(ex)
         logger.warn("PlusMin exception at ${location}: ${ex.errorCode} - ${ex.message}")
 
         return ResponseEntity
             .status(ex.httpStatus)
             .body(
-                ErrorResponse(
+                PlusMinError(
                     ex.errorCode,
                     ex.message,
                     ex.parameters,
@@ -52,7 +52,7 @@ class GlobalExceptionHandler {
     fun handleIllegalArgumentException(
         ex: IllegalArgumentException,
         request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
             ?: ex.stackTrace.firstOrNull()
         val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
@@ -65,7 +65,7 @@ class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(
-                ErrorResponse(
+                PlusMinError(
                     "ILLEGAL_ARGUMENT", errorMessage, parameters = parameters, path = request.getDescription(false)
                 )
             )
@@ -94,52 +94,52 @@ class GlobalExceptionHandler {
     fun handleConstraintViolationException(
         ex: ConstraintViolationException,
         request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         val message = ex.constraintViolations.joinToString(", ") { it.message }
         logger.warn("Constraint violation: $message")
 
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("CONSTRAINT_VIOLATION", message))
+            .body(PlusMinError("CONSTRAINT_VIOLATION", message))
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleTypeMismatchException(
         ex: MethodArgumentTypeMismatchException,
         request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         val message = "Parameter '${ex.name}' should be of type ${ex.requiredType?.simpleName}"
         logger.warn("Type mismatch: $message")
 
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("TYPE_MISMATCH", message))
+            .body(PlusMinError("TYPE_MISMATCH", message))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadableException(
         ex: HttpMessageNotReadableException,
         request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         logger.warn("Malformed JSON request: ${ex.message}")
 
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse("MALFORMED_JSON", "Request body contains invalid JSON"))
+            .body(PlusMinError("MALFORMED_JSON", "Request body contains invalid JSON"))
     }
 
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDeniedException(
         ex: AccessDeniedException,
         request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         val location = extractLocationInfo(ex)
         logger.warn("Access denied ar ${location}: ${ex.message}")
 
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(
-                ErrorResponse(
+                PlusMinError(
                     "ACCESS_DENIED",
                     ex.message ?: "Access is denied",
                     path = request.userPrincipal?.name
@@ -151,14 +151,14 @@ class GlobalExceptionHandler {
     fun handleGenericException(
         ex: Exception,
         request: WebRequest
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<PlusMinError> {
         val location = extractLocationInfo(ex)
         logger.error("Unexpected exception at ${location}: ${ex.message}")
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
-                ErrorResponse(
+                PlusMinError(
                     "INTERNAL_ERROR",
                     "An unexpected error occurred",
                     path = request.getDescription(false)

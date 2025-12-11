@@ -44,14 +44,16 @@ class ReserveringService {
 
     fun creeerAlleReserveringen(administratie: Administratie) {
         var reserverenMogelijk = true
-        var reserveringHorizon = betalingRepository.getReserveringsHorizon(administratie)
         val huidigePeriode = periodeRepository.getLaatstePeriodeVoorAdministratie(administratie.id)
-        while (reserverenMogelijk && reserveringHorizon != null &&
+        var reserveringHorizon: LocalDate? = betalingRepository.getReserveringsHorizon(administratie)?: huidigePeriode?.periodeStartDatum
+        while (reserverenMogelijk &&
+            reserveringHorizon != null &&
             huidigePeriode != null &&
             reserveringHorizon <= huidigePeriode.periodeEindDatum
         ) {
             reserverenMogelijk = creeerReserveringen(administratie)
             reserveringHorizon = betalingRepository.getReserveringsHorizon(administratie)
+            logger.info("Reserveringen aangemaakt tot en met $reserveringHorizon voor administratie ${administratie.naam}.")
         }
     }
 
@@ -101,7 +103,7 @@ class ReserveringService {
         val saldoBufferIn = saldiOpDatum
             .find { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.RESERVERING_BUFFER }
             ?.let { it.openingsReserveSaldo + it.periodeReservering } ?: BigDecimal.ZERO
-        logger.info(
+        logger.debug(
             "(On)voldoende buffer saldo bij het aanmaken van reserveringen voor periode vanaf " +
                     "${vorigeReserveringsDatum.plusDays(1)} " +
                     "voor ${administratie.naam}: " +
@@ -135,7 +137,9 @@ class ReserveringService {
                     vorigeReserveringsDatum.withDayOfMonth(it.budgetBetaalDag)
                 else
                     vorigeReserveringsDatum.plusMonths(1).withDayOfMonth(it.budgetBetaalDag)
-            if (betaalDatum <= fakePeriode.periodeEindDatum) {
+            logger.info("Creëer reservering voor vaste last ${it.naam} op $betaalDatum voor administratie ${administratie.naam}. betaalDatum <= fakePeriode.periodeEindDatum: ${betaalDatum <= fakePeriode.periodeEindDatum}, it.maanden=${it.maanden}, it.maanden?.contains(betaalDatum.monthValue)=${it.maanden?.contains(betaalDatum.monthValue)}")
+            if (betaalDatum <= fakePeriode.periodeEindDatum &&
+                (it.maanden.isNullOrEmpty() || it.maanden?.contains(betaalDatum.monthValue) ?: true)) {
                 betalingRepository.save(
                     Betaling(
                         administratie = administratie,
@@ -186,7 +190,7 @@ class ReserveringService {
                         vorigeReserveringsDatum.withDayOfMonth(rekeningBetaalDag)
                     else
                         vorigeReserveringsDatum.plusMonths(1).withDayOfMonth(rekeningBetaalDag)
-                logger.info(
+                logger.debug(
                     "findVasteLastenRekeningen: rekening=${rekening.naam}, vorigeReserveringsDatum=$vorigeReserveringsDatum, volgendeBetaalDatum=$volgendeRekeningBetaaldatum, volgendeInkomstenDatum=$volgendeInkomstenDatum, ${
                         !volgendeRekeningBetaaldatum.isAfter(
                             volgendeInkomstenDatum
@@ -208,7 +212,7 @@ class ReserveringService {
         val aantalDagenInDeMaand = vorigeReserveringsDatum.lengthOfMonth()
         return leefgeldRekeningen
             .associateWith {
-                logger.info("leefgeldPerDag: rekening=${it.naam}, aantalDagenInDeMaand=$aantalDagenInDeMaand, budgetBedrag=${it.budgetBedrag}, budgetPeriodiciteit=${it.budgetPeriodiciteit}")
+                logger.debug("leefgeldPerDag: rekening=${it.naam}, aantalDagenInDeMaand=$aantalDagenInDeMaand, budgetBedrag=${it.budgetBedrag}, budgetPeriodiciteit=${it.budgetPeriodiciteit}")
                 (if (it.budgetPeriodiciteit == Rekening.BudgetPeriodiciteit.MAAND)
                     it.budgetBedrag?.divide(BigDecimal(aantalDagenInDeMaand), 2, java.math.RoundingMode.HALF_UP)
                 else it.budgetBedrag?.divide(BigDecimal(7), 2, java.math.RoundingMode.HALF_UP)) ?: BigDecimal.ZERO
@@ -234,7 +238,7 @@ class ReserveringService {
         val initieleReserveringOverschot =
             saldiOpPeildatum.filter { potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.rekening.budgetAanvulling == Rekening.BudgetAanvulling.TOT }
                 .sumOf { if (it.openingsReserveSaldo > BigDecimal.ZERO) it.openingsReserveSaldo else BigDecimal.ZERO }
-        logger.info("Initiele buffer op ${vorigeReserveringsDatum} voor ${administratie.naam} is $initieleBuffer, reserveringstekorten $initieleReserveringTekorten, delta ${initieleBuffer + initieleReserveringTekorten}.")
+        logger.debug("Initiele buffer op ${vorigeReserveringsDatum} voor ${administratie.naam} is $initieleBuffer, reserveringstekorten $initieleReserveringTekorten, delta ${initieleBuffer + initieleReserveringTekorten}.")
         if (initieleBuffer + initieleReserveringTekorten + initieleReserveringOverschot < BigDecimal.ZERO) throw PM_OnvoldoendeBufferSaldoException(
             listOf(
                 initieleBuffer.toString(),
@@ -244,7 +248,8 @@ class ReserveringService {
             )
         )
         val startSaldiVanPeriode =
-            if (initieleReserveringTekorten == BigDecimal.ZERO && initieleReserveringOverschot == BigDecimal.ZERO) saldiOpPeildatum
+            if ((initieleReserveringTekorten == BigDecimal.ZERO && initieleReserveringOverschot == BigDecimal.ZERO) ||
+                vorigeReserveringsDatum > (administratie.vandaag ?: LocalDate.now())) saldiOpPeildatum
             else {
                 saldiOpPeildatum.map {
                     if (potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.openingsReserveSaldo < BigDecimal.ZERO) {
@@ -317,7 +322,7 @@ class ReserveringService {
         val saldoPotjesVoorNu = basisPeriodeSaldi
             .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
             .sumOf { it.openingsReserveSaldo }
-        logger.info(
+        logger.debug(
             "Openings saldo betaalmiddelen: $saldoBetaalMiddelen, " +
                     "openings saldo potjes voor nu: $saldoPotjesVoorNu, " +
                     "totaal: ${saldoBetaalMiddelen - saldoPotjesVoorNu}"

@@ -46,7 +46,7 @@ class CashflowService {
         metInkomsten: Boolean? = false,
     ): List<CashFlow> {
         val periode = periodeService.getPeriode(administratie, startDatum)
-        logger.info("GET RekeningCashflowService.getCashflowVoorHulpvrager voor ${administratie.naam} in periode ${startDatum}")
+        logger.debug("GET RekeningCashflowService.getCashflowVoorHulpvrager voor ${administratie.naam} in periode ${startDatum}")
         val betalingenInPeriode = betalingRepository
             .findAllByAdministratieTussenDatums(administratie, startDatum, eindDatum)
             .filter {
@@ -67,10 +67,10 @@ class CashflowService {
                     val betaaldeVasteLaten =
                         betaaldeVasteLaten(betalingenInPeriode, date, laatsteBetalingDatum, periode)
                     val verwachteUitgaven = budgetVasteLastenUitgaven(rekeningGroepen, date)
-//                    logger.info("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
+//                    logger.debug("Vaste lasten aflossing binnen, $date, $accSaldo, $betaaldeVasteLaten, $verwachteUitgaven, ")
                     accSaldo + verwachteUitgaven - betaaldeVasteLaten
                 } else BigDecimal.ZERO
-//        logger.info("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand, ")
+//        logger.debug("Vaste lasten aflossing achterstand: $vasteLastenAflossingAchterstand, ")
 
         val openingsReserveringsSaldo = openingsReserveringsSaldo(periode)
         val initalCashflow = CashFlow(
@@ -138,7 +138,7 @@ class CashflowService {
         val saldoSpaartegoed = startSaldiVanPeriode
             .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT }
             .sumOf { it.openingsReserveSaldo }
-        logger.info(
+        logger.debug(
             "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +
                     "openings saldo spaartegoed: $saldoSpaartegoed"
         )
@@ -310,7 +310,7 @@ class CashflowService {
                 logger.warn("Geen budgetHorizon gevonden voor ${hulpvrager.naam}")
                 startDatum.minusDays(1)
             }
-        logger.info("Budget horizon voor ${hulpvrager.naam} in periode ${startDatum} is PVNR ${openingPotjesVoorNuSaldo}, RH $reserveringsHorizon, BH $budgetHorizon")
+        logger.debug("Budget horizon voor ${hulpvrager.naam} in periode ${startDatum} is PVNR ${openingPotjesVoorNuSaldo}, RH $reserveringsHorizon, BH $budgetHorizon")
         return Pair(reserveringsHorizon, budgetHorizon)
     }
 }

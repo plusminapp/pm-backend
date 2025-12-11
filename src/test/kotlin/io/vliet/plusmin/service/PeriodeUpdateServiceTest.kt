@@ -66,6 +66,7 @@ class PeriodeUpdateServiceTest {
         testRekening = Rekening(
             id = 1L,
             naam = "Test Rekening",
+            budgetBetaalDag = 20,
             rekeningGroep = testRekeningGroep,
             budgetBedrag = BigDecimal("100.00"),
             budgetVariabiliteit = 10,

@@ -60,7 +60,7 @@ class StandService {
                 (it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.UITGAVEN && it.budgetType != RekeningGroep.BudgetType.SPAREN) ||
                         it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.AFLOSSING
             }
-            .also { logger.info("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo }}") }
+            .also { logger.debug("openingsReservePotjesVoorNuSaldo: ${it.joinToString { it.rekeningNaam + " | " + it.openingsReserveSaldo }}") }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc + (saldoDTO.openingsReserveSaldo) }
         val standSamenvattingOpDatumDTO =
             berekenResultaatSamenvatting(
@@ -127,7 +127,7 @@ class StandService {
         saldi: List<Saldo.SaldoDTO>,
         openingsReservePotjesVoorNuSaldo: BigDecimal = BigDecimal.ZERO
     ): Saldo.ResultaatSamenvattingOpDatumDTO {
-//        logger.info("berekenResultaatSamenvatting ${saldi.joinToString { it.toString() }}")
+//        logger.debug("berekenResultaatSamenvatting ${saldi.joinToString { it.toString() }}")
         val periodeLengte = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val periodeVoorbij = peilDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
         val isPeriodeVoorbij = peilDatum >= periode.periodeEindDatum
@@ -141,7 +141,7 @@ class StandService {
             .filter { it.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.INKOMSTEN }
             .fold(BigDecimal.ZERO) { acc, saldoDTO -> acc - (saldoDTO.periodeBetaling) }
         val maandInkomstenBedrag = if (isPeriodeVoorbij) werkelijkeMaandInkomsten else budgetMaandInkomsten
-        logger.info("budgetMaandInkomsten: $budgetMaandInkomsten, werkelijkeMaandInkomsten: $werkelijkeMaandInkomsten, maandInkomstenBedrag: $maandInkomstenBedrag")
+        logger.debug("budgetMaandInkomsten: $budgetMaandInkomsten, werkelijkeMaandInkomsten: $werkelijkeMaandInkomsten, maandInkomstenBedrag: $maandInkomstenBedrag")
 
         val besteedTotPeilDatum = saldi
             .filter {
@@ -164,7 +164,7 @@ class StandService {
                 totEnMetDatum = peilDatum
             )
             .fold(BigDecimal.ZERO) { acc, reservering -> acc + (reservering.bedrag) }
-        logger.info("besteedTotPeilDatum: $besteedTotPeilDatum, gespaardTotPeilDatum: $gespaardTotPeilDatum op $peilDatum")
+        logger.debug("besteedTotPeilDatum: $besteedTotPeilDatum, gespaardTotPeilDatum: $gespaardTotPeilDatum op $peilDatum")
 
         val nogNodigNaPeilDatum = if (isPeriodeVoorbij) BigDecimal.ZERO else {
             saldi
@@ -174,7 +174,7 @@ class StandService {
                         (saldoDTO.budgetMaandBedrag) - (saldoDTO.betaaldBinnenBudget ?: BigDecimal.ZERO)
                     else (saldoDTO.komtNogNodig ?: BigDecimal.ZERO) + (saldoDTO.minderDanBudget
                         ?: BigDecimal.ZERO) + (saldoDTO.periodeAchterstand ?: BigDecimal.ZERO).abs()
-                    logger.info("RekeningNodigNaPeilDatum: ${saldoDTO.rekeningGroepNaam} $restMaandRekening")
+                    logger.debug("RekeningNodigNaPeilDatum: ${saldoDTO.rekeningGroepNaam} $restMaandRekening")
                     acc + restMaandRekening
                 }
         }

@@ -59,7 +59,7 @@ class BetalingService {
             Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
         val sortOrder = berekenSortOrder(administratie, boekingsDatum)
-        logger.info("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
+        logger.debug("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
         val betaling = Betaling(
             administratie = administratie,
             boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
@@ -105,7 +105,7 @@ class BetalingService {
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
             Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
-        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.naam} ")
+        logger.debug("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.naam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = boekingsDatum,
             bedrag = newBetalingDTO.bedrag,

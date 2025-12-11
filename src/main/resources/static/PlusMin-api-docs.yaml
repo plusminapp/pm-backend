@@ -27,6 +27,25 @@ paths:
             '*/*':
               schema:
                 type: object
+  /reserveringen/administratie/{administratieId}/alle:
+    put:
+      tags:
+      - reservering-controller
+      operationId: creeerAlleReservering
+      parameters:
+      - name: administratieId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
   /periodes/administratie/{administratieId}/wijzig-periode-opening/{periodeId}:
     put:
       tags:

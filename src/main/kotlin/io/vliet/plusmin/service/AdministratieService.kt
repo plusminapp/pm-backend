@@ -45,8 +45,6 @@ class AdministratieService {
     @Autowired
     lateinit var rekeningService: RekeningService
 
-    @Autowired
-    lateinit var entityManager: EntityManager
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun saveAll(eigenaar: Gebruiker, administratiesLijst: List<AdministratieDTO>): List<Administratie> {
@@ -57,7 +55,7 @@ class AdministratieService {
 
     @Transactional
     fun save(eigenaar: Gebruiker, administratieDTO: AdministratieDTO): Administratie {
-        logger.info("administratie: ${administratieDTO.naam} voor gebruiker ${eigenaar.bijnaam}/${eigenaar.subject} vandaag=${administratieDTO.vandaag} periodeDag=${administratieDTO.periodeDag}")
+        logger.debug("administratie: ${administratieDTO.naam} voor gebruiker ${eigenaar.bijnaam}/${eigenaar.subject} vandaag=${administratieDTO.vandaag} periodeDag=${administratieDTO.periodeDag}")
         val administratieOpt =
             administratieRepository.findAdministratieOpNaamEnGebruiker(administratieDTO.naam, eigenaar)
         val vandaag = if (administratieDTO.vandaag.isNullOrEmpty())
@@ -157,7 +155,7 @@ class AdministratieService {
             throw PM_AdministratieBestaatAlException(listOf(administratieDTO.naam))
         }
         val opgeschoondeEigenaar = if (administratieBestaand != null) {
-            verwijderAdministratie(administratieBestaand.id, eigenaar)
+            verwijderAdministratie(administratieBestaand.id)
             eigenaar.fullCopy(
                 administraties = eigenaar.administraties.filter { it.id != administratieBestaand.id }
             )
@@ -166,11 +164,8 @@ class AdministratieService {
     }
 
     @Transactional
-    fun verwijderAdministratie(administratieId: Long, gebruiker: Gebruiker) {
+    fun verwijderAdministratie(administratieId: Long) {
         administratieRepository.deleteAdministratie(administratieId)
-//        gebruikerRepository.save(gebruiker.fullCopy(
-//            administraties = gebruiker.administraties.filter { it.id != administratieId }
-//        ))
     }
 
     @Transactional

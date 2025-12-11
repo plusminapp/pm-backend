@@ -6,8 +6,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
-import java.time.LocalDate
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
@@ -21,12 +23,22 @@ class ReserveringController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    @PutMapping("/administratie/{administratieId}/alle")
+    fun creeerAlleReservering(
+        @PathVariable("administratieId") administratieId: Long,
+    ): ResponseEntity<Any> {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT ReserveringController.creeerAlleReservering voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        reserveringService.creeerAlleReserveringen(administratie)
+        return ResponseEntity.ok().build()
+    }
+
     @PutMapping("/administratie/{administratieId}")
     fun creeerReservering(
         @PathVariable("administratieId") administratieId: Long,
     ): ResponseEntity<Any> {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
-        logger.info("POST ReserveringController.creeerNieuweReserveringVoorPeriode voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        logger.info("PUT ReserveringController.creeerReservering voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         reserveringService.creeerReserveringen(administratie)
         return ResponseEntity.ok().build()
     }
