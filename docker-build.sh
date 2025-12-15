@@ -4,17 +4,24 @@ echo pm-backend version: ${VERSION}
 echo pm-backend platform: ${PLATFORM}
 
 pushd ${PROJECT_FOLDER}/pm-backend
-mvn clean
 
-if mvn package; then
-  docker build \
-    --platform=$PLATFORM \
-    --build-arg JAR_FILE=./target/pm-backend-${VERSION}.jar \
-    -t plusmin/pm-backend:${VERSION} .
-else
-  echo mvn clean package FAILED!!!
+# Check if builder image exists, if not create it
+if ! docker image inspect plusmin/pm-backend-builder:latest > /dev/null 2>&1; then
+    echo "Builder image not found, creating it..."
+    ./build-builder.sh
 fi
 
-mvn springdoc-openapi:generate
+# Build the application using the multi-stage Dockerfile
+docker build \
+  --platform=$PLATFORM \
+  -t plusmin/pm-backend:${VERSION} .
+
+if [ $? -eq 0 ]; then
+    echo "Application built successfully!"
+    # Generate OpenAPI docs if needed
+    mvn springdoc-openapi:generate
+else
+    echo "Application build FAILED!!!"
+fi
 
 popd
