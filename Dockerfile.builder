@@ -2,7 +2,7 @@
 FROM eclipse-temurin:21-jdk-ubi9-minimal
 
 # Install Maven
-RUN microdnf update && \
+RUN microdnf update -y && \
     microdnf install -y wget tar gzip && \
     microdnf clean all
 

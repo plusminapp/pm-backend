@@ -1,5 +1,6 @@
 # Build stage - use pre-built builder image
-FROM plusmin/pm-backend-builder:latest AS builder
+ARG LCL_PLATFORM
+FROM --platform=$LCL_PLATFORM plusmin/pm-backend-builder:latest AS builder
 
 # Copy source code
 COPY src ./src

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 echo pm-backend version: ${VERSION}
-echo pm-backend platform: ${PLATFORM}
+echo lcl_platform: ${LCL_PLATFORM}
+echo platform: ${PLATFORM}
 
 pushd ${PROJECT_FOLDER}/pm-backend
 
@@ -14,6 +15,7 @@ fi
 # Build the application using the multi-stage Dockerfile
 docker build \
   --platform=$PLATFORM \
+  --build-arg LCL_PLATFORM=${LCL_PLATFORM} \
   -t plusmin/pm-backend:${VERSION} .
 
 if [ $? -eq 0 ]; then
