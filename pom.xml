@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
+        <version>3.5.9</version>
         <relativePath/>
     </parent>
     <groupId>io.vliet</groupId>
@@ -247,7 +247,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <apiDocsUrl>http://localhost:3045/api/v1/v3/api-docs.yaml</apiDocsUrl>
+                    <apiDocsUrl>http://pm-backend-lcl:3045/api/v1/v3/api-docs</apiDocsUrl>
                     <outputFileName>PlusMin-api-docs.yaml</outputFileName>
                     <outputDir>${project.basedir}/src/main/resources/static</outputDir>
                 </configuration>

@@ -20,8 +20,6 @@ docker build \
 
 if [ $? -eq 0 ]; then
     echo "Application built successfully!"
-    # Generate OpenAPI docs if needed
-    mvn springdoc-openapi:generate
 else
     echo "Application build FAILED!!!"
 fi
