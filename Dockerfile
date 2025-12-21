@@ -1,8 +1,13 @@
 # Build stage - use pre-built builder image
-FROM plusmin/pm-backend-builder:latest AS builder
+ARG LCL_PLATFORM
+FROM --platform=$LCL_PLATFORM plusmin/pm-backend-builder:latest AS builder
+
+# Set working directory to match the expected path
+WORKDIR /build
 
 # Copy source code
 COPY src ./src
+COPY pom.xml .
 
 # Build the application (dependencies already cached in builder image)
 RUN mvn clean package -DskipTests
