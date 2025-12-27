@@ -9,6 +9,7 @@ import io.vliet.plusmin.domain.PM_NoOpenPeriodException
 import io.vliet.plusmin.domain.PM_RekeningNotFoundException
 import io.vliet.plusmin.domain.PM_RekeningNotLinkedException
 import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -127,26 +128,22 @@ class BetalingService {
         betalingsSoort: Betaling.BetalingsSoort,
         dtoBoeking: Boeking
     ): Pair<Boeking?, Boeking?> {
-        val bufferRekening = rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
-            ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
+        val bufferRekening =
+            rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
+                ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
         val gekoppeldeBetaalRekening =
             rekeningRepository
                 .findBetaalRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
                 .firstOrNull() // gesorteerd op sortOrder
-        val gekoppeldeSpaarRekening =
+        val gekoppeldeSpaaPot =
             rekeningRepository
                 .findSpaarPotRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
                 .firstOrNull() // gesorteerd op sortOrder
 
         return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN, Betaling.BetalingsSoort.RENTE ->
-                if (dtoBoeking.bestemming?.rekeningGroep?.rekeningGroepSoort == io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort.SPAARREKENING)
-                    Pair(
-                        dtoBoeking, Boeking(
-                            dtoBoeking.bron,
-                            gekoppeldeSpaarRekening
-                        )
-                    )
+            Betaling.BetalingsSoort.INKOMSTEN ->
+                if (dtoBoeking.bestemming?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
+                    Pair(dtoBoeking, Boeking(dtoBoeking.bron, gekoppeldeSpaaPot))
                 else
                     Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
 

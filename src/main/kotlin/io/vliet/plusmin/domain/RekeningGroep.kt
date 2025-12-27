@@ -81,7 +81,6 @@ class RekeningGroep(
 
         val betaalSoort2RekeningGroepSoort: Map<Betaling.BetalingsSoort, RekeningGroepSoort> = mapOf(
             Betaling.BetalingsSoort.INKOMSTEN to RekeningGroepSoort.INKOMSTEN,
-            Betaling.BetalingsSoort.RENTE to RekeningGroepSoort.RENTE,
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
             Betaling.BetalingsSoort.BESTEDEN to RekeningGroepSoort.SPAARPOT,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
@@ -130,7 +129,7 @@ class RekeningGroep(
 
     enum class RekeningGroepSoort {
         BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD,
-        INKOMSTEN, RENTE, UITGAVEN, AFLOSSING, SPAARPOT,
+        INKOMSTEN, UITGAVEN, AFLOSSING, SPAARPOT,
         RESERVERING_BUFFER
     }
 

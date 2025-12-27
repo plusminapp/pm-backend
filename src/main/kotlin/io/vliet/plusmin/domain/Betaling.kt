@@ -125,7 +125,7 @@ class Betaling(
                 this.bron?.let { Boeking(it, this.bestemming!!) },
                 this.reserveringBron?.let { Boeking(it, this.reserveringBestemming!!) })
         )
-        Betaling.logger.debug("Betaling.toDTO: bron: ${bron.naam}, bestemming: ${bestemming?.naam}")
+        logger.debug("Betaling.toDTO: bron: ${bron.naam}, bestemming: ${bestemming?.naam}")
         return BetalingDTO(
             this.id,
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
@@ -167,7 +167,6 @@ class Betaling(
         val omschrijving: String
     ) {
         INKOMSTEN("inkomsten"),
-        RENTE("rente"),
         UITGAVEN("Uitgaven"),
         BESTEDEN("besteden"),
         AFLOSSEN("aflossen"),
@@ -193,7 +192,7 @@ class Betaling(
         boeking: Pair<Boeking?, Boeking?>
     ): Boeking {
         return when (betalingsSoort) {
-            BetalingsSoort.INKOMSTEN, BetalingsSoort.RENTE,
+            BetalingsSoort.INKOMSTEN,
             BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN,
             BetalingsSoort.INCASSO_CREDITCARD, BetalingsSoort.OPNEMEN_CONTANT, BetalingsSoort.STORTEN_CONTANT ->
                 boeking.first!!

@@ -66,6 +66,18 @@
       "budgetType": "INKOMSTEN",
       "rekeningen": [
         {
+          "naam": "Rente",
+          "sortOrder": 300,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 5,
+          "budgetBetaalDag": 5,
+          "betaalMethoden": [
+            {
+              "naam": "Alex' spaarrekening"
+            }
+          ]
+        },
+        {
           "naam": "Salaris",
           "sortOrder": 100,
           "budgetPeriodiciteit": "MAAND",
@@ -79,34 +91,13 @@
         },
         {
           "naam": "Toeslagen",
-          "sortOrder": 100,
+          "sortOrder": 200,
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 678,
           "budgetBetaalDag": 8,
           "betaalMethoden": [
             {
               "naam": "Alex' betaalrekening"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "naam": "Rente",
-      "rekeningGroepSoort": "RENTE",
-      "rekeningGroepIcoonNaam": "spaartegoed",
-      "sortOrder": 200,
-      "budgetType": "INKOMSTEN",
-      "rekeningen": [
-        {
-          "naam": "Rente",
-          "sortOrder": 200,
-          "budgetPeriodiciteit": "MAAND",
-          "budgetBedrag": 5,
-          "budgetBetaalDag": 5,
-          "betaalMethoden": [
-            {
-              "naam": "Alex' spaarrekening"
             }
           ]
         }
@@ -667,7 +658,7 @@
       "boekingsdatum": "2025-07-03",
       "bedrag": "5.25",
       "omschrijving": "Rente",
-      "betalingsSoort": "RENTE",
+      "betalingsSoort": "INKOMSTEN",
       "bron": "Rente",
       "bestemming": "Alex' spaarrekening"
     },

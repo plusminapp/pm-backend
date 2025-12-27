@@ -1510,7 +1510,6 @@
               "CONTANT",
               "CREDITCARD",
               "INKOMSTEN",
-              "RENTE",
               "UITGAVEN",
               "AFLOSSING",
               "SPAARPOT",
@@ -2264,7 +2263,6 @@
             "type": "string",
             "enum": [
               "INKOMSTEN",
-              "RENTE",
               "UITGAVEN",
               "BESTEDEN",
               "AFLOSSEN",
