@@ -19,12 +19,12 @@ class Spaartegoed(
     val doelDatum: LocalDate?,
     val doelBedrag: BigDecimal?,
     @Column(columnDefinition = "TEXT")
-    val notities: String
+    val notities: String? = null
 ) {
     fun fullCopy(
         doelDatum: LocalDate? = this.doelDatum,
         doelBedrag: BigDecimal? = this.doelBedrag,
-        notities: String = this.notities,
+        notities: String? = this.notities,
     ) = Spaartegoed(
         this.id,
         doelDatum,
@@ -37,12 +37,12 @@ class Spaartegoed(
         val id: Long = 0,
         val doelDatum: String?,
         val doelBedrag: String?,
-        val notities: String,
+        val notities: String?,
     ) {
         fun fullCopy(
             doelDatum: String? = this.doelDatum,
             doelBedrag: String? = this.doelBedrag,
-            notities: String = this.notities,
+            notities: String? = this.notities,
 
             ): SpaartegoedDTO = SpaartegoedDTO(
             this.id,

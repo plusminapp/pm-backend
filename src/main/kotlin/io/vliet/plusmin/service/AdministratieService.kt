@@ -1,6 +1,6 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.controller.AdministratieWrapper
+import io.vliet.plusmin.controller.DemoController.AdministratieWrapper
 import io.vliet.plusmin.domain.Administratie
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
 import io.vliet.plusmin.domain.Gebruiker
@@ -12,7 +12,6 @@ import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
-import jakarta.persistence.EntityManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -151,7 +150,7 @@ class AdministratieService {
         val administratieDTO = administratieWrapper.administratie
         val administratieBestaand = administratieRepository
             .findAdministratieOpNaamEnGebruiker(administratieWrapper.administratie.naam, eigenaar)
-        if (administratieBestaand != null && !administratieWrapper.overschrijfBestaande) {
+        if (administratieBestaand != null && !(administratieWrapper.overschrijfBestaande ?: false)) {
             throw PM_AdministratieBestaatAlException(listOf(administratieDTO.naam))
         }
         val opgeschoondeEigenaar = if (administratieBestaand != null) {
@@ -172,7 +171,7 @@ class AdministratieService {
     fun maakNieuweAdministratie(administratieWrapper: AdministratieWrapper, eigenaar: Gebruiker) {
         val administratie = save(eigenaar, administratieWrapper.administratie)
         rekeningService.saveAll(administratie, administratieWrapper.rekeningGroepen)
-        betalingService.creeerBetalingLijst(administratie, administratieWrapper.betalingen)
+        betalingService.creeerBetalingLijst(administratie, (administratieWrapper.betalingen ?: emptyList()))
         if (administratie.vandaag != null) {
             betalingRepository.hideAllByAdministratie(administratie)
         }

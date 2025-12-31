@@ -99,11 +99,12 @@ class DemoController {
         logger.info("PUT DemoController.putAdministratieWrapper door ${eigenaar.bijnaam}/${eigenaar.subject}")
         administratieService.laadAdministratie(administratieWrapper, eigenaar)
         return ResponseEntity.ok().build()
-    }}
+    }
 
-data class AdministratieWrapper(
-    val administratie: AdministratieDTO,
-    val rekeningGroepen: List<RekeningGroep.RekeningGroepDTO>,
-    val betalingen: List<Betaling.BetalingDTO>,
-    val overschrijfBestaande: Boolean = false,
-)
+    data class AdministratieWrapper(
+        val administratie: AdministratieDTO,
+        val rekeningGroepen: List<RekeningGroep.RekeningGroepDTO>,
+        val betalingen: List<Betaling.BetalingDTO>? = emptyList(),
+        val overschrijfBestaande: Boolean? = false,
+    )
+}

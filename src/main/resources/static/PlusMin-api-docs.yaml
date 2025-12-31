@@ -1637,8 +1637,7 @@
           }
         },
         "required": [
-          "id",
-          "notities"
+          "id"
         ]
       },
       "AdministratieDTO": {
@@ -1778,8 +1777,6 @@
         },
         "required": [
           "administratie",
-          "betalingen",
-          "overschrijfBestaande",
           "rekeningGroepen"
         ]
       },
@@ -2407,8 +2404,7 @@
           }
         },
         "required": [
-          "id",
-          "notities"
+          "id"
         ]
       }
     },

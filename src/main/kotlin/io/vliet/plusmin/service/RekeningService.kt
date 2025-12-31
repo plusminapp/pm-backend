@@ -278,6 +278,6 @@ class RekeningService {
     }
 
     fun geldigeBetaalDag(dag: Int?): Boolean {
-        return (dag != null && (dag in 1..28))
+        return (dag != null && (dag in 1..31))
     }
 }
