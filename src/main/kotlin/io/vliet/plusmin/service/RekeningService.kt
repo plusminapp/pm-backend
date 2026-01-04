@@ -5,8 +5,6 @@ import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.spaarPotjesRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.vastBudgetType
 import io.vliet.plusmin.domain.RekeningGroep.Companion.zonderBetaalMethodenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
@@ -24,9 +22,6 @@ import kotlin.jvm.optionals.getOrNull
 class RekeningService {
     @Autowired
     lateinit var reserveringService: ReserveringService
-
-    @Autowired
-    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -90,9 +85,6 @@ class RekeningService {
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
             reserveringService.updateOpeningsReserveringsSaldo(administratie)
         }
-        if (spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-            updateSpaarSaldiService.updateSpaarpotSaldo(administratie)
-        }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
@@ -114,22 +106,6 @@ class RekeningService {
             if (rekeningDTO.budgetPeriodiciteit != null)
                 BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
             else null
-
-        val gekoppeldeRekening =
-            if (rekeningDTO.gekoppeldeRekening != null) rekeningRepository.findRekeningAdministratieEnNaam(
-                administratie,
-                rekeningDTO.gekoppeldeRekening
-            )
-            else null
-        val gekoppeldeRekeningIsBetaalMiddel =
-            betaalMiddelenRekeningGroepSoort.contains(gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort)
-        val gekoppeldeRekeningIsSpaarRekening =
-            gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING
-        if ((!gekoppeldeRekeningIsBetaalMiddel && potjesVoorNuRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
-            (!gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
-        )
-            throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))
-        logger.debug("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
 
         if (vastBudgetType.contains(rekeningGroep.budgetType) && !geldigeBetaalDag(rekeningDTO.budgetBetaalDag))
             throw PM_GeenBetaaldagException(
@@ -165,32 +141,32 @@ class RekeningService {
                     )
                 }
             } else null
-            val spaartegoed = if (rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) {
-                if (rekeningOpt.spaartegoed == null) {
+            val spaarpot = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARPOT) {
+                if (rekeningOpt.spaarpot == null) {
                     spaartegoedRepository.save(
-                        Spaartegoed(
+                        Spaarpot(
                             0,
-                            if (rekeningDTO.spaartegoed?.doelDatum != null)
+                            if (rekeningDTO.spaarpot?.doelDatum != null)
                                 LocalDate.parse(
-                                    rekeningDTO.spaartegoed.doelDatum,
+                                    rekeningDTO.spaarpot.doelDatum,
                                     DateTimeFormatter.ISO_LOCAL_DATE
                                 ) else null,
-                            if (rekeningDTO.spaartegoed?.doelBedrag != null)
-                                BigDecimal(rekeningDTO.spaartegoed.doelBedrag) else null,
-                            rekeningDTO.spaartegoed?.notities ?: ""
+                            if (rekeningDTO.spaarpot?.doelBedrag != null)
+                                BigDecimal(rekeningDTO.spaarpot.doelBedrag) else null,
+                            rekeningDTO.spaarpot?.notities ?: ""
                         )
                     )
                 } else {
                     spaartegoedRepository.save(
-                        rekeningOpt.spaartegoed.fullCopy(
-                            if (rekeningDTO.spaartegoed?.doelDatum != null)
+                        rekeningOpt.spaarpot.fullCopy(
+                            if (rekeningDTO.spaarpot?.doelDatum != null)
                                 LocalDate.parse(
-                                    rekeningDTO.spaartegoed.doelDatum,
+                                    rekeningDTO.spaarpot.doelDatum,
                                     DateTimeFormatter.ISO_LOCAL_DATE
                                 ) else null,
-                            if (rekeningDTO.spaartegoed?.doelBedrag != null)
-                                BigDecimal(rekeningDTO.spaartegoed.doelBedrag) else null,
-                            rekeningDTO.spaartegoed?.notities ?: ""
+                            if (rekeningDTO.spaarpot?.doelBedrag != null)
+                                BigDecimal(rekeningDTO.spaarpot.doelBedrag) else null,
+                            rekeningDTO.spaarpot?.notities ?: ""
                         )
                     )
                 }
@@ -202,14 +178,13 @@ class RekeningService {
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetAanvulling = rekeningDTO.budgetAanvulling,
-                    gekoppeldeRekening = gekoppeldeRekening,
                     budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing ?: rekeningOpt.aflossing,
-                    spaartegoed = spaartegoed ?: rekeningOpt.spaartegoed,
+                    spaarpot = spaarpot ?: rekeningOpt.spaarpot,
                 )
             )
         } else {
@@ -234,14 +209,13 @@ class RekeningService {
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetAanvulling = rekeningDTO.budgetAanvulling,
-                    gekoppeldeRekening = gekoppeldeRekening,
                     budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
                     aflossing = aflossing,
-                    spaartegoed = null,
+                    spaarpot = null,
                 )
             )
 

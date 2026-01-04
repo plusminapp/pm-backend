@@ -268,9 +268,11 @@ class CashflowService {
             .filter { it.boekingsdatum.equals(date) }
             .sumOf {
                 BigDecimal.ZERO +
-                        if (it.betalingsSoort == Betaling.BetalingsSoort.SPAREN) -it.bedrag else BigDecimal.ZERO +
-                        if (it.betalingsSoort == Betaling.BetalingsSoort.SP2P) it.bedrag else BigDecimal.ZERO +
-                        if (it.betalingsSoort == Betaling.BetalingsSoort.P2SP) -it.bedrag else BigDecimal.ZERO
+                        if (it.betalingsSoort == Betaling.BetalingsSoort.RESERVEREN) {
+                            if (it.reserveringBron!!.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT) -it.bedrag
+                            else if (it.reserveringBestemming!!.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT) it.bedrag
+                            else BigDecimal.ZERO
+                        } else BigDecimal.ZERO
             }
     }
 

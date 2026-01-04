@@ -1505,10 +1505,7 @@
           "rekeningGroepSoort": {
             "type": "string",
             "enum": [
-              "BETAALREKENING",
-              "SPAARREKENING",
-              "CONTANT",
-              "CREDITCARD",
+              "BETAALMIDDEL",
               "INKOMSTEN",
               "UITGAVEN",
               "AFLOSSING",
@@ -1544,7 +1541,7 @@
           "aflossing": {
             "$ref": "#/components/schemas/AflossingDTO"
           },
-          "spaartegoed": {
+          "spaarpot": {
             "$ref": "#/components/schemas/SpaartegoedDTO"
           },
           "sortOrder": {
@@ -1555,9 +1552,6 @@
             "type": "number"
           },
           "openingsReserveSaldo": {
-            "type": "number"
-          },
-          "openingsOpgenomenSaldo": {
             "type": "number"
           },
           "openingsAchterstand": {
@@ -1573,9 +1567,6 @@
             "type": "number"
           },
           "periodeReservering": {
-            "type": "number"
-          },
-          "periodeOpgenomenSaldo": {
             "type": "number"
           },
           "correctieBoeking": {
@@ -1609,10 +1600,8 @@
           "id",
           "openingsAchterstand",
           "openingsBalansSaldo",
-          "openingsOpgenomenSaldo",
           "openingsReserveSaldo",
           "periodeBetaling",
-          "periodeOpgenomenSaldo",
           "periodeReservering",
           "rekeningGroepNaam",
           "rekeningNaam",
@@ -1819,7 +1808,6 @@
           "boekingsdatum",
           "bron",
           "id",
-          "isVerborgen",
           "omschrijving"
         ]
       },
@@ -1882,9 +1870,6 @@
           "totEnMetPeriode": {
             "$ref": "#/components/schemas/Periode"
           },
-          "gekoppeldeRekening": {
-            "type": "string"
-          },
           "budgetPeriodiciteit": {
             "type": "string"
           },
@@ -1928,7 +1913,7 @@
           "aflossing": {
             "$ref": "#/components/schemas/AflossingDTO"
           },
-          "spaartegoed": {
+          "spaarpot": {
             "$ref": "#/components/schemas/SpaartegoedDTO"
           }
         },
@@ -2263,16 +2248,8 @@
               "UITGAVEN",
               "BESTEDEN",
               "AFLOSSEN",
-              "SPAREN",
-              "OPNEMEN",
-              "TERUGSTORTEN",
-              "INCASSO_CREDITCARD",
-              "OPNEMEN_CONTANT",
-              "STORTEN_CONTANT",
-              "P2P",
-              "SP2SP",
-              "P2SP",
-              "SP2P"
+              "INTERN",
+              "RESERVEREN"
             ]
           },
           "sortOrder": {
@@ -2299,7 +2276,6 @@
           "betalingsSoort",
           "boekingsdatum",
           "id",
-          "isVerborgen",
           "omschrijving",
           "sortOrder"
         ]
@@ -2326,9 +2302,6 @@
           },
           "totEnMetPeriode": {
             "$ref": "#/components/schemas/Periode"
-          },
-          "gekoppeldeRekening": {
-            "$ref": "#/components/schemas/Rekening"
           },
           "budgetBedrag": {
             "type": "number"
@@ -2374,8 +2347,8 @@
           "aflossing": {
             "$ref": "#/components/schemas/Aflossing"
           },
-          "spaartegoed": {
-            "$ref": "#/components/schemas/Spaartegoed"
+          "spaarpot": {
+            "$ref": "#/components/schemas/Spaarpot"
           }
         },
         "required": [
@@ -2385,7 +2358,7 @@
           "sortOrder"
         ]
       },
-      "Spaartegoed": {
+      "Spaarpot": {
         "type": "object",
         "properties": {
           "id": {

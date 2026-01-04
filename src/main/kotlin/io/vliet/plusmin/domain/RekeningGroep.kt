@@ -9,7 +9,7 @@ import jakarta.persistence.*
     name = "rekening_groep",
     uniqueConstraints = [UniqueConstraint(columnNames = ["administratie_id", "naam"])]
 )
-@JsonInclude( JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 class RekeningGroep(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -48,7 +48,7 @@ class RekeningGroep(
             RekeningGroepSoort.SPAARPOT
         )
         val zonderBetaalMethodenRekeningGroepSoort = arrayOf(
-            RekeningGroepSoort.BETAALREKENING,
+            RekeningGroepSoort.BETAALMIDDEL,
             RekeningGroepSoort.RESERVERING_BUFFER,
         )
         val potjesRekeningGroepSoort = arrayOf(
@@ -57,22 +57,14 @@ class RekeningGroep(
             RekeningGroepSoort.SPAARPOT
         )
         val balansRekeningGroepSoort = arrayOf(
-            RekeningGroepSoort.BETAALREKENING,
-            RekeningGroepSoort.SPAARREKENING,
-            RekeningGroepSoort.CONTANT,
-            RekeningGroepSoort.CREDITCARD,
+            RekeningGroepSoort.BETAALMIDDEL,
             RekeningGroepSoort.AFLOSSING,
         )
         val betaalMethodeRekeningGroepSoort = arrayOf(
-            RekeningGroepSoort.BETAALREKENING,
-            RekeningGroepSoort.SPAARREKENING,
-            RekeningGroepSoort.CONTANT,
-            RekeningGroepSoort.CREDITCARD,
+            RekeningGroepSoort.BETAALMIDDEL
         )
         val betaalMiddelenRekeningGroepSoort = arrayOf(
-            RekeningGroepSoort.BETAALREKENING,
-            RekeningGroepSoort.CONTANT,
-            RekeningGroepSoort.CREDITCARD,
+            RekeningGroepSoort.BETAALMIDDEL,
         )
         val vastBudgetType = arrayOf(
             BudgetType.VAST,
@@ -84,15 +76,11 @@ class RekeningGroep(
             Betaling.BetalingsSoort.UITGAVEN to RekeningGroepSoort.UITGAVEN,
             Betaling.BetalingsSoort.BESTEDEN to RekeningGroepSoort.SPAARPOT,
             Betaling.BetalingsSoort.AFLOSSEN to RekeningGroepSoort.AFLOSSING,
-            Betaling.BetalingsSoort.INCASSO_CREDITCARD to RekeningGroepSoort.CREDITCARD,
-            Betaling.BetalingsSoort.SPAREN to  RekeningGroepSoort.SPAARPOT,
-            Betaling.BetalingsSoort.OPNEMEN to  RekeningGroepSoort.SPAARPOT,
-            Betaling.BetalingsSoort.TERUGSTORTEN to  RekeningGroepSoort.SPAARPOT,
-            Betaling.BetalingsSoort.OPNEMEN_CONTANT to RekeningGroepSoort.CONTANT,
-            Betaling.BetalingsSoort.STORTEN_CONTANT to RekeningGroepSoort.CONTANT,
-            )
+            Betaling.BetalingsSoort.INTERN to RekeningGroepSoort.BETAALMIDDEL,
+        )
+
         fun RekeningGroep.isPotjeVoorNu(): Boolean {
-            if (this.rekeningGroepSoort != RekeningGroepSoort.UITGAVEN && this.rekeningGroepSoort != RekeningGroepSoort.AFLOSSING ) return false
+            if (this.rekeningGroepSoort != RekeningGroepSoort.UITGAVEN && this.rekeningGroepSoort != RekeningGroepSoort.AFLOSSING) return false
             if (this.budgetType == BudgetType.SPAREN) return false
             return true
         }
@@ -128,7 +116,7 @@ class RekeningGroep(
     )
 
     enum class RekeningGroepSoort {
-        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD,
+        BETAALMIDDEL,
         INKOMSTEN, UITGAVEN, AFLOSSING, SPAARPOT,
         RESERVERING_BUFFER
     }

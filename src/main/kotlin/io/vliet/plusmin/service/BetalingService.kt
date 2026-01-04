@@ -1,15 +1,7 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Betaling
-import io.vliet.plusmin.domain.Betaling.BetalingDTO
-import io.vliet.plusmin.domain.Betaling.Boeking
-import io.vliet.plusmin.domain.Administratie
-import io.vliet.plusmin.domain.PM_BufferRekeningNotFoundException
-import io.vliet.plusmin.domain.PM_NoOpenPeriodException
-import io.vliet.plusmin.domain.PM_RekeningNotFoundException
-import io.vliet.plusmin.domain.PM_RekeningNotLinkedException
-import io.vliet.plusmin.domain.Periode
-import io.vliet.plusmin.domain.RekeningGroep
+import io.vliet.plusmin.domain.*
+import io.vliet.plusmin.domain.Betaling.*
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -57,7 +49,7 @@ class BetalingService {
             ?: throw PM_RekeningNotFoundException(listOf(betalingDTO.bestemming, administratie.naam))
 
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
-            Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
+            BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
         val sortOrder = berekenSortOrder(administratie, boekingsDatum)
         logger.debug("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
@@ -66,7 +58,7 @@ class BetalingService {
             boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             bedrag = betalingDTO.bedrag,
             omschrijving = betalingDTO.omschrijving,
-            betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
+            betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
             bron = getransformeerdeBoeking.first?.bron,
             bestemming = getransformeerdeBoeking.first?.bestemming,
             reserveringBron = getransformeerdeBoeking.second?.bron,
@@ -104,14 +96,14 @@ class BetalingService {
             ?: throw PM_RekeningNotFoundException(listOf(newBetalingDTO.bestemming, gebruiker.naam))
 
         val getransformeerdeBoeking = transformeerVanDtoBoeking(
-            Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
+            BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
         logger.debug("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.naam} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = boekingsDatum,
             bedrag = newBetalingDTO.bedrag,
             omschrijving = newBetalingDTO.omschrijving,
-            betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
+            betalingsSoort = BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
             bron = getransformeerdeBoeking.first?.bron,
             bestemming = getransformeerdeBoeking.first?.bestemming,
             reserveringBron = getransformeerdeBoeking.second?.bron,
@@ -125,109 +117,16 @@ class BetalingService {
      *    Zie ook https://docs.google.com/spreadsheets/d/1erhLtz1Kp1ZiEvSCOSyJRTElepPDDEDiZdDrYggmm0o/edit
      */
     fun transformeerVanDtoBoeking(
-        betalingsSoort: Betaling.BetalingsSoort,
+        betalingsSoort: BetalingsSoort,
         dtoBoeking: Boeking
     ): Pair<Boeking?, Boeking?> {
-        val bufferRekening =
-            rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
-                ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
-        val gekoppeldeBetaalRekening =
-            rekeningRepository
-                .findBetaalRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
-                .firstOrNull() // gesorteerd op sortOrder
-        val gekoppeldeSpaaPot =
-            rekeningRepository
-                .findSpaarPotRekeningenAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
-                .firstOrNull() // gesorteerd op sortOrder
-
         return when (betalingsSoort) {
-            Betaling.BetalingsSoort.INKOMSTEN ->
-                if (dtoBoeking.bestemming?.rekeningGroep?.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
-                    Pair(dtoBoeking, Boeking(dtoBoeking.bron, gekoppeldeSpaaPot))
-                else
-                    Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
+            BetalingsSoort.INKOMSTEN, BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN, BetalingsSoort.INTERN ->
+                Pair(dtoBoeking, null)
 
-            Betaling.BetalingsSoort.UITGAVEN, Betaling.BetalingsSoort.BESTEDEN, Betaling.BetalingsSoort.AFLOSSEN -> Pair(
-                dtoBoeking, null
-            )
+            BetalingsSoort.RESERVEREN -> Pair(null, dtoBoeking)
 
-            Betaling.BetalingsSoort.SPAREN -> Pair(
-                Boeking(
-                    dtoBoeking.bron,
-                    dtoBoeking.bestemming?.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bestemming?.naam ?: "",
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
-                        )
-                ), Boeking(
-                    bufferRekening, dtoBoeking.bestemming
-                )
-            )
-
-            Betaling.BetalingsSoort.OPNEMEN -> Pair(
-                Boeking(
-                    dtoBoeking.bron.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
-                        ),
-                    dtoBoeking.bestemming,
-                ),
-                Boeking(
-                    dtoBoeking.bron, dtoBoeking.bron
-                )
-            )
-
-            Betaling.BetalingsSoort.TERUGSTORTEN -> Pair(
-                Boeking(
-                    dtoBoeking.bron,
-                    dtoBoeking.bestemming?.gekoppeldeRekening
-                        ?: throw PM_RekeningNotLinkedException(
-                            listOf(
-                                dtoBoeking.bron.naam,
-                                dtoBoeking.bron.rekeningGroep.administratie.naam
-                            )
-                        ),
-                ),
-                Boeking(
-                    dtoBoeking.bestemming, dtoBoeking.bestemming
-                )
-            )
-
-            Betaling.BetalingsSoort.INCASSO_CREDITCARD, Betaling.BetalingsSoort.OPNEMEN_CONTANT, Betaling.BetalingsSoort.STORTEN_CONTANT -> Pair(
-                dtoBoeking, null
-            )
-
-            Betaling.BetalingsSoort.P2P, Betaling.BetalingsSoort.SP2SP -> Pair(null, dtoBoeking)
-
-            Betaling.BetalingsSoort.P2SP, Betaling.BetalingsSoort.SP2P -> Pair(
-                Boeking(
-                    (
-                            if (dtoBoeking.bron.id == bufferRekening.id) gekoppeldeBetaalRekening
-                            else dtoBoeking.bron.gekoppeldeRekening
-                            ) ?: throw PM_RekeningNotLinkedException(
-                        listOf(
-                            dtoBoeking.bron.naam,
-                            dtoBoeking.bron.rekeningGroep.administratie.naam
-                        )
-                    ),
-                    (
-                            if (dtoBoeking.bestemming?.id == bufferRekening.id) gekoppeldeBetaalRekening
-                            else dtoBoeking.bestemming?.gekoppeldeRekening
-                            ) ?: throw PM_RekeningNotLinkedException(
-                        listOf(
-                            dtoBoeking.bestemming?.naam ?: "",
-                            dtoBoeking.bron.rekeningGroep.administratie.naam
-                        )
-                    )
-                ), dtoBoeking
-            )
         }
-
     }
 
     fun valideerBetalingenVoorGebruiker(administratie: Administratie): List<Betaling> {

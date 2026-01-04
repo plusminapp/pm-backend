@@ -6,8 +6,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity
-@Table(name = "spaartegoed")
-class Spaartegoed(
+@Table(name = "spaarpot")
+class Spaarpot(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
@@ -25,7 +25,7 @@ class Spaartegoed(
         doelDatum: LocalDate? = this.doelDatum,
         doelBedrag: BigDecimal? = this.doelBedrag,
         notities: String? = this.notities,
-    ) = Spaartegoed(
+    ) = Spaarpot(
         this.id,
         doelDatum,
         doelBedrag,

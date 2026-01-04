@@ -34,7 +34,7 @@ class Betaling(
     @Enumerated(EnumType.STRING)
     val betalingsSoort: BetalingsSoort,
     val sortOrder: String,
-    val isVerborgen: Boolean = false,
+    val isVerborgen: Boolean? = false,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening? = null,
@@ -53,28 +53,8 @@ class Betaling(
         val logger: Logger = LoggerFactory.getLogger(::javaClass.name)
         val sortableFields = setOf("id", "boekingsdatum", "status")
 
-        val bestemmingBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.INKOMSTEN,
-            BetalingsSoort.STORTEN_CONTANT,
-            BetalingsSoort.OPNEMEN,
-        )
-        val opgenomenSaldoBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.BESTEDEN,
-            BetalingsSoort.OPNEMEN,
-            BetalingsSoort.TERUGSTORTEN,
-        )
         val reserveringBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.P2P,
-            BetalingsSoort.SP2SP,
-            BetalingsSoort.P2SP,
-            BetalingsSoort.SP2P,
-        )
-        val reserveringSpaarBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.SPAREN,
-            BetalingsSoort.BESTEDEN,
-        )
-        val inkomstenBetalingsSoorten = listOf<BetalingsSoort>(
-            BetalingsSoort.INKOMSTEN,
+            BetalingsSoort.RESERVEREN,
         )
     }
 
@@ -113,7 +93,7 @@ class Betaling(
         val omschrijving: String,
         val betalingsSoort: String,
         val sortOrder: String? = null,
-        val isVerborgen: Boolean = false,
+        val isVerborgen: Boolean? = false,
         val bron: String,
         val bestemming: String,
     )
@@ -170,16 +150,8 @@ class Betaling(
         UITGAVEN("Uitgaven"),
         BESTEDEN("besteden"),
         AFLOSSEN("aflossen"),
-        SPAREN("sparen"),
-        OPNEMEN("opnemen"),
-        TERUGSTORTEN("terugstorten"),
-        INCASSO_CREDITCARD("incasso_creditcard"),
-        OPNEMEN_CONTANT("opnemen_contant"),
-        STORTEN_CONTANT("storten_contant"),
-        P2P("potje2potje"),
-        SP2SP("spaarpotje2spaarpotje"),
-        P2SP("potje2spaarpotje"),
-        SP2P("spaarpotje2potje")
+        INTERN("interne_boeking"),
+        RESERVEREN("reserveren"),
     }
 
     data class Boeking(
@@ -193,19 +165,11 @@ class Betaling(
     ): Boeking {
         return when (betalingsSoort) {
             BetalingsSoort.INKOMSTEN,
-            BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN,
-            BetalingsSoort.INCASSO_CREDITCARD, BetalingsSoort.OPNEMEN_CONTANT, BetalingsSoort.STORTEN_CONTANT ->
+            BetalingsSoort.INTERN,
+            BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN ->
                 boeking.first!!
 
-            BetalingsSoort.TERUGSTORTEN,
-            BetalingsSoort.SPAREN ->
-                Boeking(boeking.first!!.bron, boeking.second!!.bestemming)
-
-            BetalingsSoort.OPNEMEN ->
-                Boeking(boeking.second!!.bron, boeking.first!!.bestemming)
-
-            BetalingsSoort.P2P, BetalingsSoort.SP2SP,
-            BetalingsSoort.P2SP, BetalingsSoort.SP2P ->
+            BetalingsSoort.RESERVEREN ->
                 boeking.second!!
         }
     }

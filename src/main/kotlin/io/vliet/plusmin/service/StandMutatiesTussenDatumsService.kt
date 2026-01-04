@@ -1,7 +1,6 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.Betaling.Companion.opgenomenSaldoBetalingsSoorten
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,24 +39,17 @@ class StandMutatiesTussenDatumsService {
                         acc + berekenReserveringMutaties(betaling, rekening)
                     }
 
-                val periodeOpgenomenSaldo =
-                    betalingen
-                        .filter { opgenomenSaldoBetalingsSoorten.contains(it.betalingsSoort) }
-                        .fold(BigDecimal.ZERO) { acc, betaling ->
-                            acc + berekenOpgenomenSaldoMutaties(betaling, rekening)
-                        }
                 // TODO achterstand berekenen
                 Saldo(
                     0,
                     rekening,
                     periodeBetaling = periodeBetaling,
                     periodeReservering = periodeReservering,
-                    periodeOpgenomenSaldo = periodeOpgenomenSaldo,
                     periode = Periode(0, administratie, vanDatum, totEnMetDatum)
                 )
             }
         }
-        logger.debug("berekenMutatieLijstTussenDatums van $vanDatum tot $totEnMetDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering} + O ${it.periodeOpgenomenSaldo}" }}")
+        logger.debug("berekenMutatieLijstTussenDatums van $vanDatum tot $totEnMetDatum #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.periodeBetaling} + R ${it.periodeReservering}" }}")
         return saldoLijst
     }
 
@@ -69,21 +61,5 @@ class StandMutatiesTussenDatumsService {
     fun berekenReserveringMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
         return (if (betaling.reserveringBron?.id == rekening.id) -betaling.bedrag else BigDecimal.ZERO) +
                 (if (betaling.reserveringBestemming?.id == rekening.id) betaling.bedrag else BigDecimal.ZERO)
-    }
-
-    fun berekenOpgenomenSaldoMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
-        val opgenomenSaldoMutatie =
-            (if (betaling.bestemming?.id == rekening.id && betaling.betalingsSoort == Betaling.BetalingsSoort.BESTEDEN) -betaling.bedrag else BigDecimal.ZERO) +
-                    (if (betaling.reserveringBron?.id == rekening.id) {
-                        when (betaling.betalingsSoort) {
-                            Betaling.BetalingsSoort.OPNEMEN -> betaling.bedrag
-                            Betaling.BetalingsSoort.TERUGSTORTEN -> -betaling.bedrag
-                            else -> BigDecimal.ZERO
-                        }
-                    } else BigDecimal.ZERO)
-
-        logger.debug("OpgenomenSaldoMutatie voor rekening ${rekening.naam} bij betaling ${betaling.id} (${betaling.betalingsSoort}): $opgenomenSaldoMutatie")
-
-        return opgenomenSaldoMutatie
     }
 }

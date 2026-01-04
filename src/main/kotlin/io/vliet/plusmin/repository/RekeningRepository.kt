@@ -51,14 +51,6 @@ interface RekeningRepository : JpaRepository<Rekening, Long> {
     @Query(
         value = "SELECT r FROM Rekening r " +
                 "WHERE r.rekeningGroep.administratie = :administratie " +
-                "AND r.gekoppeldeRekening.naam = :rekeningNaam " +
-                "ORDER BY r.sortOrder ASC "
-    )
-    fun findGekoppeldeRekeningenAdministratieEnNaam(administratie: Administratie, rekeningNaam: String): List<Rekening>
-
-    @Query(
-        value = "SELECT r FROM Rekening r " +
-                "WHERE r.rekeningGroep.administratie = :administratie " +
                 "AND r.rekeningGroep.rekeningGroepSoort = 'BETAALREKENING' " +
                 "ORDER BY r.sortOrder ASC "
     )

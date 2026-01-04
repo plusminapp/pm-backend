@@ -63,16 +63,10 @@ class StandInPeriodeService {
                 val periodeReservering = mutatiesInPeriode
                     .filter { it.rekening.naam == rekening.naam }
                     .sumOf { it.periodeReservering }
-                val periodeOpgenomenSaldo = mutatiesInPeriode
-                    .filter { it.rekening.naam == rekening.naam }
-                    .sumOf { it.periodeOpgenomenSaldo }
                 // TODO achterstand in periode berekenen
                 val achterstand = BigDecimal.ZERO
 
-                val openingsReserveSaldo =
-                    if (rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARREKENING)
-                        saldo.openingsBalansSaldo + saldo.periodeOpgenomenSaldo
-                    else saldo.openingsReserveSaldo
+                val openingsReserveSaldo = saldo.openingsReserveSaldo
 
                 val budgetMaandBedrag =
                     rekening.toDTO(periode, periodeBetaling.abs()).budgetMaandBedrag ?: BigDecimal.ZERO
@@ -82,11 +76,9 @@ class StandInPeriodeService {
                     rekening = rekening,
                     openingsBalansSaldo = saldo.openingsBalansSaldo,
                     openingsReserveSaldo = openingsReserveSaldo,
-                    openingsOpgenomenSaldo = saldo.openingsOpgenomenSaldo,
                     openingsAchterstand = saldo.openingsAchterstand,
                     periodeBetaling = periodeBetaling,
                     periodeReservering = periodeReservering,
-                    periodeOpgenomenSaldo = periodeOpgenomenSaldo,
                     periodeAchterstand = achterstand,
                     budgetMaandBedrag = budgetMaandBedrag,
                     correctieBoeking = BigDecimal.ZERO,

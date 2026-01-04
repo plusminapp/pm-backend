@@ -163,13 +163,6 @@ class PM_RekeningNotFoundException(
     HttpStatus.NOT_FOUND, "REKENING_NOT_FOUND", parameters
 )
 
-class PM_RekeningNotLinkedException(
-    parameters: List<String> = emptyList()
-) : PlusMinException(
-    "${parameters[0]} heeft geen gekoppelde rekening voor ${parameters[1]}.",
-    HttpStatus.INTERNAL_SERVER_ERROR, "REKENING_NOT_LINKED", parameters
-)
-
 class PM_BufferRekeningNotFoundException(
     parameters: List<String> = emptyList()
 ) : PlusMinException(
@@ -195,13 +188,6 @@ class PM_BufferRekeningImmutableException(
 ) : PlusMinException(
     "RekeningGroep met soort RESERVERING_BUFFER mag niet handmatig worden aangemaakt of aangepast.",
     HttpStatus.INTERNAL_SERVER_ERROR, "BUFFER_REKENING_IMMUTABLE"
-)
-
-class PM_PotjeMoetGekoppeldeRekeningException(
-    parameters: List<String> = emptyList()
-) : PlusMinException(
-    "Potjes rekening ${parameters[0]} moet gekoppeld zijn aan een betaalmiddel.",
-    HttpStatus.INTERNAL_SERVER_ERROR, "POTJE_MOET_GEKOPPELDE_REKENING", parameters
 )
 
 class PM_RekeningMoetBetaalmethodeException(

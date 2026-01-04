@@ -31,19 +31,15 @@ class StandOpeningNaGeslotenPeriodeService {
                 periodeSaldo.openingsBalansSaldo + periodeSaldo.periodeBetaling + periodeSaldo.correctieBoeking
             val openingsReserveSaldo =
                 periodeSaldo.openingsReserveSaldo + periodeSaldo.periodeReservering - periodeSaldo.periodeBetaling
-            val openingsOpgenomenSaldo =
-                periodeSaldo.openingsOpgenomenSaldo + periodeSaldo.periodeOpgenomenSaldo + periodeSaldo.periodeBetaling
             val openingsAchterstand =
                 periodeSaldo.openingsAchterstand + periodeSaldo.periodeAchterstand
 
             periodeSaldo.fullCopy(
                 openingsBalansSaldo = openingsBalansSaldo,
                 openingsReserveSaldo = openingsReserveSaldo,
-                openingsOpgenomenSaldo = openingsOpgenomenSaldo,
                 openingsAchterstand = openingsAchterstand,
                 periodeBetaling = BigDecimal.ZERO,
                 periodeReservering = BigDecimal.ZERO,
-                periodeOpgenomenSaldo = BigDecimal.ZERO,
                 periodeAchterstand = BigDecimal.ZERO,
                 correctieBoeking = BigDecimal.ZERO,
             )
@@ -51,7 +47,7 @@ class StandOpeningNaGeslotenPeriodeService {
         logger.debug(
             "berekenOpeningSaldiNaGeslotenPeriode eindSaldi: ${periode.periodeStartDatum} ${
                 saldoLijst.joinToString
-                { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }
+                { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  C ${it.correctieBoeking}" }
             }"
         )
         return saldoLijst

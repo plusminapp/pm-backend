@@ -5,7 +5,6 @@ import io.vliet.plusmin.domain.Saldo
 import io.vliet.plusmin.domain.Saldo.SaldoDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.service.UpdateSpaarSaldiService
 import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.StandService
 import io.vliet.plusmin.service.StandStartVanPeriodeService
@@ -36,9 +35,6 @@ class StandController {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
-    @Autowired
-    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     @Operation(summary = "GET de stand voor hulpvrager op datum")
@@ -60,7 +56,6 @@ class StandController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
         logger.info("GET SaldoController.checkSaldi() voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject}")
-        updateSpaarSaldiService.updateSpaarpotSaldo(hulpvrager)
         return ResponseEntity.ok().build()
     }
 
