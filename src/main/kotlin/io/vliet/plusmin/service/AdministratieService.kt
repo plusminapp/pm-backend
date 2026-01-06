@@ -153,12 +153,13 @@ class AdministratieService {
         if (administratieBestaand != null && !(administratieWrapper.overschrijfBestaande ?: false)) {
             throw PM_AdministratieBestaatAlException(listOf(administratieDTO.naam))
         }
-        val opgeschoondeEigenaar = if (administratieBestaand != null) {
-            verwijderAdministratie(administratieBestaand.id)
-            eigenaar.fullCopy(
-                administraties = eigenaar.administraties.filter { it.id != administratieBestaand.id }
-            )
-        } else eigenaar
+        val opgeschoondeEigenaar = eigenaar
+//            if (administratieBestaand != null) {
+//            verwijderAdministratie(administratieBestaand.id)
+//            eigenaar.fullCopy(
+//                administraties = eigenaar.administraties.filter { it.id != administratieBestaand.id }
+//            )
+//        } else eigenaar
         maakNieuweAdministratie(administratieWrapper, opgeschoondeEigenaar)
     }
 

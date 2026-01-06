@@ -12,7 +12,7 @@
   "rekeningGroepen": [
     {
       "naam": "Betaalrekening",
-      "rekeningGroepSoort": "BETAALREKENING",
+      "rekeningGroepSoort": "BETAALMIDDEL",
       "sortOrder": 100,
       "rekeningen": [
         {
@@ -37,9 +37,7 @@
           "budgetBedrag": 1545,
           "budgetBetaalDag": 21,
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         }
       ]
@@ -56,11 +54,8 @@
           "sortOrder": 110,
           "budgetPeriodiciteit": "WEEK",
           "budgetBedrag": 84,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -69,14 +64,9 @@
           "budgetPeriodiciteit": "WEEK",
           "budgetBedrag": 42,
           "budgetAanvulling": "MET",
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            },
-            {
-              "naam": "Visa Creditcard"
-            }
+            "Simons betaalrekening",
+            "Visa Creditcard"
           ]
         }
       ]
@@ -93,11 +83,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 175,
           "budgetBetaalDag": 8,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -105,11 +92,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 145,
           "budgetBetaalDag": 3,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -117,11 +101,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 25,
           "budgetBetaalDag": 1,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -129,11 +110,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 545,
           "budgetBetaalDag": 28,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -142,11 +120,8 @@
           "budgetBedrag": 30,
           "budgetBetaalDag": 28,
           "budgetVariabiliteit": 1,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -155,11 +130,8 @@
           "budgetBedrag": 75,
           "budgetBetaalDag": 26,
           "budgetVariabiliteit": 1,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         },
         {
@@ -167,11 +139,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 10,
           "budgetBetaalDag": 26,
-          "gekoppeldeRekening": "Simons betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Simons betaalrekening"
-            }
+            "Simons betaalrekening"
           ]
         }
       ]

@@ -11,49 +11,34 @@
   "rekeningGroepen": [
     {
       "naam": "Betaalrekening",
-      "rekeningGroepSoort": "BETAALREKENING",
+      "rekeningGroepSoort": "BETAALMIDDEL",
       "sortOrder": 100,
       "rekeningen": [
         {
           "naam": "Alex' betaalrekening",
           "bankNaam": "ASN",
           "saldo": 1000,
-          "sortOrder": 100
-        }
-      ]
-    },
-    {
-      "naam": "Spaarrekening",
-      "rekeningGroepSoort": "SPAARREKENING",
-      "sortOrder": 110,
-      "rekeningen": [
+          "sortOrder": 100,
+          "betaalMethoden": [
+            "Alex' spaarrekening"
+          ]
+        },
         {
           "naam": "Alex' spaarrekening",
           "bankNaam": "ASN",
           "saldo": 750,
           "sortOrder": 100,
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
-        }
-      ]
-    },
-    {
-      "naam": "Creditcard",
-      "rekeningGroepSoort": "CREDITCARD",
-      "sortOrder": 120,
-      "rekeningen": [
+        },
         {
           "naam": "Visa Creditcard",
           "saldo": -100,
           "bankNaam": "ICS",
           "sortOrder": 200,
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         }
       ]
@@ -72,9 +57,7 @@
           "budgetBedrag": 5,
           "budgetBetaalDag": 5,
           "betaalMethoden": [
-            {
-              "naam": "Alex' spaarrekening"
-            }
+            "Alex' spaarrekening"
           ]
         },
         {
@@ -84,9 +67,7 @@
           "budgetBedrag": 1445,
           "budgetBetaalDag": 24,
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -96,9 +77,7 @@
           "budgetBedrag": 678,
           "budgetBetaalDag": 8,
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         }
       ]
@@ -116,11 +95,8 @@
           "budgetPeriodiciteit": "WEEK",
           "budgetBedrag": 84,
           "budgetAanvulling": "TOT",
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -129,14 +105,9 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 250,
           "budgetAanvulling": "MET",
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            },
-            {
-              "naam": "Visa Creditcard"
-            }
+            "Alex' betaalrekening",
+            "Visa Creditcard"
           ]
         }
       ]
@@ -153,11 +124,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 175,
           "budgetBetaalDag": 8,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -165,11 +133,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 120.07,
           "budgetBetaalDag": 8,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -177,11 +142,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 147.50,
           "budgetBetaalDag": 3,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -189,11 +151,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 26.22,
           "budgetBetaalDag": 1,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -201,11 +160,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 541.95,
           "budgetBetaalDag": 28,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -226,11 +182,8 @@
             9,
             10
           ],
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -251,11 +204,8 @@
             11,
             12
           ],
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         },
         {
@@ -263,11 +213,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 8,
           "budgetBetaalDag": 20,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ]
         }
       ]
@@ -276,7 +223,7 @@
       "naam": "Spaarpotten",
       "rekeningGroepSoort": "SPAARPOT",
       "budgetType": "SPAREN",
-      "rekeningGroepIcoonNaam": "spaartegoed",
+      "rekeningGroepIcoonNaam": "spaarpot",
       "sortOrder": 900,
       "rekeningen": [
         {
@@ -286,13 +233,10 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 25,
           "budgetAanvulling": "MET",
-          "gekoppeldeRekening": "Alex' spaarrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ],
-          "spaartegoed": {
+          "spaarpot": {
             "doelDatum": "2027-01-01",
             "doelBedrag": 2000,
             "notities": "notities bij 1ste"
@@ -305,13 +249,10 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 25,
           "budgetAanvulling": "MET",
-          "gekoppeldeRekening": "Alex' spaarrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ],
-          "spaartegoed": {
+          "spaarpot": {
             "notities": "notities bij Kleding"
           }
         },
@@ -322,16 +263,11 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 50,
           "budgetAanvulling": "MET",
-          "gekoppeldeRekening": "Alex' spaarrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            },
-            {
-              "naam": "Visa Creditcard"
-            }
+            "Alex' betaalrekening",
+            "Visa Creditcard"
           ],
-          "spaartegoed": {
+          "spaarpot": {
             "doelDatum": "2026-07-01",
             "doelBedrag": 2000,
             "notities": "notities bij 3de"
@@ -353,11 +289,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 100,
           "budgetBetaalDag": 26,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ],
           "aflossing": {
             "startDatum": "2025-01-01",
@@ -373,11 +306,8 @@
           "budgetPeriodiciteit": "MAAND",
           "budgetBedrag": 50,
           "budgetBetaalDag": 28,
-          "gekoppeldeRekening": "Alex' betaalrekening",
           "betaalMethoden": [
-            {
-              "naam": "Alex' betaalrekening"
-            }
+            "Alex' betaalrekening"
           ],
           "aflossing": {
             "startDatum": "2025-02-01",

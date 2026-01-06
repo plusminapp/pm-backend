@@ -33,7 +33,7 @@ class Spaarpot(
     )
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    data class SpaartegoedDTO(
+    data class SpaarpotDTO(
         val id: Long = 0,
         val doelDatum: String?,
         val doelBedrag: String?,
@@ -44,7 +44,7 @@ class Spaarpot(
             doelBedrag: String? = this.doelBedrag,
             notities: String? = this.notities,
 
-            ): SpaartegoedDTO = SpaartegoedDTO(
+            ): SpaarpotDTO = SpaarpotDTO(
             this.id,
             doelDatum,
             doelBedrag,
@@ -54,8 +54,8 @@ class Spaarpot(
 
     fun toDTO(
         saldo: BigDecimal? = null
-    ): SpaartegoedDTO {
-        return SpaartegoedDTO(
+    ): SpaarpotDTO {
+        return SpaarpotDTO(
             this.id,
             this.doelDatum.toString(),
             this.doelBedrag?.toString(),

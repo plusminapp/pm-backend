@@ -3,7 +3,6 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
 import io.vliet.plusmin.repository.BetalingRepository
@@ -133,16 +132,16 @@ class CashflowService {
         val startSaldiVanPeriode = standStartVanPeriodeService
             .berekenStartSaldiVanPeriode(periode)
         val saldoBetaalmiddelen = startSaldiVanPeriode
-            .filter { betaalMethodeRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
+            .filter { betaalMiddelenRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) }
             .sumOf { it.openingsBalansSaldo }
-        val saldoSpaartegoed = startSaldiVanPeriode
+        val saldoSpaarpot = startSaldiVanPeriode
             .filter { it.rekening.rekeningGroep.rekeningGroepSoort == RekeningGroep.RekeningGroepSoort.SPAARPOT }
             .sumOf { it.openingsReserveSaldo }
         logger.debug(
             "Openings saldo betaalmiddelen: $saldoBetaalmiddelen, " +
-                    "openings saldo spaartegoed: $saldoSpaartegoed"
+                    "openings saldo spaarpot: $saldoSpaarpot"
         )
-        return saldoBetaalmiddelen - saldoSpaartegoed
+        return saldoBetaalmiddelen - saldoSpaarpot
     }
 
     fun budgetInkomsten(rekeningGroepen: List<RekeningGroep>, date: LocalDate): BigDecimal {

@@ -55,7 +55,7 @@ class Rekening(
     @JoinColumn(name = "aflossing_id", nullable = true)
     val aflossing: Aflossing? = null,
     @OneToOne(optional = true)
-    @JoinColumn(name = "spaartegoed_id", nullable = true)
+    @JoinColumn(name = "spaarpot_id", nullable = true)
     val spaarpot: Spaarpot? = null,
 ) {
     companion object {
@@ -141,10 +141,10 @@ class Rekening(
         val maanden: Set<Int>? = emptySet(),
         val budgetBetaalDag: Int? = null,
         val budgetAanvulling: BudgetAanvulling? = null,
-        val betaalMethoden: List<RekeningDTO> = emptyList(),
+        val betaalMethoden: List<String> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
-        val spaarpot: Spaarpot.SpaartegoedDTO? = null,
+        val spaarpot: Spaarpot.SpaarpotDTO? = null,
     ) {
         fun fullCopy(
             naam: String = this.naam,
@@ -159,10 +159,10 @@ class Rekening(
             budgetBedrag: BigDecimal? = this.budgetBedrag,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
             budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
-            betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
+            betaalMethoden: List<String> = this.betaalMethoden,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             aflossing: Aflossing.AflossingDTO? = this.aflossing,
-            spaarpot: Spaarpot.SpaartegoedDTO? = this.spaarpot,
+            spaarpot: Spaarpot.SpaarpotDTO? = this.spaarpot,
         ) = RekeningDTO(
             this.id,
             naam,
@@ -229,7 +229,7 @@ class Rekening(
             this.maanden,
             this.budgetBetaalDag,
             this.budgetAanvulling,
-            this.betaalMethoden.map { it.toDTO() },
+            this.betaalMethoden.map { it.naam },
             budgetMaandBedrag,
             this.aflossing?.toDTO(),
             this.spaarpot?.toDTO()

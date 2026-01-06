@@ -1542,7 +1542,7 @@
             "$ref": "#/components/schemas/AflossingDTO"
           },
           "spaarpot": {
-            "$ref": "#/components/schemas/SpaartegoedDTO"
+            "$ref": "#/components/schemas/SpaarpotDTO"
           },
           "sortOrder": {
             "type": "integer",
@@ -1608,7 +1608,7 @@
           "sortOrder"
         ]
       },
-      "SpaartegoedDTO": {
+      "SpaarpotDTO": {
         "type": "object",
         "properties": {
           "id": {
@@ -1907,6 +1907,12 @@
               "UIT"
             ]
           },
+          "betaalMethoden": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "budgetMaandBedrag": {
             "type": "number"
           },
@@ -1914,10 +1920,11 @@
             "$ref": "#/components/schemas/AflossingDTO"
           },
           "spaarpot": {
-            "$ref": "#/components/schemas/SpaartegoedDTO"
+            "$ref": "#/components/schemas/SpaarpotDTO"
           }
         },
         "required": [
+          "betaalMethoden",
           "id",
           "naam"
         ]

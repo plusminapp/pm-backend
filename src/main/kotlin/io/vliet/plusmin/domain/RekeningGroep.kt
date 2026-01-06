@@ -60,9 +60,6 @@ class RekeningGroep(
             RekeningGroepSoort.BETAALMIDDEL,
             RekeningGroepSoort.AFLOSSING,
         )
-        val betaalMethodeRekeningGroepSoort = arrayOf(
-            RekeningGroepSoort.BETAALMIDDEL
-        )
         val betaalMiddelenRekeningGroepSoort = arrayOf(
             RekeningGroepSoort.BETAALMIDDEL,
         )

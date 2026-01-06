@@ -153,7 +153,7 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<PlusMinError> {
         val location = extractLocationInfo(ex)
-        logger.error("Unexpected exception at ${location}: ${ex.message}")
+        logger.error("Unexpected exception at ${location}: ${ex.message} ${ex.stackTrace.firstOrNull()}", ex)
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
