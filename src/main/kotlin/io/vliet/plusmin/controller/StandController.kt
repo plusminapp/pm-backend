@@ -27,6 +27,9 @@ class StandController {
     lateinit var standService: StandService
 
     @Autowired
+    lateinit var standStartVanPeriodeService: StandStartVanPeriodeService
+
+    @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
     @Autowired
@@ -49,6 +52,17 @@ class StandController {
         return standService.getStandOpDatum(hulpvrager, peilDatum)
     }
 
+    @Operation(summary = "GET de stand voor hulpvrager op datum")
+    @GetMapping("/administratie/{administratieId}/periode/{periodeId}/openingsbalans")
+    fun getOpeningsBalansVoorPeriode(
+        @PathVariable("administratieId") administratieId: Long,
+        @PathVariable("periodeId") periodeId: Long,
+    ): List<SaldoDTO> {
+        val (hulpvrager, vrijwilliger) = gebruikerService.checkAccess(administratieId)
+        logger.info("GET SaldoController.getOpeningsBalansVoorPeriode() voor ${hulpvrager.naam} door ${vrijwilliger.bijnaam}/${vrijwilliger.subject} voor periode datum $periodeId")
+        return standStartVanPeriodeService
+            .berekenStartSaldiVanPeriode(hulpvrager, periodeId)
+    }
     @Operation(summary = "GET de spaarsaldi controle voor hulpvrager")
     @GetMapping("/administratie/{administratieId}/checkspaarsaldi")
     fun checkSaldi(
