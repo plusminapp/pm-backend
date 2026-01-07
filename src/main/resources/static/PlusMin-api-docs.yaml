@@ -1107,6 +1107,50 @@
         }
       }
     },
+    "/stand/administratie/{administratieId}/periode/{periodeId}/openingsbalans": {
+      "get": {
+        "tags": [
+          "stand-controller"
+        ],
+        "summary": "GET de stand voor hulpvrager op datum",
+        "operationId": "getOpeningsBalansVoorPeriode",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "periodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SaldoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/stand/administratie/{administratieId}/datum/{datum}": {
       "get": {
         "tags": [
