@@ -169,19 +169,20 @@ class ReserveringService {
 
         leefgeldPerDag.forEach { (rekening, bedragPerDag) ->
             val totaalLeefgeld = bedragPerDag.multiply(BigDecimal(aantalDagenTotVolgendeReservering))
-            betalingRepository.save(
-                Betaling(
-                    administratie = administratie,
-                    boekingsdatum = boekingsDatum,
-                    reserveringsHorizon = volgendeReserveringsDatum,
-                    bedrag = totaalLeefgeld,
-                    omschrijving = "Reservering voor leefgeld op ${rekening.naam}",
-                    reserveringBron = reserveringBufferRekening,
-                    reserveringBestemming = rekening,
-                    sortOrder = berekenSortOrder(administratie, boekingsDatum),
-                    betalingsSoort = Betaling.BetalingsSoort.RESERVEREN,
+            if (bedragPerDag.compareTo(BigDecimal.ZERO) != 0)
+                betalingRepository.save(
+                    Betaling(
+                        administratie = administratie,
+                        boekingsdatum = boekingsDatum,
+                        reserveringsHorizon = volgendeReserveringsDatum,
+                        bedrag = totaalLeefgeld,
+                        omschrijving = "Reservering voor leefgeld op ${rekening.naam}",
+                        reserveringBron = reserveringBufferRekening,
+                        reserveringBestemming = rekening,
+                        sortOrder = berekenSortOrder(administratie, boekingsDatum),
+                        betalingsSoort = Betaling.BetalingsSoort.RESERVEREN,
+                    )
                 )
-            )
         }
         return true
     }
