@@ -120,8 +120,14 @@ class BetalingService {
         betalingsSoort: BetalingsSoort,
         dtoBoeking: Boeking
     ): Pair<Boeking?, Boeking?> {
+        val bufferRekening =
+            rekeningRepository.findBufferRekeningVoorAdministratie(dtoBoeking.bron.rekeningGroep.administratie)
+                ?: throw PM_BufferRekeningNotFoundException(listOf(dtoBoeking.bron.rekeningGroep.administratie.naam))
+
         return when (betalingsSoort) {
-            BetalingsSoort.INKOMSTEN, BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN, BetalingsSoort.INTERN ->
+            BetalingsSoort.INKOMSTEN ->
+                    Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
+            BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN, BetalingsSoort.INTERN ->
                 Pair(dtoBoeking, null)
 
             BetalingsSoort.RESERVEREN -> Pair(null, dtoBoeking)
