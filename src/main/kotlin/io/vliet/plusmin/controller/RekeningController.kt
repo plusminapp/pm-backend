@@ -81,7 +81,7 @@ class RekeningController {
     ): ResponseEntity<Any>  {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
         logger.info("GET RekeningController.getRekeningen voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
-        return ResponseEntity.ok().body(rekeningRepository.findRekeningGroepenVoorAdministratie(administratie))
+        return ResponseEntity.ok().body(rekeningRepository.findRekeningGroepenVoorAdministratie(administratie).map { it.toDTO() })
     }
 
     @GetMapping("/administratie/{administratieId}/betaaldagen")
