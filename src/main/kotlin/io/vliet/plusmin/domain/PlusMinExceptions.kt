@@ -225,3 +225,11 @@ class PM_GeenBufferVoorSaldoException(
     "RESERVERING_BUFFER Saldo voor periode ${parameters[0]} bestaat niet voor ${parameters[1]}.",
     HttpStatus.INTERNAL_SERVER_ERROR, "GEEN_BUFFER_VOOR_SALDO", parameters
 )
+
+// Label batch creation exceptions
+class PM_LabelBatchInvalidException(
+    parameters: List<String> = emptyList()
+) : PlusMinException(
+    "Fouten bij batch aanmaken labels: blanco=${parameters.getOrNull(0) ?: "0"}, conflicts=${parameters.getOrNull(1) ?: "0"}",
+    HttpStatus.BAD_REQUEST, "LABEL_BATCH_INVALID", parameters
+)

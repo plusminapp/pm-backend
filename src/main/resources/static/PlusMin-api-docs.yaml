@@ -47,6 +47,37 @@
         }
       }
     },
+    "/reserveringen/administratie/{administratieId}/updateBufferSaldo": {
+      "put": {
+        "tags": [
+          "reservering-controller"
+        ],
+        "operationId": "updateBufferSaldo",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/reserveringen/administratie/{administratieId}/alle": {
       "put": {
         "tags": [
@@ -813,6 +844,50 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/RekeningGroepDTO"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/label/{administratieId}": {
+      "post": {
+        "tags": [
+          "label-controller"
+        ],
+        "operationId": "postLabel",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
               }
             }
@@ -1613,10 +1688,10 @@
           "periodeReservering": {
             "type": "number"
           },
-          "correctieBoeking": {
+          "periodeAchterstand": {
             "type": "number"
           },
-          "periodeAchterstand": {
+          "correctieBoeking": {
             "type": "number"
           },
           "budgetOpPeilDatum": {
@@ -1942,6 +2017,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "toewijzingsPrioriteit": {
+            "type": "integer",
+            "format": "int32"
+          },
           "budgetAanvulling": {
             "type": "string",
             "enum": [
@@ -1952,6 +2031,12 @@
             ]
           },
           "betaalMethoden": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "labels": {
             "type": "array",
             "items": {
               "type": "string"
@@ -1970,6 +2055,7 @@
         "required": [
           "betaalMethoden",
           "id",
+          "labels",
           "naam"
         ]
       },
@@ -2331,6 +2417,26 @@
           "sortOrder"
         ]
       },
+      "Label": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "naam": {
+            "type": "string"
+          },
+          "administratie": {
+            "$ref": "#/components/schemas/Administratie"
+          }
+        },
+        "required": [
+          "administratie",
+          "id",
+          "naam"
+        ]
+      },
       "Rekening": {
         "type": "object",
         "properties": {
@@ -2380,6 +2486,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "toewijzingsPrioriteit": {
+            "type": "integer",
+            "format": "int32"
+          },
           "budgetAanvulling": {
             "type": "string",
             "enum": [
@@ -2395,6 +2505,12 @@
               "$ref": "#/components/schemas/Rekening"
             }
           },
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            }
+          },
           "aflossing": {
             "$ref": "#/components/schemas/Aflossing"
           },
@@ -2405,6 +2521,7 @@
         "required": [
           "betaalMethoden",
           "id",
+          "labels",
           "naam",
           "sortOrder"
         ]

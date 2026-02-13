@@ -26,6 +26,9 @@ class RekeningService {
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
+    lateinit var labelRepository: LabelRepository
+
+    @Autowired
     lateinit var aflossingRepository: AflossingRepository
 
     @Autowired
@@ -97,6 +100,10 @@ class RekeningService {
     fun saveRekening(administratie: Administratie, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
         logger.debug("Opslaan rekening ${rekeningDTO.naam} voor ${administratie.naam} in groep ${rekeningGroep.naam}.")
 
+        val labels =
+            rekeningDTO.labels.mapNotNull {
+                labelRepository.findByAdministratieAndNaam(administratie, it)
+            }
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
                 rekeningRepository.findRekeningAdministratieEnNaam(
@@ -190,8 +197,10 @@ class RekeningService {
                     budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
+                    toewijzingsPrioriteit = rekeningDTO.toewijzingsPrioriteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
+                    labels = labels,
                     aflossing = aflossing ?: rekeningOpt.aflossing,
                     spaarpot = spaarpot ?: rekeningOpt.spaarpot,
                 )
@@ -208,8 +217,10 @@ class RekeningService {
                     budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
+                    toewijzingsPrioriteit = rekeningDTO.toewijzingsPrioriteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
+                    labels = labels,
                     aflossing = aflossing,
                     spaarpot = spaarpot,
                 )

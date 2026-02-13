@@ -42,6 +42,7 @@ class Rekening(
     @Enumerated(EnumType.STRING)
     val budgetPeriodiciteit: BudgetPeriodiciteit? = null,
     val budgetBetaalDag: Int? = null,
+    val toewijzingsPrioriteit: Int? = null,
     @Enumerated(EnumType.STRING)
     val budgetAanvulling: BudgetAanvulling? = null,
     @ManyToMany(fetch = FetchType.EAGER)
@@ -51,6 +52,13 @@ class Rekening(
         inverseJoinColumns = [JoinColumn(name = "betaalmethode_id")]
     )
     var betaalMethoden: List<Rekening> = emptyList(),
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rekening_label",
+        joinColumns = [JoinColumn(name = "rekening_id")],
+        inverseJoinColumns = [JoinColumn(name = "label_id")]
+    )
+    var labels: List<Label> = emptyList(),
     @OneToOne(optional = true)
     @JoinColumn(name = "aflossing_id", nullable = true)
     val aflossing: Aflossing? = null,
@@ -74,8 +82,10 @@ class Rekening(
         maanden: Set<Int>? = this.maanden,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
+        toewijzingsPrioriteit: Int? = this.toewijzingsPrioriteit,
         budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
         betaalMethoden: List<Rekening> = this.betaalMethoden,
+        labels: List<Label> = this.labels,
         aflossing: Aflossing? = this.aflossing,
         spaarpot: Spaarpot? = this.spaarpot,
     ) = Rekening(
@@ -91,8 +101,10 @@ class Rekening(
         maanden,
         budgetPeriodiciteit,
         budgetBetaalDag,
+        toewijzingsPrioriteit,
         budgetAanvulling,
         betaalMethoden,
+        labels,
         aflossing,
         spaarpot
     )
@@ -140,8 +152,10 @@ class Rekening(
         val budgetVariabiliteit: Int? = null,
         val maanden: Set<Int>? = emptySet(),
         val budgetBetaalDag: Int? = null,
+        val toewijzingsPrioriteit: Int? = null,
         val budgetAanvulling: BudgetAanvulling? = null,
         val betaalMethoden: List<String> = emptyList(),
+        val labels: List<String> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
         val spaarpot: Spaarpot.SpaarpotDTO? = null,
@@ -157,9 +171,13 @@ class Rekening(
             saldo: BigDecimal? = this.saldo,
             reserve: BigDecimal? = this.reserve,
             budgetBedrag: BigDecimal? = this.budgetBedrag,
+            budgetVariabiliteit: Int? = this.budgetVariabiliteit,
+            maanden: Set<Int>? = this.maanden,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
+            toewijzingsPrioriteit: Int? = this.toewijzingsPrioriteit,
             budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
             betaalMethoden: List<String> = this.betaalMethoden,
+            labels: List<String> = this.labels,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             aflossing: Aflossing.AflossingDTO? = this.aflossing,
             spaarpot: Spaarpot.SpaarpotDTO? = this.spaarpot,
@@ -178,8 +196,10 @@ class Rekening(
             budgetVariabiliteit,
             maanden,
             budgetBetaalDag,
+            toewijzingsPrioriteit,
             budgetAanvulling,
             betaalMethoden,
+            labels,
             budgetMaandBedrag,
             aflossing,
             spaarpot
@@ -228,8 +248,10 @@ class Rekening(
             this.budgetVariabiliteit,
             this.maanden,
             this.budgetBetaalDag,
+            this.toewijzingsPrioriteit,
             this.budgetAanvulling,
             this.betaalMethoden.map { it.naam },
+            this.labels.map { it.naam },
             budgetMaandBedrag,
             this.aflossing?.toDTO(),
             this.spaarpot?.toDTO()

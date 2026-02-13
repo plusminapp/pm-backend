@@ -9,9 +9,12 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.util.Optional
 
 @Repository
 interface AdministratieRepository : JpaRepository<Administratie, Long> {
+
+    override fun findById(id: Long): Optional<Administratie>
 
     @Query(
         "select distinct a from Gebruiker g " +

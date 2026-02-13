@@ -339,7 +339,7 @@ class ReserveringService {
         val saldoPotjesVoorNu = basisPeriodeSaldi
             .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
             .sumOf { it.openingsReserveSaldo }
-        logger.debug(
+        logger.info(
             "Openings saldo betaalmiddelen: $saldoBetaalMiddelen, " +
                     "openings saldo potjes voor nu: $saldoPotjesVoorNu, " +
                     "totaal: ${saldoBetaalMiddelen - saldoPotjesVoorNu}"
