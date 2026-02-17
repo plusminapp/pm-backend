@@ -3,10 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Rekening.BudgetPeriodiciteit
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
-import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMethodeRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.betaalMiddelenRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.potjesVoorNuRekeningGroepSoort
-import io.vliet.plusmin.domain.RekeningGroep.Companion.spaarPotjesRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.Companion.vastBudgetType
 import io.vliet.plusmin.domain.RekeningGroep.Companion.zonderBetaalMethodenRekeningGroepSoort
 import io.vliet.plusmin.domain.RekeningGroep.RekeningGroepSoort
@@ -26,16 +23,16 @@ class RekeningService {
     lateinit var reserveringService: ReserveringService
 
     @Autowired
-    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
+    lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
-    lateinit var rekeningRepository: RekeningRepository
+    lateinit var labelRepository: LabelRepository
 
     @Autowired
     lateinit var aflossingRepository: AflossingRepository
 
     @Autowired
-    lateinit var spaartegoedRepository: SpaartegoedRepository
+    lateinit var spaarpotRepository: SpaarpotRepository
 
     @Autowired
     lateinit var rekeningGroepRepository: RekeningGroepRepository
@@ -48,7 +45,13 @@ class RekeningService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(administratie: Administratie, rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>): Set<RekeningGroep> {
+    fun saveAll(
+        administratie: Administratie,
+        rekeningGroepLijst: List<RekeningGroep.RekeningGroepDTO>
+    ): Set<RekeningGroep> {
+        rekeningGroepLijst // eerst de betaalmiddelen los opslaan om te zorgen dat ze bestaan voor de rekeningen die ze als betaalmethode gebruiken
+            .filter({ rg -> betaalMiddelenRekeningGroepSoort.contains(enumValueOf<RekeningGroepSoort>(rg.rekeningGroepSoort)) })
+            .map { rekeningGroepDTO -> save(administratie, rekeningGroepDTO) }
         val rekeningGroepen = rekeningGroepLijst
             .map { rekeningGroepDTO -> save(administratie, rekeningGroepDTO) }
         return rekeningGroepen.toSet()
@@ -90,9 +93,6 @@ class RekeningService {
         if (betaalMiddelenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
             reserveringService.updateOpeningsReserveringsSaldo(administratie)
         }
-        if (spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) {
-            updateSpaarSaldiService.updateSpaarpotSaldo(administratie)
-        }
 
         return rekeningGroep.fullCopy(rekeningen = rekeningen)
     }
@@ -100,13 +100,20 @@ class RekeningService {
     fun saveRekening(administratie: Administratie, rekeningGroep: RekeningGroep, rekeningDTO: RekeningDTO): Rekening {
         logger.debug("Opslaan rekening ${rekeningDTO.naam} voor ${administratie.naam} in groep ${rekeningGroep.naam}.")
 
+        val labels =
+            rekeningDTO.labels.mapNotNull {
+                labelRepository.findByAdministratieAndNaam(administratie, it)
+            }
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
                 rekeningRepository.findRekeningAdministratieEnNaam(
                     administratie,
-                    it.naam
+                    it
                 )
-            }.filter { betaalMethodeRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
+            }.filter { betaalMiddelenRekeningGroepSoort.contains(it.rekeningGroep.rekeningGroepSoort) }
+
+        logger.info("Gevonden betaalmethoden ${rekeningDTO.betaalMethoden} voor rekening ${rekeningDTO.naam}: ${betaalMethoden.map { it.naam }} ")
+
         if (betaalMethoden.size == 0 && !zonderBetaalMethodenRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
             throw PM_RekeningMoetBetaalmethodeException(listOf(rekeningDTO.naam))
 
@@ -114,22 +121,6 @@ class RekeningService {
             if (rekeningDTO.budgetPeriodiciteit != null)
                 BudgetPeriodiciteit.valueOf(rekeningDTO.budgetPeriodiciteit.uppercase())
             else null
-
-        val gekoppeldeRekening =
-            if (rekeningDTO.gekoppeldeRekening != null) rekeningRepository.findRekeningAdministratieEnNaam(
-                administratie,
-                rekeningDTO.gekoppeldeRekening
-            )
-            else null
-        val gekoppeldeRekeningIsBetaalMiddel =
-            betaalMiddelenRekeningGroepSoort.contains(gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort)
-        val gekoppeldeRekeningIsSpaarRekening =
-            gekoppeldeRekening?.rekeningGroep?.rekeningGroepSoort == RekeningGroepSoort.SPAARREKENING
-        if ((!gekoppeldeRekeningIsBetaalMiddel && potjesVoorNuRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort)) ||
-            (!gekoppeldeRekeningIsSpaarRekening && spaarPotjesRekeningGroepSoort.contains(rekeningGroep.rekeningGroepSoort))
-        )
-            throw PM_PotjeMoetGekoppeldeRekeningException(listOf(rekeningDTO.naam))
-        logger.debug("Gevonden gekoppelde rekening: ${gekoppeldeRekening?.id} voor ${rekeningDTO.gekoppeldeRekening}")
 
         if (vastBudgetType.contains(rekeningGroep.budgetType) && !geldigeBetaalDag(rekeningDTO.budgetBetaalDag))
             throw PM_GeenBetaaldagException(
@@ -141,80 +132,9 @@ class RekeningService {
             )
 
         val rekeningOpt = rekeningRepository.findRekeningAdministratieEnNaam(administratie, rekeningDTO.naam)
-        val rekening = if (rekeningOpt != null) {
-            logger.debug("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${administratie.naam}")
-            val aflossing = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.AFLOSSING) {
-                if (rekeningOpt.aflossing == null) {
-                    aflossingRepository.save(
-                        Aflossing(
-                            0,
-                            LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            BigDecimal(rekeningDTO.aflossing.schuldOpStartDatum),
-                            rekeningDTO.aflossing.dossierNummer,
-                            rekeningDTO.aflossing.notities
-                        )
-                    )
-                } else {
-                    aflossingRepository.save(
-                        rekeningOpt.aflossing.fullCopy(
-                            LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                            BigDecimal(rekeningDTO.aflossing.schuldOpStartDatum),
-                            rekeningDTO.aflossing.dossierNummer,
-                            rekeningDTO.aflossing.notities
-                        )
-                    )
-                }
-            } else null
-            val spaartegoed = if (rekeningGroep.budgetType == RekeningGroep.BudgetType.SPAREN) {
-                if (rekeningOpt.spaartegoed == null) {
-                    spaartegoedRepository.save(
-                        Spaartegoed(
-                            0,
-                            if (rekeningDTO.spaartegoed?.doelDatum != null)
-                                LocalDate.parse(
-                                    rekeningDTO.spaartegoed.doelDatum,
-                                    DateTimeFormatter.ISO_LOCAL_DATE
-                                ) else null,
-                            if (rekeningDTO.spaartegoed?.doelBedrag != null)
-                                BigDecimal(rekeningDTO.spaartegoed.doelBedrag) else null,
-                            rekeningDTO.spaartegoed?.notities ?: ""
-                        )
-                    )
-                } else {
-                    spaartegoedRepository.save(
-                        rekeningOpt.spaartegoed.fullCopy(
-                            if (rekeningDTO.spaartegoed?.doelDatum != null)
-                                LocalDate.parse(
-                                    rekeningDTO.spaartegoed.doelDatum,
-                                    DateTimeFormatter.ISO_LOCAL_DATE
-                                ) else null,
-                            if (rekeningDTO.spaartegoed?.doelBedrag != null)
-                                BigDecimal(rekeningDTO.spaartegoed.doelBedrag) else null,
-                            rekeningDTO.spaartegoed?.notities ?: ""
-                        )
-                    )
-                }
-            } else null
-            rekeningRepository.save(
-                rekeningOpt.fullCopy(
-                    rekeningGroep = rekeningGroep,
-                    sortOrder = rekeningDTO.sortOrder ?: 0,
-                    bankNaam = rekeningDTO.bankNaam,
-                    budgetBetaalDag = rekeningDTO.budgetBetaalDag,
-                    budgetAanvulling = rekeningDTO.budgetAanvulling,
-                    gekoppeldeRekening = gekoppeldeRekening,
-                    budgetPeriodiciteit = budgetPeriodiciteit,
-                    budgetBedrag = rekeningDTO.budgetBedrag,
-                    budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
-                    maanden = rekeningDTO.maanden,
-                    betaalMethoden = betaalMethoden,
-                    aflossing = aflossing ?: rekeningOpt.aflossing,
-                    spaartegoed = spaartegoed ?: rekeningOpt.spaartegoed,
-                )
-            )
-        } else {
 
-            val aflossing = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.AFLOSSING) {
+        val aflossing = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.AFLOSSING) {
+            if (rekeningOpt?.aflossing == null) {
                 aflossingRepository.save(
                     Aflossing(
                         0,
@@ -224,9 +144,69 @@ class RekeningService {
                         rekeningDTO.aflossing.notities
                     )
                 )
-            } else null
+            } else {
+                aflossingRepository.save(
+                    rekeningOpt.aflossing.fullCopy(
+                        LocalDate.parse(rekeningDTO.aflossing!!.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                        BigDecimal(rekeningDTO.aflossing.schuldOpStartDatum),
+                        rekeningDTO.aflossing.dossierNummer,
+                        rekeningDTO.aflossing.notities
+                    )
+                )
+            }
+        } else null
+        val spaarpot = if (rekeningGroep.rekeningGroepSoort == RekeningGroepSoort.SPAARPOT) {
+            if (rekeningOpt?.spaarpot == null) {
+                spaarpotRepository.save(
+                    Spaarpot(
+                        0,
+                        if (rekeningDTO.spaarpot?.doelDatum != null)
+                            LocalDate.parse(
+                                rekeningDTO.spaarpot.doelDatum,
+                                DateTimeFormatter.ISO_LOCAL_DATE
+                            ) else null,
+                        if (rekeningDTO.spaarpot?.doelBedrag != null)
+                            BigDecimal(rekeningDTO.spaarpot.doelBedrag) else null,
+                        rekeningDTO.spaarpot?.notities ?: ""
+                    )
+                )
+            } else {
+                spaarpotRepository.save(
+                    rekeningOpt.spaarpot.fullCopy(
+                        if (rekeningDTO.spaarpot?.doelDatum != null)
+                            LocalDate.parse(
+                                rekeningDTO.spaarpot.doelDatum,
+                                DateTimeFormatter.ISO_LOCAL_DATE
+                            ) else null,
+                        if (rekeningDTO.spaarpot?.doelBedrag != null)
+                            BigDecimal(rekeningDTO.spaarpot.doelBedrag) else null,
+                        rekeningDTO.spaarpot?.notities ?: ""
+                    )
+                )
+            }
+        } else null
 
-            val savedRekening = rekeningRepository.save(
+        val rekening = if (rekeningOpt != null)
+            rekeningRepository.save(
+                rekeningOpt.fullCopy(
+                    rekeningGroep = rekeningGroep,
+                    sortOrder = rekeningDTO.sortOrder ?: 0,
+                    bankNaam = rekeningDTO.bankNaam,
+                    budgetBetaalDag = rekeningDTO.budgetBetaalDag,
+                    budgetAanvulling = rekeningDTO.budgetAanvulling,
+                    budgetPeriodiciteit = budgetPeriodiciteit,
+                    budgetBedrag = rekeningDTO.budgetBedrag,
+                    budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
+                    toewijzingsPrioriteit = rekeningDTO.toewijzingsPrioriteit,
+                    maanden = rekeningDTO.maanden,
+                    betaalMethoden = betaalMethoden,
+                    labels = labels,
+                    aflossing = aflossing ?: rekeningOpt.aflossing,
+                    spaarpot = spaarpot ?: rekeningOpt.spaarpot,
+                )
+            )
+        else {
+            rekeningRepository.save(
                 Rekening(
                     naam = rekeningDTO.naam,
                     rekeningGroep = rekeningGroep,
@@ -234,19 +214,19 @@ class RekeningService {
                     bankNaam = rekeningDTO.bankNaam,
                     budgetBetaalDag = rekeningDTO.budgetBetaalDag,
                     budgetAanvulling = rekeningDTO.budgetAanvulling,
-                    gekoppeldeRekening = gekoppeldeRekening,
                     budgetPeriodiciteit = budgetPeriodiciteit,
                     budgetBedrag = rekeningDTO.budgetBedrag,
                     budgetVariabiliteit = rekeningDTO.budgetVariabiliteit,
+                    toewijzingsPrioriteit = rekeningDTO.toewijzingsPrioriteit,
                     maanden = rekeningDTO.maanden,
                     betaalMethoden = betaalMethoden,
+                    labels = labels,
                     aflossing = aflossing,
-                    spaartegoed = null,
+                    spaarpot = spaarpot,
                 )
             )
-
-            savedRekening
         }
+
         val periode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(administratie)
         val saldoOpt = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
         if (saldoOpt == null) {
@@ -278,6 +258,6 @@ class RekeningService {
     }
 
     fun geldigeBetaalDag(dag: Int?): Boolean {
-        return (dag != null && (dag in 1..28))
+        return (dag != null && (dag in 1..31))
     }
 }

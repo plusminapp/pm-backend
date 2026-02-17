@@ -33,9 +33,6 @@ class PeriodeUpdateServiceTest {
     lateinit var reserveringService: ReserveringService
 
     @Mock
-    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
-
-    @Mock
     lateinit var rekeningRepository: RekeningRepository
 
     @Mock
@@ -94,12 +91,10 @@ class PeriodeUpdateServiceTest {
             rekening = testRekening,
             openingsBalansSaldo = BigDecimal("1000.00"),
             openingsReserveSaldo = BigDecimal.ZERO,
-            openingsOpgenomenSaldo = BigDecimal.ZERO,
             openingsAchterstand = BigDecimal.ZERO,
             budgetMaandBedrag = BigDecimal("100.00"),
             periodeBetaling = BigDecimal("50.00"),
             periodeReservering = BigDecimal.ZERO,
-            periodeOpgenomenSaldo = BigDecimal.ZERO,
             correctieBoeking = BigDecimal.ZERO,
             periode = vorigePeriode
         )
@@ -217,7 +212,6 @@ class PeriodeUpdateServiceTest {
         )
 
         `when`(periodeRepository.getPeriodesVoorAdministrtatie(testAdministratie)).thenReturn(periodeLijst)
-        doNothing().`when`(updateSpaarSaldiService).updateSpaarpotSaldo(testAdministratie)
         doNothing().`when`(reserveringService).updateOpeningsReserveringsSaldo(testAdministratie)
         `when`(saldoRepository.findAllByPeriode(vorigePeriode)).thenReturn(bestaandeSaldi)
         `when`(saldoRepository.save(org.mockito.ArgumentMatchers.any<Saldo>())).thenAnswer {

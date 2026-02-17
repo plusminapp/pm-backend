@@ -89,8 +89,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.isVerborgen IS FALSE AND " +
-                "b.administratie = :administratie AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
                 "ABS(b.bedrag) = ABS(:bedrag)"
     )
@@ -150,7 +149,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
     @Query(
         value = "DELETE FROM Betaling b " +
                 "WHERE b.administratie = :administratie AND " +
-                "b.betalingsSoort IN ('P2P', 'SP2P', 'P2SP', 'SP2SP')"
+                "b.betalingsSoort IN ('RESERVEREN')"
     )
     fun deleteReserveringenByAdministratie(administratie: Administratie)
 

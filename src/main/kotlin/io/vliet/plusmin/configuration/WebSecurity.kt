@@ -46,7 +46,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .oauth2ResourceServer { oauth2 ->
                 oauth2.jwt { jwt ->
-//                    jwt.decoder(customJwtDecoder())
+                    jwt.decoder(customJwtDecoder())
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                 }
             }
@@ -71,10 +71,7 @@ class SecurityConfig(
         val decoder = NimbusJwtDecoder.withJwkSetUri("https://api.eu.asgardeo.io/t/plusmin/oauth2/jwks")
             .jwtProcessorCustomizer(Consumer { customizer: ConfigurableJWTProcessor<SecurityContext?>? ->
                 customizer!!.setJWSTypeVerifier(
-                    DefaultJOSEObjectTypeVerifier<SecurityContext?>(
-                        JOSEObjectType("at+jwt"),
-                        JOSEObjectType("JWT")
-                    )
+                    DefaultJOSEObjectTypeVerifier<SecurityContext?>(JOSEObjectType("at+jwt"), JOSEObjectType("JWT"))
                 )
             })
             .build()

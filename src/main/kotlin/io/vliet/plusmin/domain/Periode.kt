@@ -61,14 +61,14 @@ class Periode(
         val openPeriodes = listOf(PeriodeStatus.HUIDIG, PeriodeStatus.OPEN)
         val geslotenPeriodes = listOf(PeriodeStatus.GESLOTEN, PeriodeStatus.OPGERUIMD)
         fun Periode.berekenDagInPeriode(dagInMaand: Int): LocalDate {
-            val jaar = this.periodeStartDatum.year
-            val maand = this.periodeStartDatum.monthValue
             val periodeStartDag = this.periodeStartDatum.dayOfMonth
-            return if (dagInMaand < periodeStartDag) {
-                LocalDate.of(jaar, maand, dagInMaand).plusMonths(1)
+            val doelMaand = if (dagInMaand < periodeStartDag) {
+                this.periodeStartDatum.plusMonths(1)
             } else {
-                LocalDate.of(jaar, maand, dagInMaand)
+                this.periodeStartDatum
             }
+            val geldigeDag = minOf(dagInMaand, doelMaand.lengthOfMonth())
+            return doelMaand.withDayOfMonth(geldigeDag)
         }
     }
 

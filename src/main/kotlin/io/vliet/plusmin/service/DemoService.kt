@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class DemoService {
@@ -59,11 +60,13 @@ class DemoService {
     fun nachtelijkeUpdate() {
         val parameters = demoRepository.findAll()
         parameters.forEach { demo ->
-            val doelPeriode = periodeRepository.getPeriodeAdministratieEnDatum(demo.administratie.id, LocalDate.now())
+            val vandaag = demo.administratie.vandaag ?: LocalDate.now()
+            logger.info("Vandaag: ${vandaag}")
+            val doelPeriode = periodeRepository.getPeriodeAdministratieEnDatum(demo.administratie.id, vandaag)
                 ?: throw PM_NoOpenPeriodException(
                     listOf(
                         demo.administratie.naam,
-                        LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        vandaag.format(DateTimeFormatter.ISO_LOCAL_DATE)
                     )
                 )
             kopieerPeriodeBetalingen(demo.administratie, demo.bronPeriode, doelPeriode)
@@ -149,6 +152,7 @@ class DemoService {
     }
 
     fun putVandaag(administratie: Administratie, vandaag: String?, toonBetalingen: Boolean) {
+
         val vandaagAsLocalDate = if (vandaag != null) {
             try {
                 LocalDate.parse(vandaag, DateTimeFormatter.ISO_LOCAL_DATE)
@@ -167,16 +171,22 @@ class DemoService {
             // je mag alleen terug naar nu als het na de start van de laatste periode is
             (vandaagAsLocalDate == null && laatstePeriodeStartDatum.isBefore(LocalDate.now()))
         ) {
-            administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
             if (toonBetalingen) betalingRepository.unhideAllByAdministratieTotEnMetDatum(
                 administratie,
                 vandaagAsLocalDate ?: LocalDate.now()
             )
+            administratieRepository.putVandaag(administratie.id, vandaagAsLocalDate)
         } else {
             logger.warn("Ongeldige datum voor vandaag: administratie.vandaag ${administratie.vandaag} vandaagAsLocalDate $vandaagAsLocalDate vooradministratie ${administratie.naam}")
             throw PM_InvalidDateFormatException(listOf(vandaag ?: "null"))
         }
-        periodeService.checkPeriodesVoorAdministratie(administratie)
+        val updatedAdministratie = administratieRepository.findById(administratie.id).getOrElse { administratie }
+        periodeService.checkPeriodesVoorAdministratie(updatedAdministratie)
+
+        val demo = demoRepository.findByAdministratie(administratie)
+        if (demo != null) {
+            nachtelijkeUpdate()
+        }
     }
 
     fun resetSpel(administratie: Administratie) {
@@ -186,9 +196,22 @@ class DemoService {
         val periodeLijst = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
         if (periodeLijst.size == 0)
             throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
-        // TODO maak het mogelijk een spel met meer dan 1 periode te resetten
-//        if (periodeLijst.size > 2)
-//            throw PM_PeriodeNotFoundException(listOf("Eerste periode voor administratie ${administratie.naam}"))
+        // maak het mogelijk een spel met meer dan 1 periode te resetten
+        if (periodeLijst.size > 2) {
+            val toDelete = periodeLijst.subList(2, periodeLijst.size)
+            // eerst betalingen in die periodes verwijderen
+            toDelete.forEach { p ->
+                betalingRepository.deleteAllByAdministratieTussenDatums(
+                    administratie,
+                    p.periodeStartDatum,
+                    p.periodeEindDatum
+                )
+            }
+            // dan de periodes zelf verwijderen
+            periodeRepository.deleteAll(toDelete)
+            periodeRepository.save(periodeLijst[1].fullCopy(periodeStatus = Periode.PeriodeStatus.HUIDIG))
+        }
+
         administratieRepository.putVandaag(administratie.id, periodeLijst[0].periodeEindDatum.plusDays(1))
         betalingRepository.hideAllByAdministratie(administratie)
         betalingRepository.deleteReserveringenByAdministratie(administratie)

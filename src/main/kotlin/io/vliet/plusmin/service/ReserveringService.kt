@@ -45,7 +45,8 @@ class ReserveringService {
     fun creeerAlleReserveringen(administratie: Administratie) {
         var reserverenMogelijk = true
         val huidigePeriode = periodeRepository.getLaatstePeriodeVoorAdministratie(administratie.id)
-        var reserveringHorizon: LocalDate? = betalingRepository.getReserveringsHorizon(administratie)?: huidigePeriode?.periodeStartDatum
+        var reserveringHorizon: LocalDate? =
+            betalingRepository.getReserveringsHorizon(administratie) ?: huidigePeriode?.periodeStartDatum
         while (reserverenMogelijk &&
             reserveringHorizon != null &&
             huidigePeriode != null &&
@@ -133,13 +134,23 @@ class ReserveringService {
         val boekingsDatum = fakePeriode.periodeStartDatum
         vasteLastenRekeningen.forEach {
             val betaalDatum =
-                if (vorigeReserveringsDatum.dayOfMonth < it.budgetBetaalDag!!)
-                    vorigeReserveringsDatum.withDayOfMonth(it.budgetBetaalDag)
-                else
-                    vorigeReserveringsDatum.plusMonths(1).withDayOfMonth(it.budgetBetaalDag)
-            logger.info("Creëer reservering voor vaste last ${it.naam} op $betaalDatum voor administratie ${administratie.naam}. betaalDatum <= fakePeriode.periodeEindDatum: ${betaalDatum <= fakePeriode.periodeEindDatum}, it.maanden=${it.maanden}, it.maanden?.contains(betaalDatum.monthValue)=${it.maanden?.contains(betaalDatum.monthValue)}")
+                if (vorigeReserveringsDatum.dayOfMonth < it.budgetBetaalDag!!) {
+                    val laatsteDagVanMaand = vorigeReserveringsDatum.lengthOfMonth()
+                    vorigeReserveringsDatum.withDayOfMonth(minOf(it.budgetBetaalDag, laatsteDagVanMaand))
+                } else {
+                    val laatsteDagVanMaand = vorigeReserveringsDatum.plusMonths(1).lengthOfMonth()
+                    vorigeReserveringsDatum.plusMonths(1).withDayOfMonth(minOf(it.budgetBetaalDag, laatsteDagVanMaand))
+                }
+            logger.info(
+                "Creëer reservering voor vaste last ${it.naam} op $betaalDatum voor administratie ${administratie.naam}. betaalDatum <= fakePeriode.periodeEindDatum: ${betaalDatum <= fakePeriode.periodeEindDatum}, it.maanden=${it.maanden}, it.maanden?.contains(betaalDatum.monthValue)=${
+                    it.maanden?.contains(
+                        betaalDatum.monthValue
+                    )
+                }"
+            )
             if (betaalDatum <= fakePeriode.periodeEindDatum &&
-                (it.maanden.isNullOrEmpty() || it.maanden?.contains(betaalDatum.monthValue) ?: true)) {
+                (it.maanden.isNullOrEmpty() || it.maanden?.contains(betaalDatum.monthValue) ?: true)
+            ) {
                 betalingRepository.save(
                     Betaling(
                         administratie = administratie,
@@ -150,7 +161,7 @@ class ReserveringService {
                         reserveringBron = reserveringBufferRekening,
                         reserveringBestemming = it,
                         sortOrder = berekenSortOrder(administratie, boekingsDatum),
-                        betalingsSoort = Betaling.BetalingsSoort.P2P,
+                        betalingsSoort = Betaling.BetalingsSoort.RESERVEREN,
                     )
                 )
             }
@@ -158,19 +169,20 @@ class ReserveringService {
 
         leefgeldPerDag.forEach { (rekening, bedragPerDag) ->
             val totaalLeefgeld = bedragPerDag.multiply(BigDecimal(aantalDagenTotVolgendeReservering))
-            betalingRepository.save(
-                Betaling(
-                    administratie = administratie,
-                    boekingsdatum = boekingsDatum,
-                    reserveringsHorizon = volgendeReserveringsDatum,
-                    bedrag = totaalLeefgeld,
-                    omschrijving = "Reservering voor leefgeld op ${rekening.naam}",
-                    reserveringBron = reserveringBufferRekening,
-                    reserveringBestemming = rekening,
-                    sortOrder = berekenSortOrder(administratie, boekingsDatum),
-                    betalingsSoort = Betaling.BetalingsSoort.P2P,
+            if (bedragPerDag.compareTo(BigDecimal.ZERO) != 0)
+                betalingRepository.save(
+                    Betaling(
+                        administratie = administratie,
+                        boekingsdatum = boekingsDatum,
+                        reserveringsHorizon = volgendeReserveringsDatum,
+                        bedrag = totaalLeefgeld,
+                        omschrijving = "Reservering voor leefgeld op ${rekening.naam}",
+                        reserveringBron = reserveringBufferRekening,
+                        reserveringBestemming = rekening,
+                        sortOrder = berekenSortOrder(administratie, boekingsDatum),
+                        betalingsSoort = Betaling.BetalingsSoort.RESERVEREN,
+                    )
                 )
-            )
         }
         return true
     }
@@ -186,10 +198,14 @@ class ReserveringService {
             .filter { rekening ->
                 val rekeningBetaalDag = rekening.budgetBetaalDag ?: return@filter false
                 val volgendeRekeningBetaaldatum =
-                    if (vorigeReserveringsDatum.dayOfMonth < rekeningBetaalDag)
-                        vorigeReserveringsDatum.withDayOfMonth(rekeningBetaalDag)
-                    else
-                        vorigeReserveringsDatum.plusMonths(1).withDayOfMonth(rekeningBetaalDag)
+                    if (vorigeReserveringsDatum.dayOfMonth < rekeningBetaalDag) {
+                        val laatsteDagVanMaand = vorigeReserveringsDatum.lengthOfMonth()
+                        vorigeReserveringsDatum.withDayOfMonth(minOf(laatsteDagVanMaand, rekeningBetaalDag))
+                    } else {
+                        val laatsteDagVanMaand = vorigeReserveringsDatum.plusMonths(1).lengthOfMonth()
+                        vorigeReserveringsDatum.plusMonths(1)
+                            .withDayOfMonth(minOf(laatsteDagVanMaand, rekeningBetaalDag))
+                    }
                 logger.debug(
                     "findVasteLastenRekeningen: rekening=${rekening.naam}, vorigeReserveringsDatum=$vorigeReserveringsDatum, volgendeBetaalDatum=$volgendeRekeningBetaaldatum, volgendeInkomstenDatum=$volgendeInkomstenDatum, ${
                         !volgendeRekeningBetaaldatum.isAfter(
@@ -249,7 +265,8 @@ class ReserveringService {
         )
         val startSaldiVanPeriode =
             if ((initieleReserveringTekorten == BigDecimal.ZERO && initieleReserveringOverschot == BigDecimal.ZERO) ||
-                vorigeReserveringsDatum > (administratie.vandaag ?: LocalDate.now())) saldiOpPeildatum
+                vorigeReserveringsDatum > (administratie.vandaag ?: LocalDate.now())
+            ) saldiOpPeildatum
             else {
                 saldiOpPeildatum.map {
                     if (potjesRekeningGroepSoort.contains(it.rekening.rekeningGroep.rekeningGroepSoort) && it.openingsReserveSaldo < BigDecimal.ZERO) {
@@ -268,7 +285,7 @@ class ReserveringService {
                                 reserveringBron = reserveringBufferRekening,
                                 reserveringBestemming = it.rekening,
                                 sortOrder = berekenSortOrder(administratie, vorigeReserveringsDatum.minusDays(1)),
-                                betalingsSoort = Betaling.BetalingsSoort.P2P,
+                                betalingsSoort = Betaling.BetalingsSoort.RESERVEREN,
                             )
                         )
                         logger.warn("Buffer reserveringstekort van ${-it.openingsReserveSaldo} voor ${it.rekening.naam} bij start van periode ${vorigeReserveringsDatum} voor ${administratie.naam} aangevuld vanuit buffer.")
@@ -289,7 +306,7 @@ class ReserveringService {
                                 reserveringBron = it.rekening,
                                 reserveringBestemming = reserveringBufferRekening,
                                 sortOrder = berekenSortOrder(administratie, vorigeReserveringsDatum.minusDays(1)),
-                                betalingsSoort = Betaling.BetalingsSoort.P2P,
+                                betalingsSoort = Betaling.BetalingsSoort.RESERVEREN,
                             )
                         )
                         logger.warn("Buffer reserveringsoverschot van ${it.openingsReserveSaldo} voor ${it.rekening.naam} bij start van periode ${vorigeReserveringsDatum} voor ${administratie.naam} overgeheveld naar de buffer.")
@@ -322,7 +339,7 @@ class ReserveringService {
         val saldoPotjesVoorNu = basisPeriodeSaldi
             .filter { it.rekening.rekeningGroep.isPotjeVoorNu() }
             .sumOf { it.openingsReserveSaldo }
-        logger.debug(
+        logger.info(
             "Openings saldo betaalmiddelen: $saldoBetaalMiddelen, " +
                     "openings saldo potjes voor nu: $saldoPotjesVoorNu, " +
                     "totaal: ${saldoBetaalMiddelen - saldoPotjesVoorNu}"

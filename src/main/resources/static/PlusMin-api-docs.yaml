@@ -47,6 +47,37 @@
         }
       }
     },
+    "/reserveringen/administratie/{administratieId}/updateBufferSaldo": {
+      "put": {
+        "tags": [
+          "reservering-controller"
+        ],
+        "operationId": "updateBufferSaldo",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/reserveringen/administratie/{administratieId}/alle": {
       "put": {
         "tags": [
@@ -833,6 +864,50 @@
         }
       }
     },
+    "/label/{administratieId}": {
+      "post": {
+        "tags": [
+          "label-controller"
+        ],
+        "operationId": "postLabel",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/gebruikers": {
       "get": {
         "tags": [
@@ -1099,6 +1174,50 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Administratie"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stand/administratie/{administratieId}/periode/{periodeId}/openingsbalans": {
+      "get": {
+        "tags": [
+          "stand-controller"
+        ],
+        "summary": "GET de stand voor hulpvrager op datum",
+        "operationId": "getOpeningsBalansVoorPeriode",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "periodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SaldoDTO"
                   }
                 }
               }
@@ -1505,10 +1624,7 @@
           "rekeningGroepSoort": {
             "type": "string",
             "enum": [
-              "BETAALREKENING",
-              "SPAARREKENING",
-              "CONTANT",
-              "CREDITCARD",
+              "BETAALMIDDEL",
               "INKOMSTEN",
               "UITGAVEN",
               "AFLOSSING",
@@ -1532,6 +1648,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "budgetBetaalDatum": {
+            "type": "string",
+            "format": "date"
+          },
           "budgetAanvulling": {
             "type": "string",
             "enum": [
@@ -1544,8 +1664,8 @@
           "aflossing": {
             "$ref": "#/components/schemas/AflossingDTO"
           },
-          "spaartegoed": {
-            "$ref": "#/components/schemas/SpaartegoedDTO"
+          "spaarpot": {
+            "$ref": "#/components/schemas/SpaarpotDTO"
           },
           "sortOrder": {
             "type": "integer",
@@ -1555,9 +1675,6 @@
             "type": "number"
           },
           "openingsReserveSaldo": {
-            "type": "number"
-          },
-          "openingsOpgenomenSaldo": {
             "type": "number"
           },
           "openingsAchterstand": {
@@ -1575,13 +1692,10 @@
           "periodeReservering": {
             "type": "number"
           },
-          "periodeOpgenomenSaldo": {
+          "periodeAchterstand": {
             "type": "number"
           },
           "correctieBoeking": {
-            "type": "number"
-          },
-          "periodeAchterstand": {
             "type": "number"
           },
           "budgetOpPeilDatum": {
@@ -1609,17 +1723,15 @@
           "id",
           "openingsAchterstand",
           "openingsBalansSaldo",
-          "openingsOpgenomenSaldo",
           "openingsReserveSaldo",
           "periodeBetaling",
-          "periodeOpgenomenSaldo",
           "periodeReservering",
           "rekeningGroepNaam",
           "rekeningNaam",
           "sortOrder"
         ]
       },
-      "SpaartegoedDTO": {
+      "SpaarpotDTO": {
         "type": "object",
         "properties": {
           "id": {
@@ -1637,8 +1749,7 @@
           }
         },
         "required": [
-          "id",
-          "notities"
+          "id"
         ]
       },
       "AdministratieDTO": {
@@ -1774,12 +1885,13 @@
           },
           "overschrijfBestaande": {
             "type": "boolean"
+          },
+          "demoMode": {
+            "type": "boolean"
           }
         },
         "required": [
           "administratie",
-          "betalingen",
-          "overschrijfBestaande",
           "rekeningGroepen"
         ]
       },
@@ -1822,7 +1934,6 @@
           "boekingsdatum",
           "bron",
           "id",
-          "isVerborgen",
           "omschrijving"
         ]
       },
@@ -1885,9 +1996,6 @@
           "totEnMetPeriode": {
             "$ref": "#/components/schemas/Periode"
           },
-          "gekoppeldeRekening": {
-            "type": "string"
-          },
           "budgetPeriodiciteit": {
             "type": "string"
           },
@@ -1916,6 +2024,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "toewijzingsPrioriteit": {
+            "type": "integer",
+            "format": "int32"
+          },
           "budgetAanvulling": {
             "type": "string",
             "enum": [
@@ -1925,18 +2037,32 @@
               "UIT"
             ]
           },
+          "betaalMethoden": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "budgetMaandBedrag": {
             "type": "number"
           },
           "aflossing": {
             "$ref": "#/components/schemas/AflossingDTO"
           },
-          "spaartegoed": {
-            "$ref": "#/components/schemas/SpaartegoedDTO"
+          "spaarpot": {
+            "$ref": "#/components/schemas/SpaarpotDTO"
           }
         },
         "required": [
+          "betaalMethoden",
           "id",
+          "labels",
           "naam"
         ]
       },
@@ -2266,16 +2392,8 @@
               "UITGAVEN",
               "BESTEDEN",
               "AFLOSSEN",
-              "SPAREN",
-              "OPNEMEN",
-              "TERUGSTORTEN",
-              "INCASSO_CREDITCARD",
-              "OPNEMEN_CONTANT",
-              "STORTEN_CONTANT",
-              "P2P",
-              "SP2SP",
-              "P2SP",
-              "SP2P"
+              "INTERN",
+              "RESERVEREN"
             ]
           },
           "sortOrder": {
@@ -2302,9 +2420,28 @@
           "betalingsSoort",
           "boekingsdatum",
           "id",
-          "isVerborgen",
           "omschrijving",
           "sortOrder"
+        ]
+      },
+      "Label": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "naam": {
+            "type": "string"
+          },
+          "administratie": {
+            "$ref": "#/components/schemas/Administratie"
+          }
+        },
+        "required": [
+          "administratie",
+          "id",
+          "naam"
         ]
       },
       "Rekening": {
@@ -2329,9 +2466,6 @@
           },
           "totEnMetPeriode": {
             "$ref": "#/components/schemas/Periode"
-          },
-          "gekoppeldeRekening": {
-            "$ref": "#/components/schemas/Rekening"
           },
           "budgetBedrag": {
             "type": "number"
@@ -2359,6 +2493,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "toewijzingsPrioriteit": {
+            "type": "integer",
+            "format": "int32"
+          },
           "budgetAanvulling": {
             "type": "string",
             "enum": [
@@ -2374,21 +2512,28 @@
               "$ref": "#/components/schemas/Rekening"
             }
           },
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            }
+          },
           "aflossing": {
             "$ref": "#/components/schemas/Aflossing"
           },
-          "spaartegoed": {
-            "$ref": "#/components/schemas/Spaartegoed"
+          "spaarpot": {
+            "$ref": "#/components/schemas/Spaarpot"
           }
         },
         "required": [
           "betaalMethoden",
           "id",
+          "labels",
           "naam",
           "sortOrder"
         ]
       },
-      "Spaartegoed": {
+      "Spaarpot": {
         "type": "object",
         "properties": {
           "id": {
@@ -2407,8 +2552,7 @@
           }
         },
         "required": [
-          "id",
-          "notities"
+          "id"
         ]
       }
     },

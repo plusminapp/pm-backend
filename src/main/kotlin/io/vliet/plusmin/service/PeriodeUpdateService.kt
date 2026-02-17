@@ -33,9 +33,6 @@ class PeriodeUpdateService {
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
-    lateinit var updateSpaarSaldiService: UpdateSpaarSaldiService
-
-    @Autowired
     lateinit var standInPeriodeService: StandInPeriodeService
 
     @Autowired
@@ -176,7 +173,6 @@ class PeriodeUpdateService {
             ).toDTO()
         }
         reserveringService.updateOpeningsReserveringsSaldo(administratie)
-        updateSpaarSaldiService.updateSpaarpotSaldo(administratie)
         return aangepasteOpeningsSaldi
     }
 }

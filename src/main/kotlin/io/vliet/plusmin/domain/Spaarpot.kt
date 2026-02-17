@@ -6,8 +6,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity
-@Table(name = "spaartegoed")
-class Spaartegoed(
+@Table(name = "spaarpot")
+class Spaarpot(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
@@ -19,13 +19,13 @@ class Spaartegoed(
     val doelDatum: LocalDate?,
     val doelBedrag: BigDecimal?,
     @Column(columnDefinition = "TEXT")
-    val notities: String
+    val notities: String? = null
 ) {
     fun fullCopy(
         doelDatum: LocalDate? = this.doelDatum,
         doelBedrag: BigDecimal? = this.doelBedrag,
-        notities: String = this.notities,
-    ) = Spaartegoed(
+        notities: String? = this.notities,
+    ) = Spaarpot(
         this.id,
         doelDatum,
         doelBedrag,
@@ -33,18 +33,18 @@ class Spaartegoed(
     )
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    data class SpaartegoedDTO(
+    data class SpaarpotDTO(
         val id: Long = 0,
         val doelDatum: String?,
         val doelBedrag: String?,
-        val notities: String,
+        val notities: String?,
     ) {
         fun fullCopy(
             doelDatum: String? = this.doelDatum,
             doelBedrag: String? = this.doelBedrag,
-            notities: String = this.notities,
+            notities: String? = this.notities,
 
-            ): SpaartegoedDTO = SpaartegoedDTO(
+            ): SpaarpotDTO = SpaarpotDTO(
             this.id,
             doelDatum,
             doelBedrag,
@@ -54,8 +54,8 @@ class Spaartegoed(
 
     fun toDTO(
         saldo: BigDecimal? = null
-    ): SpaartegoedDTO {
-        return SpaartegoedDTO(
+    ): SpaarpotDTO {
+        return SpaarpotDTO(
             this.id,
             this.doelDatum.toString(),
             this.doelBedrag?.toString(),

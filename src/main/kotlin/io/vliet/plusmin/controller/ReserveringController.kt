@@ -42,4 +42,13 @@ class ReserveringController {
         reserveringService.creeerReserveringen(administratie)
         return ResponseEntity.ok().build()
     }
+    @PutMapping("/administratie/{administratieId}/updateBufferSaldo")
+    fun updateBufferSaldo(
+        @PathVariable("administratieId") administratieId: Long,
+    ): ResponseEntity<Any> {
+        val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
+        logger.info("PUT ReserveringController.updateBufferSaldo voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        reserveringService.updateOpeningsReserveringsSaldo(administratie)
+        return ResponseEntity.ok().build()
+    }
 }

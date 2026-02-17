@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.vliet.plusmin.domain.Periode.Companion.berekenDagInPeriode
 import jakarta.persistence.*
 import java.math.BigDecimal
-import java.time.LocalDate
 
 @Entity
 @Table(
@@ -35,9 +34,6 @@ class Rekening(
     @ManyToOne
     @JoinColumn(name = "tot_periode_id")
     val totEnMetPeriode: Periode? = null,
-    @ManyToOne
-    @JoinColumn(name = "gekoppelde_rekening_id")
-    val gekoppeldeRekening: Rekening? = null, // gekoppelde spaarrekening bij spaarpotje of gekoppelde betaalrekening bij potje
     val budgetBedrag: BigDecimal? = null,
     val budgetVariabiliteit: Int? = 0, // toegestane afwijking in procenten om een betaling te accepteren bij vaste lasten en aflossingen
     @Column(name = "maanden")
@@ -46,6 +42,7 @@ class Rekening(
     @Enumerated(EnumType.STRING)
     val budgetPeriodiciteit: BudgetPeriodiciteit? = null,
     val budgetBetaalDag: Int? = null,
+    val toewijzingsPrioriteit: Int? = null,
     @Enumerated(EnumType.STRING)
     val budgetAanvulling: BudgetAanvulling? = null,
     @ManyToMany(fetch = FetchType.EAGER)
@@ -55,12 +52,19 @@ class Rekening(
         inverseJoinColumns = [JoinColumn(name = "betaalmethode_id")]
     )
     var betaalMethoden: List<Rekening> = emptyList(),
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rekening_label",
+        joinColumns = [JoinColumn(name = "rekening_id")],
+        inverseJoinColumns = [JoinColumn(name = "label_id")]
+    )
+    var labels: List<Label> = emptyList(),
     @OneToOne(optional = true)
     @JoinColumn(name = "aflossing_id", nullable = true)
     val aflossing: Aflossing? = null,
     @OneToOne(optional = true)
-    @JoinColumn(name = "spaartegoed_id", nullable = true)
-    val spaartegoed: Spaartegoed? = null,
+    @JoinColumn(name = "spaarpot_id", nullable = true)
+    val spaarpot: Spaarpot? = null,
 ) {
     companion object {
         val sortableFields = setOf("id", "naam")
@@ -73,16 +77,17 @@ class Rekening(
         bankNaam: String? = this.bankNaam,
         vanPeriode: Periode? = this.vanPeriode,
         totEnMetPeriode: Periode? = this.totEnMetPeriode,
-        gekoppeldeRekening: Rekening? = this.gekoppeldeRekening,
         budgetBedrag: BigDecimal? = this.budgetBedrag,
         budgetVariabiliteit: Int? = this.budgetVariabiliteit,
         maanden: Set<Int>? = this.maanden,
         budgetPeriodiciteit: BudgetPeriodiciteit? = this.budgetPeriodiciteit,
         budgetBetaalDag: Int? = this.budgetBetaalDag,
+        toewijzingsPrioriteit: Int? = this.toewijzingsPrioriteit,
         budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
         betaalMethoden: List<Rekening> = this.betaalMethoden,
+        labels: List<Label> = this.labels,
         aflossing: Aflossing? = this.aflossing,
-        spaartegoed: Spaartegoed? = this.spaartegoed,
+        spaarpot: Spaarpot? = this.spaarpot,
     ) = Rekening(
         this.id,
         naam,
@@ -91,16 +96,17 @@ class Rekening(
         bankNaam,
         vanPeriode,
         totEnMetPeriode,
-        gekoppeldeRekening,
         budgetBedrag,
         budgetVariabiliteit,
         maanden,
         budgetPeriodiciteit,
         budgetBetaalDag,
+        toewijzingsPrioriteit,
         budgetAanvulling,
         betaalMethoden,
+        labels,
         aflossing,
-        spaartegoed
+        spaarpot
     )
 
 //    fun fromDTO(
@@ -114,7 +120,6 @@ class Rekening(
 //        rekeningDTO.bankNaam,
 //        rekeningDTO.vanPeriode,
 //        rekeningDTO.totEnMetPeriode,
-//        rekeningDTO.gekoppeldeRekening,
 //        rekeningDTO.budgetBedrag,
 //        rekeningDTO.budgetVariabiliteit,
 //        rekeningDTO.maanden,
@@ -140,7 +145,6 @@ class Rekening(
         val bankNaam: String? = null,
         val vanPeriode: Periode? = null,
         val totEnMetPeriode: Periode? = null,
-        val gekoppeldeRekening: String? = null,
         val budgetPeriodiciteit: String? = null,
         val saldo: BigDecimal? = null,
         val reserve: BigDecimal? = null,
@@ -148,11 +152,13 @@ class Rekening(
         val budgetVariabiliteit: Int? = null,
         val maanden: Set<Int>? = emptySet(),
         val budgetBetaalDag: Int? = null,
+        val toewijzingsPrioriteit: Int? = null,
         val budgetAanvulling: BudgetAanvulling? = null,
-        val betaalMethoden: List<RekeningDTO> = emptyList(),
+        val betaalMethoden: List<String> = emptyList(),
+        val labels: List<String> = emptyList(),
         val budgetMaandBedrag: BigDecimal? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
-        val spaartegoed: Spaartegoed.SpaartegoedDTO? = null,
+        val spaarpot: Spaarpot.SpaarpotDTO? = null,
     ) {
         fun fullCopy(
             naam: String = this.naam,
@@ -161,17 +167,20 @@ class Rekening(
             bankNaam: String? = this.bankNaam,
             vanPeriode: Periode? = this.vanPeriode,
             totEnMetPeriode: Periode? = this.totEnMetPeriode,
-            gekoppeldeRekening: String? = this.gekoppeldeRekening,
             budgetPeriodiciteit: String? = this.budgetPeriodiciteit,
             saldo: BigDecimal? = this.saldo,
             reserve: BigDecimal? = this.reserve,
             budgetBedrag: BigDecimal? = this.budgetBedrag,
+            budgetVariabiliteit: Int? = this.budgetVariabiliteit,
+            maanden: Set<Int>? = this.maanden,
             budgetBetaalDag: Int? = this.budgetBetaalDag,
+            toewijzingsPrioriteit: Int? = this.toewijzingsPrioriteit,
             budgetAanvulling: BudgetAanvulling? = this.budgetAanvulling,
-            betaalMethoden: List<RekeningDTO> = this.betaalMethoden,
+            betaalMethoden: List<String> = this.betaalMethoden,
+            labels: List<String> = this.labels,
             budgetMaandBedrag: BigDecimal? = this.budgetMaandBedrag,
             aflossing: Aflossing.AflossingDTO? = this.aflossing,
-            spaartegoed: Spaartegoed.SpaartegoedDTO? = this.spaartegoed,
+            spaarpot: Spaarpot.SpaarpotDTO? = this.spaarpot,
         ) = RekeningDTO(
             this.id,
             naam,
@@ -180,7 +189,6 @@ class Rekening(
             bankNaam,
             vanPeriode,
             totEnMetPeriode,
-            gekoppeldeRekening,
             budgetPeriodiciteit,
             saldo,
             reserve,
@@ -188,11 +196,13 @@ class Rekening(
             budgetVariabiliteit,
             maanden,
             budgetBetaalDag,
+            toewijzingsPrioriteit,
             budgetAanvulling,
             betaalMethoden,
+            labels,
             budgetMaandBedrag,
             aflossing,
-            spaartegoed
+            spaarpot
         )
     }
 
@@ -231,7 +241,6 @@ class Rekening(
             this.bankNaam,
             this.vanPeriode,
             this.totEnMetPeriode,
-            this.gekoppeldeRekening?.naam,
             this.budgetPeriodiciteit?.name,
             null,
             null,
@@ -239,11 +248,13 @@ class Rekening(
             this.budgetVariabiliteit,
             this.maanden,
             this.budgetBetaalDag,
+            this.toewijzingsPrioriteit,
             this.budgetAanvulling,
-            this.betaalMethoden.map { it.toDTO() },
+            this.betaalMethoden.map { it.naam },
+            this.labels.map { it.naam },
             budgetMaandBedrag,
             this.aflossing?.toDTO(),
-            this.spaartegoed?.toDTO()
+            this.spaarpot?.toDTO()
         )
     }
 

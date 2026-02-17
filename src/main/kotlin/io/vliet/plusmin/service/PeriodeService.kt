@@ -74,8 +74,8 @@ class PeriodeService {
         )
         val periodes = periodeRepository.getPeriodesVoorAdministrtatie(administratie)
         val vandaag = administratie.vandaag ?: LocalDate.now()
-        logger.debug(
-            "periodes voor ${administratie.naam}: ${
+        logger.info(
+            "periodes voor ${administratie.naam}/${vandaag}: ${
                 periodes.map { it.periodeStartDatum }.joinToString(", ")
             } "
         )

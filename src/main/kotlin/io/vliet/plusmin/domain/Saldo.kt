@@ -32,11 +32,9 @@ class Saldo(
     val rekening: Rekening,                                         // bevat de betaaldag en de rekeningGroep
     val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,          // saldo aan het begin van de periode
     val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,         // reserve aan het begin van de periode
-    val openingsOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,       // opgenomen saldo aan het begin van de periode
     val openingsAchterstand: BigDecimal = BigDecimal.ZERO,          // achterstand aan het begin van de periode
     val periodeBetaling: BigDecimal = BigDecimal.ZERO,              // betaling deze periode
     val periodeReservering: BigDecimal = BigDecimal.ZERO,           // reservering deze periode
-    val periodeOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,        // opgenomen saldo deze periode
     val periodeAchterstand: BigDecimal = BigDecimal.ZERO,           // nieuwe/ingelopen achterstand saldo deze periode
     val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,            // verwachte bedrag per maand o.b.v. de periode lengte
     val correctieBoeking: BigDecimal = BigDecimal.ZERO,             // correctieBoeking om de eindsaldi kloppend te maken
@@ -49,12 +47,10 @@ class Saldo(
         rekening: Rekening = this.rekening,
         openingsBalansSaldo: BigDecimal = this.openingsBalansSaldo,
         openingsReserveSaldo: BigDecimal = this.openingsReserveSaldo,
-        openingsOpgenomenSaldo: BigDecimal = this.openingsOpgenomenSaldo,
         openingsAchterstand: BigDecimal = this.openingsAchterstand,
         budgetMaandBedrag: BigDecimal = this.budgetMaandBedrag,
         periodeBetaling: BigDecimal = this.periodeBetaling,
         periodeReservering: BigDecimal = this.periodeReservering,
-        periodeOpgenomenSaldo: BigDecimal = this.periodeOpgenomenSaldo,
         periodeAchterstand: BigDecimal = this.periodeAchterstand,
         correctieBoeking: BigDecimal = this.correctieBoeking,
         periode: Periode = this.periode,
@@ -63,11 +59,9 @@ class Saldo(
         rekening,
         openingsBalansSaldo,
         openingsReserveSaldo,
-        openingsOpgenomenSaldo,
         openingsAchterstand,
         periodeBetaling,
         periodeReservering,
-        periodeOpgenomenSaldo,
         periodeAchterstand,
         budgetMaandBedrag,
         correctieBoeking,
@@ -82,21 +76,20 @@ class Saldo(
         val budgetType: RekeningGroep.BudgetType? = null,
         val rekeningNaam: String,
         val budgetBetaalDag: Int? = null,
+        val budgetBetaalDatum: LocalDate? = null,
         val budgetAanvulling: BudgetAanvulling? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
-        val spaartegoed: Spaartegoed.SpaartegoedDTO? = null,
+        val spaarpot: Spaarpot.SpaarpotDTO? = null,
         val sortOrder: Int = 0,
         val openingsBalansSaldo: BigDecimal = BigDecimal.ZERO,
         val openingsReserveSaldo: BigDecimal = BigDecimal.ZERO,
-        val openingsOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,
         val openingsAchterstand: BigDecimal = BigDecimal.ZERO,
         val peilDatum: String? = null,
         val budgetMaandBedrag: BigDecimal = BigDecimal.ZERO,
         val periodeBetaling: BigDecimal = BigDecimal.ZERO,
         val periodeReservering: BigDecimal = BigDecimal.ZERO,
-        val periodeOpgenomenSaldo: BigDecimal = BigDecimal.ZERO,
-        val correctieBoeking: BigDecimal = BigDecimal.ZERO,
         val periodeAchterstand: BigDecimal? = null,
+        val correctieBoeking: BigDecimal = BigDecimal.ZERO,
         val budgetOpPeilDatum: BigDecimal? = null, // wat er verwacht betaald/ontvangen zou moeten zijn op de peildatum
         val betaaldBinnenBudget: BigDecimal? = null,
         val minderDanBudget: BigDecimal? = null,
@@ -115,37 +108,39 @@ class Saldo(
         ) ?: BigDecimal.ZERO
         val budgetMaandBedrag = rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO
         val komtNogNodig = if (this.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST) {
-            budgetMaandBedrag - this.periodeBetaling
+            if (this.rekening.isBedragBinnenVariabiliteit(this.periodeBetaling))
+                BigDecimal.ZERO
+            else
+                budgetMaandBedrag.subtract(this.periodeBetaling).max(BigDecimal.ZERO)
         } else {
-            budgetMaandBedrag - budgetOpPeilDatum
+            budgetMaandBedrag.subtract(budgetOpPeilDatum)
         }
-
+        val budgetBetaalDatum = berekenBetaalDatumInPeriode(this.rekening.budgetBetaalDag, this.periode  )
         val betaaldBinnenBudget = BigDecimal.ZERO
         val minderDanBudget = BigDecimal.ZERO
         val meerDanMaandBudget = BigDecimal.ZERO
         val meerDanBudget = BigDecimal.ZERO
         return SaldoDTO(
-            this.id,
+            this.rekening.id,
             this.rekening.rekeningGroep.naam,
             this.rekening.rekeningGroep.rekeningGroepSoort,
             this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
             this.rekening.budgetBetaalDag,
+            budgetBetaalDatum,
             this.rekening.budgetAanvulling,
             this.rekening.aflossing?.toDTO(),
-            this.rekening.spaartegoed?.toDTO(),
+            this.rekening.spaarpot?.toDTO(),
             1000 * this.rekening.rekeningGroep.sortOrder + this.rekening.sortOrder,
             this.openingsBalansSaldo,
             this.openingsReserveSaldo,
-            this.openingsOpgenomenSaldo,
             this.openingsAchterstand,
             peilDatum.toString(),
             budgetMaandBedrag,
             this.periodeBetaling,
             this.periodeReservering,
-            this.periodeOpgenomenSaldo,
-            this.correctieBoeking,
             this.periodeAchterstand,
+            this.correctieBoeking,
             budgetOpPeilDatum,
             betaaldBinnenBudget,
             minderDanBudget,
@@ -236,6 +231,20 @@ class Saldo(
         return (budgetMaandBedrag.times(BigDecimal(dagenTotPeilDatum)).div(BigDecimal(dagenInPeriode)))
     }
 
+    fun berekenBetaalDatumInPeriode(betaalDag: Int?, periode: Periode): LocalDate? {
+        if (betaalDag == null || betaalDag < 0) return null
+        val start = periode.periodeStartDatum
+
+        return if (betaalDag >= start.dayOfMonth) {
+            // betaalDag in startmaand (clamp to laatste dag indien nodig)
+            val dag = Math.min(betaalDag, start.lengthOfMonth())
+            LocalDate.of(start.year, start.monthValue, dag)
+        } else {
+            // betaalDag in volgende maand
+            val volgende = start.plusMonths(1)
+            LocalDate.of(volgende.year, volgende.monthValue, betaalDag)
+        }
+    }
 
     data class ResultaatSamenvattingOpDatumDTO(
         val percentagePeriodeVoorbij: Long,

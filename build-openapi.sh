@@ -27,7 +27,6 @@ if docker ps --filter "name=pm-backend-lcl" --filter "status=running" --format '
   docker run --rm \
     -v "${PROJECT_ROOT}:/app" \
     -w /app \
-    --name pm-backend-openapi-fetch \
     --network npm_default \
     plusmin/pm-backend-builder:latest \
     sh -c "curl -fsS '${API_URL}' -o '${JSON_FILE}'"

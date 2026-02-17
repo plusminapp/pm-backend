@@ -62,9 +62,6 @@ class StandStartVanPeriodeService {
             val reservering = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
                 .sumOf { it.periodeReservering }
-            val opgenomenSaldo = betalingenTussenBasisEnPeilPeriode
-                .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
-                .sumOf { it.periodeOpgenomenSaldo }
             val achterstand = betalingenTussenBasisEnPeilPeriode
                 .filter { it.rekening.naam == basisPeriodeEindSaldo.rekening.naam }
                 .sumOf { it.periodeAchterstand }
@@ -73,19 +70,16 @@ class StandStartVanPeriodeService {
                 basisPeriodeEindSaldo.openingsBalansSaldo + betaling
             val openingsReserveSaldo =
                 basisPeriodeEindSaldo.openingsReserveSaldo + reservering - betaling
-            val openingsOpgenomenSaldo =
-                basisPeriodeEindSaldo.openingsOpgenomenSaldo + opgenomenSaldo - betaling
             val openingsAchterstand =
                 basisPeriodeEindSaldo.openingsAchterstand + achterstand
 
             basisPeriodeEindSaldo.fullCopy(
                 openingsBalansSaldo = openingsBalansSaldo,
                 openingsReserveSaldo = openingsReserveSaldo,
-                openingsOpgenomenSaldo = openingsOpgenomenSaldo,
                 openingsAchterstand = openingsAchterstand,
             )
         }
-        logger.debug("berekenStartSaldiVanPeriode openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  O ${it.openingsOpgenomenSaldo} C ${it.correctieBoeking}" }}")
+        logger.debug("berekenStartSaldiVanPeriode openingsSaldi: ${periode.periodeStartDatum} ${saldoLijst.joinToString { "${it.rekening.naam} -> B ${it.openingsBalansSaldo}  R ${it.openingsReserveSaldo}  C ${it.correctieBoeking}" }}")
         return saldoLijst
     }
 }

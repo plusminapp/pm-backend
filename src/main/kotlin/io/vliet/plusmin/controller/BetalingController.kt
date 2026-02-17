@@ -85,7 +85,7 @@ class BetalingController {
         @Valid @RequestBody betalingList: List<BetalingDTO>,
     ): ResponseEntity<Any> {
         val (administratie, gebruiker) = gebruikerService.checkAccess(administratieId)
-        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
+        logger.info("POST BetalingController.creeerNieuweBetalingenVoorHulpvrager voor ${administratie.naam} door ${gebruiker.bijnaam}/${gebruiker.subject}")
         val betalingen = betalingService.creeerBetalingLijst(administratie, betalingList)
         return ResponseEntity.ok().body(betalingen)
     }
