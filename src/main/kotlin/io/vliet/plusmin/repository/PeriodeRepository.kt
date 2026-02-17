@@ -37,7 +37,7 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
     )
     fun getEerstePeriodeVoorAdministratie(administratieId: Long): Periode?
 
-    @Query(value = "SELECT p FROM Periode p WHERE p.administratie = :administratie")
+    @Query(value = "SELECT p FROM Periode p WHERE p.administratie = :administratie ORDER BY p.periodeStartDatum")
     fun getPeriodesVoorAdministrtatie(administratie: Administratie): List<Periode>
 
     @Query(

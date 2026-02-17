@@ -76,6 +76,7 @@ class Saldo(
         val budgetType: RekeningGroep.BudgetType? = null,
         val rekeningNaam: String,
         val budgetBetaalDag: Int? = null,
+        val budgetBetaalDatum: LocalDate? = null,
         val budgetAanvulling: BudgetAanvulling? = null,
         val aflossing: Aflossing.AflossingDTO? = null,
         val spaarpot: Spaarpot.SpaarpotDTO? = null,
@@ -107,11 +108,14 @@ class Saldo(
         ) ?: BigDecimal.ZERO
         val budgetMaandBedrag = rekening.toDTO(periode).budgetMaandBedrag ?: BigDecimal.ZERO
         val komtNogNodig = if (this.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST) {
-            budgetMaandBedrag - this.periodeBetaling
+            if (this.rekening.isBedragBinnenVariabiliteit(this.periodeBetaling))
+                BigDecimal.ZERO
+            else
+                budgetMaandBedrag.subtract(this.periodeBetaling).max(BigDecimal.ZERO)
         } else {
-            budgetMaandBedrag - budgetOpPeilDatum
+            budgetMaandBedrag.subtract(budgetOpPeilDatum)
         }
-
+        val budgetBetaalDatum = berekenBetaalDatumInPeriode(this.rekening.budgetBetaalDag, this.periode  )
         val betaaldBinnenBudget = BigDecimal.ZERO
         val minderDanBudget = BigDecimal.ZERO
         val meerDanMaandBudget = BigDecimal.ZERO
@@ -123,6 +127,7 @@ class Saldo(
             this.rekening.rekeningGroep.budgetType,
             this.rekening.naam,
             this.rekening.budgetBetaalDag,
+            budgetBetaalDatum,
             this.rekening.budgetAanvulling,
             this.rekening.aflossing?.toDTO(),
             this.rekening.spaarpot?.toDTO(),
@@ -226,6 +231,20 @@ class Saldo(
         return (budgetMaandBedrag.times(BigDecimal(dagenTotPeilDatum)).div(BigDecimal(dagenInPeriode)))
     }
 
+    fun berekenBetaalDatumInPeriode(betaalDag: Int?, periode: Periode): LocalDate? {
+        if (betaalDag == null || betaalDag < 0) return null
+        val start = periode.periodeStartDatum
+
+        return if (betaalDag >= start.dayOfMonth) {
+            // betaalDag in startmaand (clamp to laatste dag indien nodig)
+            val dag = Math.min(betaalDag, start.lengthOfMonth())
+            LocalDate.of(start.year, start.monthValue, dag)
+        } else {
+            // betaalDag in volgende maand
+            val volgende = start.plusMonths(1)
+            LocalDate.of(volgende.year, volgende.monthValue, betaalDag)
+        }
+    }
 
     data class ResultaatSamenvattingOpDatumDTO(
         val percentagePeriodeVoorbij: Long,

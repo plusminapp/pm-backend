@@ -39,6 +39,9 @@ class AdministratieService {
     lateinit var betalingService: BetalingService
 
     @Autowired
+    lateinit var demoService: DemoService
+
+    @Autowired
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
@@ -154,12 +157,6 @@ class AdministratieService {
             throw PM_AdministratieBestaatAlException(listOf(administratieDTO.naam))
         }
         val opgeschoondeEigenaar = eigenaar
-//            if (administratieBestaand != null) {
-//            verwijderAdministratie(administratieBestaand.id)
-//            eigenaar.fullCopy(
-//                administraties = eigenaar.administraties.filter { it.id != administratieBestaand.id }
-//            )
-//        } else eigenaar
         maakNieuweAdministratie(administratieWrapper, opgeschoondeEigenaar)
     }
 
@@ -176,5 +173,7 @@ class AdministratieService {
         if (administratie.vandaag != null) {
             betalingRepository.hideAllByAdministratie(administratie)
         }
+        if (administratieWrapper.demoMode ?: true)
+            demoService.configureerDemoBetalingen(administratie)
     }
 }

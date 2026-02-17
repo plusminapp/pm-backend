@@ -1648,6 +1648,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "budgetBetaalDatum": {
+            "type": "string",
+            "format": "date"
+          },
           "budgetAanvulling": {
             "type": "string",
             "enum": [
@@ -1880,6 +1884,9 @@
             }
           },
           "overschrijfBestaande": {
+            "type": "boolean"
+          },
+          "demoMode": {
             "type": "boolean"
           }
         },

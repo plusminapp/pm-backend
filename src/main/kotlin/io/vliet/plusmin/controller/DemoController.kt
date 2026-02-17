@@ -106,5 +106,6 @@ class DemoController {
         val rekeningGroepen: List<RekeningGroep.RekeningGroepDTO>,
         val betalingen: List<Betaling.BetalingDTO>? = emptyList(),
         val overschrijfBestaande: Boolean? = false,
+        val demoMode: Boolean? = true,
     )
 }
