@@ -1,0 +1,611 @@
+{
+  "administratie": {
+    "naam": "Alex spel admin",
+    "periodeDag": 1,
+    "vandaag": "2025-07-01",
+    "periodes": [
+      {
+        "periodeStartDatum": "2025-07-01"
+      }
+    ]
+  },
+  "rekeningGroepen": [
+    {
+      "naam": "Betaalrekening",
+      "rekeningGroepSoort": "BETAALMIDDEL",
+      "sortOrder": 100,
+      "rekeningen": [
+        {
+          "naam": "Alex' betaalrekening",
+          "bankNaam": "ASN",
+          "saldo": 2000,
+          "sortOrder": 100,
+          "betaalMethoden": [
+            "Alex' spaarrekening"
+          ]
+        },
+        {
+          "naam": "Alex' spaarrekening",
+          "bankNaam": "ASN",
+          "saldo": 750,
+          "sortOrder": 100,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        },
+        {
+          "naam": "Visa Creditcard",
+          "saldo": -100,
+          "bankNaam": "ICS",
+          "sortOrder": 200,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        }
+      ]
+    },
+    {
+      "naam": "Inkomsten",
+      "rekeningGroepSoort": "INKOMSTEN",
+      "rekeningGroepIcoonNaam": "inkomsten",
+      "sortOrder": 200,
+      "budgetType": "INKOMSTEN",
+      "rekeningen": [
+        {
+          "naam": "Rente",
+          "sortOrder": 300,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 5,
+          "budgetBetaalDag": 5,
+          "betaalMethoden": [
+            "Alex' spaarrekening"
+          ]
+        },
+        {
+          "naam": "Salaris",
+          "sortOrder": 100,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 1445,
+          "budgetBetaalDag": 24,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        },
+        {
+          "naam": "Toeslagen",
+          "sortOrder": 200,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 678,
+          "budgetBetaalDag": 8,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        }
+      ]
+    },
+    {
+      "naam": "Leefgeld",
+      "rekeningGroepSoort": "UITGAVEN",
+      "rekeningGroepIcoonNaam": "boodschappen",
+      "sortOrder": 300,
+      "budgetType": "CONTINU",
+      "rekeningen": [
+        {
+          "naam": "Boodschappen",
+          "sortOrder": 110,
+          "budgetPeriodiciteit": "WEEK",
+          "budgetBedrag": 84,
+          "budgetAanvulling": "TOT",
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "labels": ["big5"]
+        },
+        {
+          "naam": "Andere uitgaven",
+          "sortOrder": 120,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 250,
+          "budgetAanvulling": "MET",
+          "betaalMethoden": [
+            "Alex' betaalrekening",
+            "Visa Creditcard"
+          ]
+        }
+      ]
+    },
+    {
+      "naam": "Vaste lasten",
+      "rekeningGroepSoort": "UITGAVEN",
+      "rekeningGroepIcoonNaam": "vaste lasten",
+      "sortOrder": 400,
+      "budgetType": "VAST",
+      "rekeningen": [
+        {
+          "naam": "Greenchoice",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 175,
+          "budgetBetaalDag": 8,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "labels": ["big5"]
+        },
+        {
+          "naam": "VvE",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 120.07,
+          "budgetBetaalDag": 8,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        },
+        {
+          "naam": "Ziektekosten",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 147.50,
+          "budgetBetaalDag": 3,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "labels": ["big5"]
+        },
+        {
+          "naam": "Schade verzekeringen",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 26.22,
+          "budgetBetaalDag": 1,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        },
+        {
+          "naam": "Huur",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 541.95,
+          "budgetBetaalDag": 28,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "labels": ["big5"]
+        },
+        {
+          "naam": "GBLT",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 31.49,
+          "budgetBetaalDag": 28,
+          "budgetVariabiliteit": 1,
+          "maanden": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        },
+        {
+          "naam": "Regionale belasting",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 74.70,
+          "budgetBetaalDag": 20,
+          "budgetVariabiliteit": 1,
+          "maanden": [
+            1,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        },
+        {
+          "naam": "Vitens",
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 8,
+          "budgetBetaalDag": 20,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ]
+        }
+      ],
+      "labels": ["big5"]
+    },
+    {
+      "naam": "Spaarpotten",
+      "rekeningGroepSoort": "SPAARPOT",
+      "budgetType": "SPAREN",
+      "rekeningGroepIcoonNaam": "spaarpot",
+      "sortOrder": 900,
+      "rekeningen": [
+        {
+          "naam": "Vrij spaargeld",
+          "sortOrder": 300,
+          "reserve": 500,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 25,
+          "budgetAanvulling": "MET",
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "spaarpot": {
+            "doelDatum": "2027-01-01",
+            "doelBedrag": 2000,
+            "notities": "notities bij 1ste"
+          }
+        },
+        {
+          "naam": "Kleding",
+          "sortOrder": 400,
+          "reserve": 200,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 25,
+          "budgetAanvulling": "MET",
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "spaarpot": {
+            "notities": "notities bij Kleding"
+          }
+        },
+        {
+          "naam": "Nieuwe wasmachine",
+          "sortOrder": 500,
+          "reserve": 50,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 50,
+          "budgetAanvulling": "MET",
+          "betaalMethoden": [
+            "Alex' betaalrekening",
+            "Visa Creditcard"
+          ],
+          "spaarpot": {
+            "doelDatum": "2026-07-01",
+            "doelBedrag": 2000,
+            "notities": "notities bij 3de"
+          }
+        }
+      ]
+    },
+    {
+      "naam": "Aflossing",
+      "rekeningGroepSoort": "AFLOSSING",
+      "budgetType": "VAST",
+      "rekeningGroepIcoonNaam": "aflossing",
+      "sortOrder": 600,
+      "rekeningen": [
+        {
+          "naam": "Demo aflossing",
+          "sortOrder": 500,
+          "saldo": -1400,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 100,
+          "budgetBetaalDag": 26,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "aflossing": {
+            "startDatum": "2025-01-01",
+            "schuldOpStartDatum": 2000,
+            "dossierNummer": "dossiernummer10",
+            "notities": "notities1"
+          }
+        },
+        {
+          "naam": "Andere aflossing",
+          "sortOrder": 600,
+          "saldo": -500,
+          "budgetPeriodiciteit": "MAAND",
+          "budgetBedrag": 50,
+          "budgetBetaalDag": 28,
+          "betaalMethoden": [
+            "Alex' betaalrekening"
+          ],
+          "aflossing": {
+            "startDatum": "2025-02-01",
+            "schuldOpStartDatum": 1200,
+            "dossierNummer": "dossiernummer2",
+            "notities": "notities2"
+          }
+        }
+      ]
+    }
+  ],
+  "betalingen": [
+    {
+      "boekingsdatum": "2025-07-22",
+      "bedrag": "27.95",
+      "omschrijving": "Rohloff olie",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-22",
+      "bedrag": "50.00",
+      "omschrijving": "OV chipkaart",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-08",
+      "bedrag": "678.00",
+      "omschrijving": "Toeslagen",
+      "betalingsSoort": "INKOMSTEN",
+      "bron": "Toeslagen",
+      "bestemming": "Alex' betaalrekening"
+    },
+    {
+      "boekingsdatum": "2025-07-23",
+      "bedrag": "22.31",
+      "omschrijving": "Jumbo",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-23",
+      "bedrag": "1445.00",
+      "omschrijving": "Salaris",
+      "betalingsSoort": "INKOMSTEN",
+      "bron": "Salaris",
+      "bestemming": "Alex' betaalrekening"
+    },
+    {
+      "boekingsdatum": "2025-07-24",
+      "bedrag": "100.00",
+      "omschrijving": "Demo aflossing",
+      "betalingsSoort": "AFLOSSEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Demo aflossing"
+    },
+    {
+      "boekingsdatum": "2025-07-25",
+      "bedrag": "3.20",
+      "omschrijving": "Bankkosten",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-27",
+      "bedrag": "8.00",
+      "omschrijving": "Simyo",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-27",
+      "bedrag": "50.00",
+      "omschrijving": "Andere aflossing",
+      "betalingsSoort": "AFLOSSEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere aflossing"
+    },
+    {
+      "boekingsdatum": "2025-07-27",
+      "bedrag": "5.00",
+      "omschrijving": "Fietsersbond",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-27",
+      "bedrag": "31.49",
+      "omschrijving": "GBLT",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "GBLT"
+    },
+    {
+      "boekingsdatum": "2025-07-27",
+      "bedrag": "74.7",
+      "omschrijving": "Regionale belasting",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Regionale belasting"
+    },
+    {
+      "boekingsdatum": "2025-07-28",
+      "bedrag": "8.00",
+      "omschrijving": "Vitens",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Vitens"
+    },
+    {
+      "boekingsdatum": "2025-07-29",
+      "bedrag": "4.97",
+      "omschrijving": "Kruidvat",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-30",
+      "bedrag": "541.95",
+      "omschrijving": "Huur",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Huur"
+    },
+    {
+      "boekingsdatum": "2025-07-31",
+      "bedrag": "8.68",
+      "omschrijving": "Spar Heverlee",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-03",
+      "bedrag": "1.00",
+      "omschrijving": "Broodjes voor de lunch, bedankt",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-03",
+      "bedrag": "147.50",
+      "omschrijving": "Ziektekosten verzekering",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Ziektekosten"
+    },
+    {
+      "boekingsdatum": "2025-07-03",
+      "bedrag": "26.22",
+      "omschrijving": "Verzekeringen",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Schade verzekeringen"
+    },
+    {
+      "boekingsdatum": "2025-07-04",
+      "bedrag": "47.95",
+      "omschrijving": "Scheerspiegel",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-04",
+      "bedrag": "36.45",
+      "omschrijving": "Plein.NL ragers",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-04",
+      "bedrag": "63.89",
+      "omschrijving": "Jumbo",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-04",
+      "bedrag": "120.07",
+      "omschrijving": "VvE-bijdrage",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "VvE"
+    },
+    {
+      "boekingsdatum": "2025-07-05",
+      "bedrag": "39.95",
+      "omschrijving": "Climber Cartoon Lamp",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-06",
+      "bedrag": "175.00",
+      "omschrijving": "Greenchoice",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Greenchoice"
+    },
+    {
+      "boekingsdatum": "2025-07-06",
+      "bedrag": "1.00",
+      "omschrijving": "Tijn Broodjes, dank je wel",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-09",
+      "bedrag": "33.17",
+      "omschrijving": "Jumbo",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-10",
+      "bedrag": "4.65",
+      "omschrijving": "NS OV-fiets",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    },
+    {
+      "boekingsdatum": "2025-07-13",
+      "bedrag": "47.42",
+      "omschrijving": "Jumbo",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-16",
+      "bedrag": "24.18",
+      "omschrijving": "Jumbo",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-18",
+      "bedrag": "20.23",
+      "omschrijving": "Lidl",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-26",
+      "bedrag": "48.23",
+      "omschrijving": "Lidl",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-21",
+      "bedrag": "55.01",
+      "omschrijving": "Lidl",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Boodschappen"
+    },
+    {
+      "boekingsdatum": "2025-07-03",
+      "bedrag": "5.25",
+      "omschrijving": "Rente",
+      "betalingsSoort": "INKOMSTEN",
+      "bron": "Rente",
+      "bestemming": "Alex' spaarrekening"
+    },
+    {
+      "boekingsdatum": "2025-07-19",
+      "bedrag": "10.40",
+      "omschrijving": "De Voordeelmarkt plamuur",
+      "betalingsSoort": "UITGAVEN",
+      "bron": "Alex' betaalrekening",
+      "bestemming": "Andere uitgaven"
+    }
+  ],
+  "overschrijfBestaande": true
+}

@@ -11,6 +11,7 @@ import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -101,9 +102,16 @@ class RekeningService {
         logger.debug("Opslaan rekening ${rekeningDTO.naam} voor ${administratie.naam} in groep ${rekeningGroep.naam}.")
 
         val labels =
-            rekeningDTO.labels.mapNotNull {
-                labelRepository.findByAdministratieAndNaam(administratie, it)
+            rekeningDTO.labels.mapNotNull { naam ->
+                if (naam.isBlank()) return@mapNotNull null
+                try {
+                    labelRepository.save(Label(id = 0, naam, administratie))
+                } catch (_: DataIntegrityViolationException) {
+                    labelRepository.findByAdministratieAndNaam(administratie, naam)
+                }
             }
+        logger.info("labels = ${labels.joinToString()}")
+
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {
                 rekeningRepository.findRekeningAdministratieEnNaam(

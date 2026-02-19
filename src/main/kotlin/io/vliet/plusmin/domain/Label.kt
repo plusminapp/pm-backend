@@ -5,6 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(
     name = "label",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["naam", "administratie_id"])],
 )
 class Label(
     @Id
@@ -15,8 +16,9 @@ class Label(
         allocationSize = 1
     )
     val id: Long = 0,
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     val naam: String,
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "administratie_id", nullable = false)
     val administratie: Administratie
 )
