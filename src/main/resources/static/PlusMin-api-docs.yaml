@@ -865,11 +865,40 @@
       }
     },
     "/label/{administratieId}": {
+      "get": {
+        "tags": [
+          "label-controller"
+        ],
+        "operationId": "getLabels",
+        "parameters": [
+          {
+            "name": "administratieId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "label-controller"
         ],
-        "operationId": "postLabel",
+        "operationId": "postLabels",
         "parameters": [
           {
             "name": "administratieId",
@@ -1644,6 +1673,12 @@
           "rekeningNaam": {
             "type": "string"
           },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "budgetBetaalDag": {
             "type": "integer",
             "format": "int32"
@@ -1721,6 +1756,7 @@
           "budgetMaandBedrag",
           "correctieBoeking",
           "id",
+          "labels",
           "openingsAchterstand",
           "openingsBalansSaldo",
           "openingsReserveSaldo",
