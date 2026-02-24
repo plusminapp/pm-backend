@@ -97,6 +97,7 @@ class Saldo(
         val meerDanBudget: BigDecimal? = null,
         val meerDanMaandBudget: BigDecimal? = null,
         val komtNogNodig: BigDecimal? = null,
+        val saldoStatus: SaldoStatus? = null,
     )
 
     fun toDTO(peilDatum: LocalDate = this.periode.periodeEindDatum): SaldoDTO {
@@ -121,6 +122,7 @@ class Saldo(
         val minderDanBudget = BigDecimal.ZERO
         val meerDanMaandBudget = BigDecimal.ZERO
         val meerDanBudget = BigDecimal.ZERO
+        val saldoStatus = berekenSaldoStatus(peilDatum, budgetBetaalDatum, komtNogNodig)
         return SaldoDTO(
             this.rekening.id,
             this.rekening.rekeningGroep.naam,
@@ -149,6 +151,7 @@ class Saldo(
             meerDanBudget,
             meerDanMaandBudget,
             komtNogNodig,
+            saldoStatus,
         )
     }
 
@@ -156,6 +159,15 @@ class Saldo(
         val periodeStartDatum = this.periode.periodeStartDatum
         val maandenTussen = ((peilDatum.year - periodeStartDatum.year) * 12 + peilDatum.monthValue - periodeStartDatum.monthValue).coerceAtLeast(0)
         return this.budgetMaandBedrag.multiply(BigDecimal(maandenTussen))
+    }
+
+    fun berekenSaldoStatus(peilDatum: LocalDate, betaalDatum: LocalDate?, komtNogNodig: BigDecimal): SaldoStatus {
+        val periodeIsAfgelopen = this.periode.periodeStatus != Periode.PeriodeStatus.HUIDIG
+        val saldoIsVast = this.rekening.rekeningGroep.budgetType == RekeningGroep.BudgetType.VAST
+        if (saldoIsVast && (periodeIsAfgelopen || peilDatum > betaalDatum!!) && komtNogNodig > BigDecimal.ZERO) return SaldoStatus.ROOD
+        if (this.periodeBetaling > this.openingsReserveSaldo + this.periodeReservering) return SaldoStatus.ROOD
+        if (this.periodeBetaling + komtNogNodig> this.openingsReserveSaldo + this.periodeReservering) return SaldoStatus.ORANJE
+        return SaldoStatus.GROEN
     }
 
     fun berekenBudgetOpPeilDatum(
@@ -258,4 +270,8 @@ class Saldo(
         val actueleBuffer: BigDecimal,
         val extraGespaardTotPeilDatum: BigDecimal,
     )
+
+    enum class SaldoStatus {
+        GROEN, ORANJE, ROOD
+    }
 }

@@ -129,7 +129,7 @@
           "betaalMethoden": [
             "Alex' betaalrekening"
           ],
-          "labels": ["big5"]
+          "labels": ["big5", "wonen"]
         },
         {
           "naam": "VvE",
@@ -138,7 +138,8 @@
           "budgetBetaalDag": 8,
           "betaalMethoden": [
             "Alex' betaalrekening"
-          ]
+          ],
+          "labels": ["wonen"]
         },
         {
           "naam": "Ziektekosten",
@@ -148,7 +149,7 @@
           "betaalMethoden": [
             "Alex' betaalrekening"
           ],
-          "labels": ["big5"]
+          "labels": ["big5", "verzekeringen", "gezondheid"]
         },
         {
           "naam": "Schade verzekeringen",
@@ -157,7 +158,8 @@
           "budgetBetaalDag": 1,
           "betaalMethoden": [
             "Alex' betaalrekening"
-          ]
+          ],
+          "labels": ["verzekeringen"]
         },
         {
           "naam": "Huur",
@@ -167,7 +169,7 @@
           "betaalMethoden": [
             "Alex' betaalrekening"
           ],
-          "labels": ["big5"]
+          "labels": ["big5", "wonen"]
         },
         {
           "naam": "GBLT",
@@ -189,7 +191,8 @@
           ],
           "betaalMethoden": [
             "Alex' betaalrekening"
-          ]
+          ],
+          "labels": ["belasting", "wonen"]
         },
         {
           "naam": "Regionale belasting",
@@ -211,7 +214,8 @@
           ],
           "betaalMethoden": [
             "Alex' betaalrekening"
-          ]
+          ],
+          "labels": ["belasting", "wonen"]
         },
         {
           "naam": "Vitens",
@@ -223,7 +227,7 @@
           ]
         }
       ],
-      "labels": ["big5"]
+      "labels": ["big5", "wonen"]
     },
     {
       "naam": "Spaarpotten",
