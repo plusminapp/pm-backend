@@ -1750,6 +1750,14 @@
           },
           "komtNogNodig": {
             "type": "number"
+          },
+          "saldoStatus": {
+            "type": "string",
+            "enum": [
+              "GROEN",
+              "ORANJE",
+              "ROOD"
+            ]
           }
         },
         "required": [
