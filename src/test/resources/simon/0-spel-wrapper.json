@@ -3,6 +3,31 @@
     "naam": "Simons spel admin",
     "periodeDag": 20,
     "vandaag": "2025-09-20",
+    "persona": {
+      "naam": "Simon",
+      "foto": {
+        "type": "path",
+        "value": "simon/foto.jpg",
+        "alt": "Portret van Simon"
+      },
+      "beschrijving": [
+        {
+          "kop": "Kort profiel",
+          "tekst": "Simon is student en fietsliefhebber. Hij let op z'n uitgaven en kookt vaak zelf."
+        },
+        {
+          "kop": "Gedrag",
+          "tekst": "Hij doet meestal wekelijkse boodschappen en gebruikt één betaalrekening."
+        },
+        {
+          "tekst": "Extra noot zonder kopje: beschikbaar voor contact via demo-gegevens."
+        }
+      ],
+      "meta": {
+        "leeftijd": 24,
+        "tags": ["student", "fietsliefhebber", "amateur kok"]
+      }
+    },
     "periodes": [
       {
         "periodeStartDatum": "2025-09-20"

@@ -1,5 +1,6 @@
 package io.vliet.plusmin.domain
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -20,6 +21,8 @@ class Administratie(
     val naam: String = "Administratie zonder naam",
     val periodeDag: Int = 20,
     val vandaag: LocalDate? = null, // Toegevoegd voor tijdreizen
+    @OneToOne
+    val persona: Persona?,
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "eigenaar_id", referencedColumnName = "id")
@@ -30,8 +33,9 @@ class Administratie(
         naam: String = this.naam,
         periodeDag: Int = this.periodeDag,
         vandaag: LocalDate? = this.vandaag,
+        persona: Persona? = this.persona,
         eigenaar: Gebruiker = this.eigenaar,
-    ) = Administratie(this.id, naam, periodeDag, vandaag, eigenaar)
+    ) = Administratie(this.id, naam, periodeDag, vandaag, persona, eigenaar)
 
     data class AdministratieDTO(
         val id: Long? = 0,
@@ -40,6 +44,7 @@ class Administratie(
         val vandaag: String? = null, // Toegevoegd voor tijdreizen
         val eigenaarNaam: String? = null,
         val eigenaarSubject: String? = null,
+        val persona: JsonNode? = null,
         val isInDemoModus: Boolean? = false,
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
         val gebruikers: List<Gebruiker.GebruikerDTO>? = emptyList(),
@@ -57,6 +62,7 @@ class Administratie(
             this.vandaag?.toString(),
             this.eigenaar.bijnaam,
             this.eigenaar.subject,
+            this.persona?.data,
             isInDemoModus,
             periodes = periodes.map { it.toDTO() },
             gebruikers = gebruikers.map { it.toDTO() },

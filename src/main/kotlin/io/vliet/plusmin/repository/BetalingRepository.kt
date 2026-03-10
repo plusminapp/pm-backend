@@ -72,8 +72,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
 
     @Query(
         value = "SELECT b FROM Betaling b " +
-                "WHERE b.isVerborgen IS FALSE AND " +
-                "b.administratie = :administratie AND " +
+                "WHERE b.administratie = :administratie AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
                 "ABS(b.bedrag) = ABS(:bedrag) AND " +
                 "b.omschrijving = :omschrijving AND " +

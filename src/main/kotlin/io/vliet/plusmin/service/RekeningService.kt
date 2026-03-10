@@ -11,7 +11,6 @@ import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -104,13 +103,11 @@ class RekeningService {
         val labels =
             rekeningDTO.labels.mapNotNull { naam ->
                 if (naam.isBlank()) return@mapNotNull null
-                try {
-                    labelRepository.save(Label(id = 0, naam, administratie))
-                } catch (_: DataIntegrityViolationException) {
-                    labelRepository.findByAdministratieAndNaam(administratie, naam)
-                }
+                val label = labelRepository.findByAdministratieAndNaam(administratie, naam)
+                if (label != null) return@mapNotNull label
+                else return@mapNotNull labelRepository.save(Label(id = 0, naam, administratie))
             }
-        logger.info("labels = ${labels.joinToString()}")
+        logger.info("labels = ${labels.map { it.naam }}")
 
         val betaalMethoden =
             rekeningDTO.betaalMethoden.mapNotNull {

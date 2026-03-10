@@ -26,13 +26,21 @@ class BetalingService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun creeerBetalingLijst(administratie: Administratie, betalingenLijst: List<BetalingDTO>): List<BetalingDTO> {
+    fun creeerBetalingLijst(
+        administratie: Administratie,
+        betalingenLijst: List<BetalingDTO>,
+        ontdubbel: Boolean = false
+    ): List<BetalingDTO> {
         return betalingenLijst.map { betalingDTO ->
-            creeerBetaling(administratie, betalingDTO)
+            creeerBetaling(administratie, betalingDTO, ontdubbel)
         }
     }
 
-    fun creeerBetaling(administratie: Administratie, betalingDTO: BetalingDTO): BetalingDTO {
+    fun creeerBetaling(
+        administratie: Administratie,
+        betalingDTO: BetalingDTO,
+        ontdubbel: Boolean? = false
+    ): BetalingDTO {
         val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
         val periode = periodeRepository.getPeriodeAdministratieEnDatum(administratie.id, boekingsDatum)
         if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
@@ -52,20 +60,33 @@ class BetalingService {
             BetalingsSoort.valueOf(betalingDTO.betalingsSoort), Boeking(bron, bestemming)
         )
         val sortOrder = berekenSortOrder(administratie, boekingsDatum)
-        logger.debug("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
-        val betaling = Betaling(
-            administratie = administratie,
-            boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-            bedrag = betalingDTO.bedrag,
+
+        val matchingBetaling = betalingRepository.findMatchingBetaling(
+            administratie,
+            boekingsDatum,
+            betalingDTO.bedrag,
             omschrijving = betalingDTO.omschrijving,
-            betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
-            bron = getransformeerdeBoeking.first?.bron,
-            bestemming = getransformeerdeBoeking.first?.bestemming,
-            reserveringBron = getransformeerdeBoeking.second?.bron,
-            reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
-            sortOrder = sortOrder,
+            betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort)
         )
-        return betalingRepository.save(betaling).toDTO()
+        logger.info("matchingBetaling ${betalingDTO.bedrag} ${betalingDTO.omschrijving}: count: ${matchingBetaling.size}")
+        if (!(ontdubbel ?: false) || matchingBetaling.isEmpty()) {
+            logger.debug("Nieuwe betaling ${betalingDTO.omschrijving} voor ${administratie.naam}")
+            val betaling = Betaling(
+                administratie = administratie,
+                boekingsdatum = boekingsDatum,
+                bedrag = betalingDTO.bedrag,
+                omschrijving = betalingDTO.omschrijving,
+                betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
+                bron = getransformeerdeBoeking.first?.bron,
+                bestemming = getransformeerdeBoeking.first?.bestemming,
+                reserveringBron = getransformeerdeBoeking.second?.bron,
+                reserveringBestemming = getransformeerdeBoeking.second?.bestemming,
+                sortOrder = sortOrder,
+            )
+            return betalingRepository.save(betaling).toDTO()
+        } else {
+            return matchingBetaling[0].toDTO()
+        }
     }
 
     fun berekenSortOrder(administratie: Administratie, boekingsDatum: LocalDate): String {
@@ -126,7 +147,8 @@ class BetalingService {
 
         return when (betalingsSoort) {
             BetalingsSoort.INKOMSTEN ->
-                    Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
+                Pair(dtoBoeking, Boeking(dtoBoeking.bron, bufferRekening))
+
             BetalingsSoort.UITGAVEN, BetalingsSoort.BESTEDEN, BetalingsSoort.AFLOSSEN, BetalingsSoort.INTERN ->
                 Pair(dtoBoeking, null)
 
