@@ -6,11 +6,13 @@ import io.vliet.plusmin.domain.Administratie.AdministratieDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.PM_AdministratieBestaatAlException
 import io.vliet.plusmin.domain.PM_GebruikerNotFoundException
+import io.vliet.plusmin.domain.Persona
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
 import io.vliet.plusmin.repository.AdministratieRepository
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.repository.PersonaRepository
 import io.vliet.plusmin.repository.RekeningGroepRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,6 +30,9 @@ class AdministratieService {
 
     @Autowired
     lateinit var gebruikerRepository: GebruikerRepository
+
+    @Autowired
+    lateinit var personaRepository: PersonaRepository
 
     @Autowired
     lateinit var periodeService: PeriodeService
@@ -64,15 +69,29 @@ class AdministratieService {
             null
         else
             LocalDate.parse(administratieDTO.vandaag)
+        val persona = if (administratieDTO.persona == null) null
+        else {
+            personaRepository.save(Persona(id = administratieOpt?.persona?.id ?: 0L, data = administratieDTO.persona))
+        }
+        logger.info("persona saved json: ${persona?.data}, incoming: ${administratieDTO.persona}")
         val administratie =
             if (administratieOpt != null) {
-                administratieOpt
+                administratieRepository.save(
+                    administratieOpt.fullCopy(
+                        naam = administratieDTO.naam,
+                        periodeDag = administratieDTO.periodeDag,
+                        vandaag = vandaag,
+                        persona = persona,
+                        eigenaar = eigenaar
+                    )
+                )
             } else {
                 administratieRepository.save(
                     Administratie(
                         naam = administratieDTO.naam,
                         periodeDag = administratieDTO.periodeDag,
                         vandaag = vandaag,
+                        persona = persona,
                         eigenaar = eigenaar
                     )
                 )
@@ -156,8 +175,7 @@ class AdministratieService {
         if (administratieBestaand != null && !(administratieWrapper.overschrijfBestaande ?: false)) {
             throw PM_AdministratieBestaatAlException(listOf(administratieDTO.naam))
         }
-        val opgeschoondeEigenaar = eigenaar
-        maakNieuweAdministratie(administratieWrapper, opgeschoondeEigenaar)
+        maakNieuweAdministratie(administratieWrapper, eigenaar)
     }
 
     @Transactional
@@ -169,7 +187,7 @@ class AdministratieService {
     fun maakNieuweAdministratie(administratieWrapper: AdministratieWrapper, eigenaar: Gebruiker) {
         val administratie = save(eigenaar, administratieWrapper.administratie)
         rekeningService.saveAll(administratie, administratieWrapper.rekeningGroepen)
-        betalingService.creeerBetalingLijst(administratie, (administratieWrapper.betalingen ?: emptyList()))
+        betalingService.creeerBetalingLijst(administratie, (administratieWrapper.betalingen ?: emptyList()), true)
         if (administratie.vandaag != null) {
             betalingRepository.hideAllByAdministratie(administratie)
         }

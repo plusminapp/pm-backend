@@ -1819,6 +1819,9 @@
           "eigenaarSubject": {
             "type": "string"
           },
+          "persona": {
+            "$ref": "#/components/schemas/JsonNode"
+          },
           "isInDemoModus": {
             "type": "boolean"
           },
@@ -1874,6 +1877,7 @@
           "subject"
         ]
       },
+      "JsonNode": {},
       "PeriodeDTO": {
         "type": "object",
         "properties": {
@@ -2214,6 +2218,9 @@
           "vandaag": {
             "type": "string",
             "format": "date"
+          },
+          "persona": {
+            "$ref": "#/components/schemas/Persona"
           }
         },
         "required": [
@@ -2289,6 +2296,21 @@
             "type": "string"
           }
         }
+      },
+      "Persona": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        },
+        "required": [
+          "id"
+        ]
       },
       "ResultaatSamenvattingOpDatumDTO": {
         "type": "object",

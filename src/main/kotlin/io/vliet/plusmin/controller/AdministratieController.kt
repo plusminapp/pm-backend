@@ -139,6 +139,7 @@ class AdministratieController {
             administratie.vandaag.toString(),
             administratie.eigenaar.bijnaam,
             administratie.eigenaar.subject,
+            administratie.persona?.data,
             isInDemoModus,
             periodeRepository.getPeriodesVoorAdministrtatie(administratie).map { it.toDTO() },
         )

@@ -17,6 +17,7 @@ object TestFixtures {
     val testAdministratie = Administratie(
         naam = "testUser1",
         periodeDag = 20,
+        persona = null,
         eigenaar = testGebruiker
     )
 
