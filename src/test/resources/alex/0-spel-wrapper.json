@@ -7,7 +7,7 @@
       "naam": "Alex",
       "foto": {
         "type": "path",
-        "value": "alex/foto.jpg",
+        "value": "persona-fotos/alex.png",
         "alt": "Portret van Alex"
       },
       "beschrijving": [

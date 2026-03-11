@@ -1,31 +1,40 @@
 {
   "administratie": {
-    "naam": "Simons spel admin",
+    "naam": "Jeanettes spel admin",
     "periodeDag": 20,
     "vandaag": "2025-09-20",
     "persona": {
-      "naam": "Simon",
+      "naam": "Jeanette Basemans",
       "foto": {
         "type": "path",
-        "value": "persona-fotos/simon.png",
-        "alt": "Portret van Simon"
+        "value": "persona-fotos/jeanette.png",
+        "alt": "Portret van Jeanette"
       },
       "beschrijving": [
         {
-          "kop": "Kort profiel",
-          "tekst": "Simon is student en fietsliefhebber. Hij let op z'n uitgaven en kookt vaak zelf."
+          "kop": "Wonen en gezin",
+          "tekst": "Jeanette woont met haar twee kinderen in een rijtjeshuis (huur van de woningstichting) in een middelgrote stad. Ze is gescheiden en er is weinig contact met haar ex (de vader van de kinderen). De kinderen gaan naar school in de buurt en hebben hun eigen activiteiten met vrienden en sport. Jeanette vindt het belangrijk dat er thuis rust en structuur is. Ze probeert elke avond samen te eten, ook al lukt dat door werk en schoolroosters niet altijd."
         },
         {
-          "kop": "Gedrag",
-          "tekst": "Hij doet meestal wekelijkse boodschappen en gebruikt één betaalrekening."
+          "kop": "Werk",
+          "tekst": "Jeanette werkt al ruim tien jaar vier dagen per week als administratief medewerker in de backoffice van een technisch installatiebedrijf. Ze kent haar collega’s goed en voelt zich gewaardeerd. Het werk geeft haar stabiliteit en een redelijk inkomen."
         },
         {
-          "tekst": "Extra noot zonder kopje: beschikbaar voor contact via demo-gegevens."
+          "kop": "Sociaal/netwerk",
+          "tekst": "Jeanette heeft een klein maar betrokken netwerk. Ze sport twee keer per week (sportschool + yoga) met een vriendin die bij dezelfde baas werkt. Haar zus woont in dezelfde stad en ze zien elkaar regelmatig. Ook heeft ze goed contact met een paar buren en ouders van de basisschool van haar kinderen."
+        },
+        {
+          "kop": "Dagelijks leven en bezigheden",
+          "tekst": "Het leven van Jeanette draait vooral om werk, de kinderen en het huishouden. Ze probeert daarnaast tijd te maken voor wandelen en af en toe koffie drinken (en dus sporten) met haar vriendin. Soms voelt ze zich moe door de combinatie van verantwoordelijkheden, maar ze is trots dat het haar lukt om als alleen staande moeder het gezin draaiende te houden. De kinderen doen het goed op school."
+        },
+        {
+          "kop": "Financiële situatie en financieel gedrag",
+          "tekst": "Jeanette houdt van structuur en overzicht en dat zie je terug in haar nette manier van administratie. Ze betaalt de meeste vaste lasten via automatische incasso, bewaart documenten fysiek en in mapjes op de pc. Ze checkt een paar keer per week haar bankrekening. Brieven van instanties als verzekeraars en de gemeente of de woningcorporatie vindt ze inhoudelijk vaak maar gedoe maar ze bewaart het dus wel."
         }
       ],
       "meta": {
-        "leeftijd": 24,
-        "tags": ["student", "fietsliefhebber", "amateur kok"]
+        "leeftijd": 44,
+        "tags": ["alleenstaand", "moeder", "2 kinderen: 12 en 15 jaar"]
       }
     },
     "periodes": [
@@ -41,7 +50,7 @@
       "sortOrder": 100,
       "rekeningen": [
         {
-          "naam": "Simons betaalrekening",
+          "naam": "Jeanettes betaalrekening",
           "bankNaam": "ASN",
           "saldo": 500,
           "sortOrder": 100
@@ -62,7 +71,7 @@
           "budgetBedrag": 1545,
           "budgetBetaalDag": 21,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         }
       ]
@@ -80,7 +89,7 @@
           "budgetPeriodiciteit": "WEEK",
           "budgetBedrag": 84,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -90,7 +99,7 @@
           "budgetBedrag": 42,
           "budgetAanvulling": "MET",
           "betaalMethoden": [
-            "Simons betaalrekening",
+            "Jeanettes betaalrekening",
             "Visa Creditcard"
           ]
         }
@@ -109,7 +118,7 @@
           "budgetBedrag": 175,
           "budgetBetaalDag": 8,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -118,7 +127,7 @@
           "budgetBedrag": 145,
           "budgetBetaalDag": 3,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -127,7 +136,7 @@
           "budgetBedrag": 25,
           "budgetBetaalDag": 1,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -136,7 +145,7 @@
           "budgetBedrag": 545,
           "budgetBetaalDag": 28,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -146,7 +155,7 @@
           "budgetBetaalDag": 28,
           "budgetVariabiliteit": 1,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -156,7 +165,7 @@
           "budgetBetaalDag": 26,
           "budgetVariabiliteit": 1,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         },
         {
@@ -165,7 +174,7 @@
           "budgetBedrag": 10,
           "budgetBetaalDag": 26,
           "betaalMethoden": [
-            "Simons betaalrekening"
+            "Jeanettes betaalrekening"
           ]
         }
       ]
@@ -177,7 +186,7 @@
       "bedrag": "55.00",
       "omschrijving": "Lidl",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -185,7 +194,7 @@
       "bedrag": "30.00",
       "omschrijving": "Rohloff olie",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -193,7 +202,7 @@
       "bedrag": "50.00",
       "omschrijving": "OV chipkaart",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -201,7 +210,7 @@
       "bedrag": "25.00",
       "omschrijving": "Jumbo",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -210,14 +219,14 @@
       "omschrijving": "Salaris",
       "betalingsSoort": "INKOMSTEN",
       "bron": "Salaris",
-      "bestemming": "Simons betaalrekening"
+      "bestemming": "Jeanettes betaalrekening"
     },
     {
       "boekingsdatum": "2025-09-25",
       "bedrag": "5.00",
       "omschrijving": "Bankkosten",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -225,7 +234,7 @@
       "bedrag": "50.00",
       "omschrijving": "Lidl",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -233,7 +242,7 @@
       "bedrag": "10.00",
       "omschrijving": "Simyo",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -241,7 +250,7 @@
       "bedrag": "5.00",
       "omschrijving": "Fietsersbond",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -249,7 +258,7 @@
       "bedrag": "30.00",
       "omschrijving": "GBLT",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "GBLT"
     },
     {
@@ -257,7 +266,7 @@
       "bedrag": "75.00",
       "omschrijving": "Regionale belasting",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Regionale belasting"
     },
     {
@@ -265,7 +274,7 @@
       "bedrag": "10.00",
       "omschrijving": "Vitens",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Vitens"
     },
     {
@@ -273,7 +282,7 @@
       "bedrag": "5.00",
       "omschrijving": "Kruidvat",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -281,7 +290,7 @@
       "bedrag": "545",
       "omschrijving": "Huur",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Huur"
     },
     {
@@ -289,7 +298,7 @@
       "bedrag": "10",
       "omschrijving": "Spar Heverlee",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -297,7 +306,7 @@
       "bedrag": "5.00",
       "omschrijving": "Broodjes voor de lunch, bedankt",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -305,7 +314,7 @@
       "bedrag": "145",
       "omschrijving": "Ziektekosten verzekering",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Ziektekosten"
     },
     {
@@ -313,7 +322,7 @@
       "bedrag": "25",
       "omschrijving": "Verzekeringen",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Schadeverzekeringen"
     },
     {
@@ -321,7 +330,7 @@
       "bedrag": "50",
       "omschrijving": "Scheerspiegel",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -329,7 +338,7 @@
       "bedrag": "35",
       "omschrijving": "Plein.NL ragers",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -337,7 +346,7 @@
       "bedrag": "65",
       "omschrijving": "Jumbo",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -345,7 +354,7 @@
       "bedrag": "175.00",
       "omschrijving": "Greenchoice",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Greenchoice"
     },
     {
@@ -353,7 +362,7 @@
       "bedrag": "35",
       "omschrijving": "Jumbo",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -361,7 +370,7 @@
       "bedrag": "5",
       "omschrijving": "NS OV-fiets",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     },
     {
@@ -369,7 +378,7 @@
       "bedrag": "45",
       "omschrijving": "Jumbo",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -377,7 +386,7 @@
       "bedrag": "25",
       "omschrijving": "Jumbo",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -385,7 +394,7 @@
       "bedrag": "20",
       "omschrijving": "Lidl",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Boodschappen"
     },
     {
@@ -393,7 +402,7 @@
       "bedrag": "10",
       "omschrijving": "De Voordeelmarkt plamuur",
       "betalingsSoort": "UITGAVEN",
-      "bron": "Simons betaalrekening",
+      "bron": "Jeanettes betaalrekening",
       "bestemming": "Andere uitgaven"
     }
   ],
