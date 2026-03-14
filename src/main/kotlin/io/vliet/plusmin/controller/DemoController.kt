@@ -2,9 +2,7 @@ package io.vliet.plusmin.controller
 
 import io.vliet.plusmin.domain.Administratie.AdministratieDTO
 import io.vliet.plusmin.domain.Betaling
-import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.RekeningGroep
-import io.vliet.plusmin.repository.DemoRepository
 import io.vliet.plusmin.service.AdministratieService
 import io.vliet.plusmin.service.DemoService
 import io.vliet.plusmin.service.GebruikerService
@@ -106,6 +104,6 @@ class DemoController {
         val rekeningGroepen: List<RekeningGroep.RekeningGroepDTO>,
         val betalingen: List<Betaling.BetalingDTO>? = emptyList(),
         val overschrijfBestaande: Boolean? = false,
-        val demoMode: Boolean? = true,
+        val demoMode: Boolean? = false,
     )
 }
