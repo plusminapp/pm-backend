@@ -191,7 +191,7 @@ class AdministratieService {
         if (administratie.vandaag != null) {
             betalingRepository.hideAllByAdministratie(administratie)
         }
-        if (administratieWrapper.demoMode ?: true)
+        if (administratieWrapper.demoMode ?: false)
             demoService.configureerDemoBetalingen(administratie)
     }
 }
